@@ -1,165 +1,124 @@
-type temp_blank = int;
 
-type transition = int list * int list;
+type energy = int;;
 
-class petri_net initial_tokens transitions =
-object
+
+(*  type de token : représente l'objet associé à un token *)
+type token_type =
+  | Empty
+  | Neutral
+  | Placeholder of int;;
+type token = energy * token_type;;
+
+
+(*  une place est soit vide, soit elle contient un unique token *)
+type place =
+  | EmptyPlace
+  | OccupiedPlace of token;;
+type place_id = int;;
+
+type transition_type =
+  | Action
+  | Split
+  | Bind
+  | Send
+  | Receive;;
+
+type transition = transition_type * ((place_id * token_type) list * (place_id * token_type) list) ;;
+type transition_id = int;;
+
+type petri_net = place array * transition array;;
+
+
+class petri_net
+  (placesNumber : int) (transitions : transition array) (initialTokens : (place_id * token) list) =
   
-  val mutable tokens = Array.copy initial_tokens
-  val transitions = transitions
-
-  val places_number = Array.length initial_tokens
-    
-  method check_init =
-    let rec check_transition t =
-      (* si on faisait du coq, ce serait encore plus beau *)
-      match t with
-      | h :: t, l2 ->
-	 h >= 0 && h < places_number && check_transition (t,l2)
-      | [], h :: t -> 
-	 h >= 0 && h < places_number && check_transition ([],t)
-      | _ -> true
-	 
-    and check_transitions t_list =
-      match t_list with
-      | [] -> true
-      | t :: t_list' ->
-	 check_transition t && check_transitions t_list'
+  (* teste si deux types token sont de même type *) 
+  let sameTokenType (t1 : token_type) (t2 : token_type) : bool =
+    match t1 with
+    | Empty -> begin match t2 with | Empty -> true | _ -> false end
+    | Neutral  -> begin match t2 with | Neutral -> true | _ -> false end
+    | Placeholder n  -> begin match t2 with | Placeholder n' -> true | _ -> false end
+       
+  and initPlaces (placesNumber : int) (initialTokens : (place_id * token) list) : place array =
+    let res = Array.make placesNumber EmptyPlace in
+    let rec aux tokens =  
+      match tokens with
+      | (pId, t) :: tokens'->
+	 res.(pId) <- OccupiedPlace t;
+	aux tokens'
+      | [] -> ()
     in
-    check_transitions transitions
+    aux initialTokens;
+    res
 
-      
-  method fire_transitions =
-
+  in
+  
+object(self)
+  
+  val transitions = Array.copy transitions
+  val places = initPlaces placesNumber initialTokens
     
-    let rec tokens_in_places l =
-      match l with
-      | n :: l' -> tokens.(n) >= 1 && tokens_in_places l'
+    
+  (* renvoie l'energie du token de la place placeId si il
+     est du type tTypeToTest, et -1 sinon *)
+  method energyOfTokenInPlaceOfType
+    (placeId : place_id) (tTypeToTest : token_type) : energy =
+    match places.(placeId) with
+    | EmptyPlace -> -1
+    | OccupiedPlace (e, tt) -> 
+       if sameTokenType tTypeToTest tt
+       then e
+       else -1
+      
+      
+  (* renvoie le potentiel de la transition :
+     somme des énergies des token si on peut la lancer,  -1 sinon  *)
+  method getTransitionPotential  (tId : transition_id) : energy =
+    let ( _ ,(startPlaces, stopPlaces)) = transitions.(tId) in
+    
+    let rec getFirePotential startPlaces  =
+      match startPlaces with
+      | (pId, tt) :: startPlaces' ->
+	 let e = self#energyOfTokenInPlaceOfType  pId tt in
+	 if e = -1
+	 then -1
+	 else
+	   let e' = getFirePotential startPlaces'  in
+ 	   if e' = -1
+	   then -1
+	   else e + e'
+      | [] -> 0
+	 
+    and freeStopPlaces stopPlaces =
+      match stopPlaces with
+      | (pId, _) :: stopPlaces' ->
+	 begin
+	   match places.(pId) with
+	   | EmptyPlace -> freeStopPlaces stopPlaces'
+	   | _ -> false
+	 end
       | [] -> true
 	 
-    and fireables t_list =
-      match t_list  with
-      | t :: t_list' ->
-	 let (l,_) = t in
-	 if tokens_in_places l 
-	 then t :: fireables t_list
-	 else t_list
-	   
-    and fire_transition t =
-      match t with
-      | h :: t, _ ->
-	 tokens.(h) <- tokens.(h) - 1
-      | [], h :: t ->
-	 tokens.(h) <- tokens.(h) + 1
-      | _ -> ()
 	 
-    and fire_transitions t_list = List.map fire_transition t_list
-
     in
-    fire_transitions (fireables transitions)
-      
-end;;
+    if freeStopPlaces stopPlaces
+    then getFirePotential startPlaces
+    else -1
 
+      (*           INCOMPLET
 
-module type PETRI_TYPES =
-sig
-  type node
-  type place
-  type token
-  val fireable : place ->  bool
-  val fire : place -> token
-  val add_token : place -> token -> place
-  val node_id : node -> int
-  val place_id : place -> int
-end;;
-
-
-
-
-module Petri_net =
-  functor (PTypes  : PETRI_TYPES) ->
-struct
-  type node = PTypes.node
-  type place = PTypes.place
-  type token = PTypes.token
-
-  type transition = ( node list * place * node list)
-    
-
-  class petri_net (places_i ) (nodes_i ) (transitions_i ) =
-  object
-
-    val places = places_i
-    val nodes = nodes_i
-    val transitions = transitions_i
-
-    val places_number = Array.length places_i
-    val nodes_number = Array.length nodes_i
-      
-    method check_init =
-      
-      let rec check_places =
-	let res = ref false in
-	for i = 0 to places_number do
-	  res := !res && PTypes.place_id places.(i) = i
-	done;
-	!res
-
-      and check_nodes = 
-	let res = ref false in
-	for i = 0 to places_number do
-	  res := !res && PTypes.node_id nodes.(i) = i
-	done;
-	!res
-
-      and check_transition t =
-      (* si on faisait du coq, ce serait encore plus beau *)
-	match t with
-	| h :: t, l2 ->
-	   PTypes.node_id h >= 0 && PTypes.node_id h < places_number && check_transition (t,l2)
-	| [], h :: t -> 
-	   PTypes.node_id h >= 0 && PTypes.node_id h < places_number && check_transition ([],t)
-	| _ -> true
-	   
-      and check_transitions t_list =
-	match t_list with
-	| [] -> true
-	| t :: t_list' ->
-	   check_transition t && check_transitions t_list'
-      in
-      check_transitions transitions && check_places && check_nodes
-
-    (* en fait c'est pas si facile émile 
-
-
-    method fire_transitions =
-
-      let rec tokens_in_places places_l =
-	match places_l with
-	| place :: places_l' -> PTypes.fireable place && tokens_in_places places_l'
-	| [] -> true
-	   
-      and fireables transitions_l =
-	match transitions_l  with
-	| transition :: transitions_l' ->
-	   let (left_places,_) = transition in
-	   if tokens_in_places left_places 
-	   then transitions :: fireables transitions_l'
-	   else transitions_l'
-	     
-      and fire_transition t =
-	match t with
-	| h :: t, _ ->
-	   tokens.(h) <- tokens.(h) - 1
-	| [], h :: t ->
-	   tokens.(h) <- tokens.(h) + 1
-	| _ -> ()
-	   
-      and fire_transitions t_list = List.map fire_transition t_list
+	 lance une transition;
+	 à compléter pour implémenter la fonction effectuée par la transition
+	 sur l'objet associé au jeton *)
+  method fireTransition (tId : transition_id) : nil =
+    let _,(startPlaces, stopPlaces) = transitions.(tId) in
+    let rec removeTokens places =
+      match placesId with
+      | pId :: placesId' -> places.(pId) <- EmptyPlace
+    in
+    removeTokens startPlaces
 	
-      in
-      fire_transitions (fireables transitions)
-    *)
-	
-  end
 end;;
+  
+
+
