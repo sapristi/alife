@@ -53,7 +53,12 @@ type transition_type =
 
 
 
+(* classe qui gère les places 
+   Une place a un type, et peut contenir un jeton
 
+   Initialisé seulement avec un type de place, 
+   ne contient pas de jeton au début
+*)
 class place (placeType : place_type) =
   
   (* teste si un token est de type donné *) 
@@ -87,124 +92,99 @@ object
 end;;
 
 
+(* classe qui gère les transitions 
+   Une transition a un type, duquel dépend sa signature, 
+   et relie des places de départ avec des places d'arrivée
 
-class virtual transition (tt : transition_type) (td : place array) (ta : place array) =
+   Initialisé avec un type de transition, et deux tableaux
+   de numéros de places : un pour le départ, un pour l'arrivée
+
+   À faire : 
+   --- La signature contient le nombre de places d'arrivée
+   --- Méthode pour lancer la transition (avec gestion des 
+   jetons et données associées, selon le type de transition)
+*)
+class virtual transition (tt : transition_type) (td : place_id array) (ta : place_id array) =
+  (* renvoie la signature d'un type de transition *)
   let getTransitionSignature tt =
     match tt with
     | SplitT -> [| MolHolder_type |]
     | BindT -> [| MolHolder_type , MolHolder_type |]
     | SendT -> [| AnyT |]
     | ReceiveT -> [| AnyT |]
+
+  (* renvoie true ssi les places données en argument n'ont pas de jeton *)
+  and placesAreFree places =
+    Array.fold_left
+      (fun res pId ->
+	if places.(pId)#isEmpty
+	then res
+	else false
+      )
+      true places
   in
   
 object
+  val tt = tt
+  val signature = getTransitionSignature tt
   val departures = td
   val arrivals = ta
 
   method virtual getArrivalTokens :  transition_type ->  token array -> token array
 
+  (* potentiel des places de départ relativement au type de la transition *)
+  method private getDeparturePotential (places : place array) =
+    let res = ref 0 in
+    if Array.length departures = Array.length signature
+    then 
+      for i = 0 to Array.length departures do
+	if !res != -1
+	then
+	  let e = places.(departures.(i))#getEnergyOfType signature.(i) in
+	  if e >= 0 
+	  then res := !res + e
+      done
+    else ();
+    !res
+
+  (* renvoie le potentiel de départ si on peut lancer la transition, -1 sinon *)
   method getPotential (places : place array) =
-
-    let ( _ ,(startPlaces, stopPlaces)) = pnTransitions.(tId) in
-    
-    let firePotential =
-      Array.fold_left
-	(fun e sp ->
-	  if e = -1
-	  then -1
-	  else
-	    let e' = startPlaces.(sp
-	      self#energyOfTokenInPlaceOfType  pId tt in
-	    if e' = -1
-	    then -1
-	    else e + e')
-	0 startPlaces
-
-    and placesAreFree places =
-      Array.fold_left
-	(fun res sp ->
-	  let pId,_ = sp in
-	  match places.(pId) with
-	  | EmptyPlace -> res
-	  | _ -> false)
-	true places
-	 
-    in
-    if placesAreFree stopPlaces
-    then getFirePotential startPlaces
-    else -1
+    if placesAreFree arrivals
+    then getDeparturePotential places
+    else -1	
 end;;
 
 
+(* classe qui gère le réseau de pétri entier
+   
+   Initialisé avec un tableau de places, un tableau de transitions,
+   et les tokens initiaux
 
+
+   À faire : 
+   --- copier les tableaux pour l'initialisation ?
+*)
 class petri_net
-  (placesNumber : int) (transitions : transition array) (initialTokens : (place_id * token) list) =
-  
+  (placesNumber : int) (places : place array) (transitions : transition array) (initialTokens : (place_id * token) list) =
 
        
-  and initPlaces (placesNumber : int) (initialTokens : (place_id * token) list) : place array =
-    let res = Array.make placesNumber EmptyPlace in
-    let rec aux tokens =  
-      match tokens with
-      | (pId, t) :: tokens'->
-	 res.(pId) <- OccupiedPlace t;
-	aux tokens'
-      | [] -> ()
-    in
-    aux initialTokens;
-    res
-
+  and rec initTokens (places : place array) (initialTokens : (place_id * token) list) : nil  =
+  match tokens with
+  | (pId, t) :: tokens'->
+     places.(pId)#setToken t;
+    initTokens tokens'
+  | [] -> ()
   in
   
 object(self)
   
-  val pnTransitions = Array.copy transitions
-  val pnPlaces = initPlaces placesNumber initialTokens
+  val pnTransitions = transitions
+  val pnPlaces = places
     
+  initializer initTokens places initialTokens
     
-  (* renvoie l'energie du token de la place placeId si il
-     est du type tTypeToTest, et -1 sinon *)
-  method private energyOfTokenInPlaceOfType
-    (placeId : place_id) (tTypeToTest : token_type) : energy =
-    match places.(placeId) with
-    | EmptyPlace -> -1
-    | OccupiedPlace (e, tt) -> 
-       if sameTokenType tTypeToTest tt
-       then e
-       else -1
       
       
-  (* renvoie le potentiel de la transition :
-     somme des énergies des token si on peut la lancer,  -1 sinon  *)
-  method private getTransitionPotential  (tId : transition_id) : energy =
-    let ( _ ,(startPlaces, stopPlaces)) = pnTransitions.(tId) in
-    
-    let rec getFirePotential startPlaces  =
-      Array.fold_left
-	(fun e sp ->
-	  if e = -1
-	  then -1
-	  else
-	    let pId, tt = sp in 
-	    let e' = self#energyOfTokenInPlaceOfType  pId tt in
-	    if e' = -1
-	    then -1
-	    else e + e')
-	0 startPlaces
-
-    and placesAreFree places =
-      Array.fold_left
-	(fun res sp ->
-	  let pId,_ = sp in
-	  match places.(pId) with
-	  | EmptyPlace -> res
-	  | _ -> false)
-	true places
-	 
-    in
-    if placesAreFree stopPlaces
-    then getFirePotential startPlaces
-    else -1
 
       (*           INCOMPLET
 
