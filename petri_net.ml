@@ -123,7 +123,7 @@ class virtual transition (tt : transition_type) (td : place_id array) (ta : plac
       )
       true places
   in
-  
+   
 object
   val tt = tt
   val signature = getTransitionSignature tt
