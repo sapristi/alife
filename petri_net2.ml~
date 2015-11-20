@@ -37,6 +37,20 @@ type place_type =
 
 
 
+(* le nombre de tokens au départ et à l'arrivée, et le type de ces tokens,
+   dépendent du type de transition 
+   ---> il faudrait coder quelque chose pour ça *)
+type transition_type =
+  | AnyT
+  | SplitT
+  | BindT
+  | SendT
+  | ReceiveT;;
+
+ 
+
+
+
 
 
 (* classe qui gère les places 
@@ -74,7 +88,7 @@ object
        if tokenOfType tt tti
        then e
        else -1
-
+       
 end;;
 
 
@@ -90,10 +104,17 @@ end;;
    --- Méthode pour lancer la transition (avec gestion des 
    jetons et données associées, selon le type de transition)
 *)
-class virtual transition (td : place_id array) (ta : place_id array) =
+class virtual transition (tt : transition_type) (td : place_id array) (ta : place_id array) =
+  (* renvoie la signature d'un type de transition *)
+  let getTransitionSignature tt =
+    match tt with
+    | SplitT -> [| MolHolder_type |]
+    | BindT -> [| MolHolder_type , MolHolder_type |]
+    | SendT -> [| AnyT |]
+    | ReceiveT -> [| AnyT |]
 
   (* renvoie true ssi les places données en argument n'ont pas de jeton *)
-  let placesAreFree places =
+  and placesAreFree places =
     Array.fold_left
       (fun res pId ->
 	if places.(pId)#isEmpty
@@ -104,6 +125,8 @@ class virtual transition (td : place_id array) (ta : place_id array) =
   in
    
 object
+  val tt = tt
+  val signature = getTransitionSignature tt
   val departures = td
   val arrivals = ta
 
@@ -160,6 +183,9 @@ object(self)
     
   initializer initTokens places initialTokens
     
+      
+      
+
       (*           INCOMPLET
 
 	 lance une transition;
