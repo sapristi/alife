@@ -11,7 +11,7 @@ héberger et simuler des cellules qui vont évoluer afin de recréer la vie /in 
 ** Résumé des épisodes précédents
 
 Il y a eu plusieurs essais dans ce sens : 
-  * Tierra : 
+ - Tierra : 
     + Le monde est un tableau unidimensionnel. Chaque case est soit vide, soit contient une instruction,
       parmi un jeu d'instruction bien choisi. 
     + Les cellules sont un ensemble contigu de cases, et donc des instructions qu'elles contiennent.
@@ -19,7 +19,7 @@ Il y a eu plusieurs essais dans ce sens :
       cellules. Les cellules se dupliquent en recopiant leur code génétique vers une partie vide de la bande.
     + Chaque cellule a son processeur propre, qui simule l'exécution de son code.
     + Comportements apparus : spécialisation, parasitage, un peu de complexification
-  * Des trucs d'Hutton : 
+ -l Des trucs d'Hutton : 
     + Le monde est un tableau bidimensionnel. Le monde contient des atomes, qui peuvent se déplacer plus ou moins librement.
     + Les atomes ont un type donné, et un état qui peut varier au cours du temps. Un jeu de réactions chimique, qui détermine
       si deux atomes de type et d'état donné qui se rencontrent vont former une liaison. Jeu de réactions chimiques bien choisi.
@@ -43,17 +43,55 @@ d'une cellule autant qu'il est souhaitable et possible.
 
 
 Une première idée à été de faire un peu comme Tierra, mais en plus de dimensions. Une cellule est une matrice, où les fonctions
-sont des instructions qui pointent vers la suivante (contigue). En trois dimensions, ça peut commencer
+sont des instructions qui pointent vers la suivante (contiguë). En trois dimensions, ça peut commencer
 à donner des trucs assez rigolos, mais gérer la duplication semble devenir complexe. On perds aussi la 
 bonne relation qui existait entre les cellules et l'univers.
  
-
-La deuxième idée est d'utiliser des modèles computationnels simples pour simuler les protéines. Partant des automates, j'en
+l
+La deuxième idée est d'utiliser des modèles complutationnels simples pour simuler les protéines. Partant des automates, j'en
 suis arrivé aux réseaux de Petri, qui me semblent assez prometteurs. On le décrira plus précisement par la suite.
 
 
-* Trucs importants à garder en tête
+** Trucs importants à garder en tête
 
 Les membranes, c'est la vie en plus tranquille.
 La communication, c'est la vie en plus rigolo.
 La vie tout court, c'est déjà pas mal.
+Les ribosomes, c'est trop l'éclate.
+
+* Description de ce que j'essaie de faire
+
+Le but est d'avoir un modèle unifié de molécules, qui permettent à la fois d'avoir des molécules qui :
+ - représentent de l'information (ADN)
+ - puissent agir sur d'autres molécules (protéines, enzymes)
+ - puissent échanger de l'information (métabolites)
+
+Le modèle proposé est d'avoir tout d'abord des molécules sous forme de liste d'acides (aminés), chaque acide contenant
+soit de l'information, soit un morceau qui permette de reconstituer les fonctionnement de la molécule : on veut la *replier*
+pour obtenir une protéine. Une fois repliée, on aurait un truc qui ressemble fort à un réseau de Petri (plutôt un peu étendu).
+
+Un des trucs cool, c'est qu'on peut faire des *ribosomes* ! Et donc permettre à la duplication elle même d'évoluer.
+
+
+** Processus de reflexion sur comment faire avancer le schmilblick en cours
+
+
+On crée donc un type acid, qui permet de switcher entre différents morceaux de molécule. 
+Un noeud ou une transition a un identifiant, et les liens sont définis par : les liens juste après un noeud (dans la liste)
+relie ce noeud avec la transition indiquée. Mais ça commence à être un peu la merde quand
+plusieurs transitions ont le même id (et plusieurs noeuds aussi). En plus, les transitions peuvent être mises un peu partout, bref, c'est
+le bordel.
+
+On a mis les transitions dans cette liste pour pouvoir spécifier un comportement particulier. On n'en a peut-être pas besoin, et on peut 
+quand même spécifier du comportement dans les arcs, même si il faut du coup unifier plusieurs trucs et c'est pas si facile.
+Commençons comme ça. Parceque que boiter jusqu'aux toilettes vaut mieux que de se chier dessus. 
+
+
+#+BEGIN_SRC ocaml
+type acid = 
+  | Node of string * temp
+(* et nan toi tu fout la merde | Transition of string * temp *)l
+  | InputLink of string * temp
+  | OutputLink of string * temp;;
+#+END_SRC
+
