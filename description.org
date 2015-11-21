@@ -101,6 +101,39 @@ type transition =
 Il faut donc recréer la fonction de transition derrière, et peut-être se débarasser des inputLinkType et outputLinkType
 (ce qui est normal vu qu'on ne les connait pas).
 
+
+Le type du foncteur en entier est :
+
+#+BEGIN_SRC ocaml
+module type MOLECULE_TYPES = 
+sig 
+  type nodeType
+  type inputLinkType
+  type outputLinkType
+end;;
+
+
+module MolFolcding :
+  functor (MolTypes : MOLECULE_TYPES) ->
+    sig
+      type acid =
+          Node of MolTypes.nodeType
+        | InputLink of string * MolTypes.inputLinkType
+        | OutputLink of string * MolTypes.outputLinkType
+      type molecule = acid list
+      type transition_with_lists =
+          string * (int * MolTypes.inputLinkType) list *
+          (int * MolTypes.outputLinkType) list
+      type transition =
+          string * (int * MolTypes.inputLinkType) array *
+          (int * MolTypes.outputLinkType) array
+      val buildTransitions : molecule -> transition list
+      val buildNodesList : molecule -> MolTypes.nodeType list
+    end
+#+END_SRC 
+
+où 
+
 *** Dans le fichier petri_net.ml
 
 On simule l'avancement d'un réseau de Petri.
