@@ -3,60 +3,59 @@
 type temp = int;;
 
 type acid = 
-  | Node of string * temp
-  | Transition of string * temp
+  | Node of temp
   | InputLink of string * temp
   | OutputLink of string * temp;;
 
 type molecule = acid list;;
 
-(* On commence par extraire les labels des noeuds et des transitions, 
-qu'on met dans deux listes qui vont bien.
-On associe en même temps les arcs avec leurs noeuds :
-une liste d'arcs par noeuds.
-
-Mais que fait on si plusieurs noeuds ou transitions partagent le 
-même label ??? :(
-
-
-
-
- *)
-let rec get_nodes_and_transitions_string mol nodesL transL = 
-  match mol with
-  | Node (s,_) :: mol' ->       get_nodes_and_transitions_string mol' (s::nodesL) transL
-  | Transition (s,_) :: mol' -> get_nodes_and_transitions_string mol' nodesL (s::transL)
-  | [] -> nodesL, transL
-  | _ :: mol' ->            get_nodes_and_transitions_string mol' nodesL transL
-;;
-
-
-(* retourne la premier position de l'item recherché 
-(ou -1 s'il n'est pas là *)
-let list_position e l =
-  let rec aux l n =  
-    match l with
-    | f :: l' -> 
-       if e = f then n else aux l' n+1
-    | [] -> -1
-  in aux l 0
-;;
   
 (* Il faut ensuite construire pour chaque transition 
-les tableaux des arcs entrants et sortants.
-On construit d'abord des listes.
-*) 
-let rec build_transitions trans_array mol = 
+les tableaux des arcs entrants et sortants. *)
+
+(* Putain mais n'importe quoi. On fait tout en un seul passage
+sur la molecule, en espérant qu'il n'y ait pas trop de transitions.
+On retourne une liste contenant les items (transID, inputLinks, outputLinks)
+ *)
+
+let buildTransitions mol = 
+
+  let rec insert_new_input (nodeN : int) (transID : string) (data : temp) transL = 
+    match transL with
+    | (t, input, output) :: transL' -> 
+       if transID = t 
+       then (t,  (nodeN, data) :: input, output) :: transL'
+       else (t, input, output) :: (insert_new_input nodeN transID data transL')
+    | [] -> [transID, [nodeN, data], []]
+
+  and insert_new_output nodeN transID data transL = 
+    match transL with
+    | (t, input, output) :: transL' -> 
+       if transID = t 
+       then (t,  input, (nodeN, data) ::  output) :: transL'
+       else (t, input, output) :: (insert_new_input nodeN transID data transL')
+    | [] -> [transID, [], [nodeN, data]]
+
+  in 
+  let rec aux mol nodeN transL = 
+    match mol with
+    | Node _ :: mol' -> aux mol' (nodeN + 1) transL
+    | InputLink (s,d) :: mol' -> aux mol' nodeN (insert_new_input nodeN s d transL)
+    | OutputLink (s,d) :: mol' -> aux mol' nodeN (insert_new_output nodeN s d transL)
+    | [] -> []
+
+  in aux mol 0 []
+;;
+
+
+let rec buildNodesList mol = 
   match mol with
-  | InputLink (s,t) -> 
-
-
-
-let rec get_transitions mol nodes_id trans_id = 
-  match mol with
-  | InputLink s :: mol' -> 
+  | Node d :: mol' -> d :: (buildNodesList mol')
+  | _ :: mol' -> buildNodesList mol'
+  | [] -> []
+;;
      
 
 
-let foldMolecule mol = 
+
   
