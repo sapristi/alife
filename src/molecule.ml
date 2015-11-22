@@ -1,4 +1,5 @@
-#load "misc_library.ml"
+(* #load "misc_library.ml" *)
+
 
 
 module type MOLECULE_TYPES = 
@@ -118,44 +119,44 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
     val mutable mol = initMol
     val mutable pos = initPos
 
-    method set_molecule (newMol : molecule) = 
+    method set_molecule (newMol : molecule) : unit = 
       mol <- newMol
 
-    method has_molecule = 
+    method has_molecule : bool = 
       mol != []
 
-    method get_molecule = 
+    method get_molecule : molecule = 
       mol
 
-    method is_empty = 
+    method is_empty : bool = 
       mol = []
 
-    method remove_mol = 
+    method remove_mol : unit = 
       mol <- []
 
-    method move_forward = 
-      if pos < mol_length -1 
+    method move_forward : unit = 
+      if pos < self#mol_length -1 
       then pos <- pos + 1
 	
-    method move_backward =
+    method move_backward : unit =
       if pos > 0
       then pos <- pos - 1
 
-    method mol_length = 
+    method mol_length : int = 
       List.length mol
 
     (* Coupe la molécule à la position en cours. 
        Renvoie deux molécules
        Il faudrait moralement supprimer la molécule quand on a fini  *)
-    method cut = 
-      let m1, m2 = Misc_library.cut_list mol in 
-      moleculeHolder (m1 (List.length m1 - 1)), moleculeHolder (m2 0)
+    method cut : (moleculeHolder * moleculeHolder) = 
+      let m1, m2 = Misc_library.cut_list mol pos in 
+      new moleculeHolder m1 (List.length m1 - 1), new moleculeHolder m2 0
 
     (* insère la molécule m2 dans la molécule en cours
        Remplace bind, parce que ça peut servir à ça et c'est 
        plus facile à implémenter proprement
     *)
-    method insert m2 = 
+    method insert (m2 : moleculeHolder) : unit = 
       mol <- Misc_library.insert mol pos m2#get_molecule
 	
   end;;
