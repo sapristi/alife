@@ -1,3 +1,5 @@
+#load "misc_library.ml"
+
 
 module type MOLECULE_TYPES = 
 sig 
@@ -7,7 +9,7 @@ sig
 end;;
 
 
-module MolFolcding = 
+module MolManagement = 
   functor (MolTypes : MOLECULE_TYPES) -> 
 struct 
   
@@ -97,7 +99,7 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
       (aux mol 0 [])
     
       
-
+(* Construit la liste des noeuds, dans l'ordre rencontré. *)
   let rec buildNodesList (mol : molecule) : MolTypes.nodeType list = 
     match mol with
     | Node d :: mol' -> d :: (buildNodesList mol')
@@ -105,6 +107,58 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
     | [] -> []
   
 
+
+(* Classe qui permet de gérer les objets qui tiennent une molécule 
+   Lorsqu'une molécule est présente, on peut la couper (à la position 
+   en cours dans le MolHolder), ou de la lier avec une autre molécule
+   lorsque cette position est finale *)
+  class moleculeHolder (initMol : molecule) (initPos : int) =
+    
+  object(self)
+    val mutable mol = initMol
+    val mutable pos = initPos
+
+    method set_molecule (newMol : molecule) = 
+      mol <- newMol
+
+    method has_molecule = 
+      mol != []
+
+    method get_molecule = 
+      mol
+
+    method is_empty = 
+      mol = []
+
+    method remove_mol = 
+      mol <- []
+
+    method move_forward = 
+      if pos < mol_length -1 
+      then pos <- pos + 1
+	
+    method move_backward =
+      if pos > 0
+      then pos <- pos - 1
+
+    method mol_length = 
+      List.length mol
+
+    (* Coupe la molécule à la position en cours. 
+       Renvoie deux molécules
+       Il faudrait moralement supprimer la molécule quand on a fini  *)
+    method cut = 
+      let m1, m2 = Misc_library.cut_list mol in 
+      moleculeHolder (m1 (List.length m1 - 1)), moleculeHolder (m2 0)
+
+    (* insère la molécule m2 dans la molécule en cours
+       Remplace bind, parce que ça peut servir à ça et c'est 
+       plus facile à implémenter proprement
+    *)
+    method insert m2 = 
+      mol <- Misc_library.insert mol pos m2#get_molecule
+	
+  end;;
 end;;
   
 

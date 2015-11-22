@@ -1,3 +1,5 @@
+#load "molecule.cmo"
+open Molecule
 
 
 (* on va d'abord essayer de définir les types des arcs correctement,
@@ -24,11 +26,20 @@ type output_link =
   | Mol_output_olink
 ;;
 
+module MolTypes = struct 
+    type nodeType = place
+    type inputLinkType = input_link
+    type outputLinkType = output_link
+end;;
+
+
+module MyMolecule = MolManagement(MolTypes);;
+open MyMolecule
 
 type energy = int;;
 type token_type =
   | Empty_token
-  | Mol_binder_token of string
+  | Mol_binder_token of molecule * int
 ;;
 type token = energy * token_type;;
 
@@ -39,30 +50,73 @@ type token_holder =
 
 
 
-
-let input_transition 
+(* fonction qui prends une liste d'arcs entrants 
+   et une liste de tokens, et calcule le couple E, mols
+   où E est l'énergie totale des tokens, et mols  est 
+   la liste des molécules des tokens (qui ont potentiellement
+   été coupées
+*)
+let rec input_transition 
     (ila : input_link list)
     (tokens : token list)
+
+    : energy * (molecule list)
         
  =
   
   match tokens with
-    | e, Empty_token :: tokens' -> 
-       let total_e, mol_list = input_transition (tl ila) tokens' in
-       (e + total_e), mol_list
-    | e, Mol_binder_token m -> 
-       match ila with
-       | Regular_ilink ::ila' -> 
-	  let total_e, mol_list = input_transition ila'tokens' in
-	  (e + total_e), m :: mol_list
-       | Split_ilink :: ila' -> 
-       
-	 
-  match ila with
-  | Regular_ilink -> 
+
+  | [] -> (0,[])
+     
+  | (e, Empty_token) :: tokens' -> 
+     let total_e, mol_list = input_transition (List.tl ila) tokens' in
+     (e + total_e), mol_list
+
+  | (e, (Mol_binder_token (m, p))) :: tokens' -> 
+
+     match ila with
+     
+     | []  -> (0,[])
+     
+     | Regular_ilink ::ila' -> 
+	let total_e, mol_list = input_transition ila' tokens' in
+	(e + total_e), m :: mol_list
+     
+     | Split_ilink :: ila' -> 
+	let mol1, mol2 = MyMolecule.cut m p in
+	let total_e, mol_list = input_transition ila' tokens' in
+	(e + total_e), mol1 :: mol2 :: mol_list
+;;       
 
 
+(* fonction qui prends une liste d'arcs entrants 
+   une energie et une liste de molécukes, 
+   et renvoie une liste de tokens
+   Chaque token reçoit la moitié de l'énergie restante
 
+   Attention : il faut bien garder la position précédente du token
+*)
+let rec output_transition 
+    (ola : output_link list)
+    (e : energy)
+    (mols : molecule list)
+    
+    : token list 
+ =
+  
+  match ola with
+  | Regular_olink :: ola' -> 
+     ((energy / 2), Empty_token) :: output_transition ola' (e - e/2) mols
+ 
+  | Bind_olink :: ola' -> 
+
+  | Mol_output_olink :: ola' -> 
+     match mols with 
+     | m :: mols' -> 
+	((energy / 2), Mol_binder_token m,0 ) :: output_transition ola' (e - e/2) mols
+
+  | [] -> []
+;;       
 
 (* classe qui gère les places 
    Une place a un type, et peut contenir un jeton
