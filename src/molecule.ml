@@ -1,5 +1,5 @@
 (* #load "misc_library.ml" *)
-
+open Misc_library
 
 
 module type MOLECULE_TYPES = 
@@ -21,6 +21,8 @@ struct
 
   type molecule = acid list
     
+  type position = int
+
   type transition_with_lists = 
     string * 
       (int * MolTypes.inputLinkType ) list * 
@@ -113,7 +115,7 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
    Lorsqu'une molécule est présente, on peut la couper (à la position 
    en cours dans le MolHolder), ou de la lier avec une autre molécule
    lorsque cette position est finale *)
-  class moleculeHolder (initMol : molecule) (initPos : int) =
+  class moleculeHolder (initMol : molecule) (initPos : position) =
     
   object(self)
     val mutable mol = initMol
@@ -156,8 +158,10 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
        Remplace bind, parce que ça peut servir à ça et c'est 
        plus facile à implémenter proprement
     *)
-    method insert (m2 : moleculeHolder) : unit = 
-      mol <- Misc_library.insert mol pos m2#get_molecule
+    method insert (m2 : moleculeHolder) : moleculeHolder = 
+      new moleculeHolder 
+	(Misc_library.insert mol pos m2#get_molecule)
+	(pos + m2#mol_length)
 	
   end;;
 end;;

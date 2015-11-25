@@ -1,3 +1,4 @@
+#load "misc_library.cmo"
 #load "molecule.cmo"
 open Molecule
 
@@ -5,7 +6,7 @@ open Molecule
 (* on va d'abord essayer de définir les types des arcs correctement,
 pour pouvoir travailler sur les transitions plus tranquillement *)
 
-type place = 
+type place_type = 
   | Regular_place
   | Handle_place of string
   | Catch_place of string
@@ -37,9 +38,10 @@ module MyMolecule = MolManagement(MolTypes);;
 open MyMolecule
 
 type energy = int;;
+
 type token_type =
   | Empty_token
-  | Mol_binder_token of molecule * int
+  | Mol_binder_token of moleculeHolder
 ;;
 type token = energy * token_type;;
 
@@ -60,7 +62,7 @@ let rec input_transition
     (ila : input_link list)
     (tokens : token list)
 
-    : energy * (molecule list)
+    : energy * (moleculeHolder list)
         
  =
   
@@ -72,7 +74,7 @@ let rec input_transition
      let total_e, mol_list = input_transition (List.tl ila) tokens' in
      (e + total_e), mol_list
 
-  | (e, (Mol_binder_token (m, p))) :: tokens' -> 
+  | (e, (Mol_binder_token m)) :: tokens' -> 
 
      match ila with
      
@@ -83,7 +85,7 @@ let rec input_transition
 	(e + total_e), m :: mol_list
      
      | Split_ilink :: ila' -> 
-	let mol1, mol2 = MyMolecule.cut m p in
+	let mol1, mol2 = m#cut in
 	let total_e, mol_list = input_transition ila' tokens' in
 	(e + total_e), mol1 :: mol2 :: mol_list
 ;;       
@@ -99,22 +101,37 @@ let rec input_transition
 let rec output_transition 
     (ola : output_link list)
     (e : energy)
-    (mols : molecule list)
+    (mols : moleculeHolder list)
     
     : token list 
  =
   
   match ola with
   | Regular_olink :: ola' -> 
-     ((energy / 2), Empty_token) :: output_transition ola' (e - e/2) mols
+     ((e / 2), Empty_token) :: output_transition ola' (e - e/2) mols
  
   | Bind_olink :: ola' -> 
+     begin
+       match mols with
+       | m1 ::  m2 :: mols' -> 
+	  ((e / 2), Mol_binder_token (m1#insert m2)) :: output_transition ola' (e - e/2) mols
+	    
+       | m :: [] -> 
+	  ((e / 2), Mol_binder_token m ) :: output_transition ola' (e - e/2) mols
+	    
+       | [] -> 
+	  ((e / 2), Empty_token) :: output_transition ola' (e - e/2) mols
+     end
 
   | Mol_output_olink :: ola' -> 
-     match mols with 
-     | m :: mols' -> 
-	((energy / 2), Mol_binder_token m,0 ) :: output_transition ola' (e - e/2) mols
+     begin
+       match mols with 
+       | m :: mols' -> 
+	  ((e / 2), Mol_binder_token m ) :: output_transition ola' (e - e/2) mols
 
+       | [] -> 
+	  ((e / 2), Empty_token) :: output_transition ola' (e - e/2) mols
+     end
   | [] -> []
 ;;       
 
@@ -125,33 +142,15 @@ let rec output_transition
    ne contient pas de jeton au début
 *)
 class place (placeType : place_type) =
-  
-  (* teste si un token est de type donné *) 
-  let tokenOfType (tt : token_type) (tti : token_type_id) : bool =
-    if tti = AnyT
-    then true
-    else 
-      match tt with
-      | Neutral  -> if tti = Neutral_type then true else false
-      | MolHolder  _  -> if tti = MolHolder_type then true else false
-  in
        
 object 
   val mutable tokenHolder = EmptyHolder
   val placeType = placeType
 
-  method isEmpty = tokenHolder = EmptyHolder
-  method empty = tokenHolder <- EmptyHolder
-  method setToken t =
+  method isEmpty  : bool= tokenHolder = EmptyHolder
+  method empty : unit = tokenHolder <- EmptyHolder
+  method setToken (t : token) : unit  =
     tokenHolder <- OccupiedHolder t
-
-  method getEnergyOfType (tti : token_type_id) : energy =
-    match tokenHolder with
-    | EmptyHolder -> -1
-    | OccupiedHolder (e,tt) ->
-       if tokenOfType tt tti
-       then e
-       else -1
        
 end;;
 
@@ -170,7 +169,7 @@ end;;
    --- Méthode pour lancer la transition (avec gestion des 
    jetons et données associées, selon le type de transition)
 *)
-class virtual transition (tt : transition_type) (td : place_id array) (ta : place_id array) =
+class virtual transition  (td : place_id array) (ta : place_id array) =
 
 
   (* renvoie true ssi les places données en argument n'ont pas de jeton *)

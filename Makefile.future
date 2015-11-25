@@ -1,0 +1,11 @@
+molecule:	src/molecule.ml
+		ocamlc -I build build/misc_library.cma -c src/molecule.ml
+		mv src/molecule.cmi build
+		mv src/molecule.cmo build
+
+
+misc_library: 	src/misc_library.ml
+		ocamlc -c src/misc_library.ml
+		ocamlc -a src/misc_library.cmo -o build/misc_library.cma
+		mv src/misc_library.cmi build
+		mv src/misc_library.cmo build
