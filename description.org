@@ -134,7 +134,7 @@ module MolFolcding :
 
 où 
 
-*** Dans le fichier petri_net.ml
+*** Dans le fichier proteine.ml
 
 On simule l'avancement d'un réseau de Petri.
 
@@ -166,7 +166,11 @@ noeuds qui leur permettent de créer un jeton en attrapant une molécule ou en r
 
 
 Une autre propriété associée aux jetons serait une énergie, mais je ne sais pas encore bien quel rôle 
-lui attribuer.
+lui attribuer. En fait si, il faudrait que recoller deux molécules entre elles demande de l'énergie,
+et que les séparer en libère.
 
 
-Enfin, 
+Pour l'instant, l'énergie sert à rien, et on la gère un peu n'importe comment.
+
+Par contre, il faudrait peut-être arriver à mettre un ordre un peu plus déterminé sur la 
+façon dont les arcs des transitions se combinent.
