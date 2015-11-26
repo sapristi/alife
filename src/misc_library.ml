@@ -19,3 +19,12 @@ let rec insert l1 pos l2 =
     | [] ->  l2
 ;;
 
+
+
+let rec unzip l = 
+  match l with
+  | (a,b) :: l' -> 
+     let l1, l2 = unzip l' in
+     a::l1, b::l2
+  | [] -> [], []
+;;

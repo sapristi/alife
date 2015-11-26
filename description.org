@@ -170,7 +170,8 @@ lui attribuer. En fait si, il faudrait que recoller deux molécules entre elles 
 et que les séparer en libère.
 
 
-Pour l'instant, l'énergie sert à rien, et on la gère un peu n'importe comment.
+Pour l'instant, l'énergie sert à rien, et on la gère un peu n'importe comment. En fait on 
+va la virer, ce sera un peu plus propre.
 
 Par contre, il faudrait peut-être arriver à mettre un ordre un peu plus déterminé sur la 
 façon dont les arcs des transitions se combinent.

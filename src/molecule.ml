@@ -118,23 +118,14 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
   class moleculeHolder (initMol : molecule) (initPos : position) =
     
   object(self)
-    val mutable mol = initMol
+    val mol = initMol
     val mutable pos = initPos
-
-    method set_molecule (newMol : molecule) : unit = 
-      mol <- newMol
-
-    method has_molecule : bool = 
-      mol != []
 
     method get_molecule : molecule = 
       mol
 
     method is_empty : bool = 
       mol = []
-
-    method remove_mol : unit = 
-      mol <- []
 
     method move_forward : unit = 
       if pos < self#mol_length -1 
@@ -164,6 +155,8 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
 	(pos + m2#mol_length)
 	
   end;;
+
+  let emptyHolder = new moleculeHolder [] 0;;
 end;;
   
 

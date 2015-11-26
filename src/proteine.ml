@@ -28,7 +28,7 @@ type output_link =
 ;;
 
 module MolTypes = struct 
-    type nodeType = place
+    type nodeType = place_type
     type inputLinkType = input_link
     type outputLinkType = output_link
 end;;
@@ -37,13 +37,11 @@ end;;
 module MyMolecule = MolManagement(MolTypes);;
 open MyMolecule
 
-type energy = int;;
 
-type token_type =
-  | Empty_token
-  | Mol_binder_token of moleculeHolder
-;;
-type token = energy * token_type;;
+
+
+type token = moleculeHolder;;
+let emptyToken = emptyHolder;;
 
 (*  un holder est soit vide, soit il contient un unique token *)
 type token_holder =
@@ -62,32 +60,31 @@ let rec input_transition
     (ila : input_link list)
     (tokens : token list)
 
-    : energy * (moleculeHolder list)
+    : (moleculeHolder list)
         
  =
   
   match tokens with
 
-  | [] -> (0,[])
+  | [] -> []
      
-  | (e, Empty_token) :: tokens' -> 
-     let total_e, mol_list = input_transition (List.tl ila) tokens' in
-     (e + total_e), mol_list
-
-  | (e, (Mol_binder_token m)) :: tokens' -> 
-
-     match ila with
+  | m :: tokens' -> 
+     if m#is_empty
      
-     | []  -> (0,[])
+     then 
+       input_transition (List.tl ila) tokens'
      
-     | Regular_ilink ::ila' -> 
-	let total_e, mol_list = input_transition ila' tokens' in
-	(e + total_e), m :: mol_list
+     else 
+       match ila with
      
-     | Split_ilink :: ila' -> 
-	let mol1, mol2 = m#cut in
-	let total_e, mol_list = input_transition ila' tokens' in
-	(e + total_e), mol1 :: mol2 :: mol_list
+       | []  -> []
+	  
+       | Regular_ilink ::ila' -> 
+	  m ::  input_transition ila' tokens'
+	  
+       | Split_ilink :: ila' -> 
+	  let mol1, mol2 = m#cut in
+	  mol1 :: mol2 :: input_transition ila' tokens'
 ;;       
 
 
@@ -100,7 +97,6 @@ let rec input_transition
 *)
 let rec output_transition 
     (ola : output_link list)
-    (e : energy)
     (mols : moleculeHolder list)
     
     : token list 
@@ -108,32 +104,37 @@ let rec output_transition
   
   match ola with
   | Regular_olink :: ola' -> 
-     ((e / 2), Empty_token) :: output_transition ola' (e - e/2) mols
- 
+     
+(* oui c'est plutot très moche comme manière de créer un token vide *)
+     emptyToken :: output_transition ola'  mols
+       
   | Bind_olink :: ola' -> 
      begin
        match mols with
        | m1 ::  m2 :: mols' -> 
-	  ((e / 2), Mol_binder_token (m1#insert m2)) :: output_transition ola' (e - e/2) mols
+	  (m1#insert m2) :: output_transition ola' mols
 	    
        | m :: [] -> 
-	  ((e / 2), Mol_binder_token m ) :: output_transition ola' (e - e/2) mols
+	   m  :: output_transition ola'  mols
 	    
        | [] -> 
-	  ((e / 2), Empty_token) :: output_transition ola' (e - e/2) mols
+	  (emptyHolder) :: output_transition ola' mols
      end
 
   | Mol_output_olink :: ola' -> 
      begin
        match mols with 
        | m :: mols' -> 
-	  ((e / 2), Mol_binder_token m ) :: output_transition ola' (e - e/2) mols
+	  m  :: output_transition ola'  mols
 
        | [] -> 
-	  ((e / 2), Empty_token) :: output_transition ola' (e - e/2) mols
+	  emptyToken :: output_transition ola'  mols
      end
   | [] -> []
 ;;       
+
+
+
 
 (* classe qui gère les places 
    Une place a un type, et peut contenir un jeton
@@ -141,6 +142,7 @@ let rec output_transition
    Initialisé seulement avec un type de place, 
    ne contient pas de jeton au début
 *)
+type place_id = int;;
 class place (placeType : place_type) =
        
 object 
@@ -169,46 +171,46 @@ end;;
    --- Méthode pour lancer la transition (avec gestion des 
    jetons et données associées, selon le type de transition)
 *)
-class virtual transition  (td : place_id array) (ta : place_id array) =
+class transition (places : place array)  (depL : (place_id * input_link) list) (arrL : (place_id * output_link) list) =
 
 
   (* renvoie true ssi les places données en argument n'ont pas de jeton *)
-  let placesAreFree places =
-    Array.fold_left
+  let placesAreFree (places : place array) (to_try : place_id list): bool =
+    List.fold_left
       (fun res pId ->
 	if places.(pId)#isEmpty
 	then res
 	else false
       )
-      true places
+      true to_try
   in
-   
+  let dp, dl = unzip depL and 
+      ap, al = unzip arrL 
+  in
+  
 object
-  val tt = tt
-  val signature = getTransitionSignature tt
-  val departures = td
-  val arrivals = ta
+  
+  val places = places
+  
+  val departure_places = dp
+  val departure_links = dl
+  val arrival_places = ap
+  val arrival_links = al
 
-  method virtual getArrivalTokens :  transition_type ->  token array -> token array
+    
+
+  method getArrivalTokens (tokens : token list) : token list = 
+    output_transition arrival_links (input_transition departure_links tokens)
+  
+
 
   (* potentiel des places de départ relativement au type de la transition *)
-  method private getDeparturePotential (places : place array) =
-    let res = ref 0 in
-    if Array.length departures = Array.length signature
-    then 
-      for i = 0 to Array.length departures do
-	if !res != -1
-	then
-	  let e = places.(departures.(i))#getEnergyOfType signature.(i) in
-	  if e >= 0 
-	  then res := !res + e
-      done
-    else ();
-    !res
-
-  (* renvoie le potentiel de départ si on peut lancer la transition, -1 sinon *)
-  method getPotential (places : place array) =
-    if placesAreFree arrivals
-    then getDeparturePotential places
-    else -1	
+  method launchable : bool =
+    let rec aux l = 
+      match l with
+      | h :: t -> 
+	 not places.(h)#isEmpty && aux t
+      | [] -> true
+    in 
+    (aux departure_places) && placesAreFree places arrival_places
 end;;
