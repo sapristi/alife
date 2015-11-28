@@ -56,8 +56,8 @@ type token_holder =
    la liste des molécules des tokens (qui ont potentiellement
    été coupées
 *)
-let rec input_transition 
-    (ila : input_link list)
+let rec input_transition_function 
+    (ill : input_link list)
     (tokens : token list)
 
     : (moleculeHolder list)
@@ -72,19 +72,19 @@ let rec input_transition
      if m#is_empty
      
      then 
-       input_transition (List.tl ila) tokens'
+       input_transition (List.tl ill) tokens'
      
      else 
-       match ila with
+       match ill with
      
        | []  -> []
 	  
-       | Regular_ilink ::ila' -> 
-	  m ::  input_transition ila' tokens'
+       | Regular_ilink ::ill' -> 
+	  m ::  input_transition_function ill' tokens'
 	  
-       | Split_ilink :: ila' -> 
+       | Split_ilink :: ill' -> 
 	  let mol1, mol2 = m#cut in
-	  mol1 :: mol2 :: input_transition ila' tokens'
+	  mol1 :: mol2 :: input_transition_function ill' tokens'
 ;;       
 
 
@@ -95,44 +95,43 @@ let rec input_transition
 
    Attention : il faut bien garder la position précédente du token
 *)
-let rec output_transition 
-    (ola : output_link list)
+let rec output_transition_function 
+    (oll : output_link list)
     (mols : moleculeHolder list)
     
     : token list 
  =
   
-  match ola with
-  | Regular_olink :: ola' -> 
+  match oll with
+  | Regular_olink :: oll' -> 
      
 (* oui c'est plutot très moche comme manière de créer un token vide *)
-     emptyToken :: output_transition ola'  mols
+     emptyToken :: output_transition_function oll'  mols
        
-  | Bind_olink :: ola' -> 
+  | Bind_olink :: oll' -> 
      begin
        match mols with
        | m1 ::  m2 :: mols' -> 
-	  (m1#insert m2) :: output_transition ola' mols
+	  (m1#insert m2) :: output_transition_function oll' mols
 	    
        | m :: [] -> 
-	   m  :: output_transition ola'  mols
+	   m  :: output_transition_function oll'  mols
 	    
        | [] -> 
-	  (emptyHolder) :: output_transition ola' mols
+	  (emptyHolder) :: output_transition_function oll' mols
      end
 
-  | Mol_output_olink :: ola' -> 
+  | Mol_output_olink :: oll' -> 
      begin
        match mols with 
        | m :: mols' -> 
-	  m  :: output_transition ola'  mols
+	  m  :: output_transition oll'  mols
 
        | [] -> 
-	  emptyToken :: output_transition ola'  mols
+	  emptyToken :: output_transition oll'  mols
      end
   | [] -> []
 ;;       
-
 
 
 
@@ -157,19 +156,9 @@ object
 end;;
 
 
-
+open Misc_library
 
 (* classe qui gère les transitions 
-   Une transition a un type, duquel dépend sa signature, 
-   et relie des places de départ avec des places d'arrivée
-
-   Initialisé avec un type de transition, et deux tableaux
-   de numéros de places : un pour le départ, un pour l'arrivée
-
-   À faire : 
-   --- La signature contient le nombre de places d'arrivée
-   --- Méthode pour lancer la transition (avec gestion des 
-   jetons et données associées, selon le type de transition)
 *)
 class transition (places : place array)  (depL : (place_id * input_link) list) (arrL : (place_id * output_link) list) =
 
@@ -213,4 +202,53 @@ object
       | [] -> true
     in 
     (aux departure_places) && placesAreFree places arrival_places
+end;;
+
+
+
+
+(* réseau de Petri entier *)
+class proteine (mol : molecule) = 
+  let raw_transitions = buildTransitions mol
+    
+  and places_list = 
+    List.map 
+      (fun x -> new place x)
+      (buildNodesList mol)
+  
+  in
+  let places = Array.of_list places_list 
+  in
+  let transitions = 
+    List.map 
+      (fun x -> let s, ila, ola = x in
+		new transition places ila ola)
+      raw_transitions
+  in
+  
+object(self) 
+  val mol = mol
+  val transitions = Array.of_list transitions
+  val places = places
+  val mutable launchables = []
+    
+  method init_launchables = 
+    let t_l = ref [] in 
+    begin
+      for i = 0 to Array.length transitions -1 do
+	if transitions.(i)#launchable
+	then t_l := transitions.(i) :: !t_l
+	else ()
+      done;
+      launchables <- !t_l;
+    end
+      
+
+  (* on peut faire beaucoup plus efficace, mais pour l'instant 
+     on fait au plus simple *)
+  method update_launchables = self#init_launchables
+    
+  method launch_transition (transition_id : int) = 
+    input_tokens = 
+    
 end;;

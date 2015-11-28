@@ -1,5 +1,5 @@
 molecule:	src/molecule.ml
-		ocamlc -I build build/misc_library.cma -c src/molecule.ml
+		ocamlc -I src src/misc_library.cma -c src/molecule.ml
 
 
 misc_library: 	src/misc_library.ml

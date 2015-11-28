@@ -23,16 +23,19 @@ struct
     
   type position = int
 
-  type transition_with_lists = 
+  type transition_structure = 
     string * 
       (int * MolTypes.inputLinkType ) list * 
       (int * MolTypes.outputLinkType) list
       
-  type transition = 
+(* Normalement on se sert pas de ce truc
+
+  type transition_with_array = 
     string * 
       (int * MolTypes.inputLinkType ) array * 
       (int * MolTypes.outputLinkType) array
-    
+*)
+  
 (* Il faut ensuite construire pour chaque transition 
    les tableaux des arcs entrants et sortants. *)
 
@@ -42,7 +45,7 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
  *)
 
   let buildTransitions (mol : molecule) :
-      transition list = 
+      transition_structure list = 
     
     (* insère un arc entrant dans la bonne transition 
        de la liste des transitions *)
@@ -50,9 +53,9 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
 	(nodeN :   int) 
 	(transID : string) 
 	(data :    MolTypes.inputLinkType) 
-	(transL :  transition_with_lists list) : 
+	(transL :  transition_structure list) : 
 	
-	transition_with_lists list =
+	transition_structure list =
       
       match transL with
       | (t, input, output) :: transL' -> 
@@ -69,9 +72,9 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
 	(nodeN :   int) 
 	(transID : string)
 	(data :    MolTypes.outputLinkType) 
-	(transL :  transition_with_lists list) :
+	(transL :  transition_structure list) :
 
-	transition_with_lists list =  
+	transition_structure list =  
 
       match transL with
       | (t, input, output) :: transL' -> 
@@ -84,9 +87,9 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
     let rec aux 
 	(mol :    molecule)
 	(nodeN :  int) 
-	(transL : transition_with_lists list) :
+	(transL : transition_structure list) :
 
-	transition_with_lists list = 
+	transition_structure list = 
  
       match mol with
       | Node _ :: mol' -> aux mol' (nodeN + 1) transL
@@ -95,11 +98,7 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
       | [] -> []
 	 
     in 
-
-    List.map (fun x -> 
-      let (y, l1, l2) = x in
-      (y, Array.of_list l1, Array.of_list l2))
-      (aux mol 0 [])
+    aux mol 0 []
     
       
 (* Construit la liste des noeuds, dans l'ordre rencontré. *)
