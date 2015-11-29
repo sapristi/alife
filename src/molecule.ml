@@ -18,6 +18,7 @@ struct
     | Node of MolTypes.nodeType
     | InputLink of string * MolTypes.inputLinkType
     | OutputLink of string * MolTypes.outputLinkType
+    | Information of string
 
   type molecule = acid list
     
@@ -95,6 +96,7 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
       | Node _ :: mol' -> aux mol' (nodeN + 1) transL
       | InputLink (s,d) :: mol' -> aux mol' nodeN (insert_new_input nodeN s d transL)
       | OutputLink (s,d) :: mol' -> aux mol' nodeN (insert_new_output nodeN s d transL)
+      | Information _ :: mol' -> aux mol' nodeN transL
       | [] -> []
 	 
     in 
@@ -153,6 +155,14 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
 	(Misc_library.insert mol pos m2#get_molecule)
 	(pos + m2#mol_length)
 	
+    method get_information = 
+      let current_acid = List.nth mol pos in
+      match current_acid with
+      | Node _ -> "node"
+      | InputLink _-> "il"
+      | OutputLink _ -> "ol"
+      | Information s -> s
+
   end;;
 
   let emptyHolder = new moleculeHolder [] 0;;

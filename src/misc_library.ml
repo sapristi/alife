@@ -28,3 +28,17 @@ let rec unzip l =
      a::l1, b::l2
   | [] -> [], []
 ;;
+
+let rec zip l1 l2 = 
+  match l1, l2 with
+  | h1 :: t1, h2 :: t2 -> (h1, h2) :: zip t1 t2
+  | [], [] -> []
+  | _ -> failwith "zipping list whose size don't match"
+;;
+
+
+Random.init;;
+let randomPickFromList l = 
+  let n = Random.int (List.length l) in 
+  List.nth l n
+;;
