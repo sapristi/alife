@@ -175,3 +175,10 @@ va la virer, ce sera un peu plus propre.
 
 Par contre, il faudrait peut-être arriver à mettre un ordre un peu plus déterminé sur la 
 façon dont les arcs des transitions se combinent.
+
+
+
+*** Dans un futut lointain
+
+Pour que les bactéries puissent avoir un comportement efficace, il faudrait qu'il y ait de l'information 
+ambiante, qui représente plusieurs aspects du monde alentour, que les bactéries puissent mesurer.
