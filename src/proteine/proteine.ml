@@ -59,7 +59,16 @@ type token_holder =
   | OccupiedHolder of token;;
 
 
-(* classe qui gère les places 
+
+
+
+
+(* *************************************************************************
+				place
+
+
+
+   classe qui gère les places 
    Une place a un type, et peut contenir un jeton
 
    Initialisé seulement avec un type de place, 
@@ -133,7 +142,11 @@ end
 
 
 
-(* classe qui gère les transitions 
+(*********************************************************************************
+				transitions
+
+
+classe qui gère les transitions 
 *)
 and transition (places : place array) (depL : (place_id * input_link) list) (arrL : (place_id * output_link) list) =
 
@@ -280,9 +293,10 @@ object
 end
 
 
+(*****************************************************************************************
+					protéine
 
-
-(* réseau de Petri entier *)
+ réseau de Petri entier *)
 and proteine (mol : molecule) = 
   (* liste des signatures des transitions *)
   let transitions_signatures_list = buildTransitions mol
@@ -317,18 +331,37 @@ and proteine (mol : molecule) =
   let (transitions_array : transition array) = 
     Array.of_list transitions_list
 
-(* dictionnaire pour retrouver rapidement les places
-   qui reçoivent des messages *)
-  and inputMessageBook  = 
-    let rec aux (places : place_type list) (n : int) = 
-      match places with
-      | Receive_place s :: places' -> 
-	 BatMultiPMap.add s n (aux places' (n+1))
-      | _ :: places' -> (aux places' (n+1))
-      | [] -> BatMultiPMap.create String.compare (-)
-    in aux places_signatures_list 0
+  (* dictionnaire pour retrouver rapidement les places
+     qui reçoivent des messages *)
+  
+  in
     
-	
+
+  (* fonction qui permet de créer des dictionnaires pour les 
+     places qui reçoivent des messages, les places qui attrapent
+     des molécules et les poignées
+  *)
+  let rec createBooks places n = 
+    match places with
+    | p :: places' ->
+       let imb, mcb, hb = createBooks places' (n+1) in 
+       begin
+	 match p with
+	 | Receive_place s -> BatMultiPMap.add s n imb, mcb, hb
+	 | Catch_place s -> imb, BatMultiPMap.add s n mcb, hb
+	 | Handle_place s -> imb, mcb, BatMultiPMap.add s n hb
+	 | _ -> imb, mcb, hb
+       end
+    | [] -> 
+       BatMultiPMap.create String.compare (-), 
+      BatMultiPMap.create String.compare (-), 
+      BatMultiPMap.create String.compare (-)
+      
+  in 
+
+  let (inputMessageBook, molCatcherBook, handleBook) = 
+    createBooks places_signatures_list 0
+    
   in 
   
 object(self) 
@@ -353,7 +386,12 @@ object(self)
     end
       
       
-  (* on peut faire beaucoup plus efficace, mais pour l'instant 
+  (* mettre à jour les transitions qui peuvent être lancées.
+     Il faut prendre en compte la transition qui vient d'être lancée, 
+     ainsi que les tokens qui ont pu arriver par message 
+
+     (du coup, faire plus efficace devient un peu du bazar)
+     on peut faire beaucoup plus efficace, mais pour l'instant 
      on fait au plus simple *)
   method updateLaunchables = self#initLaunchables
     
@@ -371,11 +409,14 @@ object(self)
       (zip (transitions.(tId)#getArrivalPlaces) finalTokens);
     ()
 
+  (* lance une transition choisie au hasard parmi celles possibles *)
   method launchRandomTransition = 
     let t = randomPickFromList launchables in
     self#launchTransition t
 
 
+  (* relaie le message aux places concernées, créant ainsi
+     des tokens quand c'est possible *)
   method sendMessage (m : string) = 
     BatSet.PSet.map 
       (fun x -> places.(x)#addTokenFromMessage) 
