@@ -27,6 +27,14 @@ Alors comment on fait ???
      À L'INTERIEUR PETE SA MERE, du coup faut faire gaffe à pas en 
      rajouter trop, mais ça peut donner des choses rigolotes.
 
+
+
+   - Il faut aussi implémenter un système de messages,
+   c'est à dire référencer quelles molécules  reçoivent quel message
+
+
+   - Et aussi savoir quelles molécules peuvent s'accrocher à quelles autres.
+   
 *)
 class bacterie = 
 object(self)
@@ -34,5 +42,5 @@ object(self)
   val proteines = []
 
     
-
+  method create
       

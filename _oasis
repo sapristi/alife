@@ -1,0 +1,35 @@
+
+
+Name: alife
+Version: 0.1
+Synopsis: Simulating life and stuff
+Authors: Mathias Millet <mathiasmillet@gmail.com>
+License: LGPL with OCaml linking exception
+
+Description: Simulating life and stuff
+Homepage: http://127.0.0.1
+
+
+OASISFormat: 0.4
+BuildTools: ocamlbuild
+Plugins: META (0.4), DevFiles (0.4)
+
+
+
+
+Library "misc_library"
+  Path: src/misc_library
+  Modules: Misc_library
+
+
+Library "molecule"
+  Path: src/molecule
+  Modules: Molecule
+  BuildDepends: misc_library
+
+
+
+Library "proteine"
+  Path: src/proteine
+  Modules: Proteine
+  BuildDepends: misc_library, molecule, batteries

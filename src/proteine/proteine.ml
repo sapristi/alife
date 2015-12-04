@@ -1,8 +1,13 @@
 (*
-#load "misc_library.cmo"
-#load "molecule.cmo"
+#load "../build/misc_library.cmo";;
+#load "../build/molecule.cmo";;
+#directory "../build";;
+
+#use "topfind";;
+#require "batteries";;
 *)
 
+open Batteries
 open Molecule
 open Misc_library
 
@@ -42,7 +47,8 @@ module MyMolecule = MolManagement(MolTypes);;
 open MyMolecule
 
 
-
+type place_id = int;;
+type transition_id = int;;
 
 type token = moleculeHolder;;
 let emptyToken = emptyHolder;;
@@ -53,14 +59,12 @@ type token_holder =
   | OccupiedHolder of token;;
 
 
-
 (* classe qui gère les places 
    Une place a un type, et peut contenir un jeton
 
    Initialisé seulement avec un type de place, 
    ne contient pas de jeton au début
 *)
-type place_id = int;;
 class place (placeType : place_type) =
        
 object(self) 
@@ -69,9 +73,10 @@ object(self)
     | Initial_place -> OccupiedHolder emptyToken
     | _ -> EmptyHolder
        
-       
   val placeType = placeType
     
+  method getPlaceType = placeType
+
   method isEmpty  : bool= tokenHolder = EmptyHolder
   
     (* enlève le token de la place *)
@@ -119,15 +124,18 @@ object(self)
        self#empty;
       t
 	
-end;;
+  method addTokenFromMessage  = 
+    ()
+
+	
+end
 
 
 
 
 (* classe qui gère les transitions 
 *)
-type transition_id = int;;
-class transition (places : place array)  (depL : (place_id * input_link) list) (arrL : (place_id * output_link) list) =
+and transition (places : place array) (depL : (place_id * input_link) list) (arrL : (place_id * output_link) list) =
 
 (* fonction qui prends une liste d'arcs entrants 
    et une liste de tokens, et calcule le couple E, mols
@@ -227,8 +235,22 @@ class transition (places : place array)  (depL : (place_id * input_link) list) (
   in
   let dp, dl = unzip depL and 
       ap, al = unzip arrL 
-  in
   
+  in 
+
+(* Fonction qui supprime les parties inutiles de la protéine.
+   C'est un peu subtil, parceque même un noeud sans transition, 
+   ou une transition incomplète peuvent avoir des effets qu'on 
+   pourrait vouloir conserver.
+
+
+   On ne va ici enlever que les trucs qui ne changent rien
+   à la fonction de la protéine.
+
+
+  and accessiblePlaces places depL arrL = 
+    let acc = Array.make (Array.length places 
+*)  
 object
   
   val places = places
@@ -255,35 +277,69 @@ object
       | [] -> true
     in 
     (aux departurePlaces) && placesAreFree places arrivalPlaces
-end;;
+end
 
 
 
 
 (* réseau de Petri entier *)
-class proteine (mol : molecule) = 
-  let raw_transitions = buildTransitions mol
+and proteine (mol : molecule) = 
+  (* liste des signatures des transitions *)
+  let transitions_signatures_list = buildTransitions mol
     
-  and places_list = 
+  (* liste des signatures des places *)
+  and places_signatures_list = buildNodesList mol
+    
+  in
+
+
+(* on crée de nouvelles places à partir de 
+   la liste de types données dans la molécule
+*)
+  let places_list : place list = 
     List.map 
       (fun x -> new place x)
-      (buildNodesList mol)
+      places_signatures_list
+      
+  in 
   
+  let (places_array : place array) = Array.of_list places_list
+
   in
-  let places = Array.of_list places_list 
-  in
-  let transitions = 
+  let (transitions_list : transition list) = 
     List.map 
       (fun x -> let s, ila, ola = x in
-		new transition places ila ola)
-      raw_transitions
-  in
+		new transition places_array ila ola)
+      transitions_signatures_list
+
+  in 
+  
+  let (transitions_array : transition array) = 
+    Array.of_list transitions_list
+
+(* dictionnaire pour retrouver rapidement les places
+   qui reçoivent des messages *)
+  and inputMessageBook  = 
+    let rec aux (places : place_type list) (n : int) = 
+      match places with
+      | Receive_place s :: places' -> 
+	 BatMultiPMap.add s n (aux places' (n+1))
+      | _ :: places' -> (aux places' (n+1))
+      | [] -> BatMultiPMap.create String.compare (-)
+    in aux places_signatures_list 0
+    
+	
+  in 
   
 object(self) 
   val mol = mol
-  val transitions = Array.of_list transitions
-  val places = places
+  val transitions = transitions_array
+  val places = places_array
   val mutable launchables = []
+  val input_message_book = inputMessageBook
+
+  method get_places = places
+
     
   method initLaunchables  = 
     let t_l = ref [] in 
@@ -296,12 +352,12 @@ object(self)
       launchables <- !t_l;
     end
       
-
+      
   (* on peut faire beaucoup plus efficace, mais pour l'instant 
      on fait au plus simple *)
   method updateLaunchables = self#initLaunchables
     
-
+    
   (* Lance une transition    *)
   method launchTransition (tId : transition_id) : unit = 
     let initialTokens = List.map 
@@ -319,4 +375,35 @@ object(self)
     let t = randomPickFromList launchables in
     self#launchTransition t
 
+
+  method sendMessage (m : string) = 
+    BatSet.PSet.map 
+      (fun x -> places.(x)#addTokenFromMessage) 
+      (BatMultiPMap.find m inputMessageBook)
+
+(*
+  method getMolCatchers = 
+    let res = ref [] in 
+    for i = 0 to Array.length places - 1 do
+      match places.[i] with
+      | Node nType -> 
+	 begin
+	   match nType with
+	   | Catch_place pattern -> 
+	       b 
+*)
 end;;
+
+
+
+
+
+
+(* plein de problèmes de récursion mutuelle et 
+   d'opérations répétées inutilement. On va essayer
+   de faire un constructeur externe qui met tout bien
+   en place *)
+
+
+
+  
