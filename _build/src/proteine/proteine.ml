@@ -121,12 +121,12 @@ object(self)
 
     | Displace_mol_place b -> 
        begin
-	 match tokenHolder with
-	 | EmptyHolder -> ()
-	 | OccupiedHolder t -> 
-	    if b 
-	    then t#move_forward
-	    else t#move_backward
+       match tokenHolder with
+       | EmptyHolder -> ()
+       | OccupiedHolder t -> 
+	  if b 
+	  then t#move_forward
+	  else t#move_backward
        end
     | _ -> () 
     

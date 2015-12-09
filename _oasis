@@ -28,7 +28,6 @@ Library "molecule"
   BuildDepends: misc_library
 
 
-
 Library "proteine"
   Path: src/proteine
   Modules: Proteine

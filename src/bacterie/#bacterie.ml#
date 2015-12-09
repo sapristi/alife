@@ -41,7 +41,7 @@ Alors comment on fait ???
 
 class bacterie = 
 object(self)
-  val molecules = []
+  val molecules = CCMultiSet.Make
   val proteines = []
 
   val mutable messageQueue = []

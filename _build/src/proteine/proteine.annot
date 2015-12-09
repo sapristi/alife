@@ -1,0 +1,3225 @@
+"src/proteine/proteine.ml" 46 814 834 "src/proteine/proteine.ml" 46 814 857
+call(
+  stack
+)
+"src/proteine/proteine.ml" 54 958 962 "src/proteine/proteine.ml" 54 958 972
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  def emptyToken "src/proteine/proteine.ml" 57 1055 1055 "src/proteine/proteine.ml" 1 0 -1
+)
+"src/proteine/proteine.ml" 54 958 975 "src/proteine/proteine.ml" 54 958 986
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  ext_ref MyMolecule.emptyHolder
+)
+"src/proteine/proteine.ml" 77 1441 1454 "src/proteine/proteine.ml" 77 1441 1463
+type(
+  place_type
+)
+"src/proteine/proteine.ml" 79 1488 1494 "src/proteine/proteine.ml" 79 1488 1500
+type(
+  < addTokenFromMessage : unit; empty : unit; getPlaceType : place_type;
+    isEmpty : bool; popToken : token; sendToken : token -> unit;
+    setHost : container option -> unit; setToken : token -> unit; .. >
+)
+"src/proteine/proteine.ml" 81 1531 1541 "src/proteine/proteine.ml" 81 1531 1550
+type(
+  place_type
+)
+ident(
+  int_ref placeType "src/proteine/proteine.ml" 77 1441 1454 "src/proteine/proteine.ml" 77 1441 1463
+)
+"src/proteine/proteine.ml" 82 1556 1562 "src/proteine/proteine.ml" 82 1556 1575
+type(
+  place_type
+)
+"src/proteine/proteine.ml" 82 1556 1594 "src/proteine/proteine.ml" 82 1556 1604
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  int_ref emptyToken "src/proteine/proteine.ml" 54 958 962 "src/proteine/proteine.ml" 54 958 972
+)
+"src/proteine/proteine.ml" 82 1556 1579 "src/proteine/proteine.ml" 82 1556 1604
+type(
+  token_holder
+)
+"src/proteine/proteine.ml" 83 1605 1611 "src/proteine/proteine.ml" 83 1605 1612
+type(
+  place_type
+)
+"src/proteine/proteine.ml" 83 1605 1616 "src/proteine/proteine.ml" 83 1605 1627
+type(
+  token_holder
+)
+"src/proteine/proteine.ml" 81 1531 1535 "src/proteine/proteine.ml" 83 1605 1627
+type(
+  token_holder
+)
+"src/proteine/proteine.ml" 85 1636 1654 "src/proteine/proteine.ml" 85 1636 1663
+type(
+  place_type
+)
+ident(
+  int_ref placeType "src/proteine/proteine.ml" 77 1441 1454 "src/proteine/proteine.ml" 77 1441 1463
+)
+"src/proteine/proteine.ml" 87 1669 1709 "src/proteine/proteine.ml" 87 1669 1713
+type(
+  container option
+)
+type(
+  container option
+)
+"src/proteine/proteine.ml" 89 1716 1740 "src/proteine/proteine.ml" 89 1716 1749
+type(
+  place_type
+)
+type(
+  place_type
+)
+ident(
+  ext_ref placeType
+)
+"src/proteine/proteine.ml" 91 1751 1777 "src/proteine/proteine.ml" 91 1751 1788
+type(
+  token_holder
+)
+ident(
+  ext_ref tokenHolder
+)
+"src/proteine/proteine.ml" 91 1751 1789 "src/proteine/proteine.ml" 91 1751 1790
+type(
+  token_holder -> token_holder -> bool
+)
+ident(
+  ext_ref Batteries.( = )
+)
+"src/proteine/proteine.ml" 91 1751 1791 "src/proteine/proteine.ml" 91 1751 1802
+type(
+  token_holder
+)
+"src/proteine/proteine.ml" 91 1751 1777 "src/proteine/proteine.ml" 91 1751 1802
+type(
+  bool
+)
+type(
+  bool
+)
+"src/proteine/proteine.ml" 94 1845 1884 "src/proteine/proteine.ml" 94 1845 1895
+type(
+  token_holder
+)
+"src/proteine/proteine.ml" 94 1845 1869 "src/proteine/proteine.ml" 94 1845 1895
+type(
+  unit
+)
+type(
+  unit
+)
+"src/proteine/proteine.ml" 97 1943 1962 "src/proteine/proteine.ml" 97 1943 1963
+type(
+  token
+)
+ident(
+  def t "src/proteine/proteine.ml" 97 1943 1973 "src/proteine/proteine.ml" 98 1983 2018
+)
+"src/proteine/proteine.ml" 98 1983 2017 "src/proteine/proteine.ml" 98 1983 2018
+type(
+  token
+)
+ident(
+  int_ref t "src/proteine/proteine.ml" 97 1943 1962 "src/proteine/proteine.ml" 97 1943 1963
+)
+"src/proteine/proteine.ml" 98 1983 2002 "src/proteine/proteine.ml" 98 1983 2018
+type(
+  token_holder
+)
+"src/proteine/proteine.ml" 98 1983 1987 "src/proteine/proteine.ml" 98 1983 2018
+type(
+  unit
+)
+type(
+  unit
+)
+"src/proteine/proteine.ml" 102 2147 2167 "src/proteine/proteine.ml" 102 2147 2168
+type(
+  token
+)
+ident(
+  def t "src/proteine/proteine.ml" 102 2147 2178 "src/proteine/proteine.ml" 131 2854 2867
+)
+"src/proteine/proteine.ml" 103 2188 2198 "src/proteine/proteine.ml" 103 2188 2207
+type(
+  place_type
+)
+ident(
+  ext_ref placeType
+)
+"src/proteine/proteine.ml" 108 2393 2399 "src/proteine/proteine.ml" 108 2393 2412
+type(
+  place_type
+)
+"src/proteine/proteine.ml" 110 2431 2439 "src/proteine/proteine.ml" 110 2431 2450
+type(
+  token_holder
+)
+ident(
+  ext_ref tokenHolder
+)
+"src/proteine/proteine.ml" 111 2456 2460 "src/proteine/proteine.ml" 111 2456 2471
+type(
+  token_holder
+)
+"src/proteine/proteine.ml" 111 2456 2475 "src/proteine/proteine.ml" 111 2456 2477
+type(
+  unit
+)
+"src/proteine/proteine.ml" 112 2478 2497 "src/proteine/proteine.ml" 112 2478 2498
+type(
+  token
+)
+ident(
+  def t "src/proteine/proteine.ml" 113 2503 2508 "src/proteine/proteine.ml" 113 2503 2532
+)
+"src/proteine/proteine.ml" 112 2478 2482 "src/proteine/proteine.ml" 112 2478 2498
+type(
+  token_holder
+)
+"src/proteine/proteine.ml" 113 2503 2508 "src/proteine/proteine.ml" 113 2503 2512
+type(
+  < addTokenFromMessage : unit; empty : unit; getPlaceType : place_type;
+    isEmpty : bool; popToken : token; sendToken : token -> unit;
+    setHost : container option -> unit; setToken : token -> unit; .. >
+  as 'a
+)
+ident(
+  int_ref self "src/proteine/proteine.ml" 79 1488 1494 "src/proteine/proteine.ml" 79 1488 1500
+)
+"src/proteine/proteine.ml" 113 2503 2508 "src/proteine/proteine.ml" 113 2503 2521
+call(
+  tail
+)
+type(
+  token -> unit
+)
+"src/proteine/proteine.ml" 113 2503 2522 "src/proteine/proteine.ml" 113 2503 2532
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  int_ref emptyToken "src/proteine/proteine.ml" 54 958 962 "src/proteine/proteine.ml" 54 958 972
+)
+"src/proteine/proteine.ml" 113 2503 2508 "src/proteine/proteine.ml" 113 2503 2532
+type(
+  unit
+)
+"src/proteine/proteine.ml" 109 2417 2424 "src/proteine/proteine.ml" 114 2534 2544
+type(
+  unit
+)
+"src/proteine/proteine.ml" 115 2545 2562 "src/proteine/proteine.ml" 115 2545 2563
+type(
+  string
+)
+ident(
+  def s "src/proteine/proteine.ml" 116 2568 2575 "src/proteine/proteine.ml" 120 2644 2654
+)
+"src/proteine/proteine.ml" 115 2545 2551 "src/proteine/proteine.ml" 115 2545 2563
+type(
+  place_type
+)
+"src/proteine/proteine.ml" 117 2581 2589 "src/proteine/proteine.ml" 117 2581 2593
+type(
+  container option
+)
+ident(
+  ext_ref host
+)
+"src/proteine/proteine.ml" 118 2599 2603 "src/proteine/proteine.ml" 118 2599 2607
+type(
+  container option
+)
+"src/proteine/proteine.ml" 118 2599 2611 "src/proteine/proteine.ml" 118 2599 2613
+type(
+  unit
+)
+"src/proteine/proteine.ml" 119 2614 2623 "src/proteine/proteine.ml" 119 2614 2624
+type(
+  container
+)
+ident(
+  def h "src/proteine/proteine.ml" 119 2614 2628 "src/proteine/proteine.ml" 119 2614 2643
+)
+"src/proteine/proteine.ml" 119 2614 2618 "src/proteine/proteine.ml" 119 2614 2624
+type(
+  container option
+)
+"src/proteine/proteine.ml" 119 2614 2628 "src/proteine/proteine.ml" 119 2614 2629
+type(
+  container
+)
+ident(
+  int_ref h "src/proteine/proteine.ml" 119 2614 2623 "src/proteine/proteine.ml" 119 2614 2624
+)
+"src/proteine/proteine.ml" 119 2614 2628 "src/proteine/proteine.ml" 119 2614 2641
+call(
+  tail
+)
+type(
+  string -> unit
+)
+"src/proteine/proteine.ml" 119 2614 2642 "src/proteine/proteine.ml" 119 2614 2643
+type(
+  string
+)
+ident(
+  int_ref s "src/proteine/proteine.ml" 115 2545 2562 "src/proteine/proteine.ml" 115 2545 2563
+)
+"src/proteine/proteine.ml" 119 2614 2628 "src/proteine/proteine.ml" 119 2614 2643
+type(
+  unit
+)
+"src/proteine/proteine.ml" 116 2568 2575 "src/proteine/proteine.ml" 120 2644 2654
+type(
+  unit
+)
+"src/proteine/proteine.ml" 122 2656 2681 "src/proteine/proteine.ml" 122 2656 2682
+type(
+  bool
+)
+ident(
+  def b "src/proteine/proteine.ml" 123 2687 2694 "src/proteine/proteine.ml" 130 2843 2853
+)
+"src/proteine/proteine.ml" 122 2656 2662 "src/proteine/proteine.ml" 122 2656 2682
+type(
+  place_type
+)
+"src/proteine/proteine.ml" 124 2700 2713 "src/proteine/proteine.ml" 124 2700 2724
+type(
+  token_holder
+)
+ident(
+  ext_ref tokenHolder
+)
+"src/proteine/proteine.ml" 125 2730 2739 "src/proteine/proteine.ml" 125 2730 2750
+type(
+  token_holder
+)
+"src/proteine/proteine.ml" 125 2730 2754 "src/proteine/proteine.ml" 125 2730 2756
+type(
+  unit
+)
+"src/proteine/proteine.ml" 126 2757 2781 "src/proteine/proteine.ml" 126 2757 2782
+type(
+  token
+)
+ident(
+  def t "src/proteine/proteine.ml" 127 2787 2790 "src/proteine/proteine.ml" 129 2819 2842
+)
+"src/proteine/proteine.ml" 126 2757 2766 "src/proteine/proteine.ml" 126 2757 2782
+type(
+  token_holder
+)
+"src/proteine/proteine.ml" 127 2787 2793 "src/proteine/proteine.ml" 127 2787 2794
+type(
+  bool
+)
+ident(
+  int_ref b "src/proteine/proteine.ml" 122 2656 2681 "src/proteine/proteine.ml" 122 2656 2682
+)
+"src/proteine/proteine.ml" 128 2796 2804 "src/proteine/proteine.ml" 128 2796 2805
+type(
+  token
+)
+ident(
+  int_ref t "src/proteine/proteine.ml" 126 2757 2781 "src/proteine/proteine.ml" 126 2757 2782
+)
+"src/proteine/proteine.ml" 128 2796 2804 "src/proteine/proteine.ml" 128 2796 2818
+call(
+  tail
+)
+type(
+  unit
+)
+"src/proteine/proteine.ml" 129 2819 2827 "src/proteine/proteine.ml" 129 2819 2828
+type(
+  token
+)
+ident(
+  int_ref t "src/proteine/proteine.ml" 126 2757 2781 "src/proteine/proteine.ml" 126 2757 2782
+)
+"src/proteine/proteine.ml" 129 2819 2827 "src/proteine/proteine.ml" 129 2819 2842
+call(
+  tail
+)
+type(
+  unit
+)
+"src/proteine/proteine.ml" 127 2787 2790 "src/proteine/proteine.ml" 129 2819 2842
+type(
+  unit
+)
+"src/proteine/proteine.ml" 123 2687 2694 "src/proteine/proteine.ml" 130 2843 2853
+type(
+  unit
+)
+"src/proteine/proteine.ml" 131 2854 2860 "src/proteine/proteine.ml" 131 2854 2861
+type(
+  place_type
+)
+"src/proteine/proteine.ml" 131 2854 2865 "src/proteine/proteine.ml" 131 2854 2867
+type(
+  unit
+)
+"src/proteine/proteine.ml" 103 2188 2192 "src/proteine/proteine.ml" 131 2854 2867
+type(
+  unit
+)
+type(
+  unit
+)
+"src/proteine/proteine.ml" 135 2904 2914 "src/proteine/proteine.ml" 135 2904 2925
+type(
+  token_holder
+)
+ident(
+  ext_ref tokenHolder
+)
+"src/proteine/proteine.ml" 136 2931 2937 "src/proteine/proteine.ml" 136 2931 2948
+type(
+  token_holder
+)
+"src/proteine/proteine.ml" 136 2931 2952 "src/proteine/proteine.ml" 136 2931 2960
+type(
+  string -> token
+)
+ident(
+  ext_ref Batteries.failwith
+)
+"src/proteine/proteine.ml" 136 2931 2961 "src/proteine/proteine.ml" 136 2931 2980
+type(
+  string
+)
+"src/proteine/proteine.ml" 136 2931 2952 "src/proteine/proteine.ml" 136 2931 2980
+call(
+  tail
+)
+type(
+  token
+)
+"src/proteine/proteine.ml" 137 2981 3002 "src/proteine/proteine.ml" 137 2981 3003
+type(
+  token
+)
+ident(
+  def t "src/proteine/proteine.ml" 138 3008 3015 "src/proteine/proteine.ml" 139 3027 3034
+)
+"src/proteine/proteine.ml" 137 2981 2987 "src/proteine/proteine.ml" 137 2981 3003
+type(
+  token_holder
+)
+"src/proteine/proteine.ml" 138 3008 3015 "src/proteine/proteine.ml" 138 3008 3019
+type(
+  'a
+)
+ident(
+  int_ref self "src/proteine/proteine.ml" 79 1488 1494 "src/proteine/proteine.ml" 79 1488 1500
+)
+"src/proteine/proteine.ml" 138 3008 3015 "src/proteine/proteine.ml" 138 3008 3025
+call(
+  stack
+)
+type(
+  unit
+)
+"src/proteine/proteine.ml" 139 3027 3033 "src/proteine/proteine.ml" 139 3027 3034
+type(
+  token
+)
+ident(
+  int_ref t "src/proteine/proteine.ml" 137 2981 3002 "src/proteine/proteine.ml" 137 2981 3003
+)
+"src/proteine/proteine.ml" 138 3008 3015 "src/proteine/proteine.ml" 139 3027 3034
+type(
+  token
+)
+"src/proteine/proteine.ml" 135 2904 2908 "src/proteine/proteine.ml" 139 3027 3034
+type(
+  token
+)
+type(
+  token
+)
+"src/proteine/proteine.ml" 142 3070 3074 "src/proteine/proteine.ml" 142 3070 3076
+type(
+  unit
+)
+type(
+  unit
+)
+"src/proteine/proteine.ml" 144 3078 3095 "src/proteine/proteine.ml" 144 3078 3096
+type(
+  container option
+)
+ident(
+  def h "src/proteine/proteine.ml" 144 3078 3099 "src/proteine/proteine.ml" 144 3078 3108
+)
+"src/proteine/proteine.ml" 144 3078 3107 "src/proteine/proteine.ml" 144 3078 3108
+type(
+  container option
+)
+ident(
+  int_ref h "src/proteine/proteine.ml" 144 3078 3095 "src/proteine/proteine.ml" 144 3078 3096
+)
+"src/proteine/proteine.ml" 144 3078 3099 "src/proteine/proteine.ml" 144 3078 3108
+type(
+  unit
+)
+"src/proteine/proteine.ml" 157 3257 3274 "src/proteine/proteine.ml" 157 3257 3280
+type(
+  place array
+)
+"src/proteine/proteine.ml" 157 3257 3297 "src/proteine/proteine.ml" 157 3257 3301
+type(
+  (place_id * input_link) list
+)
+"src/proteine/proteine.ml" 157 3257 3335 "src/proteine/proteine.ml" 157 3257 3339
+type(
+  (place_id * output_link) list
+)
+"src/proteine/proteine.ml" 165 3623 3633 "src/proteine/proteine.ml" 165 3623 3656
+type(
+  input_link list -> token list -> MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 166 3658 3665 "src/proteine/proteine.ml" 166 3658 3668
+type(
+  input_link list
+)
+ident(
+  def ill "src/proteine/proteine.ml" 167 3688 3694 "src/proteine/proteine.ml" 193 4137 4194
+)
+"src/proteine/proteine.ml" 167 3688 3695 "src/proteine/proteine.ml" 167 3688 3701
+type(
+  token list
+)
+ident(
+  def tokens "src/proteine/proteine.ml" 169 3723 3729 "src/proteine/proteine.ml" 193 4137 4194
+)
+"src/proteine/proteine.ml" 173 3773 3783 "src/proteine/proteine.ml" 173 3773 3789
+type(
+  token list
+)
+ident(
+  int_ref tokens "src/proteine/proteine.ml" 167 3688 3695 "src/proteine/proteine.ml" 167 3688 3701
+)
+"src/proteine/proteine.ml" 175 3802 3808 "src/proteine/proteine.ml" 175 3802 3810
+type(
+  token list
+)
+"src/proteine/proteine.ml" 175 3802 3814 "src/proteine/proteine.ml" 175 3802 3816
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 177 3825 3831 "src/proteine/proteine.ml" 177 3825 3832
+type(
+  token
+)
+ident(
+  def m "src/proteine/proteine.ml" 178 3848 3855 "src/proteine/proteine.ml" 193 4137 4194
+)
+"src/proteine/proteine.ml" 177 3825 3836 "src/proteine/proteine.ml" 177 3825 3843
+type(
+  token list
+)
+ident(
+  def tokens' "src/proteine/proteine.ml" 178 3848 3855 "src/proteine/proteine.ml" 193 4137 4194
+)
+"src/proteine/proteine.ml" 177 3825 3831 "src/proteine/proteine.ml" 177 3825 3843
+type(
+  token list
+)
+"src/proteine/proteine.ml" 178 3848 3858 "src/proteine/proteine.ml" 178 3848 3859
+type(
+  token
+)
+ident(
+  int_ref m "src/proteine/proteine.ml" 177 3825 3831 "src/proteine/proteine.ml" 177 3825 3832
+)
+"src/proteine/proteine.ml" 178 3848 3858 "src/proteine/proteine.ml" 178 3848 3868
+call(
+  stack
+)
+type(
+  bool
+)
+"src/proteine/proteine.ml" 181 3885 3887 "src/proteine/proteine.ml" 181 3885 3910
+type(
+  input_link list -> token list -> MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref inputTransitionFunction "src/proteine/proteine.ml" 165 3623 3633 "src/proteine/proteine.ml" 165 3623 3656
+)
+"src/proteine/proteine.ml" 181 3885 3912 "src/proteine/proteine.ml" 181 3885 3919
+type(
+  input_link list -> input_link list
+)
+ident(
+  ext_ref Batteries.List.tl
+)
+"src/proteine/proteine.ml" 181 3885 3920 "src/proteine/proteine.ml" 181 3885 3923
+type(
+  input_link list
+)
+ident(
+  int_ref ill "src/proteine/proteine.ml" 166 3658 3665 "src/proteine/proteine.ml" 166 3658 3668
+)
+"src/proteine/proteine.ml" 181 3885 3911 "src/proteine/proteine.ml" 181 3885 3924
+call(
+  stack
+)
+type(
+  input_link list
+)
+"src/proteine/proteine.ml" 181 3885 3925 "src/proteine/proteine.ml" 181 3885 3932
+type(
+  token list
+)
+ident(
+  int_ref tokens' "src/proteine/proteine.ml" 177 3825 3836 "src/proteine/proteine.ml" 177 3825 3843
+)
+"src/proteine/proteine.ml" 181 3885 3887 "src/proteine/proteine.ml" 181 3885 3932
+call(
+  tail
+)
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 184 3951 3959 "src/proteine/proteine.ml" 184 3951 3962
+type(
+  input_link list
+)
+ident(
+  int_ref ill "src/proteine/proteine.ml" 166 3658 3665 "src/proteine/proteine.ml" 166 3658 3668
+)
+"src/proteine/proteine.ml" 186 3973 3977 "src/proteine/proteine.ml" 186 3973 3979
+type(
+  input_link list
+)
+"src/proteine/proteine.ml" 186 3973 3984 "src/proteine/proteine.ml" 186 3973 3986
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 188 3993 3997 "src/proteine/proteine.ml" 188 3993 4010
+type(
+  input_link
+)
+"src/proteine/proteine.ml" 188 3993 4013 "src/proteine/proteine.ml" 188 3993 4017
+type(
+  input_link list
+)
+ident(
+  def ill' "src/proteine/proteine.ml" 189 4022 4027 "src/proteine/proteine.ml" 189 4022 4069
+)
+"src/proteine/proteine.ml" 188 3993 3997 "src/proteine/proteine.ml" 188 3993 4017
+type(
+  input_link list
+)
+"src/proteine/proteine.ml" 189 4022 4027 "src/proteine/proteine.ml" 189 4022 4028
+type(
+  token
+)
+ident(
+  int_ref m "src/proteine/proteine.ml" 177 3825 3831 "src/proteine/proteine.ml" 177 3825 3832
+)
+"src/proteine/proteine.ml" 189 4022 4033 "src/proteine/proteine.ml" 189 4022 4056
+type(
+  input_link list -> token list -> MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref inputTransitionFunction "src/proteine/proteine.ml" 165 3623 3633 "src/proteine/proteine.ml" 165 3623 3656
+)
+"src/proteine/proteine.ml" 189 4022 4057 "src/proteine/proteine.ml" 189 4022 4061
+type(
+  input_link list
+)
+ident(
+  int_ref ill' "src/proteine/proteine.ml" 188 3993 4013 "src/proteine/proteine.ml" 188 3993 4017
+)
+"src/proteine/proteine.ml" 189 4022 4062 "src/proteine/proteine.ml" 189 4022 4069
+type(
+  token list
+)
+ident(
+  int_ref tokens' "src/proteine/proteine.ml" 177 3825 3836 "src/proteine/proteine.ml" 177 3825 3843
+)
+"src/proteine/proteine.ml" 189 4022 4033 "src/proteine/proteine.ml" 189 4022 4069
+call(
+  stack
+)
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 189 4022 4027 "src/proteine/proteine.ml" 189 4022 4069
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 191 4078 4082 "src/proteine/proteine.ml" 191 4078 4093
+type(
+  input_link
+)
+"src/proteine/proteine.ml" 191 4078 4097 "src/proteine/proteine.ml" 191 4078 4101
+type(
+  input_link list
+)
+ident(
+  def ill' "src/proteine/proteine.ml" 192 4106 4111 "src/proteine/proteine.ml" 193 4137 4194
+)
+"src/proteine/proteine.ml" 191 4078 4082 "src/proteine/proteine.ml" 191 4078 4101
+type(
+  input_link list
+)
+"src/proteine/proteine.ml" 192 4106 4115 "src/proteine/proteine.ml" 192 4106 4119
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  def mol1 "src/proteine/proteine.ml" 193 4137 4142 "src/proteine/proteine.ml" 193 4137 4194
+)
+"src/proteine/proteine.ml" 192 4106 4121 "src/proteine/proteine.ml" 192 4106 4125
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  def mol2 "src/proteine/proteine.ml" 193 4137 4142 "src/proteine/proteine.ml" 193 4137 4194
+)
+"src/proteine/proteine.ml" 192 4106 4115 "src/proteine/proteine.ml" 192 4106 4125
+type(
+  MyMolecule.moleculeHolder * MyMolecule.moleculeHolder
+)
+"src/proteine/proteine.ml" 192 4106 4128 "src/proteine/proteine.ml" 192 4106 4129
+type(
+  token
+)
+ident(
+  int_ref m "src/proteine/proteine.ml" 177 3825 3831 "src/proteine/proteine.ml" 177 3825 3832
+)
+"src/proteine/proteine.ml" 192 4106 4128 "src/proteine/proteine.ml" 192 4106 4133
+call(
+  stack
+)
+type(
+  MyMolecule.moleculeHolder * MyMolecule.moleculeHolder
+)
+"src/proteine/proteine.ml" 193 4137 4142 "src/proteine/proteine.ml" 193 4137 4146
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  int_ref mol1 "src/proteine/proteine.ml" 192 4106 4115 "src/proteine/proteine.ml" 192 4106 4119
+)
+"src/proteine/proteine.ml" 193 4137 4150 "src/proteine/proteine.ml" 193 4137 4154
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  int_ref mol2 "src/proteine/proteine.ml" 192 4106 4121 "src/proteine/proteine.ml" 192 4106 4125
+)
+"src/proteine/proteine.ml" 193 4137 4158 "src/proteine/proteine.ml" 193 4137 4181
+type(
+  input_link list -> token list -> MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref inputTransitionFunction "src/proteine/proteine.ml" 165 3623 3633 "src/proteine/proteine.ml" 165 3623 3656
+)
+"src/proteine/proteine.ml" 193 4137 4182 "src/proteine/proteine.ml" 193 4137 4186
+type(
+  input_link list
+)
+ident(
+  int_ref ill' "src/proteine/proteine.ml" 191 4078 4097 "src/proteine/proteine.ml" 191 4078 4101
+)
+"src/proteine/proteine.ml" 193 4137 4187 "src/proteine/proteine.ml" 193 4137 4194
+type(
+  token list
+)
+ident(
+  int_ref tokens' "src/proteine/proteine.ml" 177 3825 3836 "src/proteine/proteine.ml" 177 3825 3843
+)
+"src/proteine/proteine.ml" 193 4137 4158 "src/proteine/proteine.ml" 193 4137 4194
+call(
+  stack
+)
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 193 4137 4150 "src/proteine/proteine.ml" 193 4137 4194
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 193 4137 4142 "src/proteine/proteine.ml" 193 4137 4194
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 192 4106 4111 "src/proteine/proteine.ml" 193 4137 4194
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 184 3951 3953 "src/proteine/proteine.ml" 193 4137 4194
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 178 3848 3855 "src/proteine/proteine.ml" 193 4137 4194
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 173 3773 3777 "src/proteine/proteine.ml" 193 4137 4194
+type(
+  MyMolecule.moleculeHolder list
+)
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 204 4465 4472 "src/proteine/proteine.ml" 204 4465 4496
+type(
+  output_link list -> MyMolecule.moleculeHolder list -> token list
+)
+"src/proteine/proteine.ml" 205 4498 4505 "src/proteine/proteine.ml" 205 4498 4508
+type(
+  output_link list
+)
+ident(
+  def oll "src/proteine/proteine.ml" 206 4529 4535 "src/proteine/proteine.ml" 239 5326 5340
+)
+"src/proteine/proteine.ml" 206 4529 4536 "src/proteine/proteine.ml" 206 4529 4540
+type(
+  MyMolecule.moleculeHolder list
+)
+ident(
+  def mols "src/proteine/proteine.ml" 208 4571 4577 "src/proteine/proteine.ml" 239 5326 5340
+)
+"src/proteine/proteine.ml" 211 4604 4614 "src/proteine/proteine.ml" 211 4604 4617
+type(
+  output_link list
+)
+ident(
+  int_ref oll "src/proteine/proteine.ml" 205 4498 4505 "src/proteine/proteine.ml" 205 4498 4508
+)
+"src/proteine/proteine.ml" 212 4623 4629 "src/proteine/proteine.ml" 212 4623 4642
+type(
+  output_link
+)
+"src/proteine/proteine.ml" 212 4623 4646 "src/proteine/proteine.ml" 212 4623 4650
+type(
+  output_link list
+)
+ident(
+  def oll' "src/proteine/proteine.ml" 215 4742 4749 "src/proteine/proteine.ml" 215 4742 4798
+)
+"src/proteine/proteine.ml" 212 4623 4629 "src/proteine/proteine.ml" 212 4623 4650
+type(
+  output_link list
+)
+"src/proteine/proteine.ml" 215 4742 4749 "src/proteine/proteine.ml" 215 4742 4759
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  int_ref emptyToken "src/proteine/proteine.ml" 54 958 962 "src/proteine/proteine.ml" 54 958 972
+)
+"src/proteine/proteine.ml" 215 4742 4763 "src/proteine/proteine.ml" 215 4742 4787
+type(
+  output_link list -> MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref outputTransitionFunction "src/proteine/proteine.ml" 204 4465 4472 "src/proteine/proteine.ml" 204 4465 4496
+)
+"src/proteine/proteine.ml" 215 4742 4788 "src/proteine/proteine.ml" 215 4742 4792
+type(
+  output_link list
+)
+ident(
+  int_ref oll' "src/proteine/proteine.ml" 212 4623 4646 "src/proteine/proteine.ml" 212 4623 4650
+)
+"src/proteine/proteine.ml" 215 4742 4794 "src/proteine/proteine.ml" 215 4742 4798
+type(
+  MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/proteine/proteine.ml" 206 4529 4536 "src/proteine/proteine.ml" 206 4529 4540
+)
+"src/proteine/proteine.ml" 215 4742 4763 "src/proteine/proteine.ml" 215 4742 4798
+call(
+  stack
+)
+type(
+  token list
+)
+"src/proteine/proteine.ml" 215 4742 4749 "src/proteine/proteine.ml" 215 4742 4798
+type(
+  token list
+)
+"src/proteine/proteine.ml" 217 4802 4808 "src/proteine/proteine.ml" 217 4802 4818
+type(
+  output_link
+)
+"src/proteine/proteine.ml" 217 4802 4822 "src/proteine/proteine.ml" 217 4802 4826
+type(
+  output_link list
+)
+ident(
+  def oll' "src/proteine/proteine.ml" 218 4831 4838 "src/proteine/proteine.ml" 228 5094 5104
+)
+"src/proteine/proteine.ml" 217 4802 4808 "src/proteine/proteine.ml" 217 4802 4826
+type(
+  output_link list
+)
+"src/proteine/proteine.ml" 219 4844 4852 "src/proteine/proteine.ml" 219 4844 4856
+type(
+  MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/proteine/proteine.ml" 206 4529 4536 "src/proteine/proteine.ml" 206 4529 4540
+)
+"src/proteine/proteine.ml" 220 4862 4866 "src/proteine/proteine.ml" 220 4862 4868
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  def m1 "src/proteine/proteine.ml" 221 4889 4894 "src/proteine/proteine.ml" 221 4889 4946
+)
+"src/proteine/proteine.ml" 220 4862 4873 "src/proteine/proteine.ml" 220 4862 4875
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  def m2 "src/proteine/proteine.ml" 221 4889 4894 "src/proteine/proteine.ml" 221 4889 4946
+)
+"src/proteine/proteine.ml" 220 4862 4879 "src/proteine/proteine.ml" 220 4862 4884
+type(
+  MyMolecule.moleculeHolder list
+)
+ident(
+  def mols' "src/proteine/proteine.ml" 221 4889 4894 "src/proteine/proteine.ml" 221 4889 4946
+)
+"src/proteine/proteine.ml" 220 4862 4873 "src/proteine/proteine.ml" 220 4862 4884
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 220 4862 4866 "src/proteine/proteine.ml" 220 4862 4884
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 221 4889 4895 "src/proteine/proteine.ml" 221 4889 4897
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  int_ref m1 "src/proteine/proteine.ml" 220 4862 4866 "src/proteine/proteine.ml" 220 4862 4868
+)
+"src/proteine/proteine.ml" 221 4889 4895 "src/proteine/proteine.ml" 221 4889 4904
+call(
+  stack
+)
+type(
+  MyMolecule.moleculeHolder -> MyMolecule.moleculeHolder
+)
+"src/proteine/proteine.ml" 221 4889 4905 "src/proteine/proteine.ml" 221 4889 4907
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  int_ref m2 "src/proteine/proteine.ml" 220 4862 4873 "src/proteine/proteine.ml" 220 4862 4875
+)
+"src/proteine/proteine.ml" 221 4889 4894 "src/proteine/proteine.ml" 221 4889 4908
+type(
+  MyMolecule.moleculeHolder
+)
+"src/proteine/proteine.ml" 221 4889 4912 "src/proteine/proteine.ml" 221 4889 4936
+type(
+  output_link list -> MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref outputTransitionFunction "src/proteine/proteine.ml" 204 4465 4472 "src/proteine/proteine.ml" 204 4465 4496
+)
+"src/proteine/proteine.ml" 221 4889 4937 "src/proteine/proteine.ml" 221 4889 4941
+type(
+  output_link list
+)
+ident(
+  int_ref oll' "src/proteine/proteine.ml" 217 4802 4822 "src/proteine/proteine.ml" 217 4802 4826
+)
+"src/proteine/proteine.ml" 221 4889 4942 "src/proteine/proteine.ml" 221 4889 4946
+type(
+  MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/proteine/proteine.ml" 206 4529 4536 "src/proteine/proteine.ml" 206 4529 4540
+)
+"src/proteine/proteine.ml" 221 4889 4912 "src/proteine/proteine.ml" 221 4889 4946
+call(
+  stack
+)
+type(
+  token list
+)
+"src/proteine/proteine.ml" 221 4889 4894 "src/proteine/proteine.ml" 221 4889 4946
+type(
+  token list
+)
+"src/proteine/proteine.ml" 223 4955 4959 "src/proteine/proteine.ml" 223 4955 4960
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  def m "src/proteine/proteine.ml" 224 4971 4976 "src/proteine/proteine.ml" 224 4971 5017
+)
+"src/proteine/proteine.ml" 223 4955 4964 "src/proteine/proteine.ml" 223 4955 4966
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 223 4955 4959 "src/proteine/proteine.ml" 223 4955 4966
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 224 4971 4976 "src/proteine/proteine.ml" 224 4971 4977
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  int_ref m "src/proteine/proteine.ml" 223 4955 4959 "src/proteine/proteine.ml" 223 4955 4960
+)
+"src/proteine/proteine.ml" 224 4971 4982 "src/proteine/proteine.ml" 224 4971 5006
+type(
+  output_link list -> MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref outputTransitionFunction "src/proteine/proteine.ml" 204 4465 4472 "src/proteine/proteine.ml" 204 4465 4496
+)
+"src/proteine/proteine.ml" 224 4971 5007 "src/proteine/proteine.ml" 224 4971 5011
+type(
+  output_link list
+)
+ident(
+  int_ref oll' "src/proteine/proteine.ml" 217 4802 4822 "src/proteine/proteine.ml" 217 4802 4826
+)
+"src/proteine/proteine.ml" 224 4971 5013 "src/proteine/proteine.ml" 224 4971 5017
+type(
+  MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/proteine/proteine.ml" 206 4529 4536 "src/proteine/proteine.ml" 206 4529 4540
+)
+"src/proteine/proteine.ml" 224 4971 4982 "src/proteine/proteine.ml" 224 4971 5017
+call(
+  stack
+)
+type(
+  token list
+)
+"src/proteine/proteine.ml" 224 4971 4976 "src/proteine/proteine.ml" 224 4971 5017
+type(
+  token list
+)
+"src/proteine/proteine.ml" 226 5026 5030 "src/proteine/proteine.ml" 226 5026 5032
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 227 5037 5042 "src/proteine/proteine.ml" 227 5037 5055
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  ext_ref MyMolecule.emptyHolder
+)
+"src/proteine/proteine.ml" 227 5037 5059 "src/proteine/proteine.ml" 227 5037 5083
+type(
+  output_link list -> MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref outputTransitionFunction "src/proteine/proteine.ml" 204 4465 4472 "src/proteine/proteine.ml" 204 4465 4496
+)
+"src/proteine/proteine.ml" 227 5037 5084 "src/proteine/proteine.ml" 227 5037 5088
+type(
+  output_link list
+)
+ident(
+  int_ref oll' "src/proteine/proteine.ml" 217 4802 4822 "src/proteine/proteine.ml" 217 4802 4826
+)
+"src/proteine/proteine.ml" 227 5037 5089 "src/proteine/proteine.ml" 227 5037 5093
+type(
+  MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/proteine/proteine.ml" 206 4529 4536 "src/proteine/proteine.ml" 206 4529 4540
+)
+"src/proteine/proteine.ml" 227 5037 5059 "src/proteine/proteine.ml" 227 5037 5093
+call(
+  stack
+)
+type(
+  token list
+)
+"src/proteine/proteine.ml" 227 5037 5042 "src/proteine/proteine.ml" 227 5037 5093
+type(
+  token list
+)
+"src/proteine/proteine.ml" 218 4831 4838 "src/proteine/proteine.ml" 228 5094 5104
+type(
+  token list
+)
+"src/proteine/proteine.ml" 230 5108 5114 "src/proteine/proteine.ml" 230 5108 5130
+type(
+  output_link
+)
+"src/proteine/proteine.ml" 230 5108 5134 "src/proteine/proteine.ml" 230 5108 5138
+type(
+  output_link list
+)
+ident(
+  def oll' "src/proteine/proteine.ml" 231 5143 5150 "src/proteine/proteine.ml" 238 5315 5325
+)
+"src/proteine/proteine.ml" 230 5108 5114 "src/proteine/proteine.ml" 230 5108 5138
+type(
+  output_link list
+)
+"src/proteine/proteine.ml" 232 5156 5164 "src/proteine/proteine.ml" 232 5156 5168
+type(
+  MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/proteine/proteine.ml" 206 4529 4536 "src/proteine/proteine.ml" 206 4529 4540
+)
+"src/proteine/proteine.ml" 233 5175 5179 "src/proteine/proteine.ml" 233 5175 5180
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  def m "src/proteine/proteine.ml" 234 5194 5199 "src/proteine/proteine.ml" 234 5194 5240
+)
+"src/proteine/proteine.ml" 233 5175 5184 "src/proteine/proteine.ml" 233 5175 5189
+type(
+  MyMolecule.moleculeHolder list
+)
+ident(
+  def mols' "src/proteine/proteine.ml" 234 5194 5199 "src/proteine/proteine.ml" 234 5194 5240
+)
+"src/proteine/proteine.ml" 233 5175 5179 "src/proteine/proteine.ml" 233 5175 5189
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 234 5194 5199 "src/proteine/proteine.ml" 234 5194 5200
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  int_ref m "src/proteine/proteine.ml" 233 5175 5179 "src/proteine/proteine.ml" 233 5175 5180
+)
+"src/proteine/proteine.ml" 234 5194 5205 "src/proteine/proteine.ml" 234 5194 5229
+type(
+  output_link list -> MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref outputTransitionFunction "src/proteine/proteine.ml" 204 4465 4472 "src/proteine/proteine.ml" 204 4465 4496
+)
+"src/proteine/proteine.ml" 234 5194 5230 "src/proteine/proteine.ml" 234 5194 5234
+type(
+  output_link list
+)
+ident(
+  int_ref oll' "src/proteine/proteine.ml" 230 5108 5134 "src/proteine/proteine.ml" 230 5108 5138
+)
+"src/proteine/proteine.ml" 234 5194 5236 "src/proteine/proteine.ml" 234 5194 5240
+type(
+  MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/proteine/proteine.ml" 206 4529 4536 "src/proteine/proteine.ml" 206 4529 4540
+)
+"src/proteine/proteine.ml" 234 5194 5205 "src/proteine/proteine.ml" 234 5194 5240
+call(
+  stack
+)
+type(
+  token list
+)
+"src/proteine/proteine.ml" 234 5194 5199 "src/proteine/proteine.ml" 234 5194 5240
+type(
+  token list
+)
+"src/proteine/proteine.ml" 236 5249 5253 "src/proteine/proteine.ml" 236 5249 5255
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 237 5260 5265 "src/proteine/proteine.ml" 237 5260 5275
+type(
+  MyMolecule.moleculeHolder
+)
+ident(
+  int_ref emptyToken "src/proteine/proteine.ml" 54 958 962 "src/proteine/proteine.ml" 54 958 972
+)
+"src/proteine/proteine.ml" 237 5260 5279 "src/proteine/proteine.ml" 237 5260 5303
+type(
+  output_link list -> MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref outputTransitionFunction "src/proteine/proteine.ml" 204 4465 4472 "src/proteine/proteine.ml" 204 4465 4496
+)
+"src/proteine/proteine.ml" 237 5260 5304 "src/proteine/proteine.ml" 237 5260 5308
+type(
+  output_link list
+)
+ident(
+  int_ref oll' "src/proteine/proteine.ml" 230 5108 5134 "src/proteine/proteine.ml" 230 5108 5138
+)
+"src/proteine/proteine.ml" 237 5260 5310 "src/proteine/proteine.ml" 237 5260 5314
+type(
+  MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/proteine/proteine.ml" 206 4529 4536 "src/proteine/proteine.ml" 206 4529 4540
+)
+"src/proteine/proteine.ml" 237 5260 5279 "src/proteine/proteine.ml" 237 5260 5314
+call(
+  stack
+)
+type(
+  token list
+)
+"src/proteine/proteine.ml" 237 5260 5265 "src/proteine/proteine.ml" 237 5260 5314
+type(
+  token list
+)
+"src/proteine/proteine.ml" 231 5143 5150 "src/proteine/proteine.ml" 238 5315 5325
+type(
+  token list
+)
+"src/proteine/proteine.ml" 239 5326 5332 "src/proteine/proteine.ml" 239 5326 5334
+type(
+  output_link list
+)
+"src/proteine/proteine.ml" 239 5326 5338 "src/proteine/proteine.ml" 239 5326 5340
+type(
+  token list
+)
+"src/proteine/proteine.ml" 211 4604 4608 "src/proteine/proteine.ml" 239 5326 5340
+type(
+  token list
+)
+type(
+  token list
+)
+"src/proteine/proteine.ml" 242 5354 5360 "src/proteine/proteine.ml" 242 5354 5378
+type(
+  input_link list -> output_link list -> token list -> token list
+)
+"src/proteine/proteine.ml" 242 5354 5379 "src/proteine/proteine.ml" 242 5354 5382
+type(
+  input_link list
+)
+ident(
+  def ill "src/proteine/proteine.ml" 242 5354 5383 "src/proteine/proteine.ml" 243 5397 5466
+)
+"src/proteine/proteine.ml" 242 5354 5383 "src/proteine/proteine.ml" 242 5354 5386
+type(
+  output_link list
+)
+ident(
+  def oll "src/proteine/proteine.ml" 242 5354 5387 "src/proteine/proteine.ml" 243 5397 5466
+)
+"src/proteine/proteine.ml" 242 5354 5387 "src/proteine/proteine.ml" 242 5354 5393
+type(
+  token list
+)
+ident(
+  def tokens "src/proteine/proteine.ml" 243 5397 5401 "src/proteine/proteine.ml" 243 5397 5466
+)
+"src/proteine/proteine.ml" 243 5397 5401 "src/proteine/proteine.ml" 243 5397 5425
+type(
+  output_link list -> MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref outputTransitionFunction "src/proteine/proteine.ml" 204 4465 4472 "src/proteine/proteine.ml" 204 4465 4496
+)
+"src/proteine/proteine.ml" 243 5397 5426 "src/proteine/proteine.ml" 243 5397 5429
+type(
+  output_link list
+)
+ident(
+  int_ref oll "src/proteine/proteine.ml" 242 5354 5383 "src/proteine/proteine.ml" 242 5354 5386
+)
+"src/proteine/proteine.ml" 243 5397 5431 "src/proteine/proteine.ml" 243 5397 5454
+type(
+  input_link list -> token list -> MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref inputTransitionFunction "src/proteine/proteine.ml" 165 3623 3633 "src/proteine/proteine.ml" 165 3623 3656
+)
+"src/proteine/proteine.ml" 243 5397 5455 "src/proteine/proteine.ml" 243 5397 5458
+type(
+  input_link list
+)
+ident(
+  int_ref ill "src/proteine/proteine.ml" 242 5354 5379 "src/proteine/proteine.ml" 242 5354 5382
+)
+"src/proteine/proteine.ml" 243 5397 5459 "src/proteine/proteine.ml" 243 5397 5465
+type(
+  token list
+)
+ident(
+  int_ref tokens "src/proteine/proteine.ml" 242 5354 5387 "src/proteine/proteine.ml" 242 5354 5393
+)
+"src/proteine/proteine.ml" 243 5397 5430 "src/proteine/proteine.ml" 243 5397 5466
+call(
+  stack
+)
+type(
+  MyMolecule.moleculeHolder list
+)
+"src/proteine/proteine.ml" 243 5397 5401 "src/proteine/proteine.ml" 243 5397 5466
+call(
+  tail
+)
+type(
+  token list
+)
+"src/proteine/proteine.ml" 246 5550 5556 "src/proteine/proteine.ml" 246 5550 5569
+type(
+  place array -> place_id list -> bool
+)
+"src/proteine/proteine.ml" 246 5550 5571 "src/proteine/proteine.ml" 246 5550 5577
+type(
+  place array
+)
+ident(
+  def places "src/proteine/proteine.ml" 246 5550 5594 "src/proteine/proteine.ml" 253 5723 5740
+)
+"src/proteine/proteine.ml" 246 5550 5595 "src/proteine/proteine.ml" 246 5550 5601
+type(
+  place_id list
+)
+ident(
+  def to_try "src/proteine/proteine.ml" 246 5550 5618 "src/proteine/proteine.ml" 253 5723 5740
+)
+"src/proteine/proteine.ml" 247 5627 5631 "src/proteine/proteine.ml" 247 5627 5645
+type(
+  (bool -> place_id -> bool) -> bool -> place_id list -> bool
+)
+ident(
+  ext_ref Batteries.List.fold_left
+)
+"src/proteine/proteine.ml" 248 5646 5657 "src/proteine/proteine.ml" 248 5646 5660
+type(
+  bool
+)
+ident(
+  def res "src/proteine/proteine.ml" 248 5646 5661 "src/proteine/proteine.ml" 251 5703 5714
+)
+"src/proteine/proteine.ml" 248 5646 5661 "src/proteine/proteine.ml" 248 5646 5664
+type(
+  place_id
+)
+ident(
+  def pId "src/proteine/proteine.ml" 249 5668 5669 "src/proteine/proteine.ml" 251 5703 5714
+)
+"src/proteine/proteine.ml" 249 5668 5672 "src/proteine/proteine.ml" 249 5668 5678
+type(
+  place array
+)
+ident(
+  int_ref places "src/proteine/proteine.ml" 246 5550 5571 "src/proteine/proteine.ml" 246 5550 5577
+)
+"src/proteine/proteine.ml" 249 5668 5680 "src/proteine/proteine.ml" 249 5668 5683
+type(
+  place_id
+)
+ident(
+  int_ref pId "src/proteine/proteine.ml" 248 5646 5661 "src/proteine/proteine.ml" 248 5646 5664
+)
+"src/proteine/proteine.ml" 249 5668 5672 "src/proteine/proteine.ml" 249 5668 5684
+type(
+  place
+)
+"src/proteine/proteine.ml" 249 5668 5672 "src/proteine/proteine.ml" 249 5668 5692
+call(
+  stack
+)
+type(
+  bool
+)
+"src/proteine/proteine.ml" 250 5693 5699 "src/proteine/proteine.ml" 250 5693 5702
+type(
+  bool
+)
+ident(
+  int_ref res "src/proteine/proteine.ml" 248 5646 5657 "src/proteine/proteine.ml" 248 5646 5660
+)
+"src/proteine/proteine.ml" 251 5703 5709 "src/proteine/proteine.ml" 251 5703 5714
+type(
+  bool
+)
+"src/proteine/proteine.ml" 249 5668 5669 "src/proteine/proteine.ml" 251 5703 5714
+type(
+  bool
+)
+"src/proteine/proteine.ml" 248 5646 5652 "src/proteine/proteine.ml" 252 5715 5722
+type(
+  bool -> place_id -> bool
+)
+"src/proteine/proteine.ml" 253 5723 5729 "src/proteine/proteine.ml" 253 5723 5733
+type(
+  bool
+)
+"src/proteine/proteine.ml" 253 5723 5734 "src/proteine/proteine.ml" 253 5723 5740
+type(
+  place_id list
+)
+ident(
+  int_ref to_try "src/proteine/proteine.ml" 246 5550 5595 "src/proteine/proteine.ml" 246 5550 5601
+)
+"src/proteine/proteine.ml" 247 5627 5631 "src/proteine/proteine.ml" 253 5723 5740
+call(
+  tail
+)
+type(
+  bool
+)
+type(
+  bool
+)
+"src/proteine/proteine.ml" 255 5746 5752 "src/proteine/proteine.ml" 255 5746 5754
+type(
+  place_id list
+)
+"src/proteine/proteine.ml" 255 5746 5756 "src/proteine/proteine.ml" 255 5746 5758
+type(
+  input_link list
+)
+"src/proteine/proteine.ml" 255 5746 5752 "src/proteine/proteine.ml" 255 5746 5758
+type(
+  place_id list * input_link list
+)
+"src/proteine/proteine.ml" 255 5746 5761 "src/proteine/proteine.ml" 255 5746 5766
+type(
+  (place_id * input_link) list -> place_id list * input_link list
+)
+ident(
+  ext_ref Misc_library.unzip
+)
+"src/proteine/proteine.ml" 255 5746 5767 "src/proteine/proteine.ml" 255 5746 5771
+type(
+  (place_id * input_link) list
+)
+ident(
+  int_ref depL "src/proteine/proteine.ml" 157 3257 3297 "src/proteine/proteine.ml" 157 3257 3301
+)
+"src/proteine/proteine.ml" 255 5746 5761 "src/proteine/proteine.ml" 255 5746 5771
+call(
+  stack
+)
+type(
+  place_id list * input_link list
+)
+"src/proteine/proteine.ml" 256 5777 5783 "src/proteine/proteine.ml" 256 5777 5785
+type(
+  place_id list
+)
+"src/proteine/proteine.ml" 256 5777 5787 "src/proteine/proteine.ml" 256 5777 5789
+type(
+  output_link list
+)
+"src/proteine/proteine.ml" 256 5777 5783 "src/proteine/proteine.ml" 256 5777 5789
+type(
+  place_id list * output_link list
+)
+"src/proteine/proteine.ml" 256 5777 5792 "src/proteine/proteine.ml" 256 5777 5797
+type(
+  (place_id * output_link) list -> place_id list * output_link list
+)
+ident(
+  ext_ref Misc_library.unzip
+)
+"src/proteine/proteine.ml" 256 5777 5798 "src/proteine/proteine.ml" 256 5777 5802
+type(
+  (place_id * output_link) list
+)
+ident(
+  int_ref arrL "src/proteine/proteine.ml" 157 3257 3335 "src/proteine/proteine.ml" 157 3257 3339
+)
+"src/proteine/proteine.ml" 256 5777 5792 "src/proteine/proteine.ml" 256 5777 5802
+call(
+  stack
+)
+type(
+  place_id list * output_link list
+)
+"src/proteine/proteine.ml" 275 6242 6257 "src/proteine/proteine.ml" 275 6242 6263
+type(
+  place array
+)
+ident(
+  int_ref places "src/proteine/proteine.ml" 157 3257 3274 "src/proteine/proteine.ml" 157 3257 3280
+)
+"src/proteine/proteine.ml" 277 6267 6291 "src/proteine/proteine.ml" 277 6267 6293
+type(
+  place_id list
+)
+ident(
+  int_ref dp "src/proteine/proteine.ml" 255 5746 5752 "src/proteine/proteine.ml" 255 5746 5754
+)
+"src/proteine/proteine.ml" 278 6294 6317 "src/proteine/proteine.ml" 278 6294 6319
+type(
+  input_link list
+)
+ident(
+  int_ref dl "src/proteine/proteine.ml" 255 5746 5756 "src/proteine/proteine.ml" 255 5746 5758
+)
+"src/proteine/proteine.ml" 279 6320 6342 "src/proteine/proteine.ml" 279 6320 6344
+type(
+  place_id list
+)
+ident(
+  int_ref ap "src/proteine/proteine.ml" 256 5777 5783 "src/proteine/proteine.ml" 256 5777 5785
+)
+"src/proteine/proteine.ml" 280 6345 6366 "src/proteine/proteine.ml" 280 6345 6368
+type(
+  output_link list
+)
+ident(
+  int_ref al "src/proteine/proteine.ml" 256 5777 5787 "src/proteine/proteine.ml" 256 5777 5789
+)
+"src/proteine/proteine.ml" 282 6370 6400 "src/proteine/proteine.ml" 282 6370 6415
+type(
+  place_id list
+)
+type(
+  place_id list
+)
+ident(
+  ext_ref departurePlaces
+)
+"src/proteine/proteine.ml" 283 6416 6445 "src/proteine/proteine.ml" 283 6416 6459
+type(
+  input_link list
+)
+type(
+  input_link list
+)
+ident(
+  ext_ref departureLinks
+)
+"src/proteine/proteine.ml" 284 6460 6488 "src/proteine/proteine.ml" 284 6460 6501
+type(
+  place_id list
+)
+type(
+  place_id list
+)
+ident(
+  ext_ref arrivalPlaces
+)
+"src/proteine/proteine.ml" 285 6502 6529 "src/proteine/proteine.ml" 285 6502 6541
+type(
+  output_link list
+)
+type(
+  output_link list
+)
+ident(
+  ext_ref arrivalLinks
+)
+"src/proteine/proteine.ml" 287 6543 6570 "src/proteine/proteine.ml" 287 6543 6576
+type(
+  token list
+)
+ident(
+  def tokens "src/proteine/proteine.ml" 287 6543 6591 "src/proteine/proteine.ml" 288 6607 6664
+)
+"src/proteine/proteine.ml" 288 6607 6611 "src/proteine/proteine.ml" 288 6607 6629
+type(
+  input_link list -> output_link list -> token list -> token list
+)
+ident(
+  int_ref transitionFunction "src/proteine/proteine.ml" 242 5354 5360 "src/proteine/proteine.ml" 242 5354 5378
+)
+"src/proteine/proteine.ml" 288 6607 6630 "src/proteine/proteine.ml" 288 6607 6644
+type(
+  input_link list
+)
+ident(
+  ext_ref departureLinks
+)
+"src/proteine/proteine.ml" 288 6607 6645 "src/proteine/proteine.ml" 288 6607 6657
+type(
+  output_link list
+)
+ident(
+  ext_ref arrivalLinks
+)
+"src/proteine/proteine.ml" 288 6607 6658 "src/proteine/proteine.ml" 288 6607 6664
+type(
+  token list
+)
+ident(
+  int_ref tokens "src/proteine/proteine.ml" 287 6543 6570 "src/proteine/proteine.ml" 287 6543 6576
+)
+"src/proteine/proteine.ml" 288 6607 6611 "src/proteine/proteine.ml" 288 6607 6664
+call(
+  tail
+)
+type(
+  token list
+)
+type(
+  token list
+)
+"src/proteine/proteine.ml" 292 6775 6787 "src/proteine/proteine.ml" 292 6775 6790
+type(
+  int list -> bool
+)
+ident(
+  def aux "src/proteine/proteine.ml" 292 6775 6779 "src/proteine/proteine.ml" 298 6895 6958
+)
+"src/proteine/proteine.ml" 292 6775 6791 "src/proteine/proteine.ml" 292 6775 6792
+type(
+  int list
+)
+ident(
+  def l "src/proteine/proteine.ml" 293 6796 6802 "src/proteine/proteine.ml" 296 6868 6886
+)
+"src/proteine/proteine.ml" 293 6796 6808 "src/proteine/proteine.ml" 293 6796 6809
+type(
+  int list
+)
+ident(
+  int_ref l "src/proteine/proteine.ml" 292 6775 6791 "src/proteine/proteine.ml" 292 6775 6792
+)
+"src/proteine/proteine.ml" 294 6815 6823 "src/proteine/proteine.ml" 294 6815 6824
+type(
+  int
+)
+ident(
+  def h "src/proteine/proteine.ml" 295 6834 6836 "src/proteine/proteine.ml" 295 6834 6867
+)
+"src/proteine/proteine.ml" 294 6815 6828 "src/proteine/proteine.ml" 294 6815 6829
+type(
+  int list
+)
+ident(
+  def t "src/proteine/proteine.ml" 295 6834 6836 "src/proteine/proteine.ml" 295 6834 6867
+)
+"src/proteine/proteine.ml" 294 6815 6823 "src/proteine/proteine.ml" 294 6815 6829
+type(
+  int list
+)
+"src/proteine/proteine.ml" 295 6834 6836 "src/proteine/proteine.ml" 295 6834 6839
+type(
+  bool -> bool
+)
+ident(
+  ext_ref Batteries.not
+)
+"src/proteine/proteine.ml" 295 6834 6840 "src/proteine/proteine.ml" 295 6834 6846
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/proteine/proteine.ml" 295 6834 6848 "src/proteine/proteine.ml" 295 6834 6849
+type(
+  int
+)
+ident(
+  int_ref h "src/proteine/proteine.ml" 294 6815 6823 "src/proteine/proteine.ml" 294 6815 6824
+)
+"src/proteine/proteine.ml" 295 6834 6840 "src/proteine/proteine.ml" 295 6834 6850
+type(
+  place
+)
+"src/proteine/proteine.ml" 295 6834 6840 "src/proteine/proteine.ml" 295 6834 6858
+call(
+  stack
+)
+type(
+  bool
+)
+"src/proteine/proteine.ml" 295 6834 6836 "src/proteine/proteine.ml" 295 6834 6858
+type(
+  bool
+)
+"src/proteine/proteine.ml" 295 6834 6859 "src/proteine/proteine.ml" 295 6834 6861
+type(
+  bool -> bool -> bool
+)
+ident(
+  ext_ref Batteries.( && )
+)
+"src/proteine/proteine.ml" 295 6834 6862 "src/proteine/proteine.ml" 295 6834 6865
+type(
+  int list -> bool
+)
+ident(
+  int_ref aux "src/proteine/proteine.ml" 292 6775 6787 "src/proteine/proteine.ml" 292 6775 6790
+)
+"src/proteine/proteine.ml" 295 6834 6866 "src/proteine/proteine.ml" 295 6834 6867
+type(
+  int list
+)
+ident(
+  int_ref t "src/proteine/proteine.ml" 294 6815 6828 "src/proteine/proteine.ml" 294 6815 6829
+)
+"src/proteine/proteine.ml" 295 6834 6862 "src/proteine/proteine.ml" 295 6834 6867
+call(
+  tail
+)
+type(
+  bool
+)
+"src/proteine/proteine.ml" 295 6834 6836 "src/proteine/proteine.ml" 295 6834 6867
+type(
+  bool
+)
+"src/proteine/proteine.ml" 296 6868 6876 "src/proteine/proteine.ml" 296 6868 6878
+type(
+  int list
+)
+"src/proteine/proteine.ml" 296 6868 6882 "src/proteine/proteine.ml" 296 6868 6886
+type(
+  bool
+)
+"src/proteine/proteine.ml" 293 6796 6802 "src/proteine/proteine.ml" 296 6868 6886
+type(
+  bool
+)
+"src/proteine/proteine.ml" 298 6895 6900 "src/proteine/proteine.ml" 298 6895 6903
+type(
+  place_id list -> bool
+)
+ident(
+  int_ref aux "src/proteine/proteine.ml" 292 6775 6787 "src/proteine/proteine.ml" 292 6775 6790
+)
+"src/proteine/proteine.ml" 298 6895 6904 "src/proteine/proteine.ml" 298 6895 6919
+type(
+  place_id list
+)
+ident(
+  ext_ref departurePlaces
+)
+"src/proteine/proteine.ml" 298 6895 6899 "src/proteine/proteine.ml" 298 6895 6920
+call(
+  stack
+)
+type(
+  bool
+)
+"src/proteine/proteine.ml" 298 6895 6921 "src/proteine/proteine.ml" 298 6895 6923
+type(
+  bool -> bool -> bool
+)
+ident(
+  ext_ref Batteries.( && )
+)
+"src/proteine/proteine.ml" 298 6895 6924 "src/proteine/proteine.ml" 298 6895 6937
+type(
+  place array -> place_id list -> bool
+)
+ident(
+  int_ref placesAreFree "src/proteine/proteine.ml" 246 5550 5556 "src/proteine/proteine.ml" 246 5550 5569
+)
+"src/proteine/proteine.ml" 298 6895 6938 "src/proteine/proteine.ml" 298 6895 6944
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/proteine/proteine.ml" 298 6895 6945 "src/proteine/proteine.ml" 298 6895 6958
+type(
+  place_id list
+)
+ident(
+  ext_ref arrivalPlaces
+)
+"src/proteine/proteine.ml" 298 6895 6924 "src/proteine/proteine.ml" 298 6895 6958
+call(
+  tail
+)
+type(
+  bool
+)
+"src/proteine/proteine.ml" 298 6895 6899 "src/proteine/proteine.ml" 298 6895 6958
+type(
+  bool
+)
+"src/proteine/proteine.ml" 292 6775 6779 "src/proteine/proteine.ml" 298 6895 6958
+type(
+  bool
+)
+type(
+  bool
+)
+"src/proteine/proteine.ml" 306 7100 7115 "src/proteine/proteine.ml" 306 7100 7118
+type(
+  MyMolecule.molecule
+)
+"src/proteine/proteine.ml" 308 7179 7185 "src/proteine/proteine.ml" 308 7179 7212
+type(
+  MyMolecule.transition_structure list
+)
+"src/proteine/proteine.ml" 308 7179 7215 "src/proteine/proteine.ml" 308 7179 7231
+type(
+  MyMolecule.molecule -> MyMolecule.transition_structure list
+)
+ident(
+  ext_ref MyMolecule.buildTransitions
+)
+"src/proteine/proteine.ml" 308 7179 7232 "src/proteine/proteine.ml" 308 7179 7235
+type(
+  MyMolecule.molecule
+)
+ident(
+  int_ref mol "src/proteine/proteine.ml" 306 7100 7115 "src/proteine/proteine.ml" 306 7100 7118
+)
+"src/proteine/proteine.ml" 308 7179 7215 "src/proteine/proteine.ml" 308 7179 7235
+call(
+  stack
+)
+type(
+  MyMolecule.transition_structure list
+)
+"src/proteine/proteine.ml" 311 7281 7287 "src/proteine/proteine.ml" 311 7281 7309
+type(
+  MolTypes.nodeType list
+)
+"src/proteine/proteine.ml" 311 7281 7312 "src/proteine/proteine.ml" 311 7281 7326
+type(
+  MyMolecule.molecule -> MolTypes.nodeType list
+)
+ident(
+  ext_ref MyMolecule.buildNodesList
+)
+"src/proteine/proteine.ml" 311 7281 7327 "src/proteine/proteine.ml" 311 7281 7330
+type(
+  MyMolecule.molecule
+)
+ident(
+  int_ref mol "src/proteine/proteine.ml" 306 7100 7115 "src/proteine/proteine.ml" 306 7100 7118
+)
+"src/proteine/proteine.ml" 311 7281 7312 "src/proteine/proteine.ml" 311 7281 7330
+call(
+  stack
+)
+type(
+  MolTypes.nodeType list
+)
+"src/proteine/proteine.ml" 319 7440 7446 "src/proteine/proteine.ml" 319 7440 7457
+type(
+  place list
+)
+"src/proteine/proteine.ml" 320 7474 7478 "src/proteine/proteine.ml" 320 7474 7486
+type(
+  (MolTypes.nodeType -> place) -> MolTypes.nodeType list -> place list
+)
+ident(
+  ext_ref Batteries.List.map
+)
+"src/proteine/proteine.ml" 321 7488 7499 "src/proteine/proteine.ml" 321 7488 7500
+type(
+  MolTypes.nodeType
+)
+ident(
+  def x "src/proteine/proteine.ml" 321 7488 7504 "src/proteine/proteine.ml" 321 7488 7515
+)
+"src/proteine/proteine.ml" 321 7488 7504 "src/proteine/proteine.ml" 321 7488 7513
+type(
+  MolTypes.nodeType -> place
+)
+"src/proteine/proteine.ml" 321 7488 7514 "src/proteine/proteine.ml" 321 7488 7515
+type(
+  MolTypes.nodeType
+)
+ident(
+  int_ref x "src/proteine/proteine.ml" 321 7488 7499 "src/proteine/proteine.ml" 321 7488 7500
+)
+"src/proteine/proteine.ml" 321 7488 7504 "src/proteine/proteine.ml" 321 7488 7515
+call(
+  tail
+)
+type(
+  place
+)
+"src/proteine/proteine.ml" 321 7488 7494 "src/proteine/proteine.ml" 321 7488 7516
+type(
+  MolTypes.nodeType -> place
+)
+"src/proteine/proteine.ml" 322 7517 7523 "src/proteine/proteine.ml" 322 7517 7545
+type(
+  MolTypes.nodeType list
+)
+ident(
+  int_ref places_signatures_list "src/proteine/proteine.ml" 311 7281 7287 "src/proteine/proteine.ml" 311 7281 7309
+)
+"src/proteine/proteine.ml" 320 7474 7478 "src/proteine/proteine.ml" 322 7517 7545
+call(
+  stack
+)
+type(
+  place list
+)
+type(
+  place list
+)
+"src/proteine/proteine.ml" 326 7562 7569 "src/proteine/proteine.ml" 326 7562 7581
+type(
+  place array
+)
+"src/proteine/proteine.ml" 326 7562 7599 "src/proteine/proteine.ml" 326 7562 7612
+type(
+  place list -> place array
+)
+ident(
+  ext_ref Batteries.Array.of_list
+)
+"src/proteine/proteine.ml" 326 7562 7613 "src/proteine/proteine.ml" 326 7562 7624
+type(
+  place list
+)
+ident(
+  int_ref places_list "src/proteine/proteine.ml" 319 7440 7446 "src/proteine/proteine.ml" 319 7440 7457
+)
+"src/proteine/proteine.ml" 326 7562 7599 "src/proteine/proteine.ml" 326 7562 7624
+call(
+  stack
+)
+type(
+  place array
+)
+"src/proteine/proteine.ml" 329 7631 7638 "src/proteine/proteine.ml" 329 7631 7654
+type(
+  transition list
+)
+"src/proteine/proteine.ml" 330 7677 7681 "src/proteine/proteine.ml" 330 7677 7689
+type(
+  (MyMolecule.transition_structure -> transition) ->
+  MyMolecule.transition_structure list -> transition list
+)
+ident(
+  ext_ref Batteries.List.map
+)
+"src/proteine/proteine.ml" 331 7691 7702 "src/proteine/proteine.ml" 331 7691 7703
+type(
+  MyMolecule.transition_structure
+)
+ident(
+  def x "src/proteine/proteine.ml" 331 7691 7707 "src/proteine/proteine.ml" 332 7730 7767
+)
+"src/proteine/proteine.ml" 331 7691 7711 "src/proteine/proteine.ml" 331 7691 7712
+type(
+  string
+)
+ident(
+  def s "src/proteine/proteine.ml" 332 7730 7732 "src/proteine/proteine.ml" 332 7730 7767
+)
+"src/proteine/proteine.ml" 331 7691 7714 "src/proteine/proteine.ml" 331 7691 7717
+type(
+  (place_id * MolTypes.inputLinkType) list
+)
+ident(
+  def ila "src/proteine/proteine.ml" 332 7730 7732 "src/proteine/proteine.ml" 332 7730 7767
+)
+"src/proteine/proteine.ml" 331 7691 7719 "src/proteine/proteine.ml" 331 7691 7722
+type(
+  (place_id * MolTypes.outputLinkType) list
+)
+ident(
+  def ola "src/proteine/proteine.ml" 332 7730 7732 "src/proteine/proteine.ml" 332 7730 7767
+)
+"src/proteine/proteine.ml" 331 7691 7711 "src/proteine/proteine.ml" 331 7691 7722
+type(
+  MyMolecule.transition_structure
+)
+"src/proteine/proteine.ml" 331 7691 7725 "src/proteine/proteine.ml" 331 7691 7726
+type(
+  MyMolecule.transition_structure
+)
+ident(
+  int_ref x "src/proteine/proteine.ml" 331 7691 7702 "src/proteine/proteine.ml" 331 7691 7703
+)
+"src/proteine/proteine.ml" 332 7730 7732 "src/proteine/proteine.ml" 332 7730 7746
+type(
+  place array ->
+  (place_id * MolTypes.inputLinkType) list ->
+  (place_id * MolTypes.outputLinkType) list -> transition
+)
+"src/proteine/proteine.ml" 332 7730 7747 "src/proteine/proteine.ml" 332 7730 7759
+type(
+  place array
+)
+ident(
+  int_ref places_array "src/proteine/proteine.ml" 326 7562 7569 "src/proteine/proteine.ml" 326 7562 7581
+)
+"src/proteine/proteine.ml" 332 7730 7760 "src/proteine/proteine.ml" 332 7730 7763
+type(
+  (place_id * MolTypes.inputLinkType) list
+)
+ident(
+  int_ref ila "src/proteine/proteine.ml" 331 7691 7714 "src/proteine/proteine.ml" 331 7691 7717
+)
+"src/proteine/proteine.ml" 332 7730 7764 "src/proteine/proteine.ml" 332 7730 7767
+type(
+  (place_id * MolTypes.outputLinkType) list
+)
+ident(
+  int_ref ola "src/proteine/proteine.ml" 331 7691 7719 "src/proteine/proteine.ml" 331 7691 7722
+)
+"src/proteine/proteine.ml" 332 7730 7732 "src/proteine/proteine.ml" 332 7730 7767
+call(
+  tail
+)
+type(
+  transition
+)
+"src/proteine/proteine.ml" 331 7691 7707 "src/proteine/proteine.ml" 332 7730 7767
+type(
+  transition
+)
+"src/proteine/proteine.ml" 331 7691 7697 "src/proteine/proteine.ml" 332 7730 7768
+type(
+  MyMolecule.transition_structure -> transition
+)
+"src/proteine/proteine.ml" 333 7769 7775 "src/proteine/proteine.ml" 333 7769 7802
+type(
+  MyMolecule.transition_structure list
+)
+ident(
+  int_ref transitions_signatures_list "src/proteine/proteine.ml" 308 7179 7185 "src/proteine/proteine.ml" 308 7179 7212
+)
+"src/proteine/proteine.ml" 330 7677 7681 "src/proteine/proteine.ml" 333 7769 7802
+call(
+  stack
+)
+type(
+  transition list
+)
+"src/proteine/proteine.ml" 337 7813 7820 "src/proteine/proteine.ml" 337 7813 7837
+type(
+  transition array
+)
+"src/proteine/proteine.ml" 338 7861 7865 "src/proteine/proteine.ml" 338 7861 7878
+type(
+  transition list -> transition array
+)
+ident(
+  ext_ref Batteries.Array.of_list
+)
+"src/proteine/proteine.ml" 338 7861 7879 "src/proteine/proteine.ml" 338 7861 7895
+type(
+  transition list
+)
+ident(
+  int_ref transitions_list "src/proteine/proteine.ml" 329 7631 7638 "src/proteine/proteine.ml" 329 7631 7654
+)
+"src/proteine/proteine.ml" 338 7861 7865 "src/proteine/proteine.ml" 338 7861 7895
+call(
+  stack
+)
+type(
+  transition array
+)
+"src/proteine/proteine.ml" 350 8173 8183 "src/proteine/proteine.ml" 350 8173 8194
+type(
+  place_type list ->
+  int ->
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 350 8173 8195 "src/proteine/proteine.ml" 350 8173 8201
+type(
+  place_type list
+)
+ident(
+  def places "src/proteine/proteine.ml" 350 8173 8202 "src/proteine/proteine.ml" 364 8644 8688
+)
+"src/proteine/proteine.ml" 350 8173 8202 "src/proteine/proteine.ml" 350 8173 8203
+type(
+  int
+)
+ident(
+  def n "src/proteine/proteine.ml" 351 8207 8211 "src/proteine/proteine.ml" 364 8644 8688
+)
+"src/proteine/proteine.ml" 351 8207 8217 "src/proteine/proteine.ml" 351 8207 8223
+type(
+  place_type list
+)
+ident(
+  int_ref places "src/proteine/proteine.ml" 350 8173 8195 "src/proteine/proteine.ml" 350 8173 8201
+)
+"src/proteine/proteine.ml" 352 8229 8235 "src/proteine/proteine.ml" 352 8229 8236
+type(
+  place_type
+)
+ident(
+  def p "src/proteine/proteine.ml" 353 8251 8258 "src/proteine/proteine.ml" 360 8525 8535
+)
+"src/proteine/proteine.ml" 352 8229 8240 "src/proteine/proteine.ml" 352 8229 8247
+type(
+  place_type list
+)
+ident(
+  def places' "src/proteine/proteine.ml" 353 8251 8258 "src/proteine/proteine.ml" 360 8525 8535
+)
+"src/proteine/proteine.ml" 352 8229 8235 "src/proteine/proteine.ml" 352 8229 8247
+type(
+  place_type list
+)
+"src/proteine/proteine.ml" 353 8251 8262 "src/proteine/proteine.ml" 353 8251 8265
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  def imb "src/proteine/proteine.ml" 354 8307 8314 "src/proteine/proteine.ml" 360 8525 8535
+)
+"src/proteine/proteine.ml" 353 8251 8267 "src/proteine/proteine.ml" 353 8251 8270
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  def mcb "src/proteine/proteine.ml" 354 8307 8314 "src/proteine/proteine.ml" 360 8525 8535
+)
+"src/proteine/proteine.ml" 353 8251 8272 "src/proteine/proteine.ml" 353 8251 8274
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  def hb "src/proteine/proteine.ml" 354 8307 8314 "src/proteine/proteine.ml" 360 8525 8535
+)
+"src/proteine/proteine.ml" 353 8251 8262 "src/proteine/proteine.ml" 353 8251 8274
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 353 8251 8277 "src/proteine/proteine.ml" 353 8251 8288
+type(
+  place_type list ->
+  int ->
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref createBooks "src/proteine/proteine.ml" 350 8173 8183 "src/proteine/proteine.ml" 350 8173 8194
+)
+"src/proteine/proteine.ml" 353 8251 8289 "src/proteine/proteine.ml" 353 8251 8296
+type(
+  place_type list
+)
+ident(
+  int_ref places' "src/proteine/proteine.ml" 352 8229 8240 "src/proteine/proteine.ml" 352 8229 8247
+)
+"src/proteine/proteine.ml" 353 8251 8298 "src/proteine/proteine.ml" 353 8251 8299
+type(
+  int
+)
+ident(
+  int_ref n "src/proteine/proteine.ml" 350 8173 8202 "src/proteine/proteine.ml" 350 8173 8203
+)
+"src/proteine/proteine.ml" 353 8251 8299 "src/proteine/proteine.ml" 353 8251 8300
+type(
+  int -> int -> int
+)
+ident(
+  ext_ref Batteries.( + )
+)
+"src/proteine/proteine.ml" 353 8251 8300 "src/proteine/proteine.ml" 353 8251 8301
+type(
+  int
+)
+"src/proteine/proteine.ml" 353 8251 8297 "src/proteine/proteine.ml" 353 8251 8302
+type(
+  int
+)
+"src/proteine/proteine.ml" 353 8251 8277 "src/proteine/proteine.ml" 353 8251 8302
+call(
+  stack
+)
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 355 8320 8328 "src/proteine/proteine.ml" 355 8320 8329
+type(
+  place_type
+)
+ident(
+  int_ref p "src/proteine/proteine.ml" 352 8229 8235 "src/proteine/proteine.ml" 352 8229 8236
+)
+"src/proteine/proteine.ml" 356 8335 8353 "src/proteine/proteine.ml" 356 8335 8354
+type(
+  string
+)
+ident(
+  def s "src/proteine/proteine.ml" 356 8335 8358 "src/proteine/proteine.ml" 356 8335 8391
+)
+"src/proteine/proteine.ml" 356 8335 8339 "src/proteine/proteine.ml" 356 8335 8354
+type(
+  place_type
+)
+"src/proteine/proteine.ml" 356 8335 8358 "src/proteine/proteine.ml" 356 8335 8374
+type(
+  Batteries.String.t ->
+  int ->
+  (Batteries.String.t, int) BatMultiPMap.t ->
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.add
+)
+"src/proteine/proteine.ml" 356 8335 8375 "src/proteine/proteine.ml" 356 8335 8376
+type(
+  Batteries.String.t
+)
+ident(
+  int_ref s "src/proteine/proteine.ml" 356 8335 8353 "src/proteine/proteine.ml" 356 8335 8354
+)
+"src/proteine/proteine.ml" 356 8335 8377 "src/proteine/proteine.ml" 356 8335 8378
+type(
+  int
+)
+ident(
+  int_ref n "src/proteine/proteine.ml" 350 8173 8202 "src/proteine/proteine.ml" 350 8173 8203
+)
+"src/proteine/proteine.ml" 356 8335 8379 "src/proteine/proteine.ml" 356 8335 8382
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref imb "src/proteine/proteine.ml" 353 8251 8262 "src/proteine/proteine.ml" 353 8251 8265
+)
+"src/proteine/proteine.ml" 356 8335 8358 "src/proteine/proteine.ml" 356 8335 8382
+call(
+  stack
+)
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 356 8335 8384 "src/proteine/proteine.ml" 356 8335 8387
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref mcb "src/proteine/proteine.ml" 353 8251 8267 "src/proteine/proteine.ml" 353 8251 8270
+)
+"src/proteine/proteine.ml" 356 8335 8389 "src/proteine/proteine.ml" 356 8335 8391
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref hb "src/proteine/proteine.ml" 353 8251 8272 "src/proteine/proteine.ml" 353 8251 8274
+)
+"src/proteine/proteine.ml" 356 8335 8358 "src/proteine/proteine.ml" 356 8335 8391
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 357 8392 8408 "src/proteine/proteine.ml" 357 8392 8409
+type(
+  string
+)
+ident(
+  def s "src/proteine/proteine.ml" 357 8392 8413 "src/proteine/proteine.ml" 357 8392 8446
+)
+"src/proteine/proteine.ml" 357 8392 8396 "src/proteine/proteine.ml" 357 8392 8409
+type(
+  place_type
+)
+"src/proteine/proteine.ml" 357 8392 8413 "src/proteine/proteine.ml" 357 8392 8416
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref imb "src/proteine/proteine.ml" 353 8251 8262 "src/proteine/proteine.ml" 353 8251 8265
+)
+"src/proteine/proteine.ml" 357 8392 8418 "src/proteine/proteine.ml" 357 8392 8434
+type(
+  Batteries.String.t ->
+  int ->
+  (Batteries.String.t, int) BatMultiPMap.t ->
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.add
+)
+"src/proteine/proteine.ml" 357 8392 8435 "src/proteine/proteine.ml" 357 8392 8436
+type(
+  Batteries.String.t
+)
+ident(
+  int_ref s "src/proteine/proteine.ml" 357 8392 8408 "src/proteine/proteine.ml" 357 8392 8409
+)
+"src/proteine/proteine.ml" 357 8392 8437 "src/proteine/proteine.ml" 357 8392 8438
+type(
+  int
+)
+ident(
+  int_ref n "src/proteine/proteine.ml" 350 8173 8202 "src/proteine/proteine.ml" 350 8173 8203
+)
+"src/proteine/proteine.ml" 357 8392 8439 "src/proteine/proteine.ml" 357 8392 8442
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref mcb "src/proteine/proteine.ml" 353 8251 8267 "src/proteine/proteine.ml" 353 8251 8270
+)
+"src/proteine/proteine.ml" 357 8392 8418 "src/proteine/proteine.ml" 357 8392 8442
+call(
+  stack
+)
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 357 8392 8444 "src/proteine/proteine.ml" 357 8392 8446
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref hb "src/proteine/proteine.ml" 353 8251 8272 "src/proteine/proteine.ml" 353 8251 8274
+)
+"src/proteine/proteine.ml" 357 8392 8413 "src/proteine/proteine.ml" 357 8392 8446
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 358 8447 8464 "src/proteine/proteine.ml" 358 8447 8465
+type(
+  string
+)
+ident(
+  def s "src/proteine/proteine.ml" 358 8447 8469 "src/proteine/proteine.ml" 358 8447 8502
+)
+"src/proteine/proteine.ml" 358 8447 8451 "src/proteine/proteine.ml" 358 8447 8465
+type(
+  place_type
+)
+"src/proteine/proteine.ml" 358 8447 8469 "src/proteine/proteine.ml" 358 8447 8472
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref imb "src/proteine/proteine.ml" 353 8251 8262 "src/proteine/proteine.ml" 353 8251 8265
+)
+"src/proteine/proteine.ml" 358 8447 8474 "src/proteine/proteine.ml" 358 8447 8477
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref mcb "src/proteine/proteine.ml" 353 8251 8267 "src/proteine/proteine.ml" 353 8251 8270
+)
+"src/proteine/proteine.ml" 358 8447 8479 "src/proteine/proteine.ml" 358 8447 8495
+type(
+  Batteries.String.t ->
+  int ->
+  (Batteries.String.t, int) BatMultiPMap.t ->
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.add
+)
+"src/proteine/proteine.ml" 358 8447 8496 "src/proteine/proteine.ml" 358 8447 8497
+type(
+  Batteries.String.t
+)
+ident(
+  int_ref s "src/proteine/proteine.ml" 358 8447 8464 "src/proteine/proteine.ml" 358 8447 8465
+)
+"src/proteine/proteine.ml" 358 8447 8498 "src/proteine/proteine.ml" 358 8447 8499
+type(
+  int
+)
+ident(
+  int_ref n "src/proteine/proteine.ml" 350 8173 8202 "src/proteine/proteine.ml" 350 8173 8203
+)
+"src/proteine/proteine.ml" 358 8447 8500 "src/proteine/proteine.ml" 358 8447 8502
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref hb "src/proteine/proteine.ml" 353 8251 8272 "src/proteine/proteine.ml" 353 8251 8274
+)
+"src/proteine/proteine.ml" 358 8447 8479 "src/proteine/proteine.ml" 358 8447 8502
+call(
+  stack
+)
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 358 8447 8469 "src/proteine/proteine.ml" 358 8447 8502
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 359 8503 8507 "src/proteine/proteine.ml" 359 8503 8508
+type(
+  place_type
+)
+"src/proteine/proteine.ml" 359 8503 8512 "src/proteine/proteine.ml" 359 8503 8515
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref imb "src/proteine/proteine.ml" 353 8251 8262 "src/proteine/proteine.ml" 353 8251 8265
+)
+"src/proteine/proteine.ml" 359 8503 8517 "src/proteine/proteine.ml" 359 8503 8520
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref mcb "src/proteine/proteine.ml" 353 8251 8267 "src/proteine/proteine.ml" 353 8251 8270
+)
+"src/proteine/proteine.ml" 359 8503 8522 "src/proteine/proteine.ml" 359 8503 8524
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref hb "src/proteine/proteine.ml" 353 8251 8272 "src/proteine/proteine.ml" 353 8251 8274
+)
+"src/proteine/proteine.ml" 359 8503 8512 "src/proteine/proteine.ml" 359 8503 8524
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 354 8307 8314 "src/proteine/proteine.ml" 360 8525 8535
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 353 8251 8258 "src/proteine/proteine.ml" 360 8525 8535
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 361 8536 8542 "src/proteine/proteine.ml" 361 8536 8544
+type(
+  place_type list
+)
+"src/proteine/proteine.ml" 362 8549 8556 "src/proteine/proteine.ml" 362 8549 8575
+type(
+  (Batteries.String.t -> Batteries.String.t -> int) ->
+  (int -> int -> int) -> (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.create
+)
+"src/proteine/proteine.ml" 362 8549 8576 "src/proteine/proteine.ml" 362 8549 8590
+type(
+  Batteries.String.t -> Batteries.String.t -> int
+)
+ident(
+  ext_ref Batteries.String.compare
+)
+"src/proteine/proteine.ml" 362 8549 8591 "src/proteine/proteine.ml" 362 8549 8594
+type(
+  int -> int -> int
+)
+ident(
+  ext_ref Batteries.( - )
+)
+"src/proteine/proteine.ml" 362 8549 8556 "src/proteine/proteine.ml" 362 8549 8594
+call(
+  stack
+)
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 363 8597 8603 "src/proteine/proteine.ml" 363 8597 8622
+type(
+  (Batteries.String.t -> Batteries.String.t -> int) ->
+  (int -> int -> int) -> (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.create
+)
+"src/proteine/proteine.ml" 363 8597 8623 "src/proteine/proteine.ml" 363 8597 8637
+type(
+  Batteries.String.t -> Batteries.String.t -> int
+)
+ident(
+  ext_ref Batteries.String.compare
+)
+"src/proteine/proteine.ml" 363 8597 8638 "src/proteine/proteine.ml" 363 8597 8641
+type(
+  int -> int -> int
+)
+ident(
+  ext_ref Batteries.( - )
+)
+"src/proteine/proteine.ml" 363 8597 8603 "src/proteine/proteine.ml" 363 8597 8641
+call(
+  stack
+)
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 364 8644 8650 "src/proteine/proteine.ml" 364 8644 8669
+type(
+  (Batteries.String.t -> Batteries.String.t -> int) ->
+  (int -> int -> int) -> (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.create
+)
+"src/proteine/proteine.ml" 364 8644 8670 "src/proteine/proteine.ml" 364 8644 8684
+type(
+  Batteries.String.t -> Batteries.String.t -> int
+)
+ident(
+  ext_ref Batteries.String.compare
+)
+"src/proteine/proteine.ml" 364 8644 8685 "src/proteine/proteine.ml" 364 8644 8688
+type(
+  int -> int -> int
+)
+ident(
+  ext_ref Batteries.( - )
+)
+"src/proteine/proteine.ml" 364 8644 8650 "src/proteine/proteine.ml" 364 8644 8688
+call(
+  stack
+)
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 362 8549 8556 "src/proteine/proteine.ml" 364 8644 8688
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 351 8207 8211 "src/proteine/proteine.ml" 364 8644 8688
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 368 8703 8710 "src/proteine/proteine.ml" 368 8703 8726
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 368 8703 8728 "src/proteine/proteine.ml" 368 8703 8742
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 368 8703 8744 "src/proteine/proteine.ml" 368 8703 8754
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 368 8703 8709 "src/proteine/proteine.ml" 368 8703 8755
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 369 8759 8763 "src/proteine/proteine.ml" 369 8759 8774
+type(
+  MolTypes.nodeType list ->
+  int ->
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref createBooks "src/proteine/proteine.ml" 350 8173 8183 "src/proteine/proteine.ml" 350 8173 8194
+)
+"src/proteine/proteine.ml" 369 8759 8775 "src/proteine/proteine.ml" 369 8759 8797
+type(
+  MolTypes.nodeType list
+)
+ident(
+  int_ref places_signatures_list "src/proteine/proteine.ml" 311 7281 7287 "src/proteine/proteine.ml" 311 7281 7309
+)
+"src/proteine/proteine.ml" 369 8759 8798 "src/proteine/proteine.ml" 369 8759 8799
+type(
+  int
+)
+"src/proteine/proteine.ml" 369 8759 8763 "src/proteine/proteine.ml" 369 8759 8799
+call(
+  stack
+)
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/proteine/proteine.ml" 373 8814 8820 "src/proteine/proteine.ml" 373 8814 8826
+type(
+  < get_places : place array; initLaunchables : unit;
+    launchRandomTransition : unit; launchTransition : transition_id -> unit;
+    sendMessage : string -> unit BatSet.PSet.t; updateLaunchables : unit;
+    .. >
+)
+"src/proteine/proteine.ml" 374 8828 8840 "src/proteine/proteine.ml" 374 8828 8843
+type(
+  MyMolecule.molecule
+)
+ident(
+  int_ref mol "src/proteine/proteine.ml" 306 7100 7115 "src/proteine/proteine.ml" 306 7100 7118
+)
+"src/proteine/proteine.ml" 375 8844 8864 "src/proteine/proteine.ml" 375 8844 8881
+type(
+  transition array
+)
+ident(
+  int_ref transitions_array "src/proteine/proteine.ml" 337 7813 7820 "src/proteine/proteine.ml" 337 7813 7837
+)
+"src/proteine/proteine.ml" 376 8882 8897 "src/proteine/proteine.ml" 376 8882 8909
+type(
+  place array
+)
+ident(
+  int_ref places_array "src/proteine/proteine.ml" 326 7562 7569 "src/proteine/proteine.ml" 326 7562 7581
+)
+"src/proteine/proteine.ml" 377 8910 8938 "src/proteine/proteine.ml" 377 8910 8940
+type(
+  transition_id list
+)
+"src/proteine/proteine.ml" 378 8941 8968 "src/proteine/proteine.ml" 378 8941 8984
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref inputMessageBook "src/proteine/proteine.ml" 368 8703 8710 "src/proteine/proteine.ml" 368 8703 8726
+)
+"src/proteine/proteine.ml" 380 8986 9008 "src/proteine/proteine.ml" 380 8986 9014
+type(
+  place array
+)
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/proteine/proteine.ml" 384 9050 9058 "src/proteine/proteine.ml" 384 9050 9061
+type(
+  transition_id list Batteries.ref
+)
+ident(
+  def t_l "src/proteine/proteine.ml" 385 9075 9079 "src/proteine/proteine.ml" 392 9237 9244
+)
+"src/proteine/proteine.ml" 384 9050 9064 "src/proteine/proteine.ml" 384 9050 9067
+type(
+  transition_id list -> transition_id list Batteries.ref
+)
+ident(
+  ext_ref Batteries.ref
+)
+"src/proteine/proteine.ml" 384 9050 9068 "src/proteine/proteine.ml" 384 9050 9070
+type(
+  transition_id list
+)
+"src/proteine/proteine.ml" 384 9050 9064 "src/proteine/proteine.ml" 384 9050 9070
+type(
+  transition_id list Batteries.ref
+)
+"src/proteine/proteine.ml" 386 9085 9099 "src/proteine/proteine.ml" 386 9085 9100
+type(
+  int
+)
+"src/proteine/proteine.ml" 386 9085 9104 "src/proteine/proteine.ml" 386 9085 9116
+type(
+  transition array -> int
+)
+ident(
+  ext_ref Batteries.Array.length
+)
+"src/proteine/proteine.ml" 386 9085 9117 "src/proteine/proteine.ml" 386 9085 9128
+type(
+  transition array
+)
+ident(
+  ext_ref transitions
+)
+"src/proteine/proteine.ml" 386 9085 9104 "src/proteine/proteine.ml" 386 9085 9128
+type(
+  int
+)
+"src/proteine/proteine.ml" 386 9085 9129 "src/proteine/proteine.ml" 386 9085 9130
+type(
+  int -> int -> int
+)
+ident(
+  ext_ref Batteries.( - )
+)
+"src/proteine/proteine.ml" 386 9085 9130 "src/proteine/proteine.ml" 386 9085 9131
+type(
+  int
+)
+"src/proteine/proteine.ml" 386 9085 9104 "src/proteine/proteine.ml" 386 9085 9131
+type(
+  int
+)
+"src/proteine/proteine.ml" 387 9135 9139 "src/proteine/proteine.ml" 387 9135 9150
+type(
+  transition array
+)
+ident(
+  ext_ref transitions
+)
+"src/proteine/proteine.ml" 387 9135 9152 "src/proteine/proteine.ml" 387 9135 9153
+type(
+  transition_id
+)
+ident(
+  int_ref i "src/proteine/proteine.ml" 386 9085 9091 "src/proteine/proteine.ml" 390 9198 9208
+)
+"src/proteine/proteine.ml" 387 9135 9139 "src/proteine/proteine.ml" 387 9135 9154
+type(
+  transition
+)
+"src/proteine/proteine.ml" 387 9135 9139 "src/proteine/proteine.ml" 387 9135 9165
+call(
+  stack
+)
+type(
+  bool
+)
+"src/proteine/proteine.ml" 388 9166 9172 "src/proteine/proteine.ml" 388 9166 9175
+type(
+  transition_id list Batteries.ref
+)
+ident(
+  int_ref t_l "src/proteine/proteine.ml" 384 9050 9058 "src/proteine/proteine.ml" 384 9050 9061
+)
+"src/proteine/proteine.ml" 388 9166 9176 "src/proteine/proteine.ml" 388 9166 9178
+type(
+  transition_id list Batteries.ref -> transition_id list -> unit
+)
+ident(
+  ext_ref Batteries.( := )
+)
+"src/proteine/proteine.ml" 388 9166 9179 "src/proteine/proteine.ml" 388 9166 9180
+type(
+  transition_id
+)
+ident(
+  int_ref i "src/proteine/proteine.ml" 386 9085 9091 "src/proteine/proteine.ml" 390 9198 9208
+)
+"src/proteine/proteine.ml" 388 9166 9184 "src/proteine/proteine.ml" 388 9166 9185
+type(
+  transition_id list Batteries.ref -> transition_id list
+)
+ident(
+  ext_ref Batteries.( ! )
+)
+"src/proteine/proteine.ml" 388 9166 9185 "src/proteine/proteine.ml" 388 9166 9188
+type(
+  transition_id list Batteries.ref
+)
+ident(
+  int_ref t_l "src/proteine/proteine.ml" 384 9050 9058 "src/proteine/proteine.ml" 384 9050 9061
+)
+"src/proteine/proteine.ml" 388 9166 9184 "src/proteine/proteine.ml" 388 9166 9188
+type(
+  transition_id list
+)
+"src/proteine/proteine.ml" 388 9166 9179 "src/proteine/proteine.ml" 388 9166 9188
+type(
+  transition_id list
+)
+"src/proteine/proteine.ml" 388 9166 9172 "src/proteine/proteine.ml" 388 9166 9188
+type(
+  unit
+)
+"src/proteine/proteine.ml" 389 9189 9195 "src/proteine/proteine.ml" 389 9189 9197
+type(
+  unit
+)
+"src/proteine/proteine.ml" 387 9135 9136 "src/proteine/proteine.ml" 389 9189 9197
+type(
+  unit
+)
+"src/proteine/proteine.ml" 386 9085 9091 "src/proteine/proteine.ml" 390 9198 9208
+type(
+  unit
+)
+"src/proteine/proteine.ml" 391 9210 9231 "src/proteine/proteine.ml" 391 9210 9232
+type(
+  transition_id list Batteries.ref -> transition_id list
+)
+ident(
+  ext_ref Batteries.( ! )
+)
+"src/proteine/proteine.ml" 391 9210 9232 "src/proteine/proteine.ml" 391 9210 9235
+type(
+  transition_id list Batteries.ref
+)
+ident(
+  int_ref t_l "src/proteine/proteine.ml" 384 9050 9058 "src/proteine/proteine.ml" 384 9050 9061
+)
+"src/proteine/proteine.ml" 391 9210 9231 "src/proteine/proteine.ml" 391 9210 9235
+type(
+  transition_id list
+)
+"src/proteine/proteine.ml" 391 9210 9216 "src/proteine/proteine.ml" 391 9210 9236
+type(
+  unit
+)
+"src/proteine/proteine.ml" 385 9075 9079 "src/proteine/proteine.ml" 392 9237 9244
+type(
+  unit
+)
+"src/proteine/proteine.ml" 384 9050 9054 "src/proteine/proteine.ml" 392 9237 9244
+type(
+  unit
+)
+type(
+  unit
+)
+"src/proteine/proteine.ml" 402 9610 9639 "src/proteine/proteine.ml" 402 9610 9643
+type(
+  < get_places : place array; initLaunchables : unit;
+    launchRandomTransition : unit; launchTransition : transition_id -> unit;
+    sendMessage : string -> unit BatSet.PSet.t; updateLaunchables : unit;
+    .. >
+  as 'b
+)
+ident(
+  int_ref self "src/proteine/proteine.ml" 373 8814 8820 "src/proteine/proteine.ml" 373 8814 8826
+)
+"src/proteine/proteine.ml" 402 9610 9639 "src/proteine/proteine.ml" 402 9610 9659
+call(
+  tail
+)
+type(
+  unit
+)
+type(
+  unit
+)
+"src/proteine/proteine.ml" 406 9702 9729 "src/proteine/proteine.ml" 406 9702 9732
+type(
+  transition_id
+)
+ident(
+  def tId "src/proteine/proteine.ml" 406 9702 9750 "src/proteine/proteine.ml" 416 10081 10087
+)
+"src/proteine/proteine.ml" 407 9760 9768 "src/proteine/proteine.ml" 407 9760 9781
+type(
+  token list
+)
+ident(
+  def initialTokens "src/proteine/proteine.ml" 411 9883 9887 "src/proteine/proteine.ml" 416 10081 10087
+)
+"src/proteine/proteine.ml" 407 9760 9784 "src/proteine/proteine.ml" 407 9760 9792
+type(
+  (place_id -> token) -> place_id list -> token list
+)
+ident(
+  ext_ref Batteries.List.map
+)
+"src/proteine/proteine.ml" 408 9794 9805 "src/proteine/proteine.ml" 408 9794 9806
+type(
+  place_id
+)
+ident(
+  def x "src/proteine/proteine.ml" 408 9794 9810 "src/proteine/proteine.ml" 408 9794 9829
+)
+"src/proteine/proteine.ml" 408 9794 9810 "src/proteine/proteine.ml" 408 9794 9816
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/proteine/proteine.ml" 408 9794 9818 "src/proteine/proteine.ml" 408 9794 9819
+type(
+  place_id
+)
+ident(
+  int_ref x "src/proteine/proteine.ml" 408 9794 9805 "src/proteine/proteine.ml" 408 9794 9806
+)
+"src/proteine/proteine.ml" 408 9794 9810 "src/proteine/proteine.ml" 408 9794 9820
+type(
+  place
+)
+"src/proteine/proteine.ml" 408 9794 9810 "src/proteine/proteine.ml" 408 9794 9829
+call(
+  tail
+)
+type(
+  token
+)
+"src/proteine/proteine.ml" 408 9794 9800 "src/proteine/proteine.ml" 408 9794 9830
+type(
+  place_id -> token
+)
+"src/proteine/proteine.ml" 409 9832 9838 "src/proteine/proteine.ml" 409 9832 9849
+type(
+  transition array
+)
+ident(
+  ext_ref transitions
+)
+"src/proteine/proteine.ml" 409 9832 9851 "src/proteine/proteine.ml" 409 9832 9854
+type(
+  transition_id
+)
+ident(
+  int_ref tId "src/proteine/proteine.ml" 406 9702 9729 "src/proteine/proteine.ml" 406 9702 9732
+)
+"src/proteine/proteine.ml" 409 9832 9838 "src/proteine/proteine.ml" 409 9832 9855
+type(
+  transition
+)
+"src/proteine/proteine.ml" 409 9832 9838 "src/proteine/proteine.ml" 409 9832 9874
+call(
+  stack
+)
+type(
+  place_id list
+)
+"src/proteine/proteine.ml" 407 9760 9784 "src/proteine/proteine.ml" 409 9832 9874
+call(
+  stack
+)
+type(
+  token list
+)
+"src/proteine/proteine.ml" 411 9883 9891 "src/proteine/proteine.ml" 411 9883 9902
+type(
+  token list
+)
+ident(
+  def finalTokens "src/proteine/proteine.ml" 413 9962 9966 "src/proteine/proteine.ml" 416 10081 10087
+)
+"src/proteine/proteine.ml" 411 9883 9905 "src/proteine/proteine.ml" 411 9883 9916
+type(
+  transition array
+)
+ident(
+  ext_ref transitions
+)
+"src/proteine/proteine.ml" 411 9883 9918 "src/proteine/proteine.ml" 411 9883 9921
+type(
+  transition_id
+)
+ident(
+  int_ref tId "src/proteine/proteine.ml" 406 9702 9729 "src/proteine/proteine.ml" 406 9702 9732
+)
+"src/proteine/proteine.ml" 411 9883 9905 "src/proteine/proteine.ml" 411 9883 9922
+type(
+  transition
+)
+"src/proteine/proteine.ml" 411 9883 9905 "src/proteine/proteine.ml" 411 9883 9939
+call(
+  stack
+)
+type(
+  token list -> token list
+)
+"src/proteine/proteine.ml" 411 9883 9940 "src/proteine/proteine.ml" 411 9883 9953
+type(
+  token list
+)
+ident(
+  int_ref initialTokens "src/proteine/proteine.ml" 407 9760 9768 "src/proteine/proteine.ml" 407 9760 9781
+)
+"src/proteine/proteine.ml" 411 9883 9905 "src/proteine/proteine.ml" 411 9883 9953
+type(
+  token list
+)
+"src/proteine/proteine.ml" 413 9962 9966 "src/proteine/proteine.ml" 413 9962 9974
+type(
+  (place_id * token -> unit) -> (place_id * token) list -> unit list
+)
+ident(
+  ext_ref Batteries.List.map
+)
+"src/proteine/proteine.ml" 414 9976 9988 "src/proteine/proteine.ml" 414 9976 9989
+type(
+  place_id
+)
+ident(
+  def x "src/proteine/proteine.ml" 414 9976 9996 "src/proteine/proteine.ml" 414 9976 10017
+)
+"src/proteine/proteine.ml" 414 9976 9990 "src/proteine/proteine.ml" 414 9976 9991
+type(
+  token
+)
+ident(
+  def y "src/proteine/proteine.ml" 414 9976 9996 "src/proteine/proteine.ml" 414 9976 10017
+)
+"src/proteine/proteine.ml" 414 9976 9987 "src/proteine/proteine.ml" 414 9976 9992
+type(
+  place_id * token
+)
+"src/proteine/proteine.ml" 414 9976 9996 "src/proteine/proteine.ml" 414 9976 10002
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/proteine/proteine.ml" 414 9976 10004 "src/proteine/proteine.ml" 414 9976 10005
+type(
+  place_id
+)
+ident(
+  int_ref x "src/proteine/proteine.ml" 414 9976 9988 "src/proteine/proteine.ml" 414 9976 9989
+)
+"src/proteine/proteine.ml" 414 9976 9996 "src/proteine/proteine.ml" 414 9976 10006
+type(
+  place
+)
+"src/proteine/proteine.ml" 414 9976 9996 "src/proteine/proteine.ml" 414 9976 10015
+call(
+  tail
+)
+type(
+  token -> unit
+)
+"src/proteine/proteine.ml" 414 9976 10016 "src/proteine/proteine.ml" 414 9976 10017
+type(
+  token
+)
+ident(
+  int_ref y "src/proteine/proteine.ml" 414 9976 9990 "src/proteine/proteine.ml" 414 9976 9991
+)
+"src/proteine/proteine.ml" 414 9976 9996 "src/proteine/proteine.ml" 414 9976 10017
+type(
+  unit
+)
+"src/proteine/proteine.ml" 414 9976 9982 "src/proteine/proteine.ml" 414 9976 10018
+type(
+  place_id * token -> unit
+)
+"src/proteine/proteine.ml" 415 10019 10026 "src/proteine/proteine.ml" 415 10019 10029
+type(
+  place_id list -> token list -> (place_id * token) list
+)
+ident(
+  ext_ref Misc_library.zip
+)
+"src/proteine/proteine.ml" 415 10019 10031 "src/proteine/proteine.ml" 415 10019 10042
+type(
+  transition array
+)
+ident(
+  ext_ref transitions
+)
+"src/proteine/proteine.ml" 415 10019 10044 "src/proteine/proteine.ml" 415 10019 10047
+type(
+  transition_id
+)
+ident(
+  int_ref tId "src/proteine/proteine.ml" 406 9702 9729 "src/proteine/proteine.ml" 406 9702 9732
+)
+"src/proteine/proteine.ml" 415 10019 10031 "src/proteine/proteine.ml" 415 10019 10048
+type(
+  transition
+)
+"src/proteine/proteine.ml" 415 10019 10030 "src/proteine/proteine.ml" 415 10019 10066
+call(
+  stack
+)
+type(
+  place_id list
+)
+"src/proteine/proteine.ml" 415 10019 10067 "src/proteine/proteine.ml" 415 10019 10078
+type(
+  token list
+)
+ident(
+  int_ref finalTokens "src/proteine/proteine.ml" 411 9883 9891 "src/proteine/proteine.ml" 411 9883 9902
+)
+"src/proteine/proteine.ml" 415 10019 10025 "src/proteine/proteine.ml" 415 10019 10079
+call(
+  stack
+)
+type(
+  (place_id * token) list
+)
+"src/proteine/proteine.ml" 413 9962 9966 "src/proteine/proteine.ml" 415 10019 10079
+call(
+  stack
+)
+type(
+  unit list
+)
+"src/proteine/proteine.ml" 416 10081 10085 "src/proteine/proteine.ml" 416 10081 10087
+type(
+  unit
+)
+"src/proteine/proteine.ml" 413 9962 9966 "src/proteine/proteine.ml" 416 10081 10087
+type(
+  unit
+)
+"src/proteine/proteine.ml" 411 9883 9887 "src/proteine/proteine.ml" 416 10081 10087
+type(
+  unit
+)
+"src/proteine/proteine.ml" 407 9760 9764 "src/proteine/proteine.ml" 416 10081 10087
+type(
+  unit
+)
+type(
+  unit
+)
+"src/proteine/proteine.ml" 420 10194 10202 "src/proteine/proteine.ml" 420 10194 10203
+type(
+  transition_id
+)
+ident(
+  def t "src/proteine/proteine.ml" 421 10240 10244 "src/proteine/proteine.ml" 421 10240 10267
+)
+"src/proteine/proteine.ml" 420 10194 10206 "src/proteine/proteine.ml" 420 10194 10224
+type(
+  transition_id list -> transition_id
+)
+ident(
+  ext_ref Misc_library.randomPickFromList
+)
+"src/proteine/proteine.ml" 420 10194 10225 "src/proteine/proteine.ml" 420 10194 10236
+type(
+  transition_id list
+)
+ident(
+  ext_ref launchables
+)
+"src/proteine/proteine.ml" 420 10194 10206 "src/proteine/proteine.ml" 420 10194 10236
+call(
+  stack
+)
+type(
+  transition_id
+)
+"src/proteine/proteine.ml" 421 10240 10244 "src/proteine/proteine.ml" 421 10240 10248
+type(
+  'b
+)
+ident(
+  int_ref self "src/proteine/proteine.ml" 373 8814 8820 "src/proteine/proteine.ml" 373 8814 8826
+)
+"src/proteine/proteine.ml" 421 10240 10244 "src/proteine/proteine.ml" 421 10240 10265
+call(
+  tail
+)
+type(
+  transition_id -> unit
+)
+"src/proteine/proteine.ml" 421 10240 10266 "src/proteine/proteine.ml" 421 10240 10267
+type(
+  transition_id
+)
+ident(
+  int_ref t "src/proteine/proteine.ml" 420 10194 10202 "src/proteine/proteine.ml" 420 10194 10203
+)
+"src/proteine/proteine.ml" 421 10240 10244 "src/proteine/proteine.ml" 421 10240 10267
+type(
+  unit
+)
+"src/proteine/proteine.ml" 420 10194 10198 "src/proteine/proteine.ml" 421 10240 10267
+type(
+  unit
+)
+type(
+  unit
+)
+"src/proteine/proteine.ml" 426 10371 10393 "src/proteine/proteine.ml" 426 10371 10394
+type(
+  string
+)
+ident(
+  def m "src/proteine/proteine.ml" 427 10408 10412 "src/proteine/proteine.ml" 429 10478 10522
+)
+"src/proteine/proteine.ml" 427 10408 10412 "src/proteine/proteine.ml" 427 10408 10427
+type(
+  (int -> unit) -> int BatSet.PSet.t -> unit BatSet.PSet.t
+)
+ident(
+  ext_ref BatSet.PSet.map
+)
+"src/proteine/proteine.ml" 428 10429 10440 "src/proteine/proteine.ml" 428 10429 10441
+type(
+  int
+)
+ident(
+  def x "src/proteine/proteine.ml" 428 10429 10445 "src/proteine/proteine.ml" 428 10429 10475
+)
+"src/proteine/proteine.ml" 428 10429 10445 "src/proteine/proteine.ml" 428 10429 10451
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/proteine/proteine.ml" 428 10429 10453 "src/proteine/proteine.ml" 428 10429 10454
+type(
+  int
+)
+ident(
+  int_ref x "src/proteine/proteine.ml" 428 10429 10440 "src/proteine/proteine.ml" 428 10429 10441
+)
+"src/proteine/proteine.ml" 428 10429 10445 "src/proteine/proteine.ml" 428 10429 10455
+type(
+  place
+)
+"src/proteine/proteine.ml" 428 10429 10445 "src/proteine/proteine.ml" 428 10429 10475
+call(
+  tail
+)
+type(
+  unit
+)
+"src/proteine/proteine.ml" 428 10429 10435 "src/proteine/proteine.ml" 428 10429 10476
+type(
+  int -> unit
+)
+"src/proteine/proteine.ml" 429 10478 10485 "src/proteine/proteine.ml" 429 10478 10502
+type(
+  Batteries.String.t ->
+  (Batteries.String.t, int) BatMultiPMap.t -> int BatSet.PSet.t
+)
+ident(
+  ext_ref BatMultiPMap.find
+)
+"src/proteine/proteine.ml" 429 10478 10503 "src/proteine/proteine.ml" 429 10478 10504
+type(
+  Batteries.String.t
+)
+ident(
+  int_ref m "src/proteine/proteine.ml" 426 10371 10393 "src/proteine/proteine.ml" 426 10371 10394
+)
+"src/proteine/proteine.ml" 429 10478 10505 "src/proteine/proteine.ml" 429 10478 10521
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  int_ref inputMessageBook "src/proteine/proteine.ml" 368 8703 8710 "src/proteine/proteine.ml" 368 8703 8726
+)
+"src/proteine/proteine.ml" 429 10478 10484 "src/proteine/proteine.ml" 429 10478 10522
+call(
+  stack
+)
+type(
+  int BatSet.PSet.t
+)
+"src/proteine/proteine.ml" 427 10408 10412 "src/proteine/proteine.ml" 429 10478 10522
+call(
+  tail
+)
+type(
+  unit BatSet.PSet.t
+)

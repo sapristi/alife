@@ -1,0 +1,1739 @@
+"src/molecule/molecule.ml" 48 1110 1116 "src/molecule/molecule.ml" 48 1110 1132
+type(
+  molecule -> transition_structure list
+)
+ident(
+  def buildTransitions "src/molecule/molecule.ml" 107 2826 2828 "src/molecule/molecule.ml" 169 4685 4688
+)
+"src/molecule/molecule.ml" 48 1110 1134 "src/molecule/molecule.ml" 48 1110 1137
+type(
+  molecule
+)
+ident(
+  def mol "src/molecule/molecule.ml" 48 1110 1150 "src/molecule/molecule.ml" 103 2735 2751
+)
+"src/molecule/molecule.ml" 53 1286 1298 "src/molecule/molecule.ml" 53 1286 1314
+type(
+  int ->
+  string ->
+  MolTypes.inputLinkType ->
+  transition_structure list -> transition_structure list
+)
+ident(
+  def insert_new_input "src/molecule/molecule.ml" 53 1286 1290 "src/molecule/molecule.ml" 103 2735 2751
+)
+"src/molecule/molecule.ml" 54 1316 1318 "src/molecule/molecule.ml" 54 1316 1323
+type(
+  int
+)
+ident(
+  def nodeN "src/molecule/molecule.ml" 55 1334 1335 "src/molecule/molecule.ml" 66 1686 1728
+)
+"src/molecule/molecule.ml" 55 1334 1336 "src/molecule/molecule.ml" 55 1334 1343
+type(
+  string
+)
+ident(
+  def transID "src/molecule/molecule.ml" 56 1355 1356 "src/molecule/molecule.ml" 66 1686 1728
+)
+"src/molecule/molecule.ml" 56 1355 1357 "src/molecule/molecule.ml" 56 1355 1361
+type(
+  MolTypes.inputLinkType
+)
+ident(
+  def data "src/molecule/molecule.ml" 57 1392 1393 "src/molecule/molecule.ml" 66 1686 1728
+)
+"src/molecule/molecule.ml" 57 1392 1394 "src/molecule/molecule.ml" 57 1392 1400
+type(
+  transition_structure list
+)
+ident(
+  def transL "src/molecule/molecule.ml" 57 1392 1431 "src/molecule/molecule.ml" 66 1686 1728
+)
+"src/molecule/molecule.ml" 61 1472 1484 "src/molecule/molecule.ml" 61 1472 1490
+type(
+  transition_structure list
+)
+ident(
+  int_ref transL "src/molecule/molecule.ml" 57 1392 1394 "src/molecule/molecule.ml" 57 1392 1400
+)
+"src/molecule/molecule.ml" 62 1496 1505 "src/molecule/molecule.ml" 62 1496 1506
+type(
+  string
+)
+ident(
+  def t "src/molecule/molecule.ml" 63 1538 1540 "src/molecule/molecule.ml" 65 1611 1685
+)
+"src/molecule/molecule.ml" 62 1496 1508 "src/molecule/molecule.ml" 62 1496 1513
+type(
+  (int * MolTypes.inputLinkType) list
+)
+ident(
+  def input "src/molecule/molecule.ml" 63 1538 1540 "src/molecule/molecule.ml" 65 1611 1685
+)
+"src/molecule/molecule.ml" 62 1496 1515 "src/molecule/molecule.ml" 62 1496 1521
+type(
+  (int * MolTypes.outputLinkType) list
+)
+ident(
+  def output "src/molecule/molecule.ml" 63 1538 1540 "src/molecule/molecule.ml" 65 1611 1685
+)
+"src/molecule/molecule.ml" 62 1496 1504 "src/molecule/molecule.ml" 62 1496 1522
+type(
+  transition_structure
+)
+"src/molecule/molecule.ml" 62 1496 1526 "src/molecule/molecule.ml" 62 1496 1533
+type(
+  transition_structure list
+)
+ident(
+  def transL' "src/molecule/molecule.ml" 63 1538 1540 "src/molecule/molecule.ml" 65 1611 1685
+)
+"src/molecule/molecule.ml" 62 1496 1504 "src/molecule/molecule.ml" 62 1496 1533
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 63 1538 1543 "src/molecule/molecule.ml" 63 1538 1550
+type(
+  string
+)
+ident(
+  int_ref transID "src/molecule/molecule.ml" 55 1334 1336 "src/molecule/molecule.ml" 55 1334 1343
+)
+"src/molecule/molecule.ml" 63 1538 1551 "src/molecule/molecule.ml" 63 1538 1552
+type(
+  string -> string -> bool
+)
+ident(
+  ext_ref Pervasives.( = )
+)
+"src/molecule/molecule.ml" 63 1538 1553 "src/molecule/molecule.ml" 63 1538 1554
+type(
+  string
+)
+ident(
+  int_ref t "src/molecule/molecule.ml" 62 1496 1505 "src/molecule/molecule.ml" 62 1496 1506
+)
+"src/molecule/molecule.ml" 63 1538 1543 "src/molecule/molecule.ml" 63 1538 1554
+type(
+  bool
+)
+"src/molecule/molecule.ml" 64 1556 1564 "src/molecule/molecule.ml" 64 1556 1565
+type(
+  string
+)
+ident(
+  int_ref t "src/molecule/molecule.ml" 62 1496 1505 "src/molecule/molecule.ml" 62 1496 1506
+)
+"src/molecule/molecule.ml" 64 1556 1569 "src/molecule/molecule.ml" 64 1556 1574
+type(
+  int
+)
+ident(
+  int_ref nodeN "src/molecule/molecule.ml" 54 1316 1318 "src/molecule/molecule.ml" 54 1316 1323
+)
+"src/molecule/molecule.ml" 64 1556 1576 "src/molecule/molecule.ml" 64 1556 1580
+type(
+  MolTypes.inputLinkType
+)
+ident(
+  int_ref data "src/molecule/molecule.ml" 56 1355 1357 "src/molecule/molecule.ml" 56 1355 1361
+)
+"src/molecule/molecule.ml" 64 1556 1568 "src/molecule/molecule.ml" 64 1556 1581
+type(
+  int * MolTypes.inputLinkType
+)
+"src/molecule/molecule.ml" 64 1556 1585 "src/molecule/molecule.ml" 64 1556 1590
+type(
+  (int * MolTypes.inputLinkType) list
+)
+ident(
+  int_ref input "src/molecule/molecule.ml" 62 1496 1508 "src/molecule/molecule.ml" 62 1496 1513
+)
+"src/molecule/molecule.ml" 64 1556 1568 "src/molecule/molecule.ml" 64 1556 1590
+type(
+  (int * MolTypes.inputLinkType) list
+)
+"src/molecule/molecule.ml" 64 1556 1592 "src/molecule/molecule.ml" 64 1556 1598
+type(
+  (int * MolTypes.outputLinkType) list
+)
+ident(
+  int_ref output "src/molecule/molecule.ml" 62 1496 1515 "src/molecule/molecule.ml" 62 1496 1521
+)
+"src/molecule/molecule.ml" 64 1556 1563 "src/molecule/molecule.ml" 64 1556 1599
+type(
+  transition_structure
+)
+"src/molecule/molecule.ml" 64 1556 1603 "src/molecule/molecule.ml" 64 1556 1610
+type(
+  transition_structure list
+)
+ident(
+  int_ref transL' "src/molecule/molecule.ml" 62 1496 1526 "src/molecule/molecule.ml" 62 1496 1533
+)
+"src/molecule/molecule.ml" 64 1556 1563 "src/molecule/molecule.ml" 64 1556 1610
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 65 1611 1619 "src/molecule/molecule.ml" 65 1611 1620
+type(
+  string
+)
+ident(
+  int_ref t "src/molecule/molecule.ml" 62 1496 1505 "src/molecule/molecule.ml" 62 1496 1506
+)
+"src/molecule/molecule.ml" 65 1611 1622 "src/molecule/molecule.ml" 65 1611 1627
+type(
+  (int * MolTypes.inputLinkType) list
+)
+ident(
+  int_ref input "src/molecule/molecule.ml" 62 1496 1508 "src/molecule/molecule.ml" 62 1496 1513
+)
+"src/molecule/molecule.ml" 65 1611 1629 "src/molecule/molecule.ml" 65 1611 1635
+type(
+  (int * MolTypes.outputLinkType) list
+)
+ident(
+  int_ref output "src/molecule/molecule.ml" 62 1496 1515 "src/molecule/molecule.ml" 62 1496 1521
+)
+"src/molecule/molecule.ml" 65 1611 1618 "src/molecule/molecule.ml" 65 1611 1636
+type(
+  transition_structure
+)
+"src/molecule/molecule.ml" 65 1611 1641 "src/molecule/molecule.ml" 65 1611 1657
+type(
+  int ->
+  string ->
+  MolTypes.inputLinkType ->
+  transition_structure list -> transition_structure list
+)
+ident(
+  int_ref insert_new_input "src/molecule/molecule.ml" 53 1286 1298 "src/molecule/molecule.ml" 53 1286 1314
+)
+"src/molecule/molecule.ml" 65 1611 1658 "src/molecule/molecule.ml" 65 1611 1663
+type(
+  int
+)
+ident(
+  int_ref nodeN "src/molecule/molecule.ml" 54 1316 1318 "src/molecule/molecule.ml" 54 1316 1323
+)
+"src/molecule/molecule.ml" 65 1611 1664 "src/molecule/molecule.ml" 65 1611 1671
+type(
+  string
+)
+ident(
+  int_ref transID "src/molecule/molecule.ml" 55 1334 1336 "src/molecule/molecule.ml" 55 1334 1343
+)
+"src/molecule/molecule.ml" 65 1611 1672 "src/molecule/molecule.ml" 65 1611 1676
+type(
+  MolTypes.inputLinkType
+)
+ident(
+  int_ref data "src/molecule/molecule.ml" 56 1355 1357 "src/molecule/molecule.ml" 56 1355 1361
+)
+"src/molecule/molecule.ml" 65 1611 1677 "src/molecule/molecule.ml" 65 1611 1684
+type(
+  transition_structure list
+)
+ident(
+  int_ref transL' "src/molecule/molecule.ml" 62 1496 1526 "src/molecule/molecule.ml" 62 1496 1533
+)
+"src/molecule/molecule.ml" 65 1611 1640 "src/molecule/molecule.ml" 65 1611 1685
+call(
+  stack
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 65 1611 1618 "src/molecule/molecule.ml" 65 1611 1685
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 63 1538 1540 "src/molecule/molecule.ml" 65 1611 1685
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 66 1686 1694 "src/molecule/molecule.ml" 66 1686 1696
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 66 1686 1701 "src/molecule/molecule.ml" 66 1686 1708
+type(
+  string
+)
+ident(
+  int_ref transID "src/molecule/molecule.ml" 55 1334 1336 "src/molecule/molecule.ml" 55 1334 1343
+)
+"src/molecule/molecule.ml" 66 1686 1711 "src/molecule/molecule.ml" 66 1686 1716
+type(
+  int
+)
+ident(
+  int_ref nodeN "src/molecule/molecule.ml" 54 1316 1318 "src/molecule/molecule.ml" 54 1316 1323
+)
+"src/molecule/molecule.ml" 66 1686 1718 "src/molecule/molecule.ml" 66 1686 1722
+type(
+  MolTypes.inputLinkType
+)
+ident(
+  int_ref data "src/molecule/molecule.ml" 56 1355 1357 "src/molecule/molecule.ml" 56 1355 1361
+)
+"src/molecule/molecule.ml" 66 1686 1711 "src/molecule/molecule.ml" 66 1686 1722
+type(
+  int * MolTypes.inputLinkType
+)
+"src/molecule/molecule.ml" 66 1686 1710 "src/molecule/molecule.ml" 66 1686 1723
+type(
+  (int * MolTypes.inputLinkType) list
+)
+"src/molecule/molecule.ml" 66 1686 1725 "src/molecule/molecule.ml" 66 1686 1727
+type(
+  (int * MolTypes.outputLinkType) list
+)
+"src/molecule/molecule.ml" 66 1686 1701 "src/molecule/molecule.ml" 66 1686 1727
+type(
+  transition_structure
+)
+"src/molecule/molecule.ml" 66 1686 1700 "src/molecule/molecule.ml" 66 1686 1728
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 61 1472 1478 "src/molecule/molecule.ml" 66 1686 1728
+type(
+  transition_structure list
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 72 1828 1836 "src/molecule/molecule.ml" 72 1828 1853
+type(
+  int ->
+  string ->
+  MolTypes.outputLinkType ->
+  transition_structure list -> transition_structure list
+)
+ident(
+  def insert_new_output "src/molecule/molecule.ml" 53 1286 1290 "src/molecule/molecule.ml" 103 2735 2751
+)
+"src/molecule/molecule.ml" 73 1855 1857 "src/molecule/molecule.ml" 73 1855 1862
+type(
+  int
+)
+ident(
+  def nodeN "src/molecule/molecule.ml" 74 1873 1874 "src/molecule/molecule.ml" 85 2221 2263
+)
+"src/molecule/molecule.ml" 74 1873 1875 "src/molecule/molecule.ml" 74 1873 1882
+type(
+  string
+)
+ident(
+  def transID "src/molecule/molecule.ml" 75 1893 1894 "src/molecule/molecule.ml" 85 2221 2263
+)
+"src/molecule/molecule.ml" 75 1893 1895 "src/molecule/molecule.ml" 75 1893 1899
+type(
+  MolTypes.outputLinkType
+)
+ident(
+  def data "src/molecule/molecule.ml" 76 1931 1932 "src/molecule/molecule.ml" 85 2221 2263
+)
+"src/molecule/molecule.ml" 76 1931 1933 "src/molecule/molecule.ml" 76 1931 1939
+type(
+  transition_structure list
+)
+ident(
+  def transL "src/molecule/molecule.ml" 76 1931 1970 "src/molecule/molecule.ml" 85 2221 2263
+)
+"src/molecule/molecule.ml" 80 2005 2017 "src/molecule/molecule.ml" 80 2005 2023
+type(
+  transition_structure list
+)
+ident(
+  int_ref transL "src/molecule/molecule.ml" 76 1931 1933 "src/molecule/molecule.ml" 76 1931 1939
+)
+"src/molecule/molecule.ml" 81 2029 2038 "src/molecule/molecule.ml" 81 2029 2039
+type(
+  string
+)
+ident(
+  def t "src/molecule/molecule.ml" 82 2071 2073 "src/molecule/molecule.ml" 84 2145 2220
+)
+"src/molecule/molecule.ml" 81 2029 2041 "src/molecule/molecule.ml" 81 2029 2046
+type(
+  (int * MolTypes.inputLinkType) list
+)
+ident(
+  def input "src/molecule/molecule.ml" 82 2071 2073 "src/molecule/molecule.ml" 84 2145 2220
+)
+"src/molecule/molecule.ml" 81 2029 2048 "src/molecule/molecule.ml" 81 2029 2054
+type(
+  (int * MolTypes.outputLinkType) list
+)
+ident(
+  def output "src/molecule/molecule.ml" 82 2071 2073 "src/molecule/molecule.ml" 84 2145 2220
+)
+"src/molecule/molecule.ml" 81 2029 2037 "src/molecule/molecule.ml" 81 2029 2055
+type(
+  transition_structure
+)
+"src/molecule/molecule.ml" 81 2029 2059 "src/molecule/molecule.ml" 81 2029 2066
+type(
+  transition_structure list
+)
+ident(
+  def transL' "src/molecule/molecule.ml" 82 2071 2073 "src/molecule/molecule.ml" 84 2145 2220
+)
+"src/molecule/molecule.ml" 81 2029 2037 "src/molecule/molecule.ml" 81 2029 2066
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 82 2071 2076 "src/molecule/molecule.ml" 82 2071 2083
+type(
+  string
+)
+ident(
+  int_ref transID "src/molecule/molecule.ml" 74 1873 1875 "src/molecule/molecule.ml" 74 1873 1882
+)
+"src/molecule/molecule.ml" 82 2071 2084 "src/molecule/molecule.ml" 82 2071 2085
+type(
+  string -> string -> bool
+)
+ident(
+  ext_ref Pervasives.( = )
+)
+"src/molecule/molecule.ml" 82 2071 2086 "src/molecule/molecule.ml" 82 2071 2087
+type(
+  string
+)
+ident(
+  int_ref t "src/molecule/molecule.ml" 81 2029 2038 "src/molecule/molecule.ml" 81 2029 2039
+)
+"src/molecule/molecule.ml" 82 2071 2076 "src/molecule/molecule.ml" 82 2071 2087
+type(
+  bool
+)
+"src/molecule/molecule.ml" 83 2089 2097 "src/molecule/molecule.ml" 83 2089 2098
+type(
+  string
+)
+ident(
+  int_ref t "src/molecule/molecule.ml" 81 2029 2038 "src/molecule/molecule.ml" 81 2029 2039
+)
+"src/molecule/molecule.ml" 83 2089 2101 "src/molecule/molecule.ml" 83 2089 2106
+type(
+  (int * MolTypes.inputLinkType) list
+)
+ident(
+  int_ref input "src/molecule/molecule.ml" 81 2029 2041 "src/molecule/molecule.ml" 81 2029 2046
+)
+"src/molecule/molecule.ml" 83 2089 2109 "src/molecule/molecule.ml" 83 2089 2114
+type(
+  int
+)
+ident(
+  int_ref nodeN "src/molecule/molecule.ml" 73 1855 1857 "src/molecule/molecule.ml" 73 1855 1862
+)
+"src/molecule/molecule.ml" 83 2089 2116 "src/molecule/molecule.ml" 83 2089 2120
+type(
+  MolTypes.outputLinkType
+)
+ident(
+  int_ref data "src/molecule/molecule.ml" 75 1893 1895 "src/molecule/molecule.ml" 75 1893 1899
+)
+"src/molecule/molecule.ml" 83 2089 2108 "src/molecule/molecule.ml" 83 2089 2121
+type(
+  int * MolTypes.outputLinkType
+)
+"src/molecule/molecule.ml" 83 2089 2126 "src/molecule/molecule.ml" 83 2089 2132
+type(
+  (int * MolTypes.outputLinkType) list
+)
+ident(
+  int_ref output "src/molecule/molecule.ml" 81 2029 2048 "src/molecule/molecule.ml" 81 2029 2054
+)
+"src/molecule/molecule.ml" 83 2089 2108 "src/molecule/molecule.ml" 83 2089 2132
+type(
+  (int * MolTypes.outputLinkType) list
+)
+"src/molecule/molecule.ml" 83 2089 2096 "src/molecule/molecule.ml" 83 2089 2133
+type(
+  transition_structure
+)
+"src/molecule/molecule.ml" 83 2089 2137 "src/molecule/molecule.ml" 83 2089 2144
+type(
+  transition_structure list
+)
+ident(
+  int_ref transL' "src/molecule/molecule.ml" 81 2029 2059 "src/molecule/molecule.ml" 81 2029 2066
+)
+"src/molecule/molecule.ml" 83 2089 2096 "src/molecule/molecule.ml" 83 2089 2144
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 84 2145 2153 "src/molecule/molecule.ml" 84 2145 2154
+type(
+  string
+)
+ident(
+  int_ref t "src/molecule/molecule.ml" 81 2029 2038 "src/molecule/molecule.ml" 81 2029 2039
+)
+"src/molecule/molecule.ml" 84 2145 2156 "src/molecule/molecule.ml" 84 2145 2161
+type(
+  (int * MolTypes.inputLinkType) list
+)
+ident(
+  int_ref input "src/molecule/molecule.ml" 81 2029 2041 "src/molecule/molecule.ml" 81 2029 2046
+)
+"src/molecule/molecule.ml" 84 2145 2163 "src/molecule/molecule.ml" 84 2145 2169
+type(
+  (int * MolTypes.outputLinkType) list
+)
+ident(
+  int_ref output "src/molecule/molecule.ml" 81 2029 2048 "src/molecule/molecule.ml" 81 2029 2054
+)
+"src/molecule/molecule.ml" 84 2145 2152 "src/molecule/molecule.ml" 84 2145 2170
+type(
+  transition_structure
+)
+"src/molecule/molecule.ml" 84 2145 2175 "src/molecule/molecule.ml" 84 2145 2192
+type(
+  int ->
+  string ->
+  MolTypes.outputLinkType ->
+  transition_structure list -> transition_structure list
+)
+ident(
+  int_ref insert_new_output "src/molecule/molecule.ml" 72 1828 1836 "src/molecule/molecule.ml" 72 1828 1853
+)
+"src/molecule/molecule.ml" 84 2145 2193 "src/molecule/molecule.ml" 84 2145 2198
+type(
+  int
+)
+ident(
+  int_ref nodeN "src/molecule/molecule.ml" 73 1855 1857 "src/molecule/molecule.ml" 73 1855 1862
+)
+"src/molecule/molecule.ml" 84 2145 2199 "src/molecule/molecule.ml" 84 2145 2206
+type(
+  string
+)
+ident(
+  int_ref transID "src/molecule/molecule.ml" 74 1873 1875 "src/molecule/molecule.ml" 74 1873 1882
+)
+"src/molecule/molecule.ml" 84 2145 2207 "src/molecule/molecule.ml" 84 2145 2211
+type(
+  MolTypes.outputLinkType
+)
+ident(
+  int_ref data "src/molecule/molecule.ml" 75 1893 1895 "src/molecule/molecule.ml" 75 1893 1899
+)
+"src/molecule/molecule.ml" 84 2145 2212 "src/molecule/molecule.ml" 84 2145 2219
+type(
+  transition_structure list
+)
+ident(
+  int_ref transL' "src/molecule/molecule.ml" 81 2029 2059 "src/molecule/molecule.ml" 81 2029 2066
+)
+"src/molecule/molecule.ml" 84 2145 2174 "src/molecule/molecule.ml" 84 2145 2220
+call(
+  stack
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 84 2145 2152 "src/molecule/molecule.ml" 84 2145 2220
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 82 2071 2073 "src/molecule/molecule.ml" 84 2145 2220
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 85 2221 2229 "src/molecule/molecule.ml" 85 2221 2231
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 85 2221 2236 "src/molecule/molecule.ml" 85 2221 2243
+type(
+  string
+)
+ident(
+  int_ref transID "src/molecule/molecule.ml" 74 1873 1875 "src/molecule/molecule.ml" 74 1873 1882
+)
+"src/molecule/molecule.ml" 85 2221 2245 "src/molecule/molecule.ml" 85 2221 2247
+type(
+  (int * MolTypes.inputLinkType) list
+)
+"src/molecule/molecule.ml" 85 2221 2250 "src/molecule/molecule.ml" 85 2221 2255
+type(
+  int
+)
+ident(
+  int_ref nodeN "src/molecule/molecule.ml" 73 1855 1857 "src/molecule/molecule.ml" 73 1855 1862
+)
+"src/molecule/molecule.ml" 85 2221 2257 "src/molecule/molecule.ml" 85 2221 2261
+type(
+  MolTypes.outputLinkType
+)
+ident(
+  int_ref data "src/molecule/molecule.ml" 75 1893 1895 "src/molecule/molecule.ml" 75 1893 1899
+)
+"src/molecule/molecule.ml" 85 2221 2250 "src/molecule/molecule.ml" 85 2221 2261
+type(
+  int * MolTypes.outputLinkType
+)
+"src/molecule/molecule.ml" 85 2221 2249 "src/molecule/molecule.ml" 85 2221 2262
+type(
+  (int * MolTypes.outputLinkType) list
+)
+"src/molecule/molecule.ml" 85 2221 2236 "src/molecule/molecule.ml" 85 2221 2262
+type(
+  transition_structure
+)
+"src/molecule/molecule.ml" 85 2221 2235 "src/molecule/molecule.ml" 85 2221 2263
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 80 2005 2011 "src/molecule/molecule.ml" 85 2221 2263
+type(
+  transition_structure list
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 88 2275 2287 "src/molecule/molecule.ml" 88 2275 2290
+type(
+  molecule -> int -> transition_structure list -> transition_structure list
+)
+ident(
+  def aux "src/molecule/molecule.ml" 88 2275 2279 "src/molecule/molecule.ml" 103 2735 2751
+)
+"src/molecule/molecule.ml" 89 2292 2294 "src/molecule/molecule.ml" 89 2292 2297
+type(
+  molecule
+)
+ident(
+  def mol "src/molecule/molecule.ml" 90 2313 2314 "src/molecule/molecule.ml" 100 2707 2723
+)
+"src/molecule/molecule.ml" 90 2313 2315 "src/molecule/molecule.ml" 90 2313 2320
+type(
+  int
+)
+ident(
+  def nodeN "src/molecule/molecule.ml" 91 2330 2331 "src/molecule/molecule.ml" 100 2707 2723
+)
+"src/molecule/molecule.ml" 91 2330 2332 "src/molecule/molecule.ml" 91 2330 2338
+type(
+  transition_structure list
+)
+ident(
+  def transL "src/molecule/molecule.ml" 91 2330 2368 "src/molecule/molecule.ml" 100 2707 2723
+)
+"src/molecule/molecule.ml" 95 2403 2415 "src/molecule/molecule.ml" 95 2403 2418
+type(
+  molecule
+)
+ident(
+  int_ref mol "src/molecule/molecule.ml" 89 2292 2294 "src/molecule/molecule.ml" 89 2292 2297
+)
+"src/molecule/molecule.ml" 96 2424 2437 "src/molecule/molecule.ml" 96 2424 2438
+type(
+  MolTypes.nodeType
+)
+"src/molecule/molecule.ml" 96 2424 2432 "src/molecule/molecule.ml" 96 2424 2438
+type(
+  acid
+)
+"src/molecule/molecule.ml" 96 2424 2442 "src/molecule/molecule.ml" 96 2424 2446
+type(
+  acid list
+)
+ident(
+  def mol' "src/molecule/molecule.ml" 96 2424 2450 "src/molecule/molecule.ml" 96 2424 2477
+)
+"src/molecule/molecule.ml" 96 2424 2432 "src/molecule/molecule.ml" 96 2424 2446
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 96 2424 2450 "src/molecule/molecule.ml" 96 2424 2453
+type(
+  molecule -> int -> transition_structure list -> transition_structure list
+)
+ident(
+  int_ref aux "src/molecule/molecule.ml" 88 2275 2287 "src/molecule/molecule.ml" 88 2275 2290
+)
+"src/molecule/molecule.ml" 96 2424 2454 "src/molecule/molecule.ml" 96 2424 2458
+type(
+  molecule
+)
+ident(
+  int_ref mol' "src/molecule/molecule.ml" 96 2424 2442 "src/molecule/molecule.ml" 96 2424 2446
+)
+"src/molecule/molecule.ml" 96 2424 2460 "src/molecule/molecule.ml" 96 2424 2465
+type(
+  int
+)
+ident(
+  int_ref nodeN "src/molecule/molecule.ml" 90 2313 2315 "src/molecule/molecule.ml" 90 2313 2320
+)
+"src/molecule/molecule.ml" 96 2424 2466 "src/molecule/molecule.ml" 96 2424 2467
+type(
+  int -> int -> int
+)
+ident(
+  ext_ref Pervasives.( + )
+)
+"src/molecule/molecule.ml" 96 2424 2468 "src/molecule/molecule.ml" 96 2424 2469
+type(
+  int
+)
+"src/molecule/molecule.ml" 96 2424 2459 "src/molecule/molecule.ml" 96 2424 2470
+type(
+  int
+)
+"src/molecule/molecule.ml" 96 2424 2471 "src/molecule/molecule.ml" 96 2424 2477
+type(
+  transition_structure list
+)
+ident(
+  int_ref transL "src/molecule/molecule.ml" 91 2330 2332 "src/molecule/molecule.ml" 91 2330 2338
+)
+"src/molecule/molecule.ml" 96 2424 2450 "src/molecule/molecule.ml" 96 2424 2477
+call(
+  tail
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 97 2478 2497 "src/molecule/molecule.ml" 97 2478 2498
+type(
+  string
+)
+ident(
+  def s "src/molecule/molecule.ml" 97 2478 2513 "src/molecule/molecule.ml" 97 2478 2563
+)
+"src/molecule/molecule.ml" 97 2478 2499 "src/molecule/molecule.ml" 97 2478 2500
+type(
+  MolTypes.inputLinkType
+)
+ident(
+  def d "src/molecule/molecule.ml" 97 2478 2513 "src/molecule/molecule.ml" 97 2478 2563
+)
+"src/molecule/molecule.ml" 97 2478 2486 "src/molecule/molecule.ml" 97 2478 2501
+type(
+  acid
+)
+"src/molecule/molecule.ml" 97 2478 2505 "src/molecule/molecule.ml" 97 2478 2509
+type(
+  acid list
+)
+ident(
+  def mol' "src/molecule/molecule.ml" 97 2478 2513 "src/molecule/molecule.ml" 97 2478 2563
+)
+"src/molecule/molecule.ml" 97 2478 2486 "src/molecule/molecule.ml" 97 2478 2509
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 97 2478 2513 "src/molecule/molecule.ml" 97 2478 2516
+type(
+  molecule -> int -> transition_structure list -> transition_structure list
+)
+ident(
+  int_ref aux "src/molecule/molecule.ml" 88 2275 2287 "src/molecule/molecule.ml" 88 2275 2290
+)
+"src/molecule/molecule.ml" 97 2478 2517 "src/molecule/molecule.ml" 97 2478 2521
+type(
+  molecule
+)
+ident(
+  int_ref mol' "src/molecule/molecule.ml" 97 2478 2505 "src/molecule/molecule.ml" 97 2478 2509
+)
+"src/molecule/molecule.ml" 97 2478 2522 "src/molecule/molecule.ml" 97 2478 2527
+type(
+  int
+)
+ident(
+  int_ref nodeN "src/molecule/molecule.ml" 90 2313 2315 "src/molecule/molecule.ml" 90 2313 2320
+)
+"src/molecule/molecule.ml" 97 2478 2529 "src/molecule/molecule.ml" 97 2478 2545
+type(
+  int ->
+  string ->
+  MolTypes.inputLinkType ->
+  transition_structure list -> transition_structure list
+)
+ident(
+  int_ref insert_new_input "src/molecule/molecule.ml" 53 1286 1298 "src/molecule/molecule.ml" 53 1286 1314
+)
+"src/molecule/molecule.ml" 97 2478 2546 "src/molecule/molecule.ml" 97 2478 2551
+type(
+  int
+)
+ident(
+  int_ref nodeN "src/molecule/molecule.ml" 90 2313 2315 "src/molecule/molecule.ml" 90 2313 2320
+)
+"src/molecule/molecule.ml" 97 2478 2552 "src/molecule/molecule.ml" 97 2478 2553
+type(
+  string
+)
+ident(
+  int_ref s "src/molecule/molecule.ml" 97 2478 2497 "src/molecule/molecule.ml" 97 2478 2498
+)
+"src/molecule/molecule.ml" 97 2478 2554 "src/molecule/molecule.ml" 97 2478 2555
+type(
+  MolTypes.inputLinkType
+)
+ident(
+  int_ref d "src/molecule/molecule.ml" 97 2478 2499 "src/molecule/molecule.ml" 97 2478 2500
+)
+"src/molecule/molecule.ml" 97 2478 2556 "src/molecule/molecule.ml" 97 2478 2562
+type(
+  transition_structure list
+)
+ident(
+  int_ref transL "src/molecule/molecule.ml" 91 2330 2332 "src/molecule/molecule.ml" 91 2330 2338
+)
+"src/molecule/molecule.ml" 97 2478 2528 "src/molecule/molecule.ml" 97 2478 2563
+call(
+  stack
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 97 2478 2513 "src/molecule/molecule.ml" 97 2478 2563
+call(
+  tail
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 98 2564 2584 "src/molecule/molecule.ml" 98 2564 2585
+type(
+  string
+)
+ident(
+  def s "src/molecule/molecule.ml" 98 2564 2600 "src/molecule/molecule.ml" 98 2564 2651
+)
+"src/molecule/molecule.ml" 98 2564 2586 "src/molecule/molecule.ml" 98 2564 2587
+type(
+  MolTypes.outputLinkType
+)
+ident(
+  def d "src/molecule/molecule.ml" 98 2564 2600 "src/molecule/molecule.ml" 98 2564 2651
+)
+"src/molecule/molecule.ml" 98 2564 2572 "src/molecule/molecule.ml" 98 2564 2588
+type(
+  acid
+)
+"src/molecule/molecule.ml" 98 2564 2592 "src/molecule/molecule.ml" 98 2564 2596
+type(
+  acid list
+)
+ident(
+  def mol' "src/molecule/molecule.ml" 98 2564 2600 "src/molecule/molecule.ml" 98 2564 2651
+)
+"src/molecule/molecule.ml" 98 2564 2572 "src/molecule/molecule.ml" 98 2564 2596
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 98 2564 2600 "src/molecule/molecule.ml" 98 2564 2603
+type(
+  molecule -> int -> transition_structure list -> transition_structure list
+)
+ident(
+  int_ref aux "src/molecule/molecule.ml" 88 2275 2287 "src/molecule/molecule.ml" 88 2275 2290
+)
+"src/molecule/molecule.ml" 98 2564 2604 "src/molecule/molecule.ml" 98 2564 2608
+type(
+  molecule
+)
+ident(
+  int_ref mol' "src/molecule/molecule.ml" 98 2564 2592 "src/molecule/molecule.ml" 98 2564 2596
+)
+"src/molecule/molecule.ml" 98 2564 2609 "src/molecule/molecule.ml" 98 2564 2614
+type(
+  int
+)
+ident(
+  int_ref nodeN "src/molecule/molecule.ml" 90 2313 2315 "src/molecule/molecule.ml" 90 2313 2320
+)
+"src/molecule/molecule.ml" 98 2564 2616 "src/molecule/molecule.ml" 98 2564 2633
+type(
+  int ->
+  string ->
+  MolTypes.outputLinkType ->
+  transition_structure list -> transition_structure list
+)
+ident(
+  int_ref insert_new_output "src/molecule/molecule.ml" 72 1828 1836 "src/molecule/molecule.ml" 72 1828 1853
+)
+"src/molecule/molecule.ml" 98 2564 2634 "src/molecule/molecule.ml" 98 2564 2639
+type(
+  int
+)
+ident(
+  int_ref nodeN "src/molecule/molecule.ml" 90 2313 2315 "src/molecule/molecule.ml" 90 2313 2320
+)
+"src/molecule/molecule.ml" 98 2564 2640 "src/molecule/molecule.ml" 98 2564 2641
+type(
+  string
+)
+ident(
+  int_ref s "src/molecule/molecule.ml" 98 2564 2584 "src/molecule/molecule.ml" 98 2564 2585
+)
+"src/molecule/molecule.ml" 98 2564 2642 "src/molecule/molecule.ml" 98 2564 2643
+type(
+  MolTypes.outputLinkType
+)
+ident(
+  int_ref d "src/molecule/molecule.ml" 98 2564 2586 "src/molecule/molecule.ml" 98 2564 2587
+)
+"src/molecule/molecule.ml" 98 2564 2644 "src/molecule/molecule.ml" 98 2564 2650
+type(
+  transition_structure list
+)
+ident(
+  int_ref transL "src/molecule/molecule.ml" 91 2330 2332 "src/molecule/molecule.ml" 91 2330 2338
+)
+"src/molecule/molecule.ml" 98 2564 2615 "src/molecule/molecule.ml" 98 2564 2651
+call(
+  stack
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 98 2564 2600 "src/molecule/molecule.ml" 98 2564 2651
+call(
+  tail
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 99 2652 2672 "src/molecule/molecule.ml" 99 2652 2673
+type(
+  string
+)
+"src/molecule/molecule.ml" 99 2652 2660 "src/molecule/molecule.ml" 99 2652 2673
+type(
+  acid
+)
+"src/molecule/molecule.ml" 99 2652 2677 "src/molecule/molecule.ml" 99 2652 2681
+type(
+  acid list
+)
+ident(
+  def mol' "src/molecule/molecule.ml" 99 2652 2685 "src/molecule/molecule.ml" 99 2652 2706
+)
+"src/molecule/molecule.ml" 99 2652 2660 "src/molecule/molecule.ml" 99 2652 2681
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 99 2652 2685 "src/molecule/molecule.ml" 99 2652 2688
+type(
+  molecule -> int -> transition_structure list -> transition_structure list
+)
+ident(
+  int_ref aux "src/molecule/molecule.ml" 88 2275 2287 "src/molecule/molecule.ml" 88 2275 2290
+)
+"src/molecule/molecule.ml" 99 2652 2689 "src/molecule/molecule.ml" 99 2652 2693
+type(
+  molecule
+)
+ident(
+  int_ref mol' "src/molecule/molecule.ml" 99 2652 2677 "src/molecule/molecule.ml" 99 2652 2681
+)
+"src/molecule/molecule.ml" 99 2652 2694 "src/molecule/molecule.ml" 99 2652 2699
+type(
+  int
+)
+ident(
+  int_ref nodeN "src/molecule/molecule.ml" 90 2313 2315 "src/molecule/molecule.ml" 90 2313 2320
+)
+"src/molecule/molecule.ml" 99 2652 2700 "src/molecule/molecule.ml" 99 2652 2706
+type(
+  transition_structure list
+)
+ident(
+  int_ref transL "src/molecule/molecule.ml" 91 2330 2332 "src/molecule/molecule.ml" 91 2330 2338
+)
+"src/molecule/molecule.ml" 99 2652 2685 "src/molecule/molecule.ml" 99 2652 2706
+call(
+  tail
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 100 2707 2715 "src/molecule/molecule.ml" 100 2707 2717
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 100 2707 2721 "src/molecule/molecule.ml" 100 2707 2723
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 95 2403 2409 "src/molecule/molecule.ml" 100 2707 2723
+type(
+  transition_structure list
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 103 2735 2739 "src/molecule/molecule.ml" 103 2735 2742
+type(
+  molecule -> int -> transition_structure list -> transition_structure list
+)
+ident(
+  int_ref aux "src/molecule/molecule.ml" 88 2275 2287 "src/molecule/molecule.ml" 88 2275 2290
+)
+"src/molecule/molecule.ml" 103 2735 2743 "src/molecule/molecule.ml" 103 2735 2746
+type(
+  molecule
+)
+ident(
+  int_ref mol "src/molecule/molecule.ml" 48 1110 1134 "src/molecule/molecule.ml" 48 1110 1137
+)
+"src/molecule/molecule.ml" 103 2735 2747 "src/molecule/molecule.ml" 103 2735 2748
+type(
+  int
+)
+"src/molecule/molecule.ml" 103 2735 2749 "src/molecule/molecule.ml" 103 2735 2751
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 103 2735 2739 "src/molecule/molecule.ml" 103 2735 2751
+call(
+  tail
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 88 2275 2279 "src/molecule/molecule.ml" 103 2735 2751
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 53 1286 1290 "src/molecule/molecule.ml" 103 2735 2751
+type(
+  transition_structure list
+)
+type(
+  transition_structure list
+)
+"src/molecule/molecule.ml" 107 2826 2836 "src/molecule/molecule.ml" 107 2826 2850
+type(
+  molecule -> MolTypes.nodeType list
+)
+ident(
+  def buildNodesList "src/molecule/molecule.ml" 107 2826 2828 "src/molecule/molecule.ml" 169 4685 4688
+)
+"src/molecule/molecule.ml" 107 2826 2852 "src/molecule/molecule.ml" 107 2826 2855
+type(
+  molecule
+)
+ident(
+  def mol "src/molecule/molecule.ml" 107 2826 2868 "src/molecule/molecule.ml" 111 3005 3019
+)
+"src/molecule/molecule.ml" 108 2896 2906 "src/molecule/molecule.ml" 108 2896 2909
+type(
+  molecule
+)
+ident(
+  int_ref mol "src/molecule/molecule.ml" 107 2826 2852 "src/molecule/molecule.ml" 107 2826 2855
+)
+"src/molecule/molecule.ml" 109 2915 2926 "src/molecule/molecule.ml" 109 2915 2927
+type(
+  MolTypes.nodeType
+)
+ident(
+  def d "src/molecule/molecule.ml" 109 2915 2939 "src/molecule/molecule.ml" 109 2915 2965
+)
+"src/molecule/molecule.ml" 109 2915 2921 "src/molecule/molecule.ml" 109 2915 2927
+type(
+  acid
+)
+"src/molecule/molecule.ml" 109 2915 2931 "src/molecule/molecule.ml" 109 2915 2935
+type(
+  acid list
+)
+ident(
+  def mol' "src/molecule/molecule.ml" 109 2915 2939 "src/molecule/molecule.ml" 109 2915 2965
+)
+"src/molecule/molecule.ml" 109 2915 2921 "src/molecule/molecule.ml" 109 2915 2935
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 109 2915 2939 "src/molecule/molecule.ml" 109 2915 2940
+type(
+  MolTypes.nodeType
+)
+ident(
+  int_ref d "src/molecule/molecule.ml" 109 2915 2926 "src/molecule/molecule.ml" 109 2915 2927
+)
+"src/molecule/molecule.ml" 109 2915 2945 "src/molecule/molecule.ml" 109 2915 2959
+type(
+  molecule -> MolTypes.nodeType list
+)
+ident(
+  int_ref buildNodesList "src/molecule/molecule.ml" 107 2826 2836 "src/molecule/molecule.ml" 107 2826 2850
+)
+"src/molecule/molecule.ml" 109 2915 2960 "src/molecule/molecule.ml" 109 2915 2964
+type(
+  molecule
+)
+ident(
+  int_ref mol' "src/molecule/molecule.ml" 109 2915 2931 "src/molecule/molecule.ml" 109 2915 2935
+)
+"src/molecule/molecule.ml" 109 2915 2944 "src/molecule/molecule.ml" 109 2915 2965
+call(
+  stack
+)
+type(
+  MolTypes.nodeType list
+)
+"src/molecule/molecule.ml" 109 2915 2939 "src/molecule/molecule.ml" 109 2915 2965
+type(
+  MolTypes.nodeType list
+)
+"src/molecule/molecule.ml" 110 2966 2972 "src/molecule/molecule.ml" 110 2966 2973
+type(
+  acid
+)
+"src/molecule/molecule.ml" 110 2966 2977 "src/molecule/molecule.ml" 110 2966 2981
+type(
+  acid list
+)
+ident(
+  def mol' "src/molecule/molecule.ml" 110 2966 2985 "src/molecule/molecule.ml" 110 2966 3004
+)
+"src/molecule/molecule.ml" 110 2966 2972 "src/molecule/molecule.ml" 110 2966 2981
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 110 2966 2985 "src/molecule/molecule.ml" 110 2966 2999
+type(
+  molecule -> MolTypes.nodeType list
+)
+ident(
+  int_ref buildNodesList "src/molecule/molecule.ml" 107 2826 2836 "src/molecule/molecule.ml" 107 2826 2850
+)
+"src/molecule/molecule.ml" 110 2966 3000 "src/molecule/molecule.ml" 110 2966 3004
+type(
+  molecule
+)
+ident(
+  int_ref mol' "src/molecule/molecule.ml" 110 2966 2977 "src/molecule/molecule.ml" 110 2966 2981
+)
+"src/molecule/molecule.ml" 110 2966 2985 "src/molecule/molecule.ml" 110 2966 3004
+call(
+  tail
+)
+type(
+  MolTypes.nodeType list
+)
+"src/molecule/molecule.ml" 111 3005 3011 "src/molecule/molecule.ml" 111 3005 3013
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 111 3005 3017 "src/molecule/molecule.ml" 111 3005 3019
+type(
+  MolTypes.nodeType list
+)
+"src/molecule/molecule.ml" 108 2896 2900 "src/molecule/molecule.ml" 111 3005 3019
+type(
+  MolTypes.nodeType list
+)
+type(
+  MolTypes.nodeType list
+)
+"src/molecule/molecule.ml" 119 3280 3304 "src/molecule/molecule.ml" 119 3280 3311
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 119 3280 3325 "src/molecule/molecule.ml" 119 3280 3332
+type(
+  position
+)
+"src/molecule/molecule.ml" 121 3352 3360 "src/molecule/molecule.ml" 121 3352 3366
+type(
+  < cut : moleculeHolder * moleculeHolder; get_information : string;
+    get_molecule : molecule; insert : moleculeHolder -> moleculeHolder;
+    is_empty : bool; mol_length : int; move_backward : unit;
+    move_forward : unit; .. >
+)
+"src/molecule/molecule.ml" 122 3367 3381 "src/molecule/molecule.ml" 122 3367 3388
+type(
+  molecule
+)
+ident(
+  int_ref initMol "src/molecule/molecule.ml" 119 3280 3304 "src/molecule/molecule.ml" 119 3280 3311
+)
+"src/molecule/molecule.ml" 123 3389 3411 "src/molecule/molecule.ml" 123 3389 3418
+type(
+  position
+)
+ident(
+  int_ref initPos "src/molecule/molecule.ml" 119 3280 3325 "src/molecule/molecule.ml" 119 3280 3332
+)
+"src/molecule/molecule.ml" 126 3458 3464 "src/molecule/molecule.ml" 126 3458 3467
+type(
+  molecule
+)
+type(
+  molecule
+)
+ident(
+  ext_ref mol
+)
+"src/molecule/molecule.ml" 129 3499 3505 "src/molecule/molecule.ml" 129 3499 3508
+type(
+  molecule
+)
+ident(
+  ext_ref mol
+)
+"src/molecule/molecule.ml" 129 3499 3509 "src/molecule/molecule.ml" 129 3499 3510
+type(
+  molecule -> molecule -> bool
+)
+ident(
+  ext_ref Pervasives.( = )
+)
+"src/molecule/molecule.ml" 129 3499 3511 "src/molecule/molecule.ml" 129 3499 3513
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 129 3499 3505 "src/molecule/molecule.ml" 129 3499 3513
+type(
+  bool
+)
+type(
+  bool
+)
+"src/molecule/molecule.ml" 132 3549 3558 "src/molecule/molecule.ml" 132 3549 3561
+type(
+  position
+)
+ident(
+  ext_ref pos
+)
+"src/molecule/molecule.ml" 132 3549 3562 "src/molecule/molecule.ml" 132 3549 3563
+type(
+  position -> position -> bool
+)
+ident(
+  ext_ref Pervasives.( < )
+)
+"src/molecule/molecule.ml" 132 3549 3564 "src/molecule/molecule.ml" 132 3549 3568
+type(
+  < cut : moleculeHolder * moleculeHolder; get_information : string;
+    get_molecule : molecule; insert : moleculeHolder -> moleculeHolder;
+    is_empty : bool; mol_length : int; move_backward : unit;
+    move_forward : unit; .. >
+  as 'a
+)
+ident(
+  int_ref self "src/molecule/molecule.ml" 121 3352 3360 "src/molecule/molecule.ml" 121 3352 3366
+)
+"src/molecule/molecule.ml" 132 3549 3564 "src/molecule/molecule.ml" 132 3549 3579
+call(
+  stack
+)
+type(
+  int
+)
+"src/molecule/molecule.ml" 132 3549 3580 "src/molecule/molecule.ml" 132 3549 3581
+type(
+  int -> int -> position
+)
+ident(
+  ext_ref Pervasives.( - )
+)
+"src/molecule/molecule.ml" 132 3549 3581 "src/molecule/molecule.ml" 132 3549 3582
+type(
+  int
+)
+"src/molecule/molecule.ml" 132 3549 3564 "src/molecule/molecule.ml" 132 3549 3582
+type(
+  position
+)
+"src/molecule/molecule.ml" 132 3549 3558 "src/molecule/molecule.ml" 132 3549 3582
+type(
+  bool
+)
+"src/molecule/molecule.ml" 133 3584 3602 "src/molecule/molecule.ml" 133 3584 3605
+type(
+  position
+)
+ident(
+  ext_ref pos
+)
+"src/molecule/molecule.ml" 133 3584 3606 "src/molecule/molecule.ml" 133 3584 3607
+type(
+  position -> int -> position
+)
+ident(
+  ext_ref Pervasives.( + )
+)
+"src/molecule/molecule.ml" 133 3584 3608 "src/molecule/molecule.ml" 133 3584 3609
+type(
+  int
+)
+"src/molecule/molecule.ml" 133 3584 3602 "src/molecule/molecule.ml" 133 3584 3609
+type(
+  position
+)
+"src/molecule/molecule.ml" 133 3584 3595 "src/molecule/molecule.ml" 133 3584 3609
+type(
+  unit
+)
+"src/molecule/molecule.ml" 132 3549 3555 "src/molecule/molecule.ml" 133 3584 3609
+type(
+  unit
+)
+type(
+  unit
+)
+"src/molecule/molecule.ml" 136 3646 3655 "src/molecule/molecule.ml" 136 3646 3658
+type(
+  position
+)
+ident(
+  ext_ref pos
+)
+"src/molecule/molecule.ml" 136 3646 3659 "src/molecule/molecule.ml" 136 3646 3660
+type(
+  position -> position -> bool
+)
+ident(
+  ext_ref Pervasives.( > )
+)
+"src/molecule/molecule.ml" 136 3646 3661 "src/molecule/molecule.ml" 136 3646 3662
+type(
+  position
+)
+"src/molecule/molecule.ml" 136 3646 3655 "src/molecule/molecule.ml" 136 3646 3662
+type(
+  bool
+)
+"src/molecule/molecule.ml" 137 3663 3681 "src/molecule/molecule.ml" 137 3663 3684
+type(
+  position
+)
+ident(
+  ext_ref pos
+)
+"src/molecule/molecule.ml" 137 3663 3685 "src/molecule/molecule.ml" 137 3663 3686
+type(
+  position -> int -> position
+)
+ident(
+  ext_ref Pervasives.( - )
+)
+"src/molecule/molecule.ml" 137 3663 3687 "src/molecule/molecule.ml" 137 3663 3688
+type(
+  int
+)
+"src/molecule/molecule.ml" 137 3663 3681 "src/molecule/molecule.ml" 137 3663 3688
+type(
+  position
+)
+"src/molecule/molecule.ml" 137 3663 3674 "src/molecule/molecule.ml" 137 3663 3688
+type(
+  unit
+)
+"src/molecule/molecule.ml" 136 3646 3652 "src/molecule/molecule.ml" 137 3663 3688
+type(
+  unit
+)
+type(
+  unit
+)
+"src/molecule/molecule.ml" 140 3721 3727 "src/molecule/molecule.ml" 140 3721 3738
+type(
+  molecule -> int
+)
+ident(
+  ext_ref List.length
+)
+"src/molecule/molecule.ml" 140 3721 3739 "src/molecule/molecule.ml" 140 3721 3742
+type(
+  molecule
+)
+ident(
+  ext_ref mol
+)
+"src/molecule/molecule.ml" 140 3721 3727 "src/molecule/molecule.ml" 140 3721 3742
+call(
+  tail
+)
+type(
+  int
+)
+type(
+  int
+)
+"src/molecule/molecule.ml" 146 3954 3964 "src/molecule/molecule.ml" 146 3954 3966
+type(
+  acid list
+)
+ident(
+  def m1 "src/molecule/molecule.ml" 147 4007 4013 "src/molecule/molecule.ml" 147 4007 4080
+)
+"src/molecule/molecule.ml" 146 3954 3968 "src/molecule/molecule.ml" 146 3954 3970
+type(
+  molecule
+)
+ident(
+  def m2 "src/molecule/molecule.ml" 147 4007 4013 "src/molecule/molecule.ml" 147 4007 4080
+)
+"src/molecule/molecule.ml" 146 3954 3964 "src/molecule/molecule.ml" 146 3954 3970
+type(
+  acid list * molecule
+)
+"src/molecule/molecule.ml" 146 3954 3973 "src/molecule/molecule.ml" 146 3954 3994
+type(
+  molecule -> position -> acid list * molecule
+)
+ident(
+  ext_ref Misc_library.cut_list
+)
+"src/molecule/molecule.ml" 146 3954 3995 "src/molecule/molecule.ml" 146 3954 3998
+type(
+  molecule
+)
+ident(
+  ext_ref mol
+)
+"src/molecule/molecule.ml" 146 3954 3999 "src/molecule/molecule.ml" 146 3954 4002
+type(
+  position
+)
+ident(
+  ext_ref pos
+)
+"src/molecule/molecule.ml" 146 3954 3973 "src/molecule/molecule.ml" 146 3954 4002
+call(
+  stack
+)
+type(
+  acid list * molecule
+)
+"src/molecule/molecule.ml" 147 4007 4013 "src/molecule/molecule.ml" 147 4007 4031
+type(
+  molecule -> position -> moleculeHolder
+)
+"src/molecule/molecule.ml" 147 4007 4032 "src/molecule/molecule.ml" 147 4007 4034
+type(
+  molecule
+)
+ident(
+  int_ref m1 "src/molecule/molecule.ml" 146 3954 3964 "src/molecule/molecule.ml" 146 3954 3966
+)
+"src/molecule/molecule.ml" 147 4007 4036 "src/molecule/molecule.ml" 147 4007 4047
+type(
+  acid list -> int
+)
+ident(
+  ext_ref List.length
+)
+"src/molecule/molecule.ml" 147 4007 4048 "src/molecule/molecule.ml" 147 4007 4050
+type(
+  acid list
+)
+ident(
+  int_ref m1 "src/molecule/molecule.ml" 146 3954 3964 "src/molecule/molecule.ml" 146 3954 3966
+)
+"src/molecule/molecule.ml" 147 4007 4036 "src/molecule/molecule.ml" 147 4007 4050
+call(
+  stack
+)
+type(
+  int
+)
+"src/molecule/molecule.ml" 147 4007 4051 "src/molecule/molecule.ml" 147 4007 4052
+type(
+  int -> int -> position
+)
+ident(
+  ext_ref Pervasives.( - )
+)
+"src/molecule/molecule.ml" 147 4007 4053 "src/molecule/molecule.ml" 147 4007 4054
+type(
+  int
+)
+"src/molecule/molecule.ml" 147 4007 4035 "src/molecule/molecule.ml" 147 4007 4055
+type(
+  position
+)
+"src/molecule/molecule.ml" 147 4007 4013 "src/molecule/molecule.ml" 147 4007 4055
+call(
+  stack
+)
+type(
+  moleculeHolder
+)
+"src/molecule/molecule.ml" 147 4007 4057 "src/molecule/molecule.ml" 147 4007 4075
+type(
+  molecule -> position -> moleculeHolder
+)
+"src/molecule/molecule.ml" 147 4007 4076 "src/molecule/molecule.ml" 147 4007 4078
+type(
+  molecule
+)
+ident(
+  int_ref m2 "src/molecule/molecule.ml" 146 3954 3968 "src/molecule/molecule.ml" 146 3954 3970
+)
+"src/molecule/molecule.ml" 147 4007 4079 "src/molecule/molecule.ml" 147 4007 4080
+type(
+  position
+)
+"src/molecule/molecule.ml" 147 4007 4057 "src/molecule/molecule.ml" 147 4007 4080
+call(
+  stack
+)
+type(
+  moleculeHolder
+)
+"src/molecule/molecule.ml" 147 4007 4013 "src/molecule/molecule.ml" 147 4007 4080
+type(
+  moleculeHolder * moleculeHolder
+)
+"src/molecule/molecule.ml" 146 3954 3960 "src/molecule/molecule.ml" 147 4007 4080
+type(
+  moleculeHolder * moleculeHolder
+)
+type(
+  moleculeHolder * moleculeHolder
+)
+"src/molecule/molecule.ml" 153 4258 4277 "src/molecule/molecule.ml" 153 4258 4279
+type(
+  moleculeHolder
+)
+ident(
+  def m2 "src/molecule/molecule.ml" 153 4258 4298 "src/molecule/molecule.ml" 156 4391 4413
+)
+"src/molecule/molecule.ml" 154 4318 4324 "src/molecule/molecule.ml" 154 4318 4342
+type(
+  molecule -> position -> moleculeHolder
+)
+"src/molecule/molecule.ml" 155 4344 4346 "src/molecule/molecule.ml" 155 4344 4365
+type(
+  molecule -> position -> molecule -> molecule
+)
+ident(
+  ext_ref Misc_library.insert
+)
+"src/molecule/molecule.ml" 155 4344 4366 "src/molecule/molecule.ml" 155 4344 4369
+type(
+  molecule
+)
+ident(
+  ext_ref mol
+)
+"src/molecule/molecule.ml" 155 4344 4370 "src/molecule/molecule.ml" 155 4344 4373
+type(
+  position
+)
+ident(
+  ext_ref pos
+)
+"src/molecule/molecule.ml" 155 4344 4374 "src/molecule/molecule.ml" 155 4344 4376
+type(
+  moleculeHolder
+)
+ident(
+  int_ref m2 "src/molecule/molecule.ml" 153 4258 4277 "src/molecule/molecule.ml" 153 4258 4279
+)
+"src/molecule/molecule.ml" 155 4344 4374 "src/molecule/molecule.ml" 155 4344 4389
+call(
+  stack
+)
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 155 4344 4345 "src/molecule/molecule.ml" 155 4344 4390
+call(
+  stack
+)
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 156 4391 4393 "src/molecule/molecule.ml" 156 4391 4396
+type(
+  position
+)
+ident(
+  ext_ref pos
+)
+"src/molecule/molecule.ml" 156 4391 4397 "src/molecule/molecule.ml" 156 4391 4398
+type(
+  position -> int -> position
+)
+ident(
+  ext_ref Pervasives.( + )
+)
+"src/molecule/molecule.ml" 156 4391 4399 "src/molecule/molecule.ml" 156 4391 4401
+type(
+  moleculeHolder
+)
+ident(
+  int_ref m2 "src/molecule/molecule.ml" 153 4258 4277 "src/molecule/molecule.ml" 153 4258 4279
+)
+"src/molecule/molecule.ml" 156 4391 4399 "src/molecule/molecule.ml" 156 4391 4412
+call(
+  stack
+)
+type(
+  int
+)
+"src/molecule/molecule.ml" 156 4391 4392 "src/molecule/molecule.ml" 156 4391 4413
+type(
+  position
+)
+"src/molecule/molecule.ml" 154 4318 4324 "src/molecule/molecule.ml" 156 4391 4413
+call(
+  tail
+)
+type(
+  moleculeHolder
+)
+type(
+  moleculeHolder
+)
+"src/molecule/molecule.ml" 159 4446 4456 "src/molecule/molecule.ml" 159 4446 4468
+type(
+  acid
+)
+ident(
+  def current_acid "src/molecule/molecule.ml" 160 4491 4497 "src/molecule/molecule.ml" 164 4602 4628
+)
+"src/molecule/molecule.ml" 159 4446 4471 "src/molecule/molecule.ml" 159 4446 4479
+type(
+  molecule -> position -> acid
+)
+ident(
+  ext_ref List.nth
+)
+"src/molecule/molecule.ml" 159 4446 4480 "src/molecule/molecule.ml" 159 4446 4483
+type(
+  molecule
+)
+ident(
+  ext_ref mol
+)
+"src/molecule/molecule.ml" 159 4446 4484 "src/molecule/molecule.ml" 159 4446 4487
+type(
+  position
+)
+ident(
+  ext_ref pos
+)
+"src/molecule/molecule.ml" 159 4446 4471 "src/molecule/molecule.ml" 159 4446 4487
+call(
+  stack
+)
+type(
+  acid
+)
+"src/molecule/molecule.ml" 160 4491 4503 "src/molecule/molecule.ml" 160 4491 4515
+type(
+  acid
+)
+ident(
+  int_ref current_acid "src/molecule/molecule.ml" 159 4446 4456 "src/molecule/molecule.ml" 159 4446 4468
+)
+"src/molecule/molecule.ml" 161 4521 4534 "src/molecule/molecule.ml" 161 4521 4535
+type(
+  MolTypes.nodeType
+)
+"src/molecule/molecule.ml" 161 4521 4529 "src/molecule/molecule.ml" 161 4521 4535
+type(
+  acid
+)
+"src/molecule/molecule.ml" 161 4521 4539 "src/molecule/molecule.ml" 161 4521 4545
+type(
+  string
+)
+"src/molecule/molecule.ml" 162 4546 4564 "src/molecule/molecule.ml" 162 4546 4565
+type(
+  MolTypes.inputLinkType
+)
+type(
+  string
+)
+"src/molecule/molecule.ml" 162 4546 4554 "src/molecule/molecule.ml" 162 4546 4565
+type(
+  acid
+)
+"src/molecule/molecule.ml" 162 4546 4568 "src/molecule/molecule.ml" 162 4546 4572
+type(
+  string
+)
+"src/molecule/molecule.ml" 163 4573 4592 "src/molecule/molecule.ml" 163 4573 4593
+type(
+  MolTypes.outputLinkType
+)
+type(
+  string
+)
+"src/molecule/molecule.ml" 163 4573 4581 "src/molecule/molecule.ml" 163 4573 4593
+type(
+  acid
+)
+"src/molecule/molecule.ml" 163 4573 4597 "src/molecule/molecule.ml" 163 4573 4601
+type(
+  string
+)
+"src/molecule/molecule.ml" 164 4602 4622 "src/molecule/molecule.ml" 164 4602 4623
+type(
+  string
+)
+ident(
+  def s "src/molecule/molecule.ml" 164 4602 4627 "src/molecule/molecule.ml" 164 4602 4628
+)
+"src/molecule/molecule.ml" 164 4602 4610 "src/molecule/molecule.ml" 164 4602 4623
+type(
+  acid
+)
+"src/molecule/molecule.ml" 164 4602 4627 "src/molecule/molecule.ml" 164 4602 4628
+type(
+  string
+)
+ident(
+  int_ref s "src/molecule/molecule.ml" 164 4602 4622 "src/molecule/molecule.ml" 164 4602 4623
+)
+"src/molecule/molecule.ml" 160 4491 4497 "src/molecule/molecule.ml" 164 4602 4628
+type(
+  string
+)
+"src/molecule/molecule.ml" 159 4446 4452 "src/molecule/molecule.ml" 164 4602 4628
+type(
+  string
+)
+type(
+  string
+)
+"src/molecule/molecule.ml" 168 4639 4645 "src/molecule/molecule.ml" 168 4639 4656
+type(
+  moleculeHolder
+)
+ident(
+  def emptyHolder "src/molecule/molecule.ml" 168 4639 4682 "src/molecule/molecule.ml" 169 4685 4688
+)
+"src/molecule/molecule.ml" 168 4639 4659 "src/molecule/molecule.ml" 168 4639 4677
+type(
+  molecule -> position -> moleculeHolder
+)
+"src/molecule/molecule.ml" 168 4639 4678 "src/molecule/molecule.ml" 168 4639 4680
+type(
+  molecule
+)
+"src/molecule/molecule.ml" 168 4639 4681 "src/molecule/molecule.ml" 168 4639 4682
+type(
+  position
+)
+"src/molecule/molecule.ml" 168 4639 4659 "src/molecule/molecule.ml" 168 4639 4682
+call(
+  stack
+)
+type(
+  moleculeHolder
+)

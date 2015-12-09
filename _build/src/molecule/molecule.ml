@@ -166,28 +166,6 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
   end;;
 
   let emptyHolder = new moleculeHolder [] 0;;
-
-
-(* il faut qu'on crée un ordre sur les molécules,
-   afin de pouvoir facilement les ranger
-
-   du coup, il faut faire un ordre sur les types intermédiaires,
-   et je me suis dit qu'il faudrait les refaire, vu qu'ils manque 
-   quelques morceaux, et que ce serait plus simple d'avoir 
-   des types complets pour les liens pour faire la comparaison
- *)
-  module OrderedMolType = struct
-      type t = molecule
-      val compare (a:t) (b:t) = 
-	match a, b with
-	| [], [] -> 0
-	| [], _ -> -1
-	| _, [] -> 1
-	| ha :: ta, hb :: tb -> 
-	   match ha, hb with
-	   | Node t1, Node t2 -> Moltypes.nodeCmp t1 t2
-	   | (InputLink s1, t1), InputLink (s2, t2) -> 
-	      
 end;;
   
 
