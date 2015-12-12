@@ -27,8 +27,19 @@ Library "molecule"
   Modules: Molecule
   BuildDepends: misc_library
 
+Library "types"
+  Path : src/types
+  Modules : Types
+  BuildDepends : molecule
+
 
 Library "proteine"
   Path: src/proteine
   Modules: Proteine
-  BuildDepends: misc_library, molecule, batteries
+  BuildDepends: misc_library, molecule, batteries, types
+
+
+Library "bacterie"
+  Path: src/bacterie
+  Modules: Bacterie
+  BuildDepends:  molecule, proteine, batteries, types

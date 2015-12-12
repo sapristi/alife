@@ -37,11 +37,20 @@ Alors comment on fait ???
    
 *)
 
+open Types.MyMolecule
 
+module OrderedMolType = 
+struct
+  type t = molecule
+  let compare = Pervasives.compare
+end
+
+module MolMap = BatMap.Make(OrderedMolType)
 
 class bacterie = 
+  
 object(self)
-  val molecules = CCMultiSet.Make
+  val molecules = MolMap.empty
   val proteines = []
 
   val mutable messageQueue = []
@@ -49,5 +58,13 @@ object(self)
   method sendMessage (s : string) = 
     messageQueue <- s :: messageQueue
       
-
-  method  
+      
+  method add_molecule m = 
+    if MolMap.mem m molecules
+    then 
+      MolMap.modify m (fun x -> let y,z = x in (y+1,z)) molecules
+    else
+      let p = new Proteine.proteine m in
+      MolMap.add m (1,p) molecules
+      
+end
