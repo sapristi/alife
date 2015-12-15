@@ -50,12 +50,24 @@ module MolMap = BatMap.Make(OrderedMolType)
 class bacterie = 
   
 object(self)
-  val molecules = MolMap.empty
-  val proteines = []
+  val molecules : (int * Proteine.proteine) MolMap.t = MolMap.empty
+  
+  val mutable messageReceptorsMap : 
+      (string, molecule) BatMultiPMap.t = 
+    BatMultiPMap.create String.compare Pervasives.compare
+  
+  val mutable molCatchersMap : 
+      (string, molecule) BatMultiPMap.t = 
+    BatMultiPMap.create String.compare Pervasives.compare
+    
+  val mutable molHandlesMap :
+      (string, molecule) BatMultiPMap.t = 
+    BatMultiPMap.create String.compare Pervasives.compare
+    
 
   val mutable messageQueue = []
 
-  method sendMessage (s : string) = 
+  method sendMessage (s : string) : unit = 
     messageQueue <- s :: messageQueue
       
       
@@ -65,6 +77,35 @@ object(self)
       MolMap.modify m (fun x -> let y,z = x in (y+1,z)) molecules
     else
       let p = new Proteine.proteine m in
+      p#setHost (self :> Proteine.container);
+      let messageMap, catchersMap, handlesMap = p#getMaps in
+      messageReceptorsMap <- self#updateMap m messageMap messageReceptorsMap;
+      molCatchersMap <- self#updateMap m catchersMap molCatchersMap;
+      molHandlesMap <- self#updateMap m handlesMap molHandlesMap;
       MolMap.add m (1,p) molecules
+	
+  method updateMap 
+    (mol : molecule)
+    (molMap : (string, int) BatMultiPMap.t)
+    (map : (string, molecule) BatMultiPMap.t) 
+    
+    :  (string, molecule) BatMultiPMap.t
+    = 
+    BatMultiPMap.foldi 
+      (fun k v m -> BatMultiPMap.add k mol m)
+      molMap 
+      map
+
       
+  method stepSimulate = 
+    MolMap.map
+      (fun x -> let (n, prot) = x in  
+		for i = 1 to n do
+		  prot#launchRandomTransition
+		done)
+      molecules
+
+  method findBindings = 
+    
+
 end

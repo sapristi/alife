@@ -30,7 +30,7 @@ type token_holder =
 
 type container = < sendMessage : string -> unit >;;
 
-
+type 
 
 
 (* *************************************************************************
@@ -111,7 +111,7 @@ object(self)
   method addTokenFromMessage  = 
     ()
 
-  method setHost h = host <- h
+  method setHost h = host <- Some h
 	
 end
 
@@ -317,7 +317,14 @@ and  proteine (mol : molecule) =
      places qui reçoivent des messages, les places qui attrapent
      des molécules et les poignées
   *)
-  let rec createBooks places n = 
+  let rec createBooks 
+      (places : place_type list) 
+      (n : int)
+      : (((string, int) BatMultiPMap.t)
+	 * ((string, int) BatMultiPMap.t) 
+	 * ((string, int) BatMultiPMap.t))
+      =
+    
     match places with
     | p :: places' ->
        let imb, mcb, hb = createBooks places' (n+1) in 
@@ -329,10 +336,11 @@ and  proteine (mol : molecule) =
 	 | _ -> imb, mcb, hb
        end
     | [] -> 
-       BatMultiPMap.create String.compare (-), 
-      BatMultiPMap.create String.compare (-), 
-      BatMultiPMap.create String.compare (-)
-      
+       (
+	 BatMultiPMap.create String.compare (-), 
+	 BatMultiPMap.create String.compare (-), 
+	 BatMultiPMap.create String.compare (-)
+       )
   in 
 
   let (inputMessageBook, molCatcherBook, handleBook) = 
@@ -341,14 +349,15 @@ and  proteine (mol : molecule) =
   in 
   
 object(self) 
-  val mol = mol
+  val mol : molecule = mol
   val transitions = transitions_array
-  val places = places_array
+  val places : place array = places_array
   val mutable launchables = []
-  val input_message_book = inputMessageBook
+  val maps = inputMessageBook, molCatcherBook, handleBook
 
   method get_places = places
 
+  method getMaps = maps
     
   method initLaunchables  = 
     let t_l = ref [] in 
@@ -397,6 +406,11 @@ object(self)
     BatSet.PSet.map 
       (fun x -> places.(x)#addTokenFromMessage) 
       (BatMultiPMap.find m inputMessageBook)
+
+  method setHost (h : container) : unit = 
+    Array.map (fun x -> x#setHost h) places;
+    ()
+
 
 (*
   method getMolCatchers = 
