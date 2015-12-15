@@ -1,8 +1,8 @@
 module DoubleMultiMap = 
   functor (Ord : OrderedType) -> 
+struct 
+  let create = BatMap.empty
     
-    let create = BatMap.empty
-
   let add_left k v m = 
     if mem k m
     then 
