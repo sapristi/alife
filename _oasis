@@ -6,7 +6,7 @@ Synopsis: Simulating life and stuff
 Authors: Mathias Millet <mathiasmillet@gmail.com>
 License: LGPL with OCaml linking exception
 
-Description: Simulating life and stuff
+
 Homepage: http://127.0.0.1
 
 
@@ -16,30 +16,34 @@ Plugins: META (0.4), DevFiles (0.4)
 
 
 
+Library "local_libs"
+   Path: src/libs
+   Modules : Misc_library, Maps
+   BuildDepends : batteries
 
-Library "misc_library"
-  Path: src/misc_library
-  Modules: Misc_library
-
-
-Library "molecule"
-  Path: src/molecule
+Library "molecule"	
+  FindLibName : molecule
+  FindLibParent : bacterie
+  Path: src/bacterie
   Modules: Molecule
-  BuildDepends: misc_library
+  BuildDepends: local_libs
 
 Library "types"
-  Path : src/types
+  FindLibName : types
+  FindLibParent : bacterie
+  Path : src/bacterie
   Modules : Types
-  BuildDepends : molecule
-
+  BuildDepends : bacterie.molecule
 
 Library "proteine"
-  Path: src/proteine
+  FindLibName : proteine
+  FindLibParent : bacterie
+  Path: src/bacterie
   Modules: Proteine
-  BuildDepends: misc_library, molecule, batteries, types
-
+  BuildDepends: batteries, bacterie.molecule, local_libs
 
 Library "bacterie"
   Path: src/bacterie
-  Modules: Bacterie
-  BuildDepends:  molecule, proteine, batteries, types
+  Modules: Proteine, Bacterie 
+  BuildDepends: local_libs, bacterie.proteine, bacterie.molecule,  batteries, bacterie.types
+
