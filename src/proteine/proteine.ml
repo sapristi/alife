@@ -28,9 +28,8 @@ type token_holder =
   | EmptyHolder
   | OccupiedHolder of token;;
 
-type container = < sendMessage : string -> unit >;;
+type container = < sendMessage : string -> unit; add_molecule : molecule -> unit >;;
 
-type 
 
 
 (* *************************************************************************
@@ -80,7 +79,16 @@ object(self)
 	 match tokenHolder with
 	 | EmptyHolder -> ()
 	 | OccupiedHolder t -> 
-	    self#setToken emptyToken 
+	    if t#is_empty
+	    then 
+	      
+	      match host with
+	      | None -> self#setToken emptyToken
+	      | Some h -> h#add_molecule t#get_molecule;
+		self#setToken emptyToken
+	    else
+	      ()
+		
        end
     | Send_place s -> 
        begin
@@ -88,7 +96,7 @@ object(self)
 	 | None -> ()
 	 | Some h -> h#sendMessage s
        end
-
+	 
     | Displace_mol_place b -> 
        begin
 	 match tokenHolder with
@@ -411,18 +419,12 @@ object(self)
     Array.map (fun x -> x#setHost h) places;
     ()
 
+  method bindMol (m : molecule) (pat : string) = 
+    let _,catchers,_ = maps in 
+    let targets = BatMultiPMap.find pat in
+    
 
-(*
-  method getMolCatchers = 
-    let res = ref [] in 
-    for i = 0 to Array.length places - 1 do
-      match places.[i] with
-      | Node nType -> 
-	 begin
-	   match nType with
-	   | Catch_place pattern -> 
-	       b 
-*)
+
 end;;
 
 
