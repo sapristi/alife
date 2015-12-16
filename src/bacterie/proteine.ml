@@ -325,6 +325,7 @@ and  proteine (mol : molecule) =
      places qui reçoivent des messages, les places qui attrapent
      des molécules et les poignées
   *)
+  
   let rec createBooks 
       (places : place_type list) 
       (n : int)
@@ -421,8 +422,9 @@ object(self)
 
   method bindMol (m : molecule) (pat : string) = 
     let _,catchers,_ = maps in 
-    let targets = BatMultiPMap.find pat in
-    
+    let targets = BatMultiPMap.find pat catchers in
+    let bindSite = Misc_library.randomPickFromPSet targets in
+    ()
 
 
 end;;

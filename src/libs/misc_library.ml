@@ -1,4 +1,5 @@
 
+
 let rec cut_list l pos =
   match l with
   | [] -> [], []
@@ -44,51 +45,8 @@ let randomPickFromList l =
   List.nth l n
 ;;
 
-module type EQ_TESTABLE =
-  sig 
-    type t
-    val eq : t -> t -> bool
-  end;;
-
-module MultiSet = 
-  functor (St : EQ_TESTABLE) -> 
-struct
-  
-  let emptyMultiSet = []
-    
-  let rec count (x : St.t) s : int = 
-    match s with
-    | (e,n) :: t -> 
-       if St.eq e x
-	     then n 
-       else count x t
-    | [] -> 0
-       
-       
-  let rec add (x : St.t) s = 
-    match s with
-    | (e,n) :: t -> 
-       if St.eq e x 
-       then (e,n+1) :: t
-       else (e,n) :: add x t
-    | [] -> [(x,1)]
-       
-       
-  let rec remove (x : St.t) s = 
-    match s with
-    | (e,n) :: t -> 
-       if St.eq e x 
-       then 
-	 if n = 1
-	 then t
-	 else (e,n-1) :: t
-       else (e,n) :: remove x t
-    | [] -> []
-       
-       
-  let of_list l = 
-    List.fold_right 
-      (fun x s -> add x s) l []
-      
-end;;
+let randomPickFromPSet s = 
+  let size = BatSet.PSet.cardinal s in
+  let n = Random.int size in
+  BatSet.PSet.at_rank_exn n s
 
