@@ -29,6 +29,13 @@ struct
       else 
 	add k (Set.empty, Set.singleton v) m
     end
+
+  let get_all_couples (k : KeyT.t) (m : set_pair t) = 
+    let (l,r) = find k m in
+    let rl = Set.to_list r and ll = Set.to_list l in
+    Misc_library.getAllCouples ll rl
+      
+
 end;;
    
 
@@ -38,7 +45,7 @@ module MakeMolMap
 struct 
   include BatMap.Make(KeyT)
 
-  let increase_mol_quantity (k : KeyT.t) (n : int) m =
+  let rel_change_mol_quantity (k : KeyT.t) (n : int) m =
     modify 
       k
       (fun x -> let (a,b) = x in (a+n,b))

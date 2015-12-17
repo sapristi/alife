@@ -57,7 +57,7 @@ object(self)
 
   method getPlaceType = placeType
 
-  method isEmpty  : bool= tokenHolder = EmptyHolder
+  method isEmpty  : bool = tokenHolder = EmptyHolder
   
     (* enlève le token de la place *)
   method empty : unit = tokenHolder <- EmptyHolder
@@ -117,10 +117,25 @@ object(self)
       t
 	
   method addTokenFromMessage  = 
-    ()
+    if not self#isEmpty
+    then
+      tokenHolder <- EmptyHolder
+    
+
+  method addTokenFromBinding (mol : molecule) : bool = 
+    if self#isEmpty
+    then 
+      false
+    else
+      begin
+	tokenHolder <- OccupiedHolder (new moleculeHolder mol 0);
+	true
+      end
 
   method setHost h = host <- Some h
 	
+    
+
 end
 
 
@@ -420,11 +435,11 @@ object(self)
     Array.map (fun x -> x#setHost h) places;
     ()
 
-  method bindMol (m : molecule) (pat : string) = 
+  method bindMol (m : molecule) (pat : string) : bool = 
     let _,catchers,_ = maps in 
     let targets = BatMultiPMap.find pat catchers in
-    let bindSite = Misc_library.randomPickFromPSet targets in
-    ()
+    let bindSiteId = Misc_library.randomPickFromPSet targets in
+    places.(bindSiteId)#addTokenFromBinding m
 
 
 end;;

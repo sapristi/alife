@@ -141,16 +141,45 @@ object(self)
       molecules;
     ()
 
+
+  method make_bindings : unit = 
+    MolDoubleMap.mapi
+      (fun 
+	(pattern : string) 
+	(mols : MolDoubleMap.set_pair) -> 
+	let handles, catchers = mols in 
+	let handles_l = MolDoubleMap.Set.to_list handles and catchers_l = MolDoubleMap.Set.to_list catchers in
+	let couples_list = Misc_library.getAllCouples handles_l catchers_l
+	in 
+	List.map 
+	  (fun x -> 
+	    let (handle, catcher) = x in
+	    let handle_num, _ = MolMap.find handle molecules 
+	    and catcher_num, _ = MolMap.find catcher molecules
+	    in
+	    if Reactions.react handle_num catcher_num
+	    then self#bind_to handle catcher pattern
+	  )
+	  couples_list)
+      molBindingsMap;
+    ()
+      
+      
   method bind_to 
-    (hostMol : molecule) 
     (boundMol : molecule) 
+    (hostMol : molecule) 
     (bindPattern : string) 
     : unit = 
     
     let (_,p) = MolMap.find hostMol molecules
     in 
-    p#bindMol boundMol bindPattern
-    
+    let reac_result = p#bindMol boundMol bindPattern
+    in
+    if reac_result
+    then 
+      molecules <- MolMap.rel_change_mol_quantity boundMol (-1) molecules
+    else
+      ()
 
 
 end

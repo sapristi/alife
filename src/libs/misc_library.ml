@@ -50,3 +50,24 @@ let randomPickFromPSet s =
   let n = Random.int size in
   BatSet.PSet.at_rank_exn n s
 
+
+
+let getAllCouples 
+    (l1 : 'a list) 
+    (l2 : 'b list) 
+    : ('a * 'b) list
+    = 
+  
+  List.fold_left 
+    (fun 
+      (l :  ('a * 'b) list)
+      (x : 'a) -> 
+	List.fold_left
+	  (fun 
+	    (t :  ('a * 'b) list)
+	    (y : 'b) 
+	  -> (x,y) :: t)
+	  l
+	  l2)
+    []
+    l1
