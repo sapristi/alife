@@ -1,8 +1,9 @@
 
 
-module MakeDoubleMultiMap 
+module MakeDoubleMultiMap = 
+  functor 
   (KeyT : BatInterfaces.OrderedType) 
-  (ValueT : BatInterfaces.OrderedType) = 
+  (ValueT : BatInterfaces.OrderedType) -> 
 struct 
 
   include BatMap.Make(KeyT) 
@@ -40,8 +41,9 @@ end;;
    
 
 
-module MakeMolMap
-  (KeyT : BatInterfaces.OrderedType)  = 
+module MakeMolMap = 
+  functor 
+  (KeyT : BatInterfaces.OrderedType)  -> 
 struct 
   include BatMap.Make(KeyT)
 

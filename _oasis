@@ -21,12 +21,12 @@ Library "local_libs"
    Modules : Misc_library, Maps
    BuildDepends : batteries
 
+
 Library "reactions"	
   FindLibName : reactions
   FindLibParent : bacterie
   Path: src/bacterie
   Modules: Reactions
-  BuildDepends: random
   
 
 Library "molecule"	
@@ -36,6 +36,7 @@ Library "molecule"
   Modules: Molecule
   BuildDepends: local_libs
 
+
 Library "types"
   FindLibName : types
   FindLibParent : bacterie
@@ -43,12 +44,14 @@ Library "types"
   Modules : Types
   BuildDepends : bacterie.molecule
 
+
 Library "proteine"
   FindLibName : proteine
   FindLibParent : bacterie
   Path: src/bacterie
   Modules: Proteine
   BuildDepends: batteries, bacterie.molecule, local_libs
+
 
 Library "bacterie"
   Path: src/bacterie
