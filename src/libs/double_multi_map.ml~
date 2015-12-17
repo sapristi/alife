@@ -1,0 +1,33 @@
+
+
+module MakeDoubleMultiMap 
+  (KeyT : BatInterfaces.OrderedType) 
+  (ValueT : BatInterfaces.OrderedType) = 
+struct 
+
+  include BatMap.Make(KeyT) 
+  
+  module Set = BatSet.Make(ValueT)
+
+    
+  let add_left (k : KeyT.t) (v : ValueT.t) m = 
+    begin
+      if mem k m
+      then 
+	let (l, r) = find k m in
+	add k (Set.add v l, r)
+      else 
+	add k (Set.singleton v, Set.empty)
+    end
+
+  let add_right (k : KeyT.t) (v : ValueT.t) m = 
+    begin
+      if mem k m
+      then 
+	let (l, r) = find k m in
+	add k (l, Set.add v r)
+      else 
+	add k (Set.empty, Set.singleton v)
+    end
+end;;
+   

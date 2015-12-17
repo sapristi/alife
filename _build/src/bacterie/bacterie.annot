@@ -1,0 +1,1838 @@
+"src/bacterie/bacterie.ml" 48 1662 1694 "src/bacterie/bacterie.ml" 48 1662 1701
+type(
+  'a -> 'a -> int
+)
+ident(
+  def compare "src/bacterie/bacterie.ml" 48 1662 1722 "src/bacterie/bacterie.ml" 48 1662 1726
+)
+"src/bacterie/bacterie.ml" 48 1662 1704 "src/bacterie/bacterie.ml" 48 1662 1722
+type(
+  'a -> 'a -> int
+)
+ident(
+  ext_ref Pervasives.compare
+)
+"src/bacterie/bacterie.ml" 47 1635 1651 "src/bacterie/bacterie.ml" 48 1662 1727
+call(
+  stack
+)
+"src/bacterie/bacterie.ml" 57 2081 2111 "src/bacterie/bacterie.ml" 57 2081 2118
+type(
+  String.t -> String.t -> int
+)
+ident(
+  def compare "src/bacterie/bacterie.ml" 57 2081 2135 "src/bacterie/bacterie.ml" 57 2081 2139
+)
+"src/bacterie/bacterie.ml" 57 2081 2121 "src/bacterie/bacterie.ml" 57 2081 2135
+type(
+  String.t -> String.t -> int
+)
+ident(
+  ext_ref String.compare
+)
+"src/bacterie/bacterie.ml" 58 2141 2173 "src/bacterie/bacterie.ml" 58 2141 2180
+type(
+  'a -> 'a -> int
+)
+ident(
+  def compare "src/bacterie/bacterie.ml" 58 2141 2201 "src/bacterie/bacterie.ml" 58 2141 2205
+)
+"src/bacterie/bacterie.ml" 58 2141 2183 "src/bacterie/bacterie.ml" 58 2141 2201
+type(
+  'a -> 'a -> int
+)
+ident(
+  ext_ref Pervasives.compare
+)
+"src/bacterie/bacterie.ml" 56 2040 2062 "src/bacterie/bacterie.ml" 58 2141 2206
+call(
+  stack
+)
+"src/bacterie/bacterie.ml" 65 2326 2332 "src/bacterie/bacterie.ml" 65 2326 2342
+type(
+  Types.MyMolecule.molecule ->
+  (string, int) BatMultiPMap.t ->
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t ->
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+"src/bacterie/bacterie.ml" 66 2344 2349 "src/bacterie/bacterie.ml" 66 2344 2352
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  def mol "src/bacterie/bacterie.ml" 67 2365 2369 "src/bacterie/bacterie.ml" 75 2593 2602
+)
+"src/bacterie/bacterie.ml" 67 2365 2370 "src/bacterie/bacterie.ml" 67 2365 2376
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  def molMap "src/bacterie/bacterie.ml" 68 2409 2413 "src/bacterie/bacterie.ml" 75 2593 2602
+)
+"src/bacterie/bacterie.ml" 68 2409 2414 "src/bacterie/bacterie.ml" 68 2409 2417
+type(
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+ident(
+  def map "src/bacterie/bacterie.ml" 70 2461 2465 "src/bacterie/bacterie.ml" 75 2593 2602
+)
+"src/bacterie/bacterie.ml" 72 2509 2513 "src/bacterie/bacterie.ml" 72 2509 2531
+type(
+  (string ->
+   int BatSet.PSet.t ->
+   (string, Types.MyMolecule.molecule) BatMultiPMap.t ->
+   (string, Types.MyMolecule.molecule) BatMultiPMap.t) ->
+  (string, int) BatMultiPMap.t ->
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t ->
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.foldi
+)
+"src/bacterie/bacterie.ml" 73 2533 2544 "src/bacterie/bacterie.ml" 73 2533 2545
+type(
+  string
+)
+ident(
+  def k "src/bacterie/bacterie.ml" 73 2533 2546 "src/bacterie/bacterie.ml" 73 2533 2577
+)
+"src/bacterie/bacterie.ml" 73 2533 2546 "src/bacterie/bacterie.ml" 73 2533 2547
+type(
+  int BatSet.PSet.t
+)
+ident(
+  def v "src/bacterie/bacterie.ml" 73 2533 2548 "src/bacterie/bacterie.ml" 73 2533 2577
+)
+"src/bacterie/bacterie.ml" 73 2533 2548 "src/bacterie/bacterie.ml" 73 2533 2549
+type(
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+ident(
+  def m "src/bacterie/bacterie.ml" 73 2533 2553 "src/bacterie/bacterie.ml" 73 2533 2577
+)
+"src/bacterie/bacterie.ml" 73 2533 2553 "src/bacterie/bacterie.ml" 73 2533 2569
+type(
+  string ->
+  Types.MyMolecule.molecule ->
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t ->
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.add
+)
+"src/bacterie/bacterie.ml" 73 2533 2570 "src/bacterie/bacterie.ml" 73 2533 2571
+type(
+  string
+)
+ident(
+  int_ref k "src/bacterie/bacterie.ml" 73 2533 2544 "src/bacterie/bacterie.ml" 73 2533 2545
+)
+"src/bacterie/bacterie.ml" 73 2533 2572 "src/bacterie/bacterie.ml" 73 2533 2575
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref mol "src/bacterie/bacterie.ml" 66 2344 2349 "src/bacterie/bacterie.ml" 66 2344 2352
+)
+"src/bacterie/bacterie.ml" 73 2533 2576 "src/bacterie/bacterie.ml" 73 2533 2577
+type(
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+ident(
+  int_ref m "src/bacterie/bacterie.ml" 73 2533 2548 "src/bacterie/bacterie.ml" 73 2533 2549
+)
+"src/bacterie/bacterie.ml" 73 2533 2553 "src/bacterie/bacterie.ml" 73 2533 2577
+call(
+  tail
+)
+type(
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+"src/bacterie/bacterie.ml" 73 2533 2539 "src/bacterie/bacterie.ml" 73 2533 2578
+type(
+  string ->
+  int BatSet.PSet.t ->
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t ->
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+"src/bacterie/bacterie.ml" 74 2579 2585 "src/bacterie/bacterie.ml" 74 2579 2591
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref molMap "src/bacterie/bacterie.ml" 67 2365 2370 "src/bacterie/bacterie.ml" 67 2365 2376
+)
+"src/bacterie/bacterie.ml" 75 2593 2599 "src/bacterie/bacterie.ml" 75 2593 2602
+type(
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+ident(
+  int_ref map "src/bacterie/bacterie.ml" 68 2409 2414 "src/bacterie/bacterie.ml" 68 2409 2417
+)
+"src/bacterie/bacterie.ml" 72 2509 2513 "src/bacterie/bacterie.ml" 75 2593 2602
+call(
+  tail
+)
+type(
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+type(
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+"src/bacterie/bacterie.ml" 77 2606 2612 "src/bacterie/bacterie.ml" 77 2606 2631
+type(
+  Types.MyMolecule.molecule ->
+  (string, int) BatMultiPMap.t ->
+  (string, int) BatMultiPMap.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+"src/bacterie/bacterie.ml" 78 2632 2637 "src/bacterie/bacterie.ml" 78 2632 2640
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  def mol "src/bacterie/bacterie.ml" 79 2653 2657 "src/bacterie/bacterie.ml" 90 3017 3023
+)
+"src/bacterie/bacterie.ml" 79 2653 2658 "src/bacterie/bacterie.ml" 79 2653 2665
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  def leftMap "src/bacterie/bacterie.ml" 80 2698 2702 "src/bacterie/bacterie.ml" 90 3017 3023
+)
+"src/bacterie/bacterie.ml" 80 2698 2703 "src/bacterie/bacterie.ml" 80 2698 2711
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  def rightMap "src/bacterie/bacterie.ml" 81 2745 2749 "src/bacterie/bacterie.ml" 90 3017 3023
+)
+"src/bacterie/bacterie.ml" 81 2745 2750 "src/bacterie/bacterie.ml" 81 2745 2753
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  def map "src/bacterie/bacterie.ml" 82 2794 2798 "src/bacterie/bacterie.ml" 90 3017 3023
+)
+"src/bacterie/bacterie.ml" 84 2844 2848 "src/bacterie/bacterie.ml" 84 2844 2866
+type(
+  (string ->
+   int BatSet.PSet.t ->
+   MolDoubleMap.set_pair MolDoubleMap.t ->
+   MolDoubleMap.set_pair MolDoubleMap.t) ->
+  (string, int) BatMultiPMap.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  ext_ref BatMultiPMap.foldi
+)
+"src/bacterie/bacterie.ml" 85 2867 2878 "src/bacterie/bacterie.ml" 85 2867 2879
+type(
+  string
+)
+ident(
+  def k "src/bacterie/bacterie.ml" 85 2867 2880 "src/bacterie/bacterie.ml" 85 2867 2916
+)
+"src/bacterie/bacterie.ml" 85 2867 2880 "src/bacterie/bacterie.ml" 85 2867 2881
+type(
+  int BatSet.PSet.t
+)
+ident(
+  def v "src/bacterie/bacterie.ml" 85 2867 2882 "src/bacterie/bacterie.ml" 85 2867 2916
+)
+"src/bacterie/bacterie.ml" 85 2867 2882 "src/bacterie/bacterie.ml" 85 2867 2883
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  def m "src/bacterie/bacterie.ml" 85 2867 2887 "src/bacterie/bacterie.ml" 85 2867 2916
+)
+"src/bacterie/bacterie.ml" 85 2867 2887 "src/bacterie/bacterie.ml" 85 2867 2908
+type(
+  string ->
+  Types.MyMolecule.molecule ->
+  MolDoubleMap.set_pair MolDoubleMap.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  ext_ref MolDoubleMap.add_left
+)
+"src/bacterie/bacterie.ml" 85 2867 2909 "src/bacterie/bacterie.ml" 85 2867 2910
+type(
+  string
+)
+ident(
+  int_ref k "src/bacterie/bacterie.ml" 85 2867 2878 "src/bacterie/bacterie.ml" 85 2867 2879
+)
+"src/bacterie/bacterie.ml" 85 2867 2911 "src/bacterie/bacterie.ml" 85 2867 2914
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref mol "src/bacterie/bacterie.ml" 78 2632 2637 "src/bacterie/bacterie.ml" 78 2632 2640
+)
+"src/bacterie/bacterie.ml" 85 2867 2915 "src/bacterie/bacterie.ml" 85 2867 2916
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  int_ref m "src/bacterie/bacterie.ml" 85 2867 2882 "src/bacterie/bacterie.ml" 85 2867 2883
+)
+"src/bacterie/bacterie.ml" 85 2867 2887 "src/bacterie/bacterie.ml" 85 2867 2916
+call(
+  tail
+)
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+"src/bacterie/bacterie.ml" 85 2867 2873 "src/bacterie/bacterie.ml" 85 2867 2917
+type(
+  string ->
+  int BatSet.PSet.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+"src/bacterie/bacterie.ml" 86 2918 2924 "src/bacterie/bacterie.ml" 86 2918 2931
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref leftMap "src/bacterie/bacterie.ml" 79 2653 2658 "src/bacterie/bacterie.ml" 79 2653 2665
+)
+"src/bacterie/bacterie.ml" 87 2932 2939 "src/bacterie/bacterie.ml" 87 2932 2957
+type(
+  (string ->
+   int BatSet.PSet.t ->
+   MolDoubleMap.set_pair MolDoubleMap.t ->
+   MolDoubleMap.set_pair MolDoubleMap.t) ->
+  (string, int) BatMultiPMap.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  ext_ref BatMultiPMap.foldi
+)
+"src/bacterie/bacterie.ml" 88 2958 2965 "src/bacterie/bacterie.ml" 88 2958 2966
+type(
+  string
+)
+ident(
+  def k "src/bacterie/bacterie.ml" 88 2958 2967 "src/bacterie/bacterie.ml" 88 2958 3004
+)
+"src/bacterie/bacterie.ml" 88 2958 2967 "src/bacterie/bacterie.ml" 88 2958 2968
+type(
+  int BatSet.PSet.t
+)
+ident(
+  def v "src/bacterie/bacterie.ml" 88 2958 2969 "src/bacterie/bacterie.ml" 88 2958 3004
+)
+"src/bacterie/bacterie.ml" 88 2958 2969 "src/bacterie/bacterie.ml" 88 2958 2970
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  def m "src/bacterie/bacterie.ml" 88 2958 2974 "src/bacterie/bacterie.ml" 88 2958 3004
+)
+"src/bacterie/bacterie.ml" 88 2958 2974 "src/bacterie/bacterie.ml" 88 2958 2996
+type(
+  string ->
+  Types.MyMolecule.molecule ->
+  MolDoubleMap.set_pair MolDoubleMap.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  ext_ref MolDoubleMap.add_right
+)
+"src/bacterie/bacterie.ml" 88 2958 2997 "src/bacterie/bacterie.ml" 88 2958 2998
+type(
+  string
+)
+ident(
+  int_ref k "src/bacterie/bacterie.ml" 88 2958 2965 "src/bacterie/bacterie.ml" 88 2958 2966
+)
+"src/bacterie/bacterie.ml" 88 2958 2999 "src/bacterie/bacterie.ml" 88 2958 3002
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref mol "src/bacterie/bacterie.ml" 78 2632 2637 "src/bacterie/bacterie.ml" 78 2632 2640
+)
+"src/bacterie/bacterie.ml" 88 2958 3003 "src/bacterie/bacterie.ml" 88 2958 3004
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  int_ref m "src/bacterie/bacterie.ml" 88 2958 2969 "src/bacterie/bacterie.ml" 88 2958 2970
+)
+"src/bacterie/bacterie.ml" 88 2958 2974 "src/bacterie/bacterie.ml" 88 2958 3004
+call(
+  tail
+)
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+"src/bacterie/bacterie.ml" 88 2958 2960 "src/bacterie/bacterie.ml" 88 2958 3005
+type(
+  string ->
+  int BatSet.PSet.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+"src/bacterie/bacterie.ml" 89 3006 3008 "src/bacterie/bacterie.ml" 89 3006 3016
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref rightMap "src/bacterie/bacterie.ml" 80 2698 2703 "src/bacterie/bacterie.ml" 80 2698 2711
+)
+"src/bacterie/bacterie.ml" 90 3017 3019 "src/bacterie/bacterie.ml" 90 3017 3022
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  int_ref map "src/bacterie/bacterie.ml" 81 2745 2750 "src/bacterie/bacterie.ml" 81 2745 2753
+)
+"src/bacterie/bacterie.ml" 87 2932 2938 "src/bacterie/bacterie.ml" 90 3017 3023
+call(
+  stack
+)
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+"src/bacterie/bacterie.ml" 84 2844 2848 "src/bacterie/bacterie.ml" 90 3017 3023
+call(
+  tail
+)
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+"src/bacterie/bacterie.ml" 94 3031 3037 "src/bacterie/bacterie.ml" 94 3031 3043
+type(
+  < add_molecule : Types.MyMolecule.molecule -> unit;
+    bind_to : MolMap.key -> MolMap.key -> string -> unit;
+    launch_message : string -> unit; make_bindings : unit;
+    pop_all_messages : unit; send_message : string -> unit;
+    step_simulate : unit; .. >
+)
+"src/bacterie/bacterie.ml" 95 3044 3107 "src/bacterie/bacterie.ml" 95 3044 3119
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref MolMap.empty
+)
+"src/bacterie/bacterie.ml" 99 3205 3209 "src/bacterie/bacterie.ml" 99 3205 3228
+type(
+  (String.t -> String.t -> int) ->
+  (Types.MyMolecule.molecule -> Types.MyMolecule.molecule -> int) ->
+  (String.t, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.create
+)
+"src/bacterie/bacterie.ml" 99 3205 3229 "src/bacterie/bacterie.ml" 99 3205 3243
+type(
+  String.t -> String.t -> int
+)
+ident(
+  ext_ref String.compare
+)
+"src/bacterie/bacterie.ml" 99 3205 3244 "src/bacterie/bacterie.ml" 99 3205 3262
+type(
+  Types.MyMolecule.molecule -> Types.MyMolecule.molecule -> int
+)
+ident(
+  ext_ref Pervasives.compare
+)
+"src/bacterie/bacterie.ml" 99 3205 3209 "src/bacterie/bacterie.ml" 99 3205 3262
+call(
+  stack
+)
+type(
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+type(
+  (String.t, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+"src/bacterie/bacterie.ml" 103 3344 3352 "src/bacterie/bacterie.ml" 103 3344 3370
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  ext_ref MolDoubleMap.empty
+)
+"src/bacterie/bacterie.ml" 105 3372 3402 "src/bacterie/bacterie.ml" 105 3372 3404
+type(
+  string list
+)
+"src/bacterie/bacterie.ml" 107 3406 3429 "src/bacterie/bacterie.ml" 107 3406 3430
+type(
+  string
+)
+ident(
+  def s "src/bacterie/bacterie.ml" 107 3406 3441 "src/bacterie/bacterie.ml" 108 3451 3490
+)
+"src/bacterie/bacterie.ml" 108 3451 3472 "src/bacterie/bacterie.ml" 108 3451 3473
+type(
+  string
+)
+ident(
+  int_ref s "src/bacterie/bacterie.ml" 107 3406 3429 "src/bacterie/bacterie.ml" 107 3406 3430
+)
+"src/bacterie/bacterie.ml" 108 3451 3477 "src/bacterie/bacterie.ml" 108 3451 3490
+type(
+  string list
+)
+ident(
+  ext_ref message_queue
+)
+"src/bacterie/bacterie.ml" 108 3451 3472 "src/bacterie/bacterie.ml" 108 3451 3490
+type(
+  string list
+)
+"src/bacterie/bacterie.ml" 108 3451 3455 "src/bacterie/bacterie.ml" 108 3451 3490
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 110 3498 3523 "src/bacterie/bacterie.ml" 110 3498 3524
+type(
+  string
+)
+ident(
+  def m "src/bacterie/bacterie.ml" 110 3498 3535 "src/bacterie/bacterie.ml" 116 3691 3697
+)
+"src/bacterie/bacterie.ml" 111 3545 3549 "src/bacterie/bacterie.ml" 111 3545 3564
+type(
+  (MolMap.key -> unit BatSet.PSet.t) ->
+  MolMap.key BatSet.PSet.t -> unit BatSet.PSet.t BatSet.PSet.t
+)
+ident(
+  ext_ref BatSet.PSet.map
+)
+"src/bacterie/bacterie.ml" 112 3566 3577 "src/bacterie/bacterie.ml" 112 3566 3578
+type(
+  MolMap.key
+)
+ident(
+  def x "src/bacterie/bacterie.ml" 113 3583 3584 "src/bacterie/bacterie.ml" 114 3621 3638
+)
+"src/bacterie/bacterie.ml" 113 3583 3588 "src/bacterie/bacterie.ml" 113 3583 3589
+type(
+  int
+)
+"src/bacterie/bacterie.ml" 113 3583 3590 "src/bacterie/bacterie.ml" 113 3583 3591
+type(
+  Proteine.proteine
+)
+ident(
+  def p "src/bacterie/bacterie.ml" 114 3621 3622 "src/bacterie/bacterie.ml" 114 3621 3638
+)
+"src/bacterie/bacterie.ml" 113 3583 3588 "src/bacterie/bacterie.ml" 113 3583 3591
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 113 3583 3594 "src/bacterie/bacterie.ml" 113 3583 3605
+type(
+  MolMap.key -> (int * Proteine.proteine) MolMap.t -> int * Proteine.proteine
+)
+ident(
+  ext_ref MolMap.find
+)
+"src/bacterie/bacterie.ml" 113 3583 3606 "src/bacterie/bacterie.ml" 113 3583 3607
+type(
+  MolMap.key
+)
+ident(
+  int_ref x "src/bacterie/bacterie.ml" 112 3566 3577 "src/bacterie/bacterie.ml" 112 3566 3578
+)
+"src/bacterie/bacterie.ml" 113 3583 3608 "src/bacterie/bacterie.ml" 113 3583 3617
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref molecules
+)
+"src/bacterie/bacterie.ml" 113 3583 3594 "src/bacterie/bacterie.ml" 113 3583 3617
+call(
+  stack
+)
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 114 3621 3622 "src/bacterie/bacterie.ml" 114 3621 3623
+type(
+  Proteine.proteine
+)
+ident(
+  int_ref p "src/bacterie/bacterie.ml" 113 3583 3590 "src/bacterie/bacterie.ml" 113 3583 3591
+)
+"src/bacterie/bacterie.ml" 114 3621 3622 "src/bacterie/bacterie.ml" 114 3621 3636
+call(
+  tail
+)
+type(
+  string -> unit BatSet.PSet.t
+)
+"src/bacterie/bacterie.ml" 114 3621 3637 "src/bacterie/bacterie.ml" 114 3621 3638
+type(
+  string
+)
+ident(
+  int_ref m "src/bacterie/bacterie.ml" 110 3498 3523 "src/bacterie/bacterie.ml" 110 3498 3524
+)
+"src/bacterie/bacterie.ml" 114 3621 3622 "src/bacterie/bacterie.ml" 114 3621 3638
+type(
+  unit BatSet.PSet.t
+)
+"src/bacterie/bacterie.ml" 113 3583 3584 "src/bacterie/bacterie.ml" 114 3621 3638
+type(
+  unit BatSet.PSet.t
+)
+"src/bacterie/bacterie.ml" 112 3566 3572 "src/bacterie/bacterie.ml" 114 3621 3639
+type(
+  MolMap.key -> unit BatSet.PSet.t
+)
+"src/bacterie/bacterie.ml" 115 3640 3647 "src/bacterie/bacterie.ml" 115 3640 3664
+type(
+  string ->
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t ->
+  MolMap.key BatSet.PSet.t
+)
+ident(
+  ext_ref BatMultiPMap.find
+)
+"src/bacterie/bacterie.ml" 115 3640 3665 "src/bacterie/bacterie.ml" 115 3640 3666
+type(
+  string
+)
+ident(
+  int_ref m "src/bacterie/bacterie.ml" 110 3498 3523 "src/bacterie/bacterie.ml" 110 3498 3524
+)
+"src/bacterie/bacterie.ml" 115 3640 3667 "src/bacterie/bacterie.ml" 115 3640 3688
+type(
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+ident(
+  ext_ref message_receptors_map
+)
+"src/bacterie/bacterie.ml" 115 3640 3646 "src/bacterie/bacterie.ml" 115 3640 3689
+call(
+  stack
+)
+type(
+  MolMap.key BatSet.PSet.t
+)
+"src/bacterie/bacterie.ml" 111 3545 3549 "src/bacterie/bacterie.ml" 115 3640 3689
+call(
+  stack
+)
+type(
+  unit BatSet.PSet.t BatSet.PSet.t
+)
+"src/bacterie/bacterie.ml" 116 3691 3695 "src/bacterie/bacterie.ml" 116 3691 3697
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 111 3545 3549 "src/bacterie/bacterie.ml" 116 3691 3697
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 119 3735 3739 "src/bacterie/bacterie.ml" 119 3735 3747
+type(
+  (string -> unit) -> string list -> unit list
+)
+ident(
+  ext_ref List.map
+)
+"src/bacterie/bacterie.ml" 119 3735 3753 "src/bacterie/bacterie.ml" 119 3735 3754
+type(
+  string
+)
+ident(
+  def x "src/bacterie/bacterie.ml" 119 3735 3758 "src/bacterie/bacterie.ml" 119 3735 3779
+)
+"src/bacterie/bacterie.ml" 119 3735 3758 "src/bacterie/bacterie.ml" 119 3735 3762
+type(
+  < add_molecule : Types.MyMolecule.molecule -> unit;
+    bind_to : MolMap.key -> MolMap.key -> string -> unit;
+    launch_message : string -> unit; make_bindings : unit;
+    pop_all_messages : unit; send_message : string -> unit;
+    step_simulate : unit; .. >
+  as 'a
+)
+ident(
+  int_ref self "src/bacterie/bacterie.ml" 94 3031 3037 "src/bacterie/bacterie.ml" 94 3031 3043
+)
+"src/bacterie/bacterie.ml" 119 3735 3758 "src/bacterie/bacterie.ml" 119 3735 3777
+call(
+  tail
+)
+type(
+  string -> unit
+)
+"src/bacterie/bacterie.ml" 119 3735 3778 "src/bacterie/bacterie.ml" 119 3735 3779
+type(
+  string
+)
+ident(
+  int_ref x "src/bacterie/bacterie.ml" 119 3735 3753 "src/bacterie/bacterie.ml" 119 3735 3754
+)
+"src/bacterie/bacterie.ml" 119 3735 3758 "src/bacterie/bacterie.ml" 119 3735 3779
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 119 3735 3748 "src/bacterie/bacterie.ml" 119 3735 3780
+type(
+  string -> unit
+)
+"src/bacterie/bacterie.ml" 119 3735 3781 "src/bacterie/bacterie.ml" 119 3735 3794
+type(
+  string list
+)
+ident(
+  ext_ref message_queue
+)
+"src/bacterie/bacterie.ml" 119 3735 3739 "src/bacterie/bacterie.ml" 119 3735 3794
+call(
+  stack
+)
+type(
+  unit list
+)
+"src/bacterie/bacterie.ml" 120 3796 3817 "src/bacterie/bacterie.ml" 120 3796 3819
+type(
+  string list
+)
+"src/bacterie/bacterie.ml" 120 3796 3800 "src/bacterie/bacterie.ml" 120 3796 3819
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 119 3735 3739 "src/bacterie/bacterie.ml" 120 3796 3819
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 123 3822 3845 "src/bacterie/bacterie.ml" 123 3822 3846
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  def m "src/bacterie/bacterie.ml" 123 3822 3859 "src/bacterie/bacterie.ml" 133 4314 4362
+)
+"src/bacterie/bacterie.ml" 124 3869 3876 "src/bacterie/bacterie.ml" 124 3869 3886
+type(
+  MolMap.key -> (int * Proteine.proteine) MolMap.t -> bool
+)
+ident(
+  ext_ref MolMap.mem
+)
+"src/bacterie/bacterie.ml" 124 3869 3887 "src/bacterie/bacterie.ml" 124 3869 3888
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref m "src/bacterie/bacterie.ml" 123 3822 3845 "src/bacterie/bacterie.ml" 123 3822 3846
+)
+"src/bacterie/bacterie.ml" 124 3869 3889 "src/bacterie/bacterie.ml" 124 3869 3898
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref molecules
+)
+"src/bacterie/bacterie.ml" 124 3869 3876 "src/bacterie/bacterie.ml" 124 3869 3898
+call(
+  stack
+)
+type(
+  bool
+)
+"src/bacterie/bacterie.ml" 126 3909 3928 "src/bacterie/bacterie.ml" 126 3909 3941
+type(
+  MolMap.key ->
+  (int * Proteine.proteine -> int * Proteine.proteine) ->
+  (int * Proteine.proteine) MolMap.t -> (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref MolMap.modify
+)
+"src/bacterie/bacterie.ml" 126 3909 3942 "src/bacterie/bacterie.ml" 126 3909 3943
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref m "src/bacterie/bacterie.ml" 123 3822 3845 "src/bacterie/bacterie.ml" 123 3822 3846
+)
+"src/bacterie/bacterie.ml" 126 3909 3949 "src/bacterie/bacterie.ml" 126 3909 3950
+type(
+  int * Proteine.proteine
+)
+ident(
+  def x "src/bacterie/bacterie.ml" 126 3909 3954 "src/bacterie/bacterie.ml" 126 3909 3976
+)
+"src/bacterie/bacterie.ml" 126 3909 3958 "src/bacterie/bacterie.ml" 126 3909 3959
+type(
+  int
+)
+ident(
+  def y "src/bacterie/bacterie.ml" 126 3909 3969 "src/bacterie/bacterie.ml" 126 3909 3976
+)
+"src/bacterie/bacterie.ml" 126 3909 3960 "src/bacterie/bacterie.ml" 126 3909 3961
+type(
+  Proteine.proteine
+)
+ident(
+  def z "src/bacterie/bacterie.ml" 126 3909 3969 "src/bacterie/bacterie.ml" 126 3909 3976
+)
+"src/bacterie/bacterie.ml" 126 3909 3958 "src/bacterie/bacterie.ml" 126 3909 3961
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 126 3909 3964 "src/bacterie/bacterie.ml" 126 3909 3965
+type(
+  int * Proteine.proteine
+)
+ident(
+  int_ref x "src/bacterie/bacterie.ml" 126 3909 3949 "src/bacterie/bacterie.ml" 126 3909 3950
+)
+"src/bacterie/bacterie.ml" 126 3909 3970 "src/bacterie/bacterie.ml" 126 3909 3971
+type(
+  int
+)
+ident(
+  int_ref y "src/bacterie/bacterie.ml" 126 3909 3958 "src/bacterie/bacterie.ml" 126 3909 3959
+)
+"src/bacterie/bacterie.ml" 126 3909 3971 "src/bacterie/bacterie.ml" 126 3909 3972
+type(
+  int -> int -> int
+)
+ident(
+  ext_ref Pervasives.( + )
+)
+"src/bacterie/bacterie.ml" 126 3909 3972 "src/bacterie/bacterie.ml" 126 3909 3973
+type(
+  int
+)
+"src/bacterie/bacterie.ml" 126 3909 3970 "src/bacterie/bacterie.ml" 126 3909 3973
+type(
+  int
+)
+"src/bacterie/bacterie.ml" 126 3909 3974 "src/bacterie/bacterie.ml" 126 3909 3975
+type(
+  Proteine.proteine
+)
+ident(
+  int_ref z "src/bacterie/bacterie.ml" 126 3909 3960 "src/bacterie/bacterie.ml" 126 3909 3961
+)
+"src/bacterie/bacterie.ml" 126 3909 3969 "src/bacterie/bacterie.ml" 126 3909 3976
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 126 3909 3954 "src/bacterie/bacterie.ml" 126 3909 3976
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 126 3909 3944 "src/bacterie/bacterie.ml" 126 3909 3977
+type(
+  int * Proteine.proteine -> int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 126 3909 3978 "src/bacterie/bacterie.ml" 126 3909 3987
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref molecules
+)
+"src/bacterie/bacterie.ml" 126 3909 3928 "src/bacterie/bacterie.ml" 126 3909 3987
+call(
+  stack
+)
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+"src/bacterie/bacterie.ml" 126 3909 3915 "src/bacterie/bacterie.ml" 126 3909 3987
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 128 3997 4007 "src/bacterie/bacterie.ml" 128 3997 4008
+type(
+  Proteine.proteine
+)
+ident(
+  def p "src/bacterie/bacterie.ml" 129 4038 4044 "src/bacterie/bacterie.ml" 133 4314 4362
+)
+"src/bacterie/bacterie.ml" 128 3997 4011 "src/bacterie/bacterie.ml" 128 3997 4032
+type(
+  Types.MyMolecule.molecule -> Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 128 3997 4033 "src/bacterie/bacterie.ml" 128 3997 4034
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref m "src/bacterie/bacterie.ml" 123 3822 3845 "src/bacterie/bacterie.ml" 123 3822 3846
+)
+"src/bacterie/bacterie.ml" 128 3997 4011 "src/bacterie/bacterie.ml" 128 3997 4034
+call(
+  stack
+)
+type(
+  Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 129 4038 4044 "src/bacterie/bacterie.ml" 129 4038 4045
+type(
+  Proteine.proteine
+)
+ident(
+  int_ref p "src/bacterie/bacterie.ml" 128 3997 4007 "src/bacterie/bacterie.ml" 128 3997 4008
+)
+"src/bacterie/bacterie.ml" 129 4038 4044 "src/bacterie/bacterie.ml" 129 4038 4054
+call(
+  stack
+)
+type(
+  Proteine.container -> unit
+)
+"src/bacterie/bacterie.ml" 129 4038 4056 "src/bacterie/bacterie.ml" 129 4038 4060
+type(
+  Proteine.container
+)
+type(
+  'a
+)
+ident(
+  int_ref self "src/bacterie/bacterie.ml" 94 3031 3037 "src/bacterie/bacterie.ml" 94 3031 3043
+)
+"src/bacterie/bacterie.ml" 129 4038 4044 "src/bacterie/bacterie.ml" 129 4038 4083
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 130 4085 4095 "src/bacterie/bacterie.ml" 130 4085 4105
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  def messageMap "src/bacterie/bacterie.ml" 131 4147 4153 "src/bacterie/bacterie.ml" 133 4314 4362
+)
+"src/bacterie/bacterie.ml" 130 4085 4107 "src/bacterie/bacterie.ml" 130 4085 4118
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  def catchersMap "src/bacterie/bacterie.ml" 131 4147 4153 "src/bacterie/bacterie.ml" 133 4314 4362
+)
+"src/bacterie/bacterie.ml" 130 4085 4120 "src/bacterie/bacterie.ml" 130 4085 4130
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  def handlesMap "src/bacterie/bacterie.ml" 131 4147 4153 "src/bacterie/bacterie.ml" 133 4314 4362
+)
+"src/bacterie/bacterie.ml" 130 4085 4095 "src/bacterie/bacterie.ml" 130 4085 4130
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/bacterie.ml" 130 4085 4133 "src/bacterie/bacterie.ml" 130 4085 4134
+type(
+  Proteine.proteine
+)
+ident(
+  int_ref p "src/bacterie/bacterie.ml" 128 3997 4007 "src/bacterie/bacterie.ml" 128 3997 4008
+)
+"src/bacterie/bacterie.ml" 130 4085 4133 "src/bacterie/bacterie.ml" 130 4085 4143
+call(
+  stack
+)
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/bacterie.ml" 131 4147 4178 "src/bacterie/bacterie.ml" 131 4147 4188
+type(
+  Types.MyMolecule.molecule ->
+  (string, int) BatMultiPMap.t ->
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t ->
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+ident(
+  int_ref update_map "src/bacterie/bacterie.ml" 65 2326 2332 "src/bacterie/bacterie.ml" 65 2326 2342
+)
+"src/bacterie/bacterie.ml" 131 4147 4189 "src/bacterie/bacterie.ml" 131 4147 4190
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref m "src/bacterie/bacterie.ml" 123 3822 3845 "src/bacterie/bacterie.ml" 123 3822 3846
+)
+"src/bacterie/bacterie.ml" 131 4147 4191 "src/bacterie/bacterie.ml" 131 4147 4201
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref messageMap "src/bacterie/bacterie.ml" 130 4085 4095 "src/bacterie/bacterie.ml" 130 4085 4105
+)
+"src/bacterie/bacterie.ml" 131 4147 4202 "src/bacterie/bacterie.ml" 131 4147 4223
+type(
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+ident(
+  ext_ref message_receptors_map
+)
+"src/bacterie/bacterie.ml" 131 4147 4178 "src/bacterie/bacterie.ml" 131 4147 4223
+call(
+  stack
+)
+type(
+  (string, Types.MyMolecule.molecule) BatMultiPMap.t
+)
+"src/bacterie/bacterie.ml" 131 4147 4153 "src/bacterie/bacterie.ml" 131 4147 4223
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 132 4225 4251 "src/bacterie/bacterie.ml" 132 4225 4270
+type(
+  Types.MyMolecule.molecule ->
+  (string, int) BatMultiPMap.t ->
+  (string, int) BatMultiPMap.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t ->
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  int_ref update_bindings_map "src/bacterie/bacterie.ml" 77 2606 2612 "src/bacterie/bacterie.ml" 77 2606 2631
+)
+"src/bacterie/bacterie.ml" 132 4225 4271 "src/bacterie/bacterie.ml" 132 4225 4272
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref m "src/bacterie/bacterie.ml" 123 3822 3845 "src/bacterie/bacterie.ml" 123 3822 3846
+)
+"src/bacterie/bacterie.ml" 132 4225 4273 "src/bacterie/bacterie.ml" 132 4225 4283
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref handlesMap "src/bacterie/bacterie.ml" 130 4085 4120 "src/bacterie/bacterie.ml" 130 4085 4130
+)
+"src/bacterie/bacterie.ml" 132 4225 4284 "src/bacterie/bacterie.ml" 132 4225 4295
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref catchersMap "src/bacterie/bacterie.ml" 130 4085 4107 "src/bacterie/bacterie.ml" 130 4085 4118
+)
+"src/bacterie/bacterie.ml" 132 4225 4296 "src/bacterie/bacterie.ml" 132 4225 4312
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  ext_ref mol_bindings_map
+)
+"src/bacterie/bacterie.ml" 132 4225 4251 "src/bacterie/bacterie.ml" 132 4225 4312
+call(
+  stack
+)
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+"src/bacterie/bacterie.ml" 132 4225 4231 "src/bacterie/bacterie.ml" 132 4225 4312
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 133 4314 4333 "src/bacterie/bacterie.ml" 133 4314 4343
+type(
+  MolMap.key ->
+  int * Proteine.proteine ->
+  (int * Proteine.proteine) MolMap.t -> (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref MolMap.add
+)
+"src/bacterie/bacterie.ml" 133 4314 4344 "src/bacterie/bacterie.ml" 133 4314 4345
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref m "src/bacterie/bacterie.ml" 123 3822 3845 "src/bacterie/bacterie.ml" 123 3822 3846
+)
+"src/bacterie/bacterie.ml" 133 4314 4347 "src/bacterie/bacterie.ml" 133 4314 4348
+type(
+  int
+)
+"src/bacterie/bacterie.ml" 133 4314 4349 "src/bacterie/bacterie.ml" 133 4314 4350
+type(
+  Proteine.proteine
+)
+ident(
+  int_ref p "src/bacterie/bacterie.ml" 128 3997 4007 "src/bacterie/bacterie.ml" 128 3997 4008
+)
+"src/bacterie/bacterie.ml" 133 4314 4346 "src/bacterie/bacterie.ml" 133 4314 4351
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 133 4314 4352 "src/bacterie/bacterie.ml" 133 4314 4361
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref molecules
+)
+"src/bacterie/bacterie.ml" 133 4314 4333 "src/bacterie/bacterie.ml" 133 4314 4361
+call(
+  stack
+)
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+"src/bacterie/bacterie.ml" 133 4314 4320 "src/bacterie/bacterie.ml" 133 4314 4362
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 132 4225 4231 "src/bacterie/bacterie.ml" 133 4314 4362
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 131 4147 4153 "src/bacterie/bacterie.ml" 133 4314 4362
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 130 4085 4091 "src/bacterie/bacterie.ml" 133 4314 4362
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 129 4038 4044 "src/bacterie/bacterie.ml" 133 4314 4362
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 128 3997 4003 "src/bacterie/bacterie.ml" 133 4314 4362
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 124 3869 3873 "src/bacterie/bacterie.ml" 133 4314 4362
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 138 4413 4417 "src/bacterie/bacterie.ml" 138 4413 4427
+type(
+  (int * Proteine.proteine -> unit) ->
+  (int * Proteine.proteine) MolMap.t -> unit MolMap.t
+)
+ident(
+  ext_ref MolMap.map
+)
+"src/bacterie/bacterie.ml" 139 4428 4439 "src/bacterie/bacterie.ml" 139 4428 4440
+type(
+  int * Proteine.proteine
+)
+ident(
+  def x "src/bacterie/bacterie.ml" 139 4428 4444 "src/bacterie/bacterie.ml" 142 4521 4527
+)
+"src/bacterie/bacterie.ml" 139 4428 4449 "src/bacterie/bacterie.ml" 139 4428 4450
+type(
+  int
+)
+ident(
+  def n "src/bacterie/bacterie.ml" 140 4467 4469 "src/bacterie/bacterie.ml" 142 4521 4527
+)
+"src/bacterie/bacterie.ml" 139 4428 4452 "src/bacterie/bacterie.ml" 139 4428 4456
+type(
+  Proteine.proteine
+)
+ident(
+  def prot "src/bacterie/bacterie.ml" 140 4467 4469 "src/bacterie/bacterie.ml" 142 4521 4527
+)
+"src/bacterie/bacterie.ml" 139 4428 4448 "src/bacterie/bacterie.ml" 139 4428 4457
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 139 4428 4460 "src/bacterie/bacterie.ml" 139 4428 4461
+type(
+  int * Proteine.proteine
+)
+ident(
+  int_ref x "src/bacterie/bacterie.ml" 139 4428 4439 "src/bacterie/bacterie.ml" 139 4428 4440
+)
+"src/bacterie/bacterie.ml" 140 4467 4477 "src/bacterie/bacterie.ml" 140 4467 4478
+type(
+  int
+)
+"src/bacterie/bacterie.ml" 140 4467 4482 "src/bacterie/bacterie.ml" 140 4467 4483
+type(
+  int
+)
+ident(
+  int_ref n "src/bacterie/bacterie.ml" 139 4428 4449 "src/bacterie/bacterie.ml" 139 4428 4450
+)
+"src/bacterie/bacterie.ml" 141 4487 4491 "src/bacterie/bacterie.ml" 141 4487 4495
+type(
+  Proteine.proteine
+)
+ident(
+  int_ref prot "src/bacterie/bacterie.ml" 139 4428 4452 "src/bacterie/bacterie.ml" 139 4428 4456
+)
+"src/bacterie/bacterie.ml" 141 4487 4491 "src/bacterie/bacterie.ml" 141 4487 4520
+call(
+  stack
+)
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 140 4467 4469 "src/bacterie/bacterie.ml" 142 4521 4527
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 139 4428 4444 "src/bacterie/bacterie.ml" 142 4521 4527
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 139 4428 4434 "src/bacterie/bacterie.ml" 142 4521 4528
+type(
+  int * Proteine.proteine -> unit
+)
+"src/bacterie/bacterie.ml" 143 4529 4535 "src/bacterie/bacterie.ml" 143 4529 4544
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref molecules
+)
+"src/bacterie/bacterie.ml" 138 4413 4417 "src/bacterie/bacterie.ml" 143 4529 4544
+call(
+  stack
+)
+type(
+  unit MolMap.t
+)
+"src/bacterie/bacterie.ml" 144 4546 4550 "src/bacterie/bacterie.ml" 144 4546 4554
+type(
+  'a
+)
+ident(
+  int_ref self "src/bacterie/bacterie.ml" 94 3031 3037 "src/bacterie/bacterie.ml" 94 3031 3043
+)
+"src/bacterie/bacterie.ml" 144 4546 4550 "src/bacterie/bacterie.ml" 144 4546 4568
+call(
+  stack
+)
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 145 4570 4574 "src/bacterie/bacterie.ml" 145 4570 4578
+type(
+  'a
+)
+ident(
+  int_ref self "src/bacterie/bacterie.ml" 94 3031 3037 "src/bacterie/bacterie.ml" 94 3031 3043
+)
+"src/bacterie/bacterie.ml" 145 4570 4574 "src/bacterie/bacterie.ml" 145 4570 4595
+call(
+  tail
+)
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 144 4546 4550 "src/bacterie/bacterie.ml" 145 4570 4595
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 138 4413 4417 "src/bacterie/bacterie.ml" 145 4570 4595
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 149 4631 4635 "src/bacterie/bacterie.ml" 149 4631 4652
+type(
+  (MolDoubleMap.key -> MolDoubleMap.set_pair -> unit list) ->
+  MolDoubleMap.set_pair MolDoubleMap.t -> unit list MolDoubleMap.t
+)
+ident(
+  ext_ref MolDoubleMap.mapi
+)
+"src/bacterie/bacterie.ml" 151 4665 4667 "src/bacterie/bacterie.ml" 151 4665 4674
+type(
+  string
+)
+ident(
+  def pattern "src/bacterie/bacterie.ml" 152 4686 4687 "src/bacterie/bacterie.ml" 166 5211 5226
+)
+"src/bacterie/bacterie.ml" 152 4686 4688 "src/bacterie/bacterie.ml" 152 4686 4692
+type(
+  MolDoubleMap.set_pair
+)
+ident(
+  def mols "src/bacterie/bacterie.ml" 153 4722 4723 "src/bacterie/bacterie.ml" 166 5211 5226
+)
+"src/bacterie/bacterie.ml" 153 4722 4727 "src/bacterie/bacterie.ml" 153 4722 4734
+type(
+  MolDoubleMap.Set.t
+)
+ident(
+  def handles "src/bacterie/bacterie.ml" 154 4756 4757 "src/bacterie/bacterie.ml" 166 5211 5226
+)
+"src/bacterie/bacterie.ml" 153 4722 4736 "src/bacterie/bacterie.ml" 153 4722 4744
+type(
+  MolDoubleMap.Set.t
+)
+ident(
+  def catchers "src/bacterie/bacterie.ml" 154 4756 4757 "src/bacterie/bacterie.ml" 166 5211 5226
+)
+"src/bacterie/bacterie.ml" 153 4722 4727 "src/bacterie/bacterie.ml" 153 4722 4744
+type(
+  MolDoubleMap.set_pair
+)
+"src/bacterie/bacterie.ml" 153 4722 4747 "src/bacterie/bacterie.ml" 153 4722 4751
+type(
+  MolDoubleMap.set_pair
+)
+ident(
+  int_ref mols "src/bacterie/bacterie.ml" 152 4686 4688 "src/bacterie/bacterie.ml" 152 4686 4692
+)
+"src/bacterie/bacterie.ml" 154 4756 4761 "src/bacterie/bacterie.ml" 154 4756 4770
+type(
+  MolDoubleMap.Set.elt list
+)
+ident(
+  def handles_l "src/bacterie/bacterie.ml" 155 4860 4861 "src/bacterie/bacterie.ml" 166 5211 5226
+)
+"src/bacterie/bacterie.ml" 154 4756 4773 "src/bacterie/bacterie.ml" 154 4756 4797
+type(
+  MolDoubleMap.Set.t -> MolDoubleMap.Set.elt list
+)
+ident(
+  ext_ref MolDoubleMap.Set.to_list
+)
+"src/bacterie/bacterie.ml" 154 4756 4798 "src/bacterie/bacterie.ml" 154 4756 4805
+type(
+  MolDoubleMap.Set.t
+)
+ident(
+  int_ref handles "src/bacterie/bacterie.ml" 153 4722 4727 "src/bacterie/bacterie.ml" 153 4722 4734
+)
+"src/bacterie/bacterie.ml" 154 4756 4773 "src/bacterie/bacterie.ml" 154 4756 4805
+call(
+  stack
+)
+type(
+  MolDoubleMap.Set.elt list
+)
+"src/bacterie/bacterie.ml" 154 4756 4810 "src/bacterie/bacterie.ml" 154 4756 4820
+type(
+  MolDoubleMap.Set.elt list
+)
+ident(
+  def catchers_l "src/bacterie/bacterie.ml" 155 4860 4861 "src/bacterie/bacterie.ml" 166 5211 5226
+)
+"src/bacterie/bacterie.ml" 154 4756 4823 "src/bacterie/bacterie.ml" 154 4756 4847
+type(
+  MolDoubleMap.Set.t -> MolDoubleMap.Set.elt list
+)
+ident(
+  ext_ref MolDoubleMap.Set.to_list
+)
+"src/bacterie/bacterie.ml" 154 4756 4848 "src/bacterie/bacterie.ml" 154 4756 4856
+type(
+  MolDoubleMap.Set.t
+)
+ident(
+  int_ref catchers "src/bacterie/bacterie.ml" 153 4722 4736 "src/bacterie/bacterie.ml" 153 4722 4744
+)
+"src/bacterie/bacterie.ml" 154 4756 4823 "src/bacterie/bacterie.ml" 154 4756 4856
+call(
+  stack
+)
+type(
+  MolDoubleMap.Set.elt list
+)
+"src/bacterie/bacterie.ml" 155 4860 4865 "src/bacterie/bacterie.ml" 155 4860 4877
+type(
+  (MolDoubleMap.Set.elt * MolDoubleMap.Set.elt) list
+)
+ident(
+  def couples_list "src/bacterie/bacterie.ml" 157 4935 4936 "src/bacterie/bacterie.ml" 166 5211 5226
+)
+"src/bacterie/bacterie.ml" 155 4860 4880 "src/bacterie/bacterie.ml" 155 4860 4908
+type(
+  MolDoubleMap.Set.elt list ->
+  MolDoubleMap.Set.elt list ->
+  (MolDoubleMap.Set.elt * MolDoubleMap.Set.elt) list
+)
+ident(
+  ext_ref Misc_library.get_all_couples
+)
+"src/bacterie/bacterie.ml" 155 4860 4909 "src/bacterie/bacterie.ml" 155 4860 4918
+type(
+  MolDoubleMap.Set.elt list
+)
+ident(
+  int_ref handles_l "src/bacterie/bacterie.ml" 154 4756 4761 "src/bacterie/bacterie.ml" 154 4756 4770
+)
+"src/bacterie/bacterie.ml" 155 4860 4919 "src/bacterie/bacterie.ml" 155 4860 4929
+type(
+  MolDoubleMap.Set.elt list
+)
+ident(
+  int_ref catchers_l "src/bacterie/bacterie.ml" 154 4756 4810 "src/bacterie/bacterie.ml" 154 4756 4820
+)
+"src/bacterie/bacterie.ml" 155 4860 4880 "src/bacterie/bacterie.ml" 155 4860 4929
+call(
+  stack
+)
+type(
+  (MolDoubleMap.Set.elt * MolDoubleMap.Set.elt) list
+)
+"src/bacterie/bacterie.ml" 157 4935 4936 "src/bacterie/bacterie.ml" 157 4935 4944
+type(
+  (MolMap.key * MolMap.key -> unit) ->
+  (MolMap.key * MolMap.key) list -> unit list
+)
+ident(
+  ext_ref List.map
+)
+"src/bacterie/bacterie.ml" 158 4946 4954 "src/bacterie/bacterie.ml" 158 4946 4955
+type(
+  MolMap.key * MolMap.key
+)
+ident(
+  def x "src/bacterie/bacterie.ml" 159 4960 4965 "src/bacterie/bacterie.ml" 164 5160 5205
+)
+"src/bacterie/bacterie.ml" 159 4960 4970 "src/bacterie/bacterie.ml" 159 4960 4976
+type(
+  MolMap.key
+)
+ident(
+  def handle "src/bacterie/bacterie.ml" 160 4994 4999 "src/bacterie/bacterie.ml" 164 5160 5205
+)
+"src/bacterie/bacterie.ml" 159 4960 4978 "src/bacterie/bacterie.ml" 159 4960 4985
+type(
+  MolMap.key
+)
+ident(
+  def catcher "src/bacterie/bacterie.ml" 160 4994 4999 "src/bacterie/bacterie.ml" 164 5160 5205
+)
+"src/bacterie/bacterie.ml" 159 4960 4969 "src/bacterie/bacterie.ml" 159 4960 4986
+type(
+  MolMap.key * MolMap.key
+)
+"src/bacterie/bacterie.ml" 159 4960 4989 "src/bacterie/bacterie.ml" 159 4960 4990
+type(
+  MolMap.key * MolMap.key
+)
+ident(
+  int_ref x "src/bacterie/bacterie.ml" 158 4946 4954 "src/bacterie/bacterie.ml" 158 4946 4955
+)
+"src/bacterie/bacterie.ml" 160 4994 5003 "src/bacterie/bacterie.ml" 160 4994 5013
+type(
+  int
+)
+ident(
+  def handle_num "src/bacterie/bacterie.ml" 163 5113 5118 "src/bacterie/bacterie.ml" 164 5160 5205
+)
+"src/bacterie/bacterie.ml" 160 4994 5015 "src/bacterie/bacterie.ml" 160 4994 5016
+type(
+  Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 160 4994 5003 "src/bacterie/bacterie.ml" 160 4994 5016
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 160 4994 5019 "src/bacterie/bacterie.ml" 160 4994 5030
+type(
+  MolMap.key -> (int * Proteine.proteine) MolMap.t -> int * Proteine.proteine
+)
+ident(
+  ext_ref MolMap.find
+)
+"src/bacterie/bacterie.ml" 160 4994 5031 "src/bacterie/bacterie.ml" 160 4994 5037
+type(
+  MolMap.key
+)
+ident(
+  int_ref handle "src/bacterie/bacterie.ml" 159 4960 4970 "src/bacterie/bacterie.ml" 159 4960 4976
+)
+"src/bacterie/bacterie.ml" 160 4994 5038 "src/bacterie/bacterie.ml" 160 4994 5047
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref molecules
+)
+"src/bacterie/bacterie.ml" 160 4994 5019 "src/bacterie/bacterie.ml" 160 4994 5047
+call(
+  stack
+)
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 161 5049 5058 "src/bacterie/bacterie.ml" 161 5049 5069
+type(
+  int
+)
+ident(
+  def catcher_num "src/bacterie/bacterie.ml" 163 5113 5118 "src/bacterie/bacterie.ml" 164 5160 5205
+)
+"src/bacterie/bacterie.ml" 161 5049 5071 "src/bacterie/bacterie.ml" 161 5049 5072
+type(
+  Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 161 5049 5058 "src/bacterie/bacterie.ml" 161 5049 5072
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 161 5049 5075 "src/bacterie/bacterie.ml" 161 5049 5086
+type(
+  MolMap.key -> (int * Proteine.proteine) MolMap.t -> int * Proteine.proteine
+)
+ident(
+  ext_ref MolMap.find
+)
+"src/bacterie/bacterie.ml" 161 5049 5087 "src/bacterie/bacterie.ml" 161 5049 5094
+type(
+  MolMap.key
+)
+ident(
+  int_ref catcher "src/bacterie/bacterie.ml" 159 4960 4978 "src/bacterie/bacterie.ml" 159 4960 4985
+)
+"src/bacterie/bacterie.ml" 161 5049 5095 "src/bacterie/bacterie.ml" 161 5049 5104
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref molecules
+)
+"src/bacterie/bacterie.ml" 161 5049 5075 "src/bacterie/bacterie.ml" 161 5049 5104
+call(
+  stack
+)
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 163 5113 5121 "src/bacterie/bacterie.ml" 163 5113 5136
+type(
+  int -> int -> bool
+)
+ident(
+  ext_ref Reactions.react
+)
+"src/bacterie/bacterie.ml" 163 5113 5137 "src/bacterie/bacterie.ml" 163 5113 5147
+type(
+  int
+)
+ident(
+  int_ref handle_num "src/bacterie/bacterie.ml" 160 4994 5003 "src/bacterie/bacterie.ml" 160 4994 5013
+)
+"src/bacterie/bacterie.ml" 163 5113 5148 "src/bacterie/bacterie.ml" 163 5113 5159
+type(
+  int
+)
+ident(
+  int_ref catcher_num "src/bacterie/bacterie.ml" 161 5049 5058 "src/bacterie/bacterie.ml" 161 5049 5069
+)
+"src/bacterie/bacterie.ml" 163 5113 5121 "src/bacterie/bacterie.ml" 163 5113 5159
+call(
+  stack
+)
+type(
+  bool
+)
+"src/bacterie/bacterie.ml" 164 5160 5170 "src/bacterie/bacterie.ml" 164 5160 5174
+type(
+  'a
+)
+ident(
+  int_ref self "src/bacterie/bacterie.ml" 94 3031 3037 "src/bacterie/bacterie.ml" 94 3031 3043
+)
+"src/bacterie/bacterie.ml" 164 5160 5170 "src/bacterie/bacterie.ml" 164 5160 5182
+call(
+  tail
+)
+type(
+  MolMap.key -> MolMap.key -> string -> unit
+)
+"src/bacterie/bacterie.ml" 164 5160 5183 "src/bacterie/bacterie.ml" 164 5160 5189
+type(
+  MolMap.key
+)
+ident(
+  int_ref handle "src/bacterie/bacterie.ml" 159 4960 4970 "src/bacterie/bacterie.ml" 159 4960 4976
+)
+"src/bacterie/bacterie.ml" 164 5160 5190 "src/bacterie/bacterie.ml" 164 5160 5197
+type(
+  MolMap.key
+)
+ident(
+  int_ref catcher "src/bacterie/bacterie.ml" 159 4960 4978 "src/bacterie/bacterie.ml" 159 4960 4985
+)
+"src/bacterie/bacterie.ml" 164 5160 5198 "src/bacterie/bacterie.ml" 164 5160 5205
+type(
+  string
+)
+ident(
+  int_ref pattern "src/bacterie/bacterie.ml" 151 4665 4667 "src/bacterie/bacterie.ml" 151 4665 4674
+)
+"src/bacterie/bacterie.ml" 164 5160 5170 "src/bacterie/bacterie.ml" 164 5160 5205
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 163 5113 5118 "src/bacterie/bacterie.ml" 164 5160 5205
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 160 4994 4999 "src/bacterie/bacterie.ml" 164 5160 5205
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 159 4960 4965 "src/bacterie/bacterie.ml" 164 5160 5205
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 158 4946 4949 "src/bacterie/bacterie.ml" 165 5206 5210
+type(
+  MolMap.key * MolMap.key -> unit
+)
+"src/bacterie/bacterie.ml" 166 5211 5214 "src/bacterie/bacterie.ml" 166 5211 5226
+type(
+  (MolMap.key * MolMap.key) list
+)
+ident(
+  int_ref couples_list "src/bacterie/bacterie.ml" 155 4860 4865 "src/bacterie/bacterie.ml" 155 4860 4877
+)
+"src/bacterie/bacterie.ml" 157 4935 4936 "src/bacterie/bacterie.ml" 166 5211 5226
+call(
+  tail
+)
+type(
+  unit list
+)
+"src/bacterie/bacterie.ml" 155 4860 4861 "src/bacterie/bacterie.ml" 166 5211 5226
+type(
+  unit list
+)
+"src/bacterie/bacterie.ml" 154 4756 4757 "src/bacterie/bacterie.ml" 166 5211 5226
+type(
+  unit list
+)
+"src/bacterie/bacterie.ml" 153 4722 4723 "src/bacterie/bacterie.ml" 166 5211 5226
+type(
+  unit list
+)
+"src/bacterie/bacterie.ml" 150 4653 4659 "src/bacterie/bacterie.ml" 166 5211 5227
+type(
+  MolDoubleMap.key -> MolDoubleMap.set_pair -> unit list
+)
+"src/bacterie/bacterie.ml" 167 5228 5234 "src/bacterie/bacterie.ml" 167 5228 5250
+type(
+  MolDoubleMap.set_pair MolDoubleMap.t
+)
+ident(
+  ext_ref mol_bindings_map
+)
+"src/bacterie/bacterie.ml" 149 4631 4635 "src/bacterie/bacterie.ml" 167 5228 5250
+call(
+  stack
+)
+type(
+  unit list MolDoubleMap.t
+)
+"src/bacterie/bacterie.ml" 168 5252 5256 "src/bacterie/bacterie.ml" 168 5252 5258
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 149 4631 4635 "src/bacterie/bacterie.ml" 168 5252 5258
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 172 5291 5296 "src/bacterie/bacterie.ml" 172 5291 5304
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  def boundMol "src/bacterie/bacterie.ml" 173 5318 5322 "src/bacterie/bacterie.ml" 185 5618 5626
+)
+"src/bacterie/bacterie.ml" 173 5318 5323 "src/bacterie/bacterie.ml" 173 5318 5330
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  def hostMol "src/bacterie/bacterie.ml" 174 5344 5348 "src/bacterie/bacterie.ml" 185 5618 5626
+)
+"src/bacterie/bacterie.ml" 174 5344 5349 "src/bacterie/bacterie.ml" 174 5344 5360
+type(
+  string
+)
+ident(
+  def bindPattern "src/bacterie/bacterie.ml" 175 5372 5376 "src/bacterie/bacterie.ml" 185 5618 5626
+)
+"src/bacterie/bacterie.ml" 177 5391 5400 "src/bacterie/bacterie.ml" 177 5391 5401
+type(
+  int
+)
+"src/bacterie/bacterie.ml" 177 5391 5402 "src/bacterie/bacterie.ml" 177 5391 5403
+type(
+  Proteine.proteine
+)
+ident(
+  def p "src/bacterie/bacterie.ml" 179 5445 5449 "src/bacterie/bacterie.ml" 185 5618 5626
+)
+"src/bacterie/bacterie.ml" 177 5391 5399 "src/bacterie/bacterie.ml" 177 5391 5404
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 177 5391 5407 "src/bacterie/bacterie.ml" 177 5391 5418
+type(
+  MolMap.key -> (int * Proteine.proteine) MolMap.t -> int * Proteine.proteine
+)
+ident(
+  ext_ref MolMap.find
+)
+"src/bacterie/bacterie.ml" 177 5391 5419 "src/bacterie/bacterie.ml" 177 5391 5426
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref hostMol "src/bacterie/bacterie.ml" 173 5318 5323 "src/bacterie/bacterie.ml" 173 5318 5330
+)
+"src/bacterie/bacterie.ml" 177 5391 5427 "src/bacterie/bacterie.ml" 177 5391 5436
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref molecules
+)
+"src/bacterie/bacterie.ml" 177 5391 5407 "src/bacterie/bacterie.ml" 177 5391 5436
+call(
+  stack
+)
+type(
+  int * Proteine.proteine
+)
+"src/bacterie/bacterie.ml" 179 5445 5453 "src/bacterie/bacterie.ml" 179 5445 5464
+type(
+  bool
+)
+ident(
+  def reac_result "src/bacterie/bacterie.ml" 181 5506 5510 "src/bacterie/bacterie.ml" 185 5618 5626
+)
+"src/bacterie/bacterie.ml" 179 5445 5467 "src/bacterie/bacterie.ml" 179 5445 5468
+type(
+  Proteine.proteine
+)
+ident(
+  int_ref p "src/bacterie/bacterie.ml" 177 5391 5402 "src/bacterie/bacterie.ml" 177 5391 5403
+)
+"src/bacterie/bacterie.ml" 179 5445 5467 "src/bacterie/bacterie.ml" 179 5445 5477
+call(
+  stack
+)
+type(
+  Types.MyMolecule.molecule -> string -> bool
+)
+"src/bacterie/bacterie.ml" 179 5445 5478 "src/bacterie/bacterie.ml" 179 5445 5486
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref boundMol "src/bacterie/bacterie.ml" 172 5291 5296 "src/bacterie/bacterie.ml" 172 5291 5304
+)
+"src/bacterie/bacterie.ml" 179 5445 5487 "src/bacterie/bacterie.ml" 179 5445 5498
+type(
+  string
+)
+ident(
+  int_ref bindPattern "src/bacterie/bacterie.ml" 174 5344 5349 "src/bacterie/bacterie.ml" 174 5344 5360
+)
+"src/bacterie/bacterie.ml" 179 5445 5467 "src/bacterie/bacterie.ml" 179 5445 5498
+type(
+  bool
+)
+"src/bacterie/bacterie.ml" 181 5506 5513 "src/bacterie/bacterie.ml" 181 5506 5524
+type(
+  bool
+)
+ident(
+  int_ref reac_result "src/bacterie/bacterie.ml" 179 5445 5453 "src/bacterie/bacterie.ml" 179 5445 5464
+)
+"src/bacterie/bacterie.ml" 183 5535 5554 "src/bacterie/bacterie.ml" 183 5535 5584
+type(
+  Types.MyMolecule.molecule ->
+  int ->
+  (int * Proteine.proteine) MolMap.t -> (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref MolMap.rel_change_mol_quantity
+)
+"src/bacterie/bacterie.ml" 183 5535 5585 "src/bacterie/bacterie.ml" 183 5535 5593
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref boundMol "src/bacterie/bacterie.ml" 172 5291 5296 "src/bacterie/bacterie.ml" 172 5291 5304
+)
+"src/bacterie/bacterie.ml" 183 5535 5594 "src/bacterie/bacterie.ml" 183 5535 5598
+type(
+  int
+)
+"src/bacterie/bacterie.ml" 183 5535 5599 "src/bacterie/bacterie.ml" 183 5535 5608
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+ident(
+  ext_ref molecules
+)
+"src/bacterie/bacterie.ml" 183 5535 5554 "src/bacterie/bacterie.ml" 183 5535 5608
+call(
+  stack
+)
+type(
+  (int * Proteine.proteine) MolMap.t
+)
+"src/bacterie/bacterie.ml" 183 5535 5541 "src/bacterie/bacterie.ml" 183 5535 5608
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 185 5618 5624 "src/bacterie/bacterie.ml" 185 5618 5626
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 181 5506 5510 "src/bacterie/bacterie.ml" 185 5618 5626
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 179 5445 5449 "src/bacterie/bacterie.ml" 185 5618 5626
+type(
+  unit
+)
+"src/bacterie/bacterie.ml" 177 5391 5395 "src/bacterie/bacterie.ml" 185 5618 5626
+type(
+  unit
+)
+type(
+  unit
+)

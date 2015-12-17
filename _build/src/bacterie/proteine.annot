@@ -1,0 +1,3711 @@
+"src/bacterie/proteine.ml" 24 299 303 "src/bacterie/proteine.ml" 24 299 313
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  def emptyToken "src/bacterie/proteine.ml" 27 396 396 "src/bacterie/proteine.ml" 1 0 -1
+)
+"src/bacterie/proteine.ml" 24 299 316 "src/bacterie/proteine.ml" 24 299 327
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  ext_ref Types.MyMolecule.emptyHolder
+)
+"src/bacterie/proteine.ml" 46 815 828 "src/bacterie/proteine.ml" 46 815 837
+type(
+  Types.place_type
+)
+"src/bacterie/proteine.ml" 48 862 868 "src/bacterie/proteine.ml" 48 862 874
+type(
+  < add_token_from_binding : Types.MyMolecule.molecule -> bool;
+    add_token_from_message : unit; empty : unit;
+    get_place_type : Types.place_type; is_empty : bool; pop_token : token;
+    send_token : token -> unit; setHost : container -> unit;
+    set_token : token -> unit; .. >
+)
+"src/bacterie/proteine.ml" 50 905 915 "src/bacterie/proteine.ml" 50 905 924
+type(
+  Types.place_type
+)
+ident(
+  int_ref placeType "src/bacterie/proteine.ml" 46 815 828 "src/bacterie/proteine.ml" 46 815 837
+)
+"src/bacterie/proteine.ml" 51 930 936 "src/bacterie/proteine.ml" 51 930 949
+type(
+  Types.place_type
+)
+"src/bacterie/proteine.ml" 51 930 968 "src/bacterie/proteine.ml" 51 930 978
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  int_ref emptyToken "src/bacterie/proteine.ml" 24 299 303 "src/bacterie/proteine.ml" 24 299 313
+)
+"src/bacterie/proteine.ml" 51 930 953 "src/bacterie/proteine.ml" 51 930 978
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 52 979 985 "src/bacterie/proteine.ml" 52 979 986
+type(
+  Types.place_type
+)
+"src/bacterie/proteine.ml" 52 979 990 "src/bacterie/proteine.ml" 52 979 1001
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 50 905 909 "src/bacterie/proteine.ml" 52 979 1001
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 54 1010 1028 "src/bacterie/proteine.ml" 54 1010 1037
+type(
+  Types.place_type
+)
+ident(
+  int_ref placeType "src/bacterie/proteine.ml" 46 815 828 "src/bacterie/proteine.ml" 46 815 837
+)
+"src/bacterie/proteine.ml" 56 1043 1083 "src/bacterie/proteine.ml" 56 1043 1087
+type(
+  container option
+)
+type(
+  container option
+)
+"src/bacterie/proteine.ml" 58 1090 1116 "src/bacterie/proteine.ml" 58 1090 1125
+type(
+  Types.place_type
+)
+type(
+  Types.place_type
+)
+ident(
+  ext_ref placeType
+)
+"src/bacterie/proteine.ml" 60 1127 1155 "src/bacterie/proteine.ml" 60 1127 1166
+type(
+  token_holder
+)
+ident(
+  ext_ref tokenHolder
+)
+"src/bacterie/proteine.ml" 60 1127 1167 "src/bacterie/proteine.ml" 60 1127 1168
+type(
+  token_holder -> token_holder -> bool
+)
+ident(
+  ext_ref Batteries.( = )
+)
+"src/bacterie/proteine.ml" 60 1127 1169 "src/bacterie/proteine.ml" 60 1127 1180
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 60 1127 1155 "src/bacterie/proteine.ml" 60 1127 1180
+type(
+  bool
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 63 1223 1262 "src/bacterie/proteine.ml" 63 1223 1273
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 63 1223 1247 "src/bacterie/proteine.ml" 63 1223 1273
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 66 1321 1341 "src/bacterie/proteine.ml" 66 1321 1342
+type(
+  token
+)
+ident(
+  def t "src/bacterie/proteine.ml" 66 1321 1352 "src/bacterie/proteine.ml" 67 1362 1397
+)
+"src/bacterie/proteine.ml" 67 1362 1396 "src/bacterie/proteine.ml" 67 1362 1397
+type(
+  token
+)
+ident(
+  int_ref t "src/bacterie/proteine.ml" 66 1321 1341 "src/bacterie/proteine.ml" 66 1321 1342
+)
+"src/bacterie/proteine.ml" 67 1362 1381 "src/bacterie/proteine.ml" 67 1362 1397
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 67 1362 1366 "src/bacterie/proteine.ml" 67 1362 1397
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 71 1526 1547 "src/bacterie/proteine.ml" 71 1526 1548
+type(
+  token
+)
+ident(
+  def t "src/bacterie/proteine.ml" 71 1526 1558 "src/bacterie/proteine.ml" 109 2402 2415
+)
+"src/bacterie/proteine.ml" 72 1568 1578 "src/bacterie/proteine.ml" 72 1568 1587
+type(
+  Types.place_type
+)
+ident(
+  ext_ref placeType
+)
+"src/bacterie/proteine.ml" 77 1773 1779 "src/bacterie/proteine.ml" 77 1773 1792
+type(
+  Types.place_type
+)
+"src/bacterie/proteine.ml" 79 1811 1819 "src/bacterie/proteine.ml" 79 1811 1830
+type(
+  token_holder
+)
+ident(
+  ext_ref tokenHolder
+)
+"src/bacterie/proteine.ml" 80 1836 1840 "src/bacterie/proteine.ml" 80 1836 1851
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 80 1836 1855 "src/bacterie/proteine.ml" 80 1836 1857
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 81 1858 1877 "src/bacterie/proteine.ml" 81 1858 1878
+type(
+  token
+)
+ident(
+  def t "src/bacterie/proteine.ml" 82 1883 1888 "src/bacterie/proteine.ml" 90 2075 2084
+)
+"src/bacterie/proteine.ml" 81 1858 1862 "src/bacterie/proteine.ml" 81 1858 1878
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 82 1883 1891 "src/bacterie/proteine.ml" 82 1883 1892
+type(
+  token
+)
+ident(
+  int_ref t "src/bacterie/proteine.ml" 81 1858 1877 "src/bacterie/proteine.ml" 81 1858 1878
+)
+"src/bacterie/proteine.ml" 82 1883 1891 "src/bacterie/proteine.ml" 82 1883 1901
+call(
+  stack
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 85 1921 1934 "src/bacterie/proteine.ml" 85 1921 1938
+type(
+  container option
+)
+ident(
+  ext_ref host
+)
+"src/bacterie/proteine.ml" 86 1944 1953 "src/bacterie/proteine.ml" 86 1944 1957
+type(
+  container option
+)
+"src/bacterie/proteine.ml" 86 1944 1961 "src/bacterie/proteine.ml" 86 1944 1965
+type(
+  < add_token_from_binding : Types.MyMolecule.molecule -> bool;
+    add_token_from_message : unit; empty : unit;
+    get_place_type : Types.place_type; is_empty : bool; pop_token : token;
+    send_token : token -> unit; setHost : container -> unit;
+    set_token : token -> unit; .. >
+  as 'a
+)
+ident(
+  int_ref self "src/bacterie/proteine.ml" 48 862 868 "src/bacterie/proteine.ml" 48 862 874
+)
+"src/bacterie/proteine.ml" 86 1944 1961 "src/bacterie/proteine.ml" 86 1944 1975
+call(
+  tail
+)
+type(
+  token -> unit
+)
+"src/bacterie/proteine.ml" 86 1944 1976 "src/bacterie/proteine.ml" 86 1944 1986
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  int_ref emptyToken "src/bacterie/proteine.ml" 24 299 303 "src/bacterie/proteine.ml" 24 299 313
+)
+"src/bacterie/proteine.ml" 86 1944 1961 "src/bacterie/proteine.ml" 86 1944 1986
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 87 1987 2001 "src/bacterie/proteine.ml" 87 1987 2002
+type(
+  container
+)
+ident(
+  def h "src/bacterie/proteine.ml" 87 1987 2006 "src/bacterie/proteine.ml" 88 2037 2064
+)
+"src/bacterie/proteine.ml" 87 1987 1996 "src/bacterie/proteine.ml" 87 1987 2002
+type(
+  container option
+)
+"src/bacterie/proteine.ml" 87 1987 2006 "src/bacterie/proteine.ml" 87 1987 2007
+type(
+  container
+)
+ident(
+  int_ref h "src/bacterie/proteine.ml" 87 1987 2001 "src/bacterie/proteine.ml" 87 1987 2002
+)
+"src/bacterie/proteine.ml" 87 1987 2006 "src/bacterie/proteine.ml" 87 1987 2020
+call(
+  stack
+)
+type(
+  Types.MyMolecule.molecule -> unit
+)
+"src/bacterie/proteine.ml" 87 1987 2021 "src/bacterie/proteine.ml" 87 1987 2022
+type(
+  token
+)
+ident(
+  int_ref t "src/bacterie/proteine.ml" 81 1858 1877 "src/bacterie/proteine.ml" 81 1858 1878
+)
+"src/bacterie/proteine.ml" 87 1987 2021 "src/bacterie/proteine.ml" 87 1987 2035
+call(
+  stack
+)
+type(
+  Types.MyMolecule.molecule
+)
+"src/bacterie/proteine.ml" 87 1987 2006 "src/bacterie/proteine.ml" 87 1987 2035
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 88 2037 2039 "src/bacterie/proteine.ml" 88 2037 2043
+type(
+  'a
+)
+ident(
+  int_ref self "src/bacterie/proteine.ml" 48 862 868 "src/bacterie/proteine.ml" 48 862 874
+)
+"src/bacterie/proteine.ml" 88 2037 2039 "src/bacterie/proteine.ml" 88 2037 2053
+call(
+  tail
+)
+type(
+  token -> unit
+)
+"src/bacterie/proteine.ml" 88 2037 2054 "src/bacterie/proteine.ml" 88 2037 2064
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  int_ref emptyToken "src/bacterie/proteine.ml" 24 299 303 "src/bacterie/proteine.ml" 24 299 313
+)
+"src/bacterie/proteine.ml" 88 2037 2039 "src/bacterie/proteine.ml" 88 2037 2064
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 87 1987 2006 "src/bacterie/proteine.ml" 88 2037 2064
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 85 1921 1928 "src/bacterie/proteine.ml" 88 2037 2064
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 90 2075 2082 "src/bacterie/proteine.ml" 90 2075 2084
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 82 1883 1888 "src/bacterie/proteine.ml" 90 2075 2084
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 78 1797 1804 "src/bacterie/proteine.ml" 92 2088 2098
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 93 2099 2116 "src/bacterie/proteine.ml" 93 2099 2117
+type(
+  string
+)
+ident(
+  def s "src/bacterie/proteine.ml" 94 2122 2129 "src/bacterie/proteine.ml" 98 2199 2209
+)
+"src/bacterie/proteine.ml" 93 2099 2105 "src/bacterie/proteine.ml" 93 2099 2117
+type(
+  Types.place_type
+)
+"src/bacterie/proteine.ml" 95 2135 2143 "src/bacterie/proteine.ml" 95 2135 2147
+type(
+  container option
+)
+ident(
+  ext_ref host
+)
+"src/bacterie/proteine.ml" 96 2153 2157 "src/bacterie/proteine.ml" 96 2153 2161
+type(
+  container option
+)
+"src/bacterie/proteine.ml" 96 2153 2165 "src/bacterie/proteine.ml" 96 2153 2167
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 97 2168 2177 "src/bacterie/proteine.ml" 97 2168 2178
+type(
+  container
+)
+ident(
+  def h "src/bacterie/proteine.ml" 97 2168 2182 "src/bacterie/proteine.ml" 97 2168 2198
+)
+"src/bacterie/proteine.ml" 97 2168 2172 "src/bacterie/proteine.ml" 97 2168 2178
+type(
+  container option
+)
+"src/bacterie/proteine.ml" 97 2168 2182 "src/bacterie/proteine.ml" 97 2168 2183
+type(
+  container
+)
+ident(
+  int_ref h "src/bacterie/proteine.ml" 97 2168 2177 "src/bacterie/proteine.ml" 97 2168 2178
+)
+"src/bacterie/proteine.ml" 97 2168 2182 "src/bacterie/proteine.ml" 97 2168 2196
+call(
+  tail
+)
+type(
+  string -> unit
+)
+"src/bacterie/proteine.ml" 97 2168 2197 "src/bacterie/proteine.ml" 97 2168 2198
+type(
+  string
+)
+ident(
+  int_ref s "src/bacterie/proteine.ml" 93 2099 2116 "src/bacterie/proteine.ml" 93 2099 2117
+)
+"src/bacterie/proteine.ml" 97 2168 2182 "src/bacterie/proteine.ml" 97 2168 2198
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 94 2122 2129 "src/bacterie/proteine.ml" 98 2199 2209
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 100 2213 2238 "src/bacterie/proteine.ml" 100 2213 2239
+type(
+  bool
+)
+ident(
+  def b "src/bacterie/proteine.ml" 101 2244 2251 "src/bacterie/proteine.ml" 108 2391 2401
+)
+"src/bacterie/proteine.ml" 100 2213 2219 "src/bacterie/proteine.ml" 100 2213 2239
+type(
+  Types.place_type
+)
+"src/bacterie/proteine.ml" 102 2257 2265 "src/bacterie/proteine.ml" 102 2257 2276
+type(
+  token_holder
+)
+ident(
+  ext_ref tokenHolder
+)
+"src/bacterie/proteine.ml" 103 2282 2286 "src/bacterie/proteine.ml" 103 2282 2297
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 103 2282 2301 "src/bacterie/proteine.ml" 103 2282 2303
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 104 2304 2323 "src/bacterie/proteine.ml" 104 2304 2324
+type(
+  token
+)
+ident(
+  def t "src/bacterie/proteine.ml" 105 2329 2334 "src/bacterie/proteine.ml" 107 2365 2390
+)
+"src/bacterie/proteine.ml" 104 2304 2308 "src/bacterie/proteine.ml" 104 2304 2324
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 105 2329 2337 "src/bacterie/proteine.ml" 105 2329 2338
+type(
+  bool
+)
+ident(
+  int_ref b "src/bacterie/proteine.ml" 100 2213 2238 "src/bacterie/proteine.ml" 100 2213 2239
+)
+"src/bacterie/proteine.ml" 106 2340 2350 "src/bacterie/proteine.ml" 106 2340 2351
+type(
+  token
+)
+ident(
+  int_ref t "src/bacterie/proteine.ml" 104 2304 2323 "src/bacterie/proteine.ml" 104 2304 2324
+)
+"src/bacterie/proteine.ml" 106 2340 2350 "src/bacterie/proteine.ml" 106 2340 2364
+call(
+  tail
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 107 2365 2375 "src/bacterie/proteine.ml" 107 2365 2376
+type(
+  token
+)
+ident(
+  int_ref t "src/bacterie/proteine.ml" 104 2304 2323 "src/bacterie/proteine.ml" 104 2304 2324
+)
+"src/bacterie/proteine.ml" 107 2365 2375 "src/bacterie/proteine.ml" 107 2365 2390
+call(
+  tail
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 105 2329 2334 "src/bacterie/proteine.ml" 107 2365 2390
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 101 2244 2251 "src/bacterie/proteine.ml" 108 2391 2401
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 109 2402 2408 "src/bacterie/proteine.ml" 109 2402 2409
+type(
+  Types.place_type
+)
+"src/bacterie/proteine.ml" 109 2402 2413 "src/bacterie/proteine.ml" 109 2402 2415
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 72 1568 1572 "src/bacterie/proteine.ml" 109 2402 2415
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 113 2453 2463 "src/bacterie/proteine.ml" 113 2453 2474
+type(
+  token_holder
+)
+ident(
+  ext_ref tokenHolder
+)
+"src/bacterie/proteine.ml" 114 2480 2486 "src/bacterie/proteine.ml" 114 2480 2497
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 114 2480 2501 "src/bacterie/proteine.ml" 114 2480 2509
+type(
+  string -> token
+)
+ident(
+  ext_ref Batteries.failwith
+)
+"src/bacterie/proteine.ml" 114 2480 2510 "src/bacterie/proteine.ml" 114 2480 2529
+type(
+  string
+)
+"src/bacterie/proteine.ml" 114 2480 2501 "src/bacterie/proteine.ml" 114 2480 2529
+call(
+  tail
+)
+type(
+  token
+)
+"src/bacterie/proteine.ml" 115 2530 2551 "src/bacterie/proteine.ml" 115 2530 2552
+type(
+  token
+)
+ident(
+  def t "src/bacterie/proteine.ml" 116 2557 2564 "src/bacterie/proteine.ml" 117 2576 2583
+)
+"src/bacterie/proteine.ml" 115 2530 2536 "src/bacterie/proteine.ml" 115 2530 2552
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 116 2557 2564 "src/bacterie/proteine.ml" 116 2557 2568
+type(
+  'a
+)
+ident(
+  int_ref self "src/bacterie/proteine.ml" 48 862 868 "src/bacterie/proteine.ml" 48 862 874
+)
+"src/bacterie/proteine.ml" 116 2557 2564 "src/bacterie/proteine.ml" 116 2557 2574
+call(
+  stack
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 117 2576 2582 "src/bacterie/proteine.ml" 117 2576 2583
+type(
+  token
+)
+ident(
+  int_ref t "src/bacterie/proteine.ml" 115 2530 2551 "src/bacterie/proteine.ml" 115 2530 2552
+)
+"src/bacterie/proteine.ml" 116 2557 2564 "src/bacterie/proteine.ml" 117 2576 2583
+type(
+  token
+)
+"src/bacterie/proteine.ml" 113 2453 2457 "src/bacterie/proteine.ml" 117 2576 2583
+type(
+  token
+)
+type(
+  token
+)
+"src/bacterie/proteine.ml" 120 2622 2629 "src/bacterie/proteine.ml" 120 2622 2632
+type(
+  bool -> bool
+)
+ident(
+  ext_ref Batteries.not
+)
+"src/bacterie/proteine.ml" 120 2622 2633 "src/bacterie/proteine.ml" 120 2622 2637
+type(
+  'a
+)
+ident(
+  int_ref self "src/bacterie/proteine.ml" 48 862 868 "src/bacterie/proteine.ml" 48 862 874
+)
+"src/bacterie/proteine.ml" 120 2622 2633 "src/bacterie/proteine.ml" 120 2622 2646
+call(
+  stack
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 120 2622 2629 "src/bacterie/proteine.ml" 120 2622 2646
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 122 2656 2677 "src/bacterie/proteine.ml" 122 2656 2688
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 122 2656 2662 "src/bacterie/proteine.ml" 122 2656 2688
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 120 2622 2626 "src/bacterie/proteine.ml" 122 2656 2688
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 125 2695 2728 "src/bacterie/proteine.ml" 125 2695 2731
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  def mol "src/bacterie/proteine.ml" 125 2695 2744 "src/bacterie/proteine.ml" 133 2883 2892
+)
+"src/bacterie/proteine.ml" 126 2754 2761 "src/bacterie/proteine.ml" 126 2754 2765
+type(
+  'a
+)
+ident(
+  int_ref self "src/bacterie/proteine.ml" 48 862 868 "src/bacterie/proteine.ml" 48 862 874
+)
+"src/bacterie/proteine.ml" 126 2754 2761 "src/bacterie/proteine.ml" 126 2754 2774
+call(
+  stack
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 128 2785 2791 "src/bacterie/proteine.ml" 128 2785 2796
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 131 2818 2850 "src/bacterie/proteine.ml" 131 2818 2868
+type(
+  Types.MyMolecule.molecule ->
+  Types.MyMolecule.position -> Types.MyMolecule.moleculeHolder
+)
+"src/bacterie/proteine.ml" 131 2818 2869 "src/bacterie/proteine.ml" 131 2818 2872
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref mol "src/bacterie/proteine.ml" 125 2695 2728 "src/bacterie/proteine.ml" 125 2695 2731
+)
+"src/bacterie/proteine.ml" 131 2818 2873 "src/bacterie/proteine.ml" 131 2818 2874
+type(
+  Types.MyMolecule.position
+)
+"src/bacterie/proteine.ml" 131 2818 2849 "src/bacterie/proteine.ml" 131 2818 2875
+call(
+  stack
+)
+type(
+  Types.MyMolecule.moleculeHolder
+)
+"src/bacterie/proteine.ml" 131 2818 2834 "src/bacterie/proteine.ml" 131 2818 2875
+type(
+  token_holder
+)
+"src/bacterie/proteine.ml" 131 2818 2819 "src/bacterie/proteine.ml" 131 2818 2875
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 132 2877 2878 "src/bacterie/proteine.ml" 132 2877 2882
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 130 2806 2812 "src/bacterie/proteine.ml" 133 2883 2892
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 126 2754 2758 "src/bacterie/proteine.ml" 133 2883 2892
+type(
+  bool
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 135 2894 2911 "src/bacterie/proteine.ml" 135 2894 2912
+type(
+  container
+)
+ident(
+  def h "src/bacterie/proteine.ml" 135 2894 2915 "src/bacterie/proteine.ml" 135 2894 2929
+)
+"src/bacterie/proteine.ml" 135 2894 2928 "src/bacterie/proteine.ml" 135 2894 2929
+type(
+  container
+)
+ident(
+  int_ref h "src/bacterie/proteine.ml" 135 2894 2911 "src/bacterie/proteine.ml" 135 2894 2912
+)
+"src/bacterie/proteine.ml" 135 2894 2923 "src/bacterie/proteine.ml" 135 2894 2929
+type(
+  container option
+)
+"src/bacterie/proteine.ml" 135 2894 2915 "src/bacterie/proteine.ml" 135 2894 2929
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 150 3084 3101 "src/bacterie/proteine.ml" 150 3084 3107
+type(
+  place array
+)
+"src/bacterie/proteine.ml" 150 3084 3124 "src/bacterie/proteine.ml" 150 3084 3128
+type(
+  (place_id * Types.input_link) list
+)
+"src/bacterie/proteine.ml" 150 3084 3162 "src/bacterie/proteine.ml" 150 3084 3166
+type(
+  (place_id * Types.output_link) list
+)
+"src/bacterie/proteine.ml" 158 3450 3460 "src/bacterie/proteine.ml" 158 3450 3485
+type(
+  Types.input_link list -> token list -> Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 159 3487 3494 "src/bacterie/proteine.ml" 159 3487 3497
+type(
+  Types.input_link list
+)
+ident(
+  def ill "src/bacterie/proteine.ml" 160 3517 3523 "src/bacterie/proteine.ml" 186 3970 4029
+)
+"src/bacterie/proteine.ml" 160 3517 3524 "src/bacterie/proteine.ml" 160 3517 3530
+type(
+  token list
+)
+ident(
+  def tokens "src/bacterie/proteine.ml" 162 3552 3558 "src/bacterie/proteine.ml" 186 3970 4029
+)
+"src/bacterie/proteine.ml" 166 3602 3612 "src/bacterie/proteine.ml" 166 3602 3618
+type(
+  token list
+)
+ident(
+  int_ref tokens "src/bacterie/proteine.ml" 160 3517 3524 "src/bacterie/proteine.ml" 160 3517 3530
+)
+"src/bacterie/proteine.ml" 168 3631 3637 "src/bacterie/proteine.ml" 168 3631 3639
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 168 3631 3643 "src/bacterie/proteine.ml" 168 3631 3645
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 170 3654 3660 "src/bacterie/proteine.ml" 170 3654 3661
+type(
+  token
+)
+ident(
+  def m "src/bacterie/proteine.ml" 171 3677 3684 "src/bacterie/proteine.ml" 186 3970 4029
+)
+"src/bacterie/proteine.ml" 170 3654 3665 "src/bacterie/proteine.ml" 170 3654 3672
+type(
+  token list
+)
+ident(
+  def tokens' "src/bacterie/proteine.ml" 171 3677 3684 "src/bacterie/proteine.ml" 186 3970 4029
+)
+"src/bacterie/proteine.ml" 170 3654 3660 "src/bacterie/proteine.ml" 170 3654 3672
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 171 3677 3687 "src/bacterie/proteine.ml" 171 3677 3688
+type(
+  token
+)
+ident(
+  int_ref m "src/bacterie/proteine.ml" 170 3654 3660 "src/bacterie/proteine.ml" 170 3654 3661
+)
+"src/bacterie/proteine.ml" 171 3677 3687 "src/bacterie/proteine.ml" 171 3677 3697
+call(
+  stack
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 174 3714 3716 "src/bacterie/proteine.ml" 174 3714 3741
+type(
+  Types.input_link list -> token list -> Types.MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref input_transition_function "src/bacterie/proteine.ml" 158 3450 3460 "src/bacterie/proteine.ml" 158 3450 3485
+)
+"src/bacterie/proteine.ml" 174 3714 3743 "src/bacterie/proteine.ml" 174 3714 3750
+type(
+  Types.input_link list -> Types.input_link list
+)
+ident(
+  ext_ref Batteries.List.tl
+)
+"src/bacterie/proteine.ml" 174 3714 3751 "src/bacterie/proteine.ml" 174 3714 3754
+type(
+  Types.input_link list
+)
+ident(
+  int_ref ill "src/bacterie/proteine.ml" 159 3487 3494 "src/bacterie/proteine.ml" 159 3487 3497
+)
+"src/bacterie/proteine.ml" 174 3714 3742 "src/bacterie/proteine.ml" 174 3714 3755
+call(
+  stack
+)
+type(
+  Types.input_link list
+)
+"src/bacterie/proteine.ml" 174 3714 3756 "src/bacterie/proteine.ml" 174 3714 3763
+type(
+  token list
+)
+ident(
+  int_ref tokens' "src/bacterie/proteine.ml" 170 3654 3665 "src/bacterie/proteine.ml" 170 3654 3672
+)
+"src/bacterie/proteine.ml" 174 3714 3716 "src/bacterie/proteine.ml" 174 3714 3763
+call(
+  tail
+)
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 177 3782 3790 "src/bacterie/proteine.ml" 177 3782 3793
+type(
+  Types.input_link list
+)
+ident(
+  int_ref ill "src/bacterie/proteine.ml" 159 3487 3494 "src/bacterie/proteine.ml" 159 3487 3497
+)
+"src/bacterie/proteine.ml" 179 3804 3808 "src/bacterie/proteine.ml" 179 3804 3810
+type(
+  Types.input_link list
+)
+"src/bacterie/proteine.ml" 179 3804 3815 "src/bacterie/proteine.ml" 179 3804 3817
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 181 3824 3828 "src/bacterie/proteine.ml" 181 3824 3841
+type(
+  Types.input_link
+)
+"src/bacterie/proteine.ml" 181 3824 3844 "src/bacterie/proteine.ml" 181 3824 3848
+type(
+  Types.input_link list
+)
+ident(
+  def ill' "src/bacterie/proteine.ml" 182 3853 3858 "src/bacterie/proteine.ml" 182 3853 3902
+)
+"src/bacterie/proteine.ml" 181 3824 3828 "src/bacterie/proteine.ml" 181 3824 3848
+type(
+  Types.input_link list
+)
+"src/bacterie/proteine.ml" 182 3853 3858 "src/bacterie/proteine.ml" 182 3853 3859
+type(
+  token
+)
+ident(
+  int_ref m "src/bacterie/proteine.ml" 170 3654 3660 "src/bacterie/proteine.ml" 170 3654 3661
+)
+"src/bacterie/proteine.ml" 182 3853 3864 "src/bacterie/proteine.ml" 182 3853 3889
+type(
+  Types.input_link list -> token list -> Types.MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref input_transition_function "src/bacterie/proteine.ml" 158 3450 3460 "src/bacterie/proteine.ml" 158 3450 3485
+)
+"src/bacterie/proteine.ml" 182 3853 3890 "src/bacterie/proteine.ml" 182 3853 3894
+type(
+  Types.input_link list
+)
+ident(
+  int_ref ill' "src/bacterie/proteine.ml" 181 3824 3844 "src/bacterie/proteine.ml" 181 3824 3848
+)
+"src/bacterie/proteine.ml" 182 3853 3895 "src/bacterie/proteine.ml" 182 3853 3902
+type(
+  token list
+)
+ident(
+  int_ref tokens' "src/bacterie/proteine.ml" 170 3654 3665 "src/bacterie/proteine.ml" 170 3654 3672
+)
+"src/bacterie/proteine.ml" 182 3853 3864 "src/bacterie/proteine.ml" 182 3853 3902
+call(
+  stack
+)
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 182 3853 3858 "src/bacterie/proteine.ml" 182 3853 3902
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 184 3911 3915 "src/bacterie/proteine.ml" 184 3911 3926
+type(
+  Types.input_link
+)
+"src/bacterie/proteine.ml" 184 3911 3930 "src/bacterie/proteine.ml" 184 3911 3934
+type(
+  Types.input_link list
+)
+ident(
+  def ill' "src/bacterie/proteine.ml" 185 3939 3944 "src/bacterie/proteine.ml" 186 3970 4029
+)
+"src/bacterie/proteine.ml" 184 3911 3915 "src/bacterie/proteine.ml" 184 3911 3934
+type(
+  Types.input_link list
+)
+"src/bacterie/proteine.ml" 185 3939 3948 "src/bacterie/proteine.ml" 185 3939 3952
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  def mol1 "src/bacterie/proteine.ml" 186 3970 3975 "src/bacterie/proteine.ml" 186 3970 4029
+)
+"src/bacterie/proteine.ml" 185 3939 3954 "src/bacterie/proteine.ml" 185 3939 3958
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  def mol2 "src/bacterie/proteine.ml" 186 3970 3975 "src/bacterie/proteine.ml" 186 3970 4029
+)
+"src/bacterie/proteine.ml" 185 3939 3948 "src/bacterie/proteine.ml" 185 3939 3958
+type(
+  Types.MyMolecule.moleculeHolder * Types.MyMolecule.moleculeHolder
+)
+"src/bacterie/proteine.ml" 185 3939 3961 "src/bacterie/proteine.ml" 185 3939 3962
+type(
+  token
+)
+ident(
+  int_ref m "src/bacterie/proteine.ml" 170 3654 3660 "src/bacterie/proteine.ml" 170 3654 3661
+)
+"src/bacterie/proteine.ml" 185 3939 3961 "src/bacterie/proteine.ml" 185 3939 3966
+call(
+  stack
+)
+type(
+  Types.MyMolecule.moleculeHolder * Types.MyMolecule.moleculeHolder
+)
+"src/bacterie/proteine.ml" 186 3970 3975 "src/bacterie/proteine.ml" 186 3970 3979
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  int_ref mol1 "src/bacterie/proteine.ml" 185 3939 3948 "src/bacterie/proteine.ml" 185 3939 3952
+)
+"src/bacterie/proteine.ml" 186 3970 3983 "src/bacterie/proteine.ml" 186 3970 3987
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  int_ref mol2 "src/bacterie/proteine.ml" 185 3939 3954 "src/bacterie/proteine.ml" 185 3939 3958
+)
+"src/bacterie/proteine.ml" 186 3970 3991 "src/bacterie/proteine.ml" 186 3970 4016
+type(
+  Types.input_link list -> token list -> Types.MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref input_transition_function "src/bacterie/proteine.ml" 158 3450 3460 "src/bacterie/proteine.ml" 158 3450 3485
+)
+"src/bacterie/proteine.ml" 186 3970 4017 "src/bacterie/proteine.ml" 186 3970 4021
+type(
+  Types.input_link list
+)
+ident(
+  int_ref ill' "src/bacterie/proteine.ml" 184 3911 3930 "src/bacterie/proteine.ml" 184 3911 3934
+)
+"src/bacterie/proteine.ml" 186 3970 4022 "src/bacterie/proteine.ml" 186 3970 4029
+type(
+  token list
+)
+ident(
+  int_ref tokens' "src/bacterie/proteine.ml" 170 3654 3665 "src/bacterie/proteine.ml" 170 3654 3672
+)
+"src/bacterie/proteine.ml" 186 3970 3991 "src/bacterie/proteine.ml" 186 3970 4029
+call(
+  stack
+)
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 186 3970 3983 "src/bacterie/proteine.ml" 186 3970 4029
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 186 3970 3975 "src/bacterie/proteine.ml" 186 3970 4029
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 185 3939 3944 "src/bacterie/proteine.ml" 186 3970 4029
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 177 3782 3784 "src/bacterie/proteine.ml" 186 3970 4029
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 171 3677 3684 "src/bacterie/proteine.ml" 186 3970 4029
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 166 3602 3606 "src/bacterie/proteine.ml" 186 3970 4029
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 197 4300 4307 "src/bacterie/proteine.ml" 197 4300 4333
+type(
+  Types.output_link list ->
+  Types.MyMolecule.moleculeHolder list -> token list
+)
+"src/bacterie/proteine.ml" 198 4335 4342 "src/bacterie/proteine.ml" 198 4335 4345
+type(
+  Types.output_link list
+)
+ident(
+  def oll "src/bacterie/proteine.ml" 199 4366 4372 "src/bacterie/proteine.ml" 232 5175 5189
+)
+"src/bacterie/proteine.ml" 199 4366 4373 "src/bacterie/proteine.ml" 199 4366 4377
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+ident(
+  def mols "src/bacterie/proteine.ml" 201 4408 4414 "src/bacterie/proteine.ml" 232 5175 5189
+)
+"src/bacterie/proteine.ml" 204 4441 4451 "src/bacterie/proteine.ml" 204 4441 4454
+type(
+  Types.output_link list
+)
+ident(
+  int_ref oll "src/bacterie/proteine.ml" 198 4335 4342 "src/bacterie/proteine.ml" 198 4335 4345
+)
+"src/bacterie/proteine.ml" 205 4460 4466 "src/bacterie/proteine.ml" 205 4460 4479
+type(
+  Types.output_link
+)
+"src/bacterie/proteine.ml" 205 4460 4483 "src/bacterie/proteine.ml" 205 4460 4487
+type(
+  Types.output_link list
+)
+ident(
+  def oll' "src/bacterie/proteine.ml" 208 4579 4586 "src/bacterie/proteine.ml" 208 4579 4637
+)
+"src/bacterie/proteine.ml" 205 4460 4466 "src/bacterie/proteine.ml" 205 4460 4487
+type(
+  Types.output_link list
+)
+"src/bacterie/proteine.ml" 208 4579 4586 "src/bacterie/proteine.ml" 208 4579 4596
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  int_ref emptyToken "src/bacterie/proteine.ml" 24 299 303 "src/bacterie/proteine.ml" 24 299 313
+)
+"src/bacterie/proteine.ml" 208 4579 4600 "src/bacterie/proteine.ml" 208 4579 4626
+type(
+  Types.output_link list ->
+  Types.MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref output_transition_function "src/bacterie/proteine.ml" 197 4300 4307 "src/bacterie/proteine.ml" 197 4300 4333
+)
+"src/bacterie/proteine.ml" 208 4579 4627 "src/bacterie/proteine.ml" 208 4579 4631
+type(
+  Types.output_link list
+)
+ident(
+  int_ref oll' "src/bacterie/proteine.ml" 205 4460 4483 "src/bacterie/proteine.ml" 205 4460 4487
+)
+"src/bacterie/proteine.ml" 208 4579 4633 "src/bacterie/proteine.ml" 208 4579 4637
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/bacterie/proteine.ml" 199 4366 4373 "src/bacterie/proteine.ml" 199 4366 4377
+)
+"src/bacterie/proteine.ml" 208 4579 4600 "src/bacterie/proteine.ml" 208 4579 4637
+call(
+  stack
+)
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 208 4579 4586 "src/bacterie/proteine.ml" 208 4579 4637
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 210 4641 4647 "src/bacterie/proteine.ml" 210 4641 4657
+type(
+  Types.output_link
+)
+"src/bacterie/proteine.ml" 210 4641 4661 "src/bacterie/proteine.ml" 210 4641 4665
+type(
+  Types.output_link list
+)
+ident(
+  def oll' "src/bacterie/proteine.ml" 211 4670 4677 "src/bacterie/proteine.ml" 221 4939 4949
+)
+"src/bacterie/proteine.ml" 210 4641 4647 "src/bacterie/proteine.ml" 210 4641 4665
+type(
+  Types.output_link list
+)
+"src/bacterie/proteine.ml" 212 4683 4691 "src/bacterie/proteine.ml" 212 4683 4695
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/bacterie/proteine.ml" 199 4366 4373 "src/bacterie/proteine.ml" 199 4366 4377
+)
+"src/bacterie/proteine.ml" 213 4701 4705 "src/bacterie/proteine.ml" 213 4701 4707
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  def m1 "src/bacterie/proteine.ml" 214 4728 4733 "src/bacterie/proteine.ml" 214 4728 4787
+)
+"src/bacterie/proteine.ml" 213 4701 4712 "src/bacterie/proteine.ml" 213 4701 4714
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  def m2 "src/bacterie/proteine.ml" 214 4728 4733 "src/bacterie/proteine.ml" 214 4728 4787
+)
+"src/bacterie/proteine.ml" 213 4701 4718 "src/bacterie/proteine.ml" 213 4701 4723
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+ident(
+  def mols' "src/bacterie/proteine.ml" 214 4728 4733 "src/bacterie/proteine.ml" 214 4728 4787
+)
+"src/bacterie/proteine.ml" 213 4701 4712 "src/bacterie/proteine.ml" 213 4701 4723
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 213 4701 4705 "src/bacterie/proteine.ml" 213 4701 4723
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 214 4728 4734 "src/bacterie/proteine.ml" 214 4728 4736
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  int_ref m1 "src/bacterie/proteine.ml" 213 4701 4705 "src/bacterie/proteine.ml" 213 4701 4707
+)
+"src/bacterie/proteine.ml" 214 4728 4734 "src/bacterie/proteine.ml" 214 4728 4743
+call(
+  stack
+)
+type(
+  Types.MyMolecule.moleculeHolder -> Types.MyMolecule.moleculeHolder
+)
+"src/bacterie/proteine.ml" 214 4728 4744 "src/bacterie/proteine.ml" 214 4728 4746
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  int_ref m2 "src/bacterie/proteine.ml" 213 4701 4712 "src/bacterie/proteine.ml" 213 4701 4714
+)
+"src/bacterie/proteine.ml" 214 4728 4733 "src/bacterie/proteine.ml" 214 4728 4747
+type(
+  Types.MyMolecule.moleculeHolder
+)
+"src/bacterie/proteine.ml" 214 4728 4751 "src/bacterie/proteine.ml" 214 4728 4777
+type(
+  Types.output_link list ->
+  Types.MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref output_transition_function "src/bacterie/proteine.ml" 197 4300 4307 "src/bacterie/proteine.ml" 197 4300 4333
+)
+"src/bacterie/proteine.ml" 214 4728 4778 "src/bacterie/proteine.ml" 214 4728 4782
+type(
+  Types.output_link list
+)
+ident(
+  int_ref oll' "src/bacterie/proteine.ml" 210 4641 4661 "src/bacterie/proteine.ml" 210 4641 4665
+)
+"src/bacterie/proteine.ml" 214 4728 4783 "src/bacterie/proteine.ml" 214 4728 4787
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/bacterie/proteine.ml" 199 4366 4373 "src/bacterie/proteine.ml" 199 4366 4377
+)
+"src/bacterie/proteine.ml" 214 4728 4751 "src/bacterie/proteine.ml" 214 4728 4787
+call(
+  stack
+)
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 214 4728 4733 "src/bacterie/proteine.ml" 214 4728 4787
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 216 4796 4800 "src/bacterie/proteine.ml" 216 4796 4801
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  def m "src/bacterie/proteine.ml" 217 4812 4817 "src/bacterie/proteine.ml" 217 4812 4860
+)
+"src/bacterie/proteine.ml" 216 4796 4805 "src/bacterie/proteine.ml" 216 4796 4807
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 216 4796 4800 "src/bacterie/proteine.ml" 216 4796 4807
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 217 4812 4817 "src/bacterie/proteine.ml" 217 4812 4818
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  int_ref m "src/bacterie/proteine.ml" 216 4796 4800 "src/bacterie/proteine.ml" 216 4796 4801
+)
+"src/bacterie/proteine.ml" 217 4812 4823 "src/bacterie/proteine.ml" 217 4812 4849
+type(
+  Types.output_link list ->
+  Types.MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref output_transition_function "src/bacterie/proteine.ml" 197 4300 4307 "src/bacterie/proteine.ml" 197 4300 4333
+)
+"src/bacterie/proteine.ml" 217 4812 4850 "src/bacterie/proteine.ml" 217 4812 4854
+type(
+  Types.output_link list
+)
+ident(
+  int_ref oll' "src/bacterie/proteine.ml" 210 4641 4661 "src/bacterie/proteine.ml" 210 4641 4665
+)
+"src/bacterie/proteine.ml" 217 4812 4856 "src/bacterie/proteine.ml" 217 4812 4860
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/bacterie/proteine.ml" 199 4366 4373 "src/bacterie/proteine.ml" 199 4366 4377
+)
+"src/bacterie/proteine.ml" 217 4812 4823 "src/bacterie/proteine.ml" 217 4812 4860
+call(
+  stack
+)
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 217 4812 4817 "src/bacterie/proteine.ml" 217 4812 4860
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 219 4869 4873 "src/bacterie/proteine.ml" 219 4869 4875
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 220 4880 4885 "src/bacterie/proteine.ml" 220 4880 4898
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  ext_ref Types.MyMolecule.emptyHolder
+)
+"src/bacterie/proteine.ml" 220 4880 4902 "src/bacterie/proteine.ml" 220 4880 4928
+type(
+  Types.output_link list ->
+  Types.MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref output_transition_function "src/bacterie/proteine.ml" 197 4300 4307 "src/bacterie/proteine.ml" 197 4300 4333
+)
+"src/bacterie/proteine.ml" 220 4880 4929 "src/bacterie/proteine.ml" 220 4880 4933
+type(
+  Types.output_link list
+)
+ident(
+  int_ref oll' "src/bacterie/proteine.ml" 210 4641 4661 "src/bacterie/proteine.ml" 210 4641 4665
+)
+"src/bacterie/proteine.ml" 220 4880 4934 "src/bacterie/proteine.ml" 220 4880 4938
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/bacterie/proteine.ml" 199 4366 4373 "src/bacterie/proteine.ml" 199 4366 4377
+)
+"src/bacterie/proteine.ml" 220 4880 4902 "src/bacterie/proteine.ml" 220 4880 4938
+call(
+  stack
+)
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 220 4880 4885 "src/bacterie/proteine.ml" 220 4880 4938
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 211 4670 4677 "src/bacterie/proteine.ml" 221 4939 4949
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 223 4953 4959 "src/bacterie/proteine.ml" 223 4953 4975
+type(
+  Types.output_link
+)
+"src/bacterie/proteine.ml" 223 4953 4979 "src/bacterie/proteine.ml" 223 4953 4983
+type(
+  Types.output_link list
+)
+ident(
+  def oll' "src/bacterie/proteine.ml" 224 4988 4995 "src/bacterie/proteine.ml" 231 5164 5174
+)
+"src/bacterie/proteine.ml" 223 4953 4959 "src/bacterie/proteine.ml" 223 4953 4983
+type(
+  Types.output_link list
+)
+"src/bacterie/proteine.ml" 225 5001 5009 "src/bacterie/proteine.ml" 225 5001 5013
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/bacterie/proteine.ml" 199 4366 4373 "src/bacterie/proteine.ml" 199 4366 4377
+)
+"src/bacterie/proteine.ml" 226 5020 5024 "src/bacterie/proteine.ml" 226 5020 5025
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  def m "src/bacterie/proteine.ml" 227 5039 5044 "src/bacterie/proteine.ml" 227 5039 5087
+)
+"src/bacterie/proteine.ml" 226 5020 5029 "src/bacterie/proteine.ml" 226 5020 5034
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+ident(
+  def mols' "src/bacterie/proteine.ml" 227 5039 5044 "src/bacterie/proteine.ml" 227 5039 5087
+)
+"src/bacterie/proteine.ml" 226 5020 5024 "src/bacterie/proteine.ml" 226 5020 5034
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 227 5039 5044 "src/bacterie/proteine.ml" 227 5039 5045
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  int_ref m "src/bacterie/proteine.ml" 226 5020 5024 "src/bacterie/proteine.ml" 226 5020 5025
+)
+"src/bacterie/proteine.ml" 227 5039 5050 "src/bacterie/proteine.ml" 227 5039 5076
+type(
+  Types.output_link list ->
+  Types.MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref output_transition_function "src/bacterie/proteine.ml" 197 4300 4307 "src/bacterie/proteine.ml" 197 4300 4333
+)
+"src/bacterie/proteine.ml" 227 5039 5077 "src/bacterie/proteine.ml" 227 5039 5081
+type(
+  Types.output_link list
+)
+ident(
+  int_ref oll' "src/bacterie/proteine.ml" 223 4953 4979 "src/bacterie/proteine.ml" 223 4953 4983
+)
+"src/bacterie/proteine.ml" 227 5039 5083 "src/bacterie/proteine.ml" 227 5039 5087
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/bacterie/proteine.ml" 199 4366 4373 "src/bacterie/proteine.ml" 199 4366 4377
+)
+"src/bacterie/proteine.ml" 227 5039 5050 "src/bacterie/proteine.ml" 227 5039 5087
+call(
+  stack
+)
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 227 5039 5044 "src/bacterie/proteine.ml" 227 5039 5087
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 229 5096 5100 "src/bacterie/proteine.ml" 229 5096 5102
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 230 5107 5112 "src/bacterie/proteine.ml" 230 5107 5122
+type(
+  Types.MyMolecule.moleculeHolder
+)
+ident(
+  int_ref emptyToken "src/bacterie/proteine.ml" 24 299 303 "src/bacterie/proteine.ml" 24 299 313
+)
+"src/bacterie/proteine.ml" 230 5107 5126 "src/bacterie/proteine.ml" 230 5107 5152
+type(
+  Types.output_link list ->
+  Types.MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref output_transition_function "src/bacterie/proteine.ml" 197 4300 4307 "src/bacterie/proteine.ml" 197 4300 4333
+)
+"src/bacterie/proteine.ml" 230 5107 5153 "src/bacterie/proteine.ml" 230 5107 5157
+type(
+  Types.output_link list
+)
+ident(
+  int_ref oll' "src/bacterie/proteine.ml" 223 4953 4979 "src/bacterie/proteine.ml" 223 4953 4983
+)
+"src/bacterie/proteine.ml" 230 5107 5159 "src/bacterie/proteine.ml" 230 5107 5163
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref mols "src/bacterie/proteine.ml" 199 4366 4373 "src/bacterie/proteine.ml" 199 4366 4377
+)
+"src/bacterie/proteine.ml" 230 5107 5126 "src/bacterie/proteine.ml" 230 5107 5163
+call(
+  stack
+)
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 230 5107 5112 "src/bacterie/proteine.ml" 230 5107 5163
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 224 4988 4995 "src/bacterie/proteine.ml" 231 5164 5174
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 232 5175 5181 "src/bacterie/proteine.ml" 232 5175 5183
+type(
+  Types.output_link list
+)
+"src/bacterie/proteine.ml" 232 5175 5187 "src/bacterie/proteine.ml" 232 5175 5189
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 204 4441 4445 "src/bacterie/proteine.ml" 232 5175 5189
+type(
+  token list
+)
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 235 5203 5209 "src/bacterie/proteine.ml" 235 5203 5228
+type(
+  Types.input_link list -> Types.output_link list -> token list -> token list
+)
+"src/bacterie/proteine.ml" 235 5203 5229 "src/bacterie/proteine.ml" 235 5203 5232
+type(
+  Types.input_link list
+)
+ident(
+  def ill "src/bacterie/proteine.ml" 235 5203 5233 "src/bacterie/proteine.ml" 236 5247 5320
+)
+"src/bacterie/proteine.ml" 235 5203 5233 "src/bacterie/proteine.ml" 235 5203 5236
+type(
+  Types.output_link list
+)
+ident(
+  def oll "src/bacterie/proteine.ml" 235 5203 5237 "src/bacterie/proteine.ml" 236 5247 5320
+)
+"src/bacterie/proteine.ml" 235 5203 5237 "src/bacterie/proteine.ml" 235 5203 5243
+type(
+  token list
+)
+ident(
+  def tokens "src/bacterie/proteine.ml" 236 5247 5251 "src/bacterie/proteine.ml" 236 5247 5320
+)
+"src/bacterie/proteine.ml" 236 5247 5251 "src/bacterie/proteine.ml" 236 5247 5277
+type(
+  Types.output_link list ->
+  Types.MyMolecule.moleculeHolder list -> token list
+)
+ident(
+  int_ref output_transition_function "src/bacterie/proteine.ml" 197 4300 4307 "src/bacterie/proteine.ml" 197 4300 4333
+)
+"src/bacterie/proteine.ml" 236 5247 5278 "src/bacterie/proteine.ml" 236 5247 5281
+type(
+  Types.output_link list
+)
+ident(
+  int_ref oll "src/bacterie/proteine.ml" 235 5203 5233 "src/bacterie/proteine.ml" 235 5203 5236
+)
+"src/bacterie/proteine.ml" 236 5247 5283 "src/bacterie/proteine.ml" 236 5247 5308
+type(
+  Types.input_link list -> token list -> Types.MyMolecule.moleculeHolder list
+)
+ident(
+  int_ref input_transition_function "src/bacterie/proteine.ml" 158 3450 3460 "src/bacterie/proteine.ml" 158 3450 3485
+)
+"src/bacterie/proteine.ml" 236 5247 5309 "src/bacterie/proteine.ml" 236 5247 5312
+type(
+  Types.input_link list
+)
+ident(
+  int_ref ill "src/bacterie/proteine.ml" 235 5203 5229 "src/bacterie/proteine.ml" 235 5203 5232
+)
+"src/bacterie/proteine.ml" 236 5247 5313 "src/bacterie/proteine.ml" 236 5247 5319
+type(
+  token list
+)
+ident(
+  int_ref tokens "src/bacterie/proteine.ml" 235 5203 5237 "src/bacterie/proteine.ml" 235 5203 5243
+)
+"src/bacterie/proteine.ml" 236 5247 5282 "src/bacterie/proteine.ml" 236 5247 5320
+call(
+  stack
+)
+type(
+  Types.MyMolecule.moleculeHolder list
+)
+"src/bacterie/proteine.ml" 236 5247 5251 "src/bacterie/proteine.ml" 236 5247 5320
+call(
+  tail
+)
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 239 5404 5410 "src/bacterie/proteine.ml" 239 5404 5425
+type(
+  place array -> place_id list -> bool
+)
+"src/bacterie/proteine.ml" 239 5404 5427 "src/bacterie/proteine.ml" 239 5404 5433
+type(
+  place array
+)
+ident(
+  def places "src/bacterie/proteine.ml" 239 5404 5450 "src/bacterie/proteine.ml" 246 5580 5597
+)
+"src/bacterie/proteine.ml" 239 5404 5451 "src/bacterie/proteine.ml" 239 5404 5457
+type(
+  place_id list
+)
+ident(
+  def to_try "src/bacterie/proteine.ml" 239 5404 5474 "src/bacterie/proteine.ml" 246 5580 5597
+)
+"src/bacterie/proteine.ml" 240 5483 5487 "src/bacterie/proteine.ml" 240 5483 5501
+type(
+  (bool -> place_id -> bool) -> bool -> place_id list -> bool
+)
+ident(
+  ext_ref Batteries.List.fold_left
+)
+"src/bacterie/proteine.ml" 241 5502 5513 "src/bacterie/proteine.ml" 241 5502 5516
+type(
+  bool
+)
+ident(
+  def res "src/bacterie/proteine.ml" 241 5502 5517 "src/bacterie/proteine.ml" 244 5560 5571
+)
+"src/bacterie/proteine.ml" 241 5502 5517 "src/bacterie/proteine.ml" 241 5502 5520
+type(
+  place_id
+)
+ident(
+  def pId "src/bacterie/proteine.ml" 242 5524 5525 "src/bacterie/proteine.ml" 244 5560 5571
+)
+"src/bacterie/proteine.ml" 242 5524 5528 "src/bacterie/proteine.ml" 242 5524 5534
+type(
+  place array
+)
+ident(
+  int_ref places "src/bacterie/proteine.ml" 239 5404 5427 "src/bacterie/proteine.ml" 239 5404 5433
+)
+"src/bacterie/proteine.ml" 242 5524 5536 "src/bacterie/proteine.ml" 242 5524 5539
+type(
+  place_id
+)
+ident(
+  int_ref pId "src/bacterie/proteine.ml" 241 5502 5517 "src/bacterie/proteine.ml" 241 5502 5520
+)
+"src/bacterie/proteine.ml" 242 5524 5528 "src/bacterie/proteine.ml" 242 5524 5540
+type(
+  place
+)
+"src/bacterie/proteine.ml" 242 5524 5528 "src/bacterie/proteine.ml" 242 5524 5549
+call(
+  stack
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 243 5550 5556 "src/bacterie/proteine.ml" 243 5550 5559
+type(
+  bool
+)
+ident(
+  int_ref res "src/bacterie/proteine.ml" 241 5502 5513 "src/bacterie/proteine.ml" 241 5502 5516
+)
+"src/bacterie/proteine.ml" 244 5560 5566 "src/bacterie/proteine.ml" 244 5560 5571
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 242 5524 5525 "src/bacterie/proteine.ml" 244 5560 5571
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 241 5502 5508 "src/bacterie/proteine.ml" 245 5572 5579
+type(
+  bool -> place_id -> bool
+)
+"src/bacterie/proteine.ml" 246 5580 5586 "src/bacterie/proteine.ml" 246 5580 5590
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 246 5580 5591 "src/bacterie/proteine.ml" 246 5580 5597
+type(
+  place_id list
+)
+ident(
+  int_ref to_try "src/bacterie/proteine.ml" 239 5404 5451 "src/bacterie/proteine.ml" 239 5404 5457
+)
+"src/bacterie/proteine.ml" 240 5483 5487 "src/bacterie/proteine.ml" 246 5580 5597
+call(
+  tail
+)
+type(
+  bool
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 248 5603 5609 "src/bacterie/proteine.ml" 248 5603 5611
+type(
+  place_id list
+)
+"src/bacterie/proteine.ml" 248 5603 5613 "src/bacterie/proteine.ml" 248 5603 5615
+type(
+  Types.input_link list
+)
+"src/bacterie/proteine.ml" 248 5603 5609 "src/bacterie/proteine.ml" 248 5603 5615
+type(
+  place_id list * Types.input_link list
+)
+"src/bacterie/proteine.ml" 248 5603 5618 "src/bacterie/proteine.ml" 248 5603 5623
+type(
+  (place_id * Types.input_link) list -> place_id list * Types.input_link list
+)
+ident(
+  ext_ref Misc_library.unzip
+)
+"src/bacterie/proteine.ml" 248 5603 5624 "src/bacterie/proteine.ml" 248 5603 5628
+type(
+  (place_id * Types.input_link) list
+)
+ident(
+  int_ref depL "src/bacterie/proteine.ml" 150 3084 3124 "src/bacterie/proteine.ml" 150 3084 3128
+)
+"src/bacterie/proteine.ml" 248 5603 5618 "src/bacterie/proteine.ml" 248 5603 5628
+call(
+  stack
+)
+type(
+  place_id list * Types.input_link list
+)
+"src/bacterie/proteine.ml" 249 5634 5640 "src/bacterie/proteine.ml" 249 5634 5642
+type(
+  place_id list
+)
+"src/bacterie/proteine.ml" 249 5634 5644 "src/bacterie/proteine.ml" 249 5634 5646
+type(
+  Types.output_link list
+)
+"src/bacterie/proteine.ml" 249 5634 5640 "src/bacterie/proteine.ml" 249 5634 5646
+type(
+  place_id list * Types.output_link list
+)
+"src/bacterie/proteine.ml" 249 5634 5649 "src/bacterie/proteine.ml" 249 5634 5654
+type(
+  (place_id * Types.output_link) list ->
+  place_id list * Types.output_link list
+)
+ident(
+  ext_ref Misc_library.unzip
+)
+"src/bacterie/proteine.ml" 249 5634 5655 "src/bacterie/proteine.ml" 249 5634 5659
+type(
+  (place_id * Types.output_link) list
+)
+ident(
+  int_ref arrL "src/bacterie/proteine.ml" 150 3084 3162 "src/bacterie/proteine.ml" 150 3084 3166
+)
+"src/bacterie/proteine.ml" 249 5634 5649 "src/bacterie/proteine.ml" 249 5634 5659
+call(
+  stack
+)
+type(
+  place_id list * Types.output_link list
+)
+"src/bacterie/proteine.ml" 268 6099 6114 "src/bacterie/proteine.ml" 268 6099 6120
+type(
+  place array
+)
+ident(
+  int_ref places "src/bacterie/proteine.ml" 150 3084 3101 "src/bacterie/proteine.ml" 150 3084 3107
+)
+"src/bacterie/proteine.ml" 270 6124 6149 "src/bacterie/proteine.ml" 270 6124 6151
+type(
+  place_id list
+)
+ident(
+  int_ref dp "src/bacterie/proteine.ml" 248 5603 5609 "src/bacterie/proteine.ml" 248 5603 5611
+)
+"src/bacterie/proteine.ml" 271 6152 6176 "src/bacterie/proteine.ml" 271 6152 6178
+type(
+  Types.input_link list
+)
+ident(
+  int_ref dl "src/bacterie/proteine.ml" 248 5603 5613 "src/bacterie/proteine.ml" 248 5603 5615
+)
+"src/bacterie/proteine.ml" 272 6179 6202 "src/bacterie/proteine.ml" 272 6179 6204
+type(
+  place_id list
+)
+ident(
+  int_ref ap "src/bacterie/proteine.ml" 249 5634 5640 "src/bacterie/proteine.ml" 249 5634 5642
+)
+"src/bacterie/proteine.ml" 273 6205 6227 "src/bacterie/proteine.ml" 273 6205 6229
+type(
+  Types.output_link list
+)
+ident(
+  int_ref al "src/bacterie/proteine.ml" 249 5634 5644 "src/bacterie/proteine.ml" 249 5634 5646
+)
+"src/bacterie/proteine.ml" 275 6231 6263 "src/bacterie/proteine.ml" 275 6231 6279
+type(
+  place_id list
+)
+type(
+  place_id list
+)
+ident(
+  ext_ref departure_places
+)
+"src/bacterie/proteine.ml" 276 6280 6311 "src/bacterie/proteine.ml" 276 6280 6326
+type(
+  Types.input_link list
+)
+type(
+  Types.input_link list
+)
+ident(
+  ext_ref departure_links
+)
+"src/bacterie/proteine.ml" 277 6327 6357 "src/bacterie/proteine.ml" 277 6327 6371
+type(
+  place_id list
+)
+type(
+  place_id list
+)
+ident(
+  ext_ref arrival_places
+)
+"src/bacterie/proteine.ml" 278 6372 6401 "src/bacterie/proteine.ml" 278 6372 6414
+type(
+  Types.output_link list
+)
+type(
+  Types.output_link list
+)
+ident(
+  ext_ref arrival_links
+)
+"src/bacterie/proteine.ml" 280 6416 6445 "src/bacterie/proteine.ml" 280 6416 6451
+type(
+  token list
+)
+ident(
+  def tokens "src/bacterie/proteine.ml" 280 6416 6466 "src/bacterie/proteine.ml" 281 6482 6542
+)
+"src/bacterie/proteine.ml" 281 6482 6486 "src/bacterie/proteine.ml" 281 6482 6505
+type(
+  Types.input_link list -> Types.output_link list -> token list -> token list
+)
+ident(
+  int_ref transition_function "src/bacterie/proteine.ml" 235 5203 5209 "src/bacterie/proteine.ml" 235 5203 5228
+)
+"src/bacterie/proteine.ml" 281 6482 6506 "src/bacterie/proteine.ml" 281 6482 6521
+type(
+  Types.input_link list
+)
+ident(
+  ext_ref departure_links
+)
+"src/bacterie/proteine.ml" 281 6482 6522 "src/bacterie/proteine.ml" 281 6482 6535
+type(
+  Types.output_link list
+)
+ident(
+  ext_ref arrival_links
+)
+"src/bacterie/proteine.ml" 281 6482 6536 "src/bacterie/proteine.ml" 281 6482 6542
+type(
+  token list
+)
+ident(
+  int_ref tokens "src/bacterie/proteine.ml" 280 6416 6445 "src/bacterie/proteine.ml" 280 6416 6451
+)
+"src/bacterie/proteine.ml" 281 6482 6486 "src/bacterie/proteine.ml" 281 6482 6542
+call(
+  tail
+)
+type(
+  token list
+)
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 285 6653 6665 "src/bacterie/proteine.ml" 285 6653 6668
+type(
+  int list -> bool
+)
+ident(
+  def aux "src/bacterie/proteine.ml" 285 6653 6657 "src/bacterie/proteine.ml" 291 6774 6841
+)
+"src/bacterie/proteine.ml" 285 6653 6669 "src/bacterie/proteine.ml" 285 6653 6670
+type(
+  int list
+)
+ident(
+  def l "src/bacterie/proteine.ml" 286 6674 6680 "src/bacterie/proteine.ml" 289 6747 6765
+)
+"src/bacterie/proteine.ml" 286 6674 6686 "src/bacterie/proteine.ml" 286 6674 6687
+type(
+  int list
+)
+ident(
+  int_ref l "src/bacterie/proteine.ml" 285 6653 6669 "src/bacterie/proteine.ml" 285 6653 6670
+)
+"src/bacterie/proteine.ml" 287 6693 6701 "src/bacterie/proteine.ml" 287 6693 6702
+type(
+  int
+)
+ident(
+  def h "src/bacterie/proteine.ml" 288 6712 6714 "src/bacterie/proteine.ml" 288 6712 6746
+)
+"src/bacterie/proteine.ml" 287 6693 6706 "src/bacterie/proteine.ml" 287 6693 6707
+type(
+  int list
+)
+ident(
+  def t "src/bacterie/proteine.ml" 288 6712 6714 "src/bacterie/proteine.ml" 288 6712 6746
+)
+"src/bacterie/proteine.ml" 287 6693 6701 "src/bacterie/proteine.ml" 287 6693 6707
+type(
+  int list
+)
+"src/bacterie/proteine.ml" 288 6712 6714 "src/bacterie/proteine.ml" 288 6712 6717
+type(
+  bool -> bool
+)
+ident(
+  ext_ref Batteries.not
+)
+"src/bacterie/proteine.ml" 288 6712 6718 "src/bacterie/proteine.ml" 288 6712 6724
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/bacterie/proteine.ml" 288 6712 6726 "src/bacterie/proteine.ml" 288 6712 6727
+type(
+  int
+)
+ident(
+  int_ref h "src/bacterie/proteine.ml" 287 6693 6701 "src/bacterie/proteine.ml" 287 6693 6702
+)
+"src/bacterie/proteine.ml" 288 6712 6718 "src/bacterie/proteine.ml" 288 6712 6728
+type(
+  place
+)
+"src/bacterie/proteine.ml" 288 6712 6718 "src/bacterie/proteine.ml" 288 6712 6737
+call(
+  stack
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 288 6712 6714 "src/bacterie/proteine.ml" 288 6712 6737
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 288 6712 6738 "src/bacterie/proteine.ml" 288 6712 6740
+type(
+  bool -> bool -> bool
+)
+ident(
+  ext_ref Batteries.( && )
+)
+"src/bacterie/proteine.ml" 288 6712 6741 "src/bacterie/proteine.ml" 288 6712 6744
+type(
+  int list -> bool
+)
+ident(
+  int_ref aux "src/bacterie/proteine.ml" 285 6653 6665 "src/bacterie/proteine.ml" 285 6653 6668
+)
+"src/bacterie/proteine.ml" 288 6712 6745 "src/bacterie/proteine.ml" 288 6712 6746
+type(
+  int list
+)
+ident(
+  int_ref t "src/bacterie/proteine.ml" 287 6693 6706 "src/bacterie/proteine.ml" 287 6693 6707
+)
+"src/bacterie/proteine.ml" 288 6712 6741 "src/bacterie/proteine.ml" 288 6712 6746
+call(
+  tail
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 288 6712 6714 "src/bacterie/proteine.ml" 288 6712 6746
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 289 6747 6755 "src/bacterie/proteine.ml" 289 6747 6757
+type(
+  int list
+)
+"src/bacterie/proteine.ml" 289 6747 6761 "src/bacterie/proteine.ml" 289 6747 6765
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 286 6674 6680 "src/bacterie/proteine.ml" 289 6747 6765
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 291 6774 6779 "src/bacterie/proteine.ml" 291 6774 6782
+type(
+  place_id list -> bool
+)
+ident(
+  int_ref aux "src/bacterie/proteine.ml" 285 6653 6665 "src/bacterie/proteine.ml" 285 6653 6668
+)
+"src/bacterie/proteine.ml" 291 6774 6783 "src/bacterie/proteine.ml" 291 6774 6799
+type(
+  place_id list
+)
+ident(
+  ext_ref departure_places
+)
+"src/bacterie/proteine.ml" 291 6774 6778 "src/bacterie/proteine.ml" 291 6774 6800
+call(
+  stack
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 291 6774 6801 "src/bacterie/proteine.ml" 291 6774 6803
+type(
+  bool -> bool -> bool
+)
+ident(
+  ext_ref Batteries.( && )
+)
+"src/bacterie/proteine.ml" 291 6774 6804 "src/bacterie/proteine.ml" 291 6774 6819
+type(
+  place array -> place_id list -> bool
+)
+ident(
+  int_ref places_are_free "src/bacterie/proteine.ml" 239 5404 5410 "src/bacterie/proteine.ml" 239 5404 5425
+)
+"src/bacterie/proteine.ml" 291 6774 6820 "src/bacterie/proteine.ml" 291 6774 6826
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/bacterie/proteine.ml" 291 6774 6827 "src/bacterie/proteine.ml" 291 6774 6841
+type(
+  place_id list
+)
+ident(
+  ext_ref arrival_places
+)
+"src/bacterie/proteine.ml" 291 6774 6804 "src/bacterie/proteine.ml" 291 6774 6841
+call(
+  tail
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 291 6774 6778 "src/bacterie/proteine.ml" 291 6774 6841
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 285 6653 6657 "src/bacterie/proteine.ml" 291 6774 6841
+type(
+  bool
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 299 6983 6998 "src/bacterie/proteine.ml" 299 6983 7001
+type(
+  Types.MyMolecule.molecule
+)
+"src/bacterie/proteine.ml" 301 7062 7068 "src/bacterie/proteine.ml" 301 7062 7095
+type(
+  Types.MyMolecule.transition_structure list
+)
+"src/bacterie/proteine.ml" 301 7062 7098 "src/bacterie/proteine.ml" 301 7062 7115
+type(
+  Types.MyMolecule.molecule -> Types.MyMolecule.transition_structure list
+)
+ident(
+  ext_ref Types.MyMolecule.build_transitions
+)
+"src/bacterie/proteine.ml" 301 7062 7116 "src/bacterie/proteine.ml" 301 7062 7119
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref mol "src/bacterie/proteine.ml" 299 6983 6998 "src/bacterie/proteine.ml" 299 6983 7001
+)
+"src/bacterie/proteine.ml" 301 7062 7098 "src/bacterie/proteine.ml" 301 7062 7119
+call(
+  stack
+)
+type(
+  Types.MyMolecule.transition_structure list
+)
+"src/bacterie/proteine.ml" 304 7165 7171 "src/bacterie/proteine.ml" 304 7165 7193
+type(
+  Types.MolTypes.nodeType list
+)
+"src/bacterie/proteine.ml" 304 7165 7196 "src/bacterie/proteine.ml" 304 7165 7212
+type(
+  Types.MyMolecule.molecule -> Types.MolTypes.nodeType list
+)
+ident(
+  ext_ref Types.MyMolecule.build_nodes_list
+)
+"src/bacterie/proteine.ml" 304 7165 7213 "src/bacterie/proteine.ml" 304 7165 7216
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref mol "src/bacterie/proteine.ml" 299 6983 6998 "src/bacterie/proteine.ml" 299 6983 7001
+)
+"src/bacterie/proteine.ml" 304 7165 7196 "src/bacterie/proteine.ml" 304 7165 7216
+call(
+  stack
+)
+type(
+  Types.MolTypes.nodeType list
+)
+"src/bacterie/proteine.ml" 312 7326 7332 "src/bacterie/proteine.ml" 312 7326 7343
+type(
+  place list
+)
+"src/bacterie/proteine.ml" 313 7360 7364 "src/bacterie/proteine.ml" 313 7360 7372
+type(
+  (Types.MolTypes.nodeType -> place) ->
+  Types.MolTypes.nodeType list -> place list
+)
+ident(
+  ext_ref Batteries.List.map
+)
+"src/bacterie/proteine.ml" 314 7374 7385 "src/bacterie/proteine.ml" 314 7374 7386
+type(
+  Types.MolTypes.nodeType
+)
+ident(
+  def x "src/bacterie/proteine.ml" 314 7374 7390 "src/bacterie/proteine.ml" 314 7374 7401
+)
+"src/bacterie/proteine.ml" 314 7374 7390 "src/bacterie/proteine.ml" 314 7374 7399
+type(
+  Types.MolTypes.nodeType -> place
+)
+"src/bacterie/proteine.ml" 314 7374 7400 "src/bacterie/proteine.ml" 314 7374 7401
+type(
+  Types.MolTypes.nodeType
+)
+ident(
+  int_ref x "src/bacterie/proteine.ml" 314 7374 7385 "src/bacterie/proteine.ml" 314 7374 7386
+)
+"src/bacterie/proteine.ml" 314 7374 7390 "src/bacterie/proteine.ml" 314 7374 7401
+call(
+  tail
+)
+type(
+  place
+)
+"src/bacterie/proteine.ml" 314 7374 7380 "src/bacterie/proteine.ml" 314 7374 7402
+type(
+  Types.MolTypes.nodeType -> place
+)
+"src/bacterie/proteine.ml" 315 7403 7409 "src/bacterie/proteine.ml" 315 7403 7431
+type(
+  Types.MolTypes.nodeType list
+)
+ident(
+  int_ref places_signatures_list "src/bacterie/proteine.ml" 304 7165 7171 "src/bacterie/proteine.ml" 304 7165 7193
+)
+"src/bacterie/proteine.ml" 313 7360 7364 "src/bacterie/proteine.ml" 315 7403 7431
+call(
+  stack
+)
+type(
+  place list
+)
+type(
+  place list
+)
+"src/bacterie/proteine.ml" 319 7448 7455 "src/bacterie/proteine.ml" 319 7448 7467
+type(
+  place array
+)
+"src/bacterie/proteine.ml" 319 7448 7485 "src/bacterie/proteine.ml" 319 7448 7498
+type(
+  place list -> place array
+)
+ident(
+  ext_ref Batteries.Array.of_list
+)
+"src/bacterie/proteine.ml" 319 7448 7499 "src/bacterie/proteine.ml" 319 7448 7510
+type(
+  place list
+)
+ident(
+  int_ref places_list "src/bacterie/proteine.ml" 312 7326 7332 "src/bacterie/proteine.ml" 312 7326 7343
+)
+"src/bacterie/proteine.ml" 319 7448 7485 "src/bacterie/proteine.ml" 319 7448 7510
+call(
+  stack
+)
+type(
+  place array
+)
+"src/bacterie/proteine.ml" 322 7517 7524 "src/bacterie/proteine.ml" 322 7517 7540
+type(
+  transition list
+)
+"src/bacterie/proteine.ml" 323 7563 7567 "src/bacterie/proteine.ml" 323 7563 7575
+type(
+  (Types.MyMolecule.transition_structure -> transition) ->
+  Types.MyMolecule.transition_structure list -> transition list
+)
+ident(
+  ext_ref Batteries.List.map
+)
+"src/bacterie/proteine.ml" 324 7577 7588 "src/bacterie/proteine.ml" 324 7577 7589
+type(
+  Types.MyMolecule.transition_structure
+)
+ident(
+  def x "src/bacterie/proteine.ml" 324 7577 7593 "src/bacterie/proteine.ml" 325 7616 7653
+)
+"src/bacterie/proteine.ml" 324 7577 7597 "src/bacterie/proteine.ml" 324 7577 7598
+type(
+  string
+)
+ident(
+  def s "src/bacterie/proteine.ml" 325 7616 7618 "src/bacterie/proteine.ml" 325 7616 7653
+)
+"src/bacterie/proteine.ml" 324 7577 7600 "src/bacterie/proteine.ml" 324 7577 7603
+type(
+  (place_id * Types.MolTypes.inputLinkType) list
+)
+ident(
+  def ila "src/bacterie/proteine.ml" 325 7616 7618 "src/bacterie/proteine.ml" 325 7616 7653
+)
+"src/bacterie/proteine.ml" 324 7577 7605 "src/bacterie/proteine.ml" 324 7577 7608
+type(
+  (place_id * Types.MolTypes.outputLinkType) list
+)
+ident(
+  def ola "src/bacterie/proteine.ml" 325 7616 7618 "src/bacterie/proteine.ml" 325 7616 7653
+)
+"src/bacterie/proteine.ml" 324 7577 7597 "src/bacterie/proteine.ml" 324 7577 7608
+type(
+  Types.MyMolecule.transition_structure
+)
+"src/bacterie/proteine.ml" 324 7577 7611 "src/bacterie/proteine.ml" 324 7577 7612
+type(
+  Types.MyMolecule.transition_structure
+)
+ident(
+  int_ref x "src/bacterie/proteine.ml" 324 7577 7588 "src/bacterie/proteine.ml" 324 7577 7589
+)
+"src/bacterie/proteine.ml" 325 7616 7618 "src/bacterie/proteine.ml" 325 7616 7632
+type(
+  place array ->
+  (place_id * Types.MolTypes.inputLinkType) list ->
+  (place_id * Types.MolTypes.outputLinkType) list -> transition
+)
+"src/bacterie/proteine.ml" 325 7616 7633 "src/bacterie/proteine.ml" 325 7616 7645
+type(
+  place array
+)
+ident(
+  int_ref places_array "src/bacterie/proteine.ml" 319 7448 7455 "src/bacterie/proteine.ml" 319 7448 7467
+)
+"src/bacterie/proteine.ml" 325 7616 7646 "src/bacterie/proteine.ml" 325 7616 7649
+type(
+  (place_id * Types.MolTypes.inputLinkType) list
+)
+ident(
+  int_ref ila "src/bacterie/proteine.ml" 324 7577 7600 "src/bacterie/proteine.ml" 324 7577 7603
+)
+"src/bacterie/proteine.ml" 325 7616 7650 "src/bacterie/proteine.ml" 325 7616 7653
+type(
+  (place_id * Types.MolTypes.outputLinkType) list
+)
+ident(
+  int_ref ola "src/bacterie/proteine.ml" 324 7577 7605 "src/bacterie/proteine.ml" 324 7577 7608
+)
+"src/bacterie/proteine.ml" 325 7616 7618 "src/bacterie/proteine.ml" 325 7616 7653
+call(
+  tail
+)
+type(
+  transition
+)
+"src/bacterie/proteine.ml" 324 7577 7593 "src/bacterie/proteine.ml" 325 7616 7653
+type(
+  transition
+)
+"src/bacterie/proteine.ml" 324 7577 7583 "src/bacterie/proteine.ml" 325 7616 7654
+type(
+  Types.MyMolecule.transition_structure -> transition
+)
+"src/bacterie/proteine.ml" 326 7655 7661 "src/bacterie/proteine.ml" 326 7655 7688
+type(
+  Types.MyMolecule.transition_structure list
+)
+ident(
+  int_ref transitions_signatures_list "src/bacterie/proteine.ml" 301 7062 7068 "src/bacterie/proteine.ml" 301 7062 7095
+)
+"src/bacterie/proteine.ml" 323 7563 7567 "src/bacterie/proteine.ml" 326 7655 7688
+call(
+  stack
+)
+type(
+  transition list
+)
+"src/bacterie/proteine.ml" 330 7699 7706 "src/bacterie/proteine.ml" 330 7699 7723
+type(
+  transition array
+)
+"src/bacterie/proteine.ml" 331 7747 7751 "src/bacterie/proteine.ml" 331 7747 7764
+type(
+  transition list -> transition array
+)
+ident(
+  ext_ref Batteries.Array.of_list
+)
+"src/bacterie/proteine.ml" 331 7747 7765 "src/bacterie/proteine.ml" 331 7747 7781
+type(
+  transition list
+)
+ident(
+  int_ref transitions_list "src/bacterie/proteine.ml" 322 7517 7524 "src/bacterie/proteine.ml" 322 7517 7540
+)
+"src/bacterie/proteine.ml" 331 7747 7751 "src/bacterie/proteine.ml" 331 7747 7781
+call(
+  stack
+)
+type(
+  transition array
+)
+"src/bacterie/proteine.ml" 344 8062 8072 "src/bacterie/proteine.ml" 344 8062 8084
+type(
+  Types.place_type list ->
+  int ->
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 345 8086 8093 "src/bacterie/proteine.ml" 345 8086 8099
+type(
+  Types.place_type list
+)
+ident(
+  def places "src/bacterie/proteine.ml" 346 8120 8126 "src/bacterie/proteine.ml" 367 8740 8748
+)
+"src/bacterie/proteine.ml" 346 8120 8127 "src/bacterie/proteine.ml" 346 8120 8128
+type(
+  int
+)
+ident(
+  def n "src/bacterie/proteine.ml" 347 8136 8142 "src/bacterie/proteine.ml" 367 8740 8748
+)
+"src/bacterie/proteine.ml" 352 8261 8271 "src/bacterie/proteine.ml" 352 8261 8277
+type(
+  Types.place_type list
+)
+ident(
+  int_ref places "src/bacterie/proteine.ml" 345 8086 8093 "src/bacterie/proteine.ml" 345 8086 8099
+)
+"src/bacterie/proteine.ml" 353 8283 8289 "src/bacterie/proteine.ml" 353 8283 8290
+type(
+  Types.place_type
+)
+ident(
+  def p "src/bacterie/proteine.ml" 354 8305 8312 "src/bacterie/proteine.ml" 361 8580 8590
+)
+"src/bacterie/proteine.ml" 353 8283 8294 "src/bacterie/proteine.ml" 353 8283 8301
+type(
+  Types.place_type list
+)
+ident(
+  def places' "src/bacterie/proteine.ml" 354 8305 8312 "src/bacterie/proteine.ml" 361 8580 8590
+)
+"src/bacterie/proteine.ml" 353 8283 8289 "src/bacterie/proteine.ml" 353 8283 8301
+type(
+  Types.place_type list
+)
+"src/bacterie/proteine.ml" 354 8305 8316 "src/bacterie/proteine.ml" 354 8305 8319
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  def imb "src/bacterie/proteine.ml" 355 8362 8369 "src/bacterie/proteine.ml" 361 8580 8590
+)
+"src/bacterie/proteine.ml" 354 8305 8321 "src/bacterie/proteine.ml" 354 8305 8324
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  def mcb "src/bacterie/proteine.ml" 355 8362 8369 "src/bacterie/proteine.ml" 361 8580 8590
+)
+"src/bacterie/proteine.ml" 354 8305 8326 "src/bacterie/proteine.ml" 354 8305 8328
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  def hb "src/bacterie/proteine.ml" 355 8362 8369 "src/bacterie/proteine.ml" 361 8580 8590
+)
+"src/bacterie/proteine.ml" 354 8305 8316 "src/bacterie/proteine.ml" 354 8305 8328
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 354 8305 8331 "src/bacterie/proteine.ml" 354 8305 8343
+type(
+  Types.place_type list ->
+  int ->
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref create_books "src/bacterie/proteine.ml" 344 8062 8072 "src/bacterie/proteine.ml" 344 8062 8084
+)
+"src/bacterie/proteine.ml" 354 8305 8344 "src/bacterie/proteine.ml" 354 8305 8351
+type(
+  Types.place_type list
+)
+ident(
+  int_ref places' "src/bacterie/proteine.ml" 353 8283 8294 "src/bacterie/proteine.ml" 353 8283 8301
+)
+"src/bacterie/proteine.ml" 354 8305 8353 "src/bacterie/proteine.ml" 354 8305 8354
+type(
+  int
+)
+ident(
+  int_ref n "src/bacterie/proteine.ml" 346 8120 8127 "src/bacterie/proteine.ml" 346 8120 8128
+)
+"src/bacterie/proteine.ml" 354 8305 8354 "src/bacterie/proteine.ml" 354 8305 8355
+type(
+  int -> int -> int
+)
+ident(
+  ext_ref Batteries.( + )
+)
+"src/bacterie/proteine.ml" 354 8305 8355 "src/bacterie/proteine.ml" 354 8305 8356
+type(
+  int
+)
+"src/bacterie/proteine.ml" 354 8305 8352 "src/bacterie/proteine.ml" 354 8305 8357
+type(
+  int
+)
+"src/bacterie/proteine.ml" 354 8305 8331 "src/bacterie/proteine.ml" 354 8305 8357
+call(
+  stack
+)
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 356 8375 8383 "src/bacterie/proteine.ml" 356 8375 8384
+type(
+  Types.place_type
+)
+ident(
+  int_ref p "src/bacterie/proteine.ml" 353 8283 8289 "src/bacterie/proteine.ml" 353 8283 8290
+)
+"src/bacterie/proteine.ml" 357 8390 8408 "src/bacterie/proteine.ml" 357 8390 8409
+type(
+  string
+)
+ident(
+  def s "src/bacterie/proteine.ml" 357 8390 8413 "src/bacterie/proteine.ml" 357 8390 8446
+)
+"src/bacterie/proteine.ml" 357 8390 8394 "src/bacterie/proteine.ml" 357 8390 8409
+type(
+  Types.place_type
+)
+"src/bacterie/proteine.ml" 357 8390 8413 "src/bacterie/proteine.ml" 357 8390 8429
+type(
+  string ->
+  int -> (string, int) BatMultiPMap.t -> (string, int) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.add
+)
+"src/bacterie/proteine.ml" 357 8390 8430 "src/bacterie/proteine.ml" 357 8390 8431
+type(
+  string
+)
+ident(
+  int_ref s "src/bacterie/proteine.ml" 357 8390 8408 "src/bacterie/proteine.ml" 357 8390 8409
+)
+"src/bacterie/proteine.ml" 357 8390 8432 "src/bacterie/proteine.ml" 357 8390 8433
+type(
+  int
+)
+ident(
+  int_ref n "src/bacterie/proteine.ml" 346 8120 8127 "src/bacterie/proteine.ml" 346 8120 8128
+)
+"src/bacterie/proteine.ml" 357 8390 8434 "src/bacterie/proteine.ml" 357 8390 8437
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref imb "src/bacterie/proteine.ml" 354 8305 8316 "src/bacterie/proteine.ml" 354 8305 8319
+)
+"src/bacterie/proteine.ml" 357 8390 8413 "src/bacterie/proteine.ml" 357 8390 8437
+call(
+  stack
+)
+type(
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 357 8390 8439 "src/bacterie/proteine.ml" 357 8390 8442
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref mcb "src/bacterie/proteine.ml" 354 8305 8321 "src/bacterie/proteine.ml" 354 8305 8324
+)
+"src/bacterie/proteine.ml" 357 8390 8444 "src/bacterie/proteine.ml" 357 8390 8446
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref hb "src/bacterie/proteine.ml" 354 8305 8326 "src/bacterie/proteine.ml" 354 8305 8328
+)
+"src/bacterie/proteine.ml" 357 8390 8413 "src/bacterie/proteine.ml" 357 8390 8446
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 358 8447 8463 "src/bacterie/proteine.ml" 358 8447 8464
+type(
+  string
+)
+ident(
+  def s "src/bacterie/proteine.ml" 358 8447 8468 "src/bacterie/proteine.ml" 358 8447 8501
+)
+"src/bacterie/proteine.ml" 358 8447 8451 "src/bacterie/proteine.ml" 358 8447 8464
+type(
+  Types.place_type
+)
+"src/bacterie/proteine.ml" 358 8447 8468 "src/bacterie/proteine.ml" 358 8447 8471
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref imb "src/bacterie/proteine.ml" 354 8305 8316 "src/bacterie/proteine.ml" 354 8305 8319
+)
+"src/bacterie/proteine.ml" 358 8447 8473 "src/bacterie/proteine.ml" 358 8447 8489
+type(
+  string ->
+  int -> (string, int) BatMultiPMap.t -> (string, int) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.add
+)
+"src/bacterie/proteine.ml" 358 8447 8490 "src/bacterie/proteine.ml" 358 8447 8491
+type(
+  string
+)
+ident(
+  int_ref s "src/bacterie/proteine.ml" 358 8447 8463 "src/bacterie/proteine.ml" 358 8447 8464
+)
+"src/bacterie/proteine.ml" 358 8447 8492 "src/bacterie/proteine.ml" 358 8447 8493
+type(
+  int
+)
+ident(
+  int_ref n "src/bacterie/proteine.ml" 346 8120 8127 "src/bacterie/proteine.ml" 346 8120 8128
+)
+"src/bacterie/proteine.ml" 358 8447 8494 "src/bacterie/proteine.ml" 358 8447 8497
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref mcb "src/bacterie/proteine.ml" 354 8305 8321 "src/bacterie/proteine.ml" 354 8305 8324
+)
+"src/bacterie/proteine.ml" 358 8447 8473 "src/bacterie/proteine.ml" 358 8447 8497
+call(
+  stack
+)
+type(
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 358 8447 8499 "src/bacterie/proteine.ml" 358 8447 8501
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref hb "src/bacterie/proteine.ml" 354 8305 8326 "src/bacterie/proteine.ml" 354 8305 8328
+)
+"src/bacterie/proteine.ml" 358 8447 8468 "src/bacterie/proteine.ml" 358 8447 8501
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 359 8502 8519 "src/bacterie/proteine.ml" 359 8502 8520
+type(
+  string
+)
+ident(
+  def s "src/bacterie/proteine.ml" 359 8502 8524 "src/bacterie/proteine.ml" 359 8502 8557
+)
+"src/bacterie/proteine.ml" 359 8502 8506 "src/bacterie/proteine.ml" 359 8502 8520
+type(
+  Types.place_type
+)
+"src/bacterie/proteine.ml" 359 8502 8524 "src/bacterie/proteine.ml" 359 8502 8527
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref imb "src/bacterie/proteine.ml" 354 8305 8316 "src/bacterie/proteine.ml" 354 8305 8319
+)
+"src/bacterie/proteine.ml" 359 8502 8529 "src/bacterie/proteine.ml" 359 8502 8532
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref mcb "src/bacterie/proteine.ml" 354 8305 8321 "src/bacterie/proteine.ml" 354 8305 8324
+)
+"src/bacterie/proteine.ml" 359 8502 8534 "src/bacterie/proteine.ml" 359 8502 8550
+type(
+  string ->
+  int -> (string, int) BatMultiPMap.t -> (string, int) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.add
+)
+"src/bacterie/proteine.ml" 359 8502 8551 "src/bacterie/proteine.ml" 359 8502 8552
+type(
+  string
+)
+ident(
+  int_ref s "src/bacterie/proteine.ml" 359 8502 8519 "src/bacterie/proteine.ml" 359 8502 8520
+)
+"src/bacterie/proteine.ml" 359 8502 8553 "src/bacterie/proteine.ml" 359 8502 8554
+type(
+  int
+)
+ident(
+  int_ref n "src/bacterie/proteine.ml" 346 8120 8127 "src/bacterie/proteine.ml" 346 8120 8128
+)
+"src/bacterie/proteine.ml" 359 8502 8555 "src/bacterie/proteine.ml" 359 8502 8557
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref hb "src/bacterie/proteine.ml" 354 8305 8326 "src/bacterie/proteine.ml" 354 8305 8328
+)
+"src/bacterie/proteine.ml" 359 8502 8534 "src/bacterie/proteine.ml" 359 8502 8557
+call(
+  stack
+)
+type(
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 359 8502 8524 "src/bacterie/proteine.ml" 359 8502 8557
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 360 8558 8562 "src/bacterie/proteine.ml" 360 8558 8563
+type(
+  Types.place_type
+)
+"src/bacterie/proteine.ml" 360 8558 8567 "src/bacterie/proteine.ml" 360 8558 8570
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref imb "src/bacterie/proteine.ml" 354 8305 8316 "src/bacterie/proteine.ml" 354 8305 8319
+)
+"src/bacterie/proteine.ml" 360 8558 8572 "src/bacterie/proteine.ml" 360 8558 8575
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref mcb "src/bacterie/proteine.ml" 354 8305 8321 "src/bacterie/proteine.ml" 354 8305 8324
+)
+"src/bacterie/proteine.ml" 360 8558 8577 "src/bacterie/proteine.ml" 360 8558 8579
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref hb "src/bacterie/proteine.ml" 354 8305 8326 "src/bacterie/proteine.ml" 354 8305 8328
+)
+"src/bacterie/proteine.ml" 360 8558 8567 "src/bacterie/proteine.ml" 360 8558 8579
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 355 8362 8369 "src/bacterie/proteine.ml" 361 8580 8590
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 354 8305 8312 "src/bacterie/proteine.ml" 361 8580 8590
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 362 8591 8597 "src/bacterie/proteine.ml" 362 8591 8599
+type(
+  Types.place_type list
+)
+"src/bacterie/proteine.ml" 364 8613 8615 "src/bacterie/proteine.ml" 364 8613 8634
+type(
+  (Batteries.String.t -> Batteries.String.t -> int) ->
+  (int -> int -> int) -> (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.create
+)
+"src/bacterie/proteine.ml" 364 8613 8635 "src/bacterie/proteine.ml" 364 8613 8649
+type(
+  Batteries.String.t -> Batteries.String.t -> int
+)
+ident(
+  ext_ref Batteries.String.compare
+)
+"src/bacterie/proteine.ml" 364 8613 8650 "src/bacterie/proteine.ml" 364 8613 8653
+type(
+  int -> int -> int
+)
+ident(
+  ext_ref Batteries.( - )
+)
+"src/bacterie/proteine.ml" 364 8613 8615 "src/bacterie/proteine.ml" 364 8613 8653
+call(
+  stack
+)
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 365 8656 8658 "src/bacterie/proteine.ml" 365 8656 8677
+type(
+  (Batteries.String.t -> Batteries.String.t -> int) ->
+  (int -> int -> int) -> (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.create
+)
+"src/bacterie/proteine.ml" 365 8656 8678 "src/bacterie/proteine.ml" 365 8656 8692
+type(
+  Batteries.String.t -> Batteries.String.t -> int
+)
+ident(
+  ext_ref Batteries.String.compare
+)
+"src/bacterie/proteine.ml" 365 8656 8693 "src/bacterie/proteine.ml" 365 8656 8696
+type(
+  int -> int -> int
+)
+ident(
+  ext_ref Batteries.( - )
+)
+"src/bacterie/proteine.ml" 365 8656 8658 "src/bacterie/proteine.ml" 365 8656 8696
+call(
+  stack
+)
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 366 8699 8701 "src/bacterie/proteine.ml" 366 8699 8720
+type(
+  (Batteries.String.t -> Batteries.String.t -> int) ->
+  (int -> int -> int) -> (Batteries.String.t, int) BatMultiPMap.t
+)
+ident(
+  ext_ref BatMultiPMap.create
+)
+"src/bacterie/proteine.ml" 366 8699 8721 "src/bacterie/proteine.ml" 366 8699 8735
+type(
+  Batteries.String.t -> Batteries.String.t -> int
+)
+ident(
+  ext_ref Batteries.String.compare
+)
+"src/bacterie/proteine.ml" 366 8699 8736 "src/bacterie/proteine.ml" 366 8699 8739
+type(
+  int -> int -> int
+)
+ident(
+  ext_ref Batteries.( - )
+)
+"src/bacterie/proteine.ml" 366 8699 8701 "src/bacterie/proteine.ml" 366 8699 8739
+call(
+  stack
+)
+type(
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 363 8604 8611 "src/bacterie/proteine.ml" 367 8740 8748
+type(
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t *
+  (Batteries.String.t, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 352 8261 8265 "src/bacterie/proteine.ml" 367 8740 8748
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 370 8756 8763 "src/bacterie/proteine.ml" 370 8756 8781
+type(
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 370 8756 8783 "src/bacterie/proteine.ml" 370 8756 8799
+type(
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 370 8756 8801 "src/bacterie/proteine.ml" 370 8756 8812
+type(
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 370 8756 8762 "src/bacterie/proteine.ml" 370 8756 8813
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 371 8817 8821 "src/bacterie/proteine.ml" 371 8817 8833
+type(
+  Types.MolTypes.nodeType list ->
+  int ->
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref create_books "src/bacterie/proteine.ml" 344 8062 8072 "src/bacterie/proteine.ml" 344 8062 8084
+)
+"src/bacterie/proteine.ml" 371 8817 8834 "src/bacterie/proteine.ml" 371 8817 8856
+type(
+  Types.MolTypes.nodeType list
+)
+ident(
+  int_ref places_signatures_list "src/bacterie/proteine.ml" 304 7165 7171 "src/bacterie/proteine.ml" 304 7165 7193
+)
+"src/bacterie/proteine.ml" 371 8817 8857 "src/bacterie/proteine.ml" 371 8817 8858
+type(
+  int
+)
+"src/bacterie/proteine.ml" 371 8817 8821 "src/bacterie/proteine.ml" 371 8817 8858
+call(
+  stack
+)
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 375 8873 8879 "src/bacterie/proteine.ml" 375 8873 8885
+type(
+  < bind_mol : Types.MyMolecule.molecule -> string -> bool;
+    get_maps : (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+               (string, int) BatMultiPMap.t;
+    get_places : place array; init_launchables : unit;
+    launch_random_transition : unit;
+    launch_transition : transition_id -> unit;
+    send_message : string -> unit BatSet.PSet.t;
+    set_host : container -> unit; update_launchables : unit; .. >
+)
+"src/bacterie/proteine.ml" 376 8887 8910 "src/bacterie/proteine.ml" 376 8887 8913
+type(
+  Types.MyMolecule.molecule
+)
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref mol "src/bacterie/proteine.ml" 299 6983 6998 "src/bacterie/proteine.ml" 299 6983 7001
+)
+"src/bacterie/proteine.ml" 377 8914 8934 "src/bacterie/proteine.ml" 377 8914 8951
+type(
+  transition array
+)
+ident(
+  int_ref transitions_array "src/bacterie/proteine.ml" 330 7699 7706 "src/bacterie/proteine.ml" 330 7699 7723
+)
+"src/bacterie/proteine.ml" 378 8952 8981 "src/bacterie/proteine.ml" 378 8952 8993
+type(
+  place array
+)
+type(
+  place array
+)
+ident(
+  int_ref places_array "src/bacterie/proteine.ml" 319 7448 7455 "src/bacterie/proteine.ml" 319 7448 7467
+)
+"src/bacterie/proteine.ml" 379 8994 9022 "src/bacterie/proteine.ml" 379 8994 9024
+type(
+  transition_id list
+)
+"src/bacterie/proteine.ml" 380 9025 9038 "src/bacterie/proteine.ml" 380 9025 9056
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref input_message_book "src/bacterie/proteine.ml" 370 8756 8763 "src/bacterie/proteine.ml" 370 8756 8781
+)
+"src/bacterie/proteine.ml" 380 9025 9058 "src/bacterie/proteine.ml" 380 9025 9074
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref mol_catcher_book "src/bacterie/proteine.ml" 370 8756 8783 "src/bacterie/proteine.ml" 370 8756 8799
+)
+"src/bacterie/proteine.ml" 380 9025 9076 "src/bacterie/proteine.ml" 380 9025 9087
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref handle_book "src/bacterie/proteine.ml" 370 8756 8801 "src/bacterie/proteine.ml" 370 8756 8812
+)
+"src/bacterie/proteine.ml" 380 9025 9038 "src/bacterie/proteine.ml" 380 9025 9087
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 382 9089 9111 "src/bacterie/proteine.ml" 382 9089 9117
+type(
+  place array
+)
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/bacterie/proteine.ml" 384 9119 9139 "src/bacterie/proteine.ml" 384 9119 9143
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+ident(
+  ext_ref maps
+)
+"src/bacterie/proteine.ml" 387 9179 9187 "src/bacterie/proteine.ml" 387 9179 9190
+type(
+  transition_id list Batteries.ref
+)
+ident(
+  def t_l "src/bacterie/proteine.ml" 388 9204 9208 "src/bacterie/proteine.ml" 395 9366 9373
+)
+"src/bacterie/proteine.ml" 387 9179 9193 "src/bacterie/proteine.ml" 387 9179 9196
+type(
+  transition_id list -> transition_id list Batteries.ref
+)
+ident(
+  ext_ref Batteries.ref
+)
+"src/bacterie/proteine.ml" 387 9179 9197 "src/bacterie/proteine.ml" 387 9179 9199
+type(
+  transition_id list
+)
+"src/bacterie/proteine.ml" 387 9179 9193 "src/bacterie/proteine.ml" 387 9179 9199
+type(
+  transition_id list Batteries.ref
+)
+"src/bacterie/proteine.ml" 389 9214 9228 "src/bacterie/proteine.ml" 389 9214 9229
+type(
+  int
+)
+"src/bacterie/proteine.ml" 389 9214 9233 "src/bacterie/proteine.ml" 389 9214 9245
+type(
+  transition array -> int
+)
+ident(
+  ext_ref Batteries.Array.length
+)
+"src/bacterie/proteine.ml" 389 9214 9246 "src/bacterie/proteine.ml" 389 9214 9257
+type(
+  transition array
+)
+ident(
+  ext_ref transitions
+)
+"src/bacterie/proteine.ml" 389 9214 9233 "src/bacterie/proteine.ml" 389 9214 9257
+type(
+  int
+)
+"src/bacterie/proteine.ml" 389 9214 9258 "src/bacterie/proteine.ml" 389 9214 9259
+type(
+  int -> int -> int
+)
+ident(
+  ext_ref Batteries.( - )
+)
+"src/bacterie/proteine.ml" 389 9214 9259 "src/bacterie/proteine.ml" 389 9214 9260
+type(
+  int
+)
+"src/bacterie/proteine.ml" 389 9214 9233 "src/bacterie/proteine.ml" 389 9214 9260
+type(
+  int
+)
+"src/bacterie/proteine.ml" 390 9264 9268 "src/bacterie/proteine.ml" 390 9264 9279
+type(
+  transition array
+)
+ident(
+  ext_ref transitions
+)
+"src/bacterie/proteine.ml" 390 9264 9281 "src/bacterie/proteine.ml" 390 9264 9282
+type(
+  transition_id
+)
+ident(
+  int_ref i "src/bacterie/proteine.ml" 389 9214 9220 "src/bacterie/proteine.ml" 393 9327 9337
+)
+"src/bacterie/proteine.ml" 390 9264 9268 "src/bacterie/proteine.ml" 390 9264 9283
+type(
+  transition
+)
+"src/bacterie/proteine.ml" 390 9264 9268 "src/bacterie/proteine.ml" 390 9264 9294
+call(
+  stack
+)
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 391 9295 9301 "src/bacterie/proteine.ml" 391 9295 9304
+type(
+  transition_id list Batteries.ref
+)
+ident(
+  int_ref t_l "src/bacterie/proteine.ml" 387 9179 9187 "src/bacterie/proteine.ml" 387 9179 9190
+)
+"src/bacterie/proteine.ml" 391 9295 9305 "src/bacterie/proteine.ml" 391 9295 9307
+type(
+  transition_id list Batteries.ref -> transition_id list -> unit
+)
+ident(
+  ext_ref Batteries.( := )
+)
+"src/bacterie/proteine.ml" 391 9295 9308 "src/bacterie/proteine.ml" 391 9295 9309
+type(
+  transition_id
+)
+ident(
+  int_ref i "src/bacterie/proteine.ml" 389 9214 9220 "src/bacterie/proteine.ml" 393 9327 9337
+)
+"src/bacterie/proteine.ml" 391 9295 9313 "src/bacterie/proteine.ml" 391 9295 9314
+type(
+  transition_id list Batteries.ref -> transition_id list
+)
+ident(
+  ext_ref Batteries.( ! )
+)
+"src/bacterie/proteine.ml" 391 9295 9314 "src/bacterie/proteine.ml" 391 9295 9317
+type(
+  transition_id list Batteries.ref
+)
+ident(
+  int_ref t_l "src/bacterie/proteine.ml" 387 9179 9187 "src/bacterie/proteine.ml" 387 9179 9190
+)
+"src/bacterie/proteine.ml" 391 9295 9313 "src/bacterie/proteine.ml" 391 9295 9317
+type(
+  transition_id list
+)
+"src/bacterie/proteine.ml" 391 9295 9308 "src/bacterie/proteine.ml" 391 9295 9317
+type(
+  transition_id list
+)
+"src/bacterie/proteine.ml" 391 9295 9301 "src/bacterie/proteine.ml" 391 9295 9317
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 392 9318 9324 "src/bacterie/proteine.ml" 392 9318 9326
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 390 9264 9265 "src/bacterie/proteine.ml" 392 9318 9326
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 389 9214 9220 "src/bacterie/proteine.ml" 393 9327 9337
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 394 9339 9360 "src/bacterie/proteine.ml" 394 9339 9361
+type(
+  transition_id list Batteries.ref -> transition_id list
+)
+ident(
+  ext_ref Batteries.( ! )
+)
+"src/bacterie/proteine.ml" 394 9339 9361 "src/bacterie/proteine.ml" 394 9339 9364
+type(
+  transition_id list Batteries.ref
+)
+ident(
+  int_ref t_l "src/bacterie/proteine.ml" 387 9179 9187 "src/bacterie/proteine.ml" 387 9179 9190
+)
+"src/bacterie/proteine.ml" 394 9339 9360 "src/bacterie/proteine.ml" 394 9339 9364
+type(
+  transition_id list
+)
+"src/bacterie/proteine.ml" 394 9339 9345 "src/bacterie/proteine.ml" 394 9339 9365
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 388 9204 9208 "src/bacterie/proteine.ml" 395 9366 9373
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 387 9179 9183 "src/bacterie/proteine.ml" 395 9366 9373
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 405 9739 9769 "src/bacterie/proteine.ml" 405 9739 9773
+type(
+  < bind_mol : Types.MyMolecule.molecule -> string -> bool;
+    get_maps : (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+               (string, int) BatMultiPMap.t;
+    get_places : place array; init_launchables : unit;
+    launch_random_transition : unit;
+    launch_transition : transition_id -> unit;
+    send_message : string -> unit BatSet.PSet.t;
+    set_host : container -> unit; update_launchables : unit; .. >
+  as 'b
+)
+ident(
+  int_ref self "src/bacterie/proteine.ml" 375 8873 8879 "src/bacterie/proteine.ml" 375 8873 8885
+)
+"src/bacterie/proteine.ml" 405 9739 9769 "src/bacterie/proteine.ml" 405 9739 9790
+call(
+  tail
+)
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 409 9833 9861 "src/bacterie/proteine.ml" 409 9833 9864
+type(
+  transition_id
+)
+ident(
+  def tId "src/bacterie/proteine.ml" 409 9833 9882 "src/bacterie/proteine.ml" 419 10221 10227
+)
+"src/bacterie/proteine.ml" 410 9892 9900 "src/bacterie/proteine.ml" 410 9892 9913
+type(
+  token list
+)
+ident(
+  def initialTokens "src/bacterie/proteine.ml" 414 10018 10022 "src/bacterie/proteine.ml" 419 10221 10227
+)
+"src/bacterie/proteine.ml" 410 9892 9916 "src/bacterie/proteine.ml" 410 9892 9924
+type(
+  (place_id -> token) -> place_id list -> token list
+)
+ident(
+  ext_ref Batteries.List.map
+)
+"src/bacterie/proteine.ml" 411 9926 9937 "src/bacterie/proteine.ml" 411 9926 9938
+type(
+  place_id
+)
+ident(
+  def x "src/bacterie/proteine.ml" 411 9926 9942 "src/bacterie/proteine.ml" 411 9926 9962
+)
+"src/bacterie/proteine.ml" 411 9926 9942 "src/bacterie/proteine.ml" 411 9926 9948
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/bacterie/proteine.ml" 411 9926 9950 "src/bacterie/proteine.ml" 411 9926 9951
+type(
+  place_id
+)
+ident(
+  int_ref x "src/bacterie/proteine.ml" 411 9926 9937 "src/bacterie/proteine.ml" 411 9926 9938
+)
+"src/bacterie/proteine.ml" 411 9926 9942 "src/bacterie/proteine.ml" 411 9926 9952
+type(
+  place
+)
+"src/bacterie/proteine.ml" 411 9926 9942 "src/bacterie/proteine.ml" 411 9926 9962
+call(
+  tail
+)
+type(
+  token
+)
+"src/bacterie/proteine.ml" 411 9926 9932 "src/bacterie/proteine.ml" 411 9926 9963
+type(
+  place_id -> token
+)
+"src/bacterie/proteine.ml" 412 9965 9971 "src/bacterie/proteine.ml" 412 9965 9982
+type(
+  transition array
+)
+ident(
+  ext_ref transitions
+)
+"src/bacterie/proteine.ml" 412 9965 9984 "src/bacterie/proteine.ml" 412 9965 9987
+type(
+  transition_id
+)
+ident(
+  int_ref tId "src/bacterie/proteine.ml" 409 9833 9861 "src/bacterie/proteine.ml" 409 9833 9864
+)
+"src/bacterie/proteine.ml" 412 9965 9971 "src/bacterie/proteine.ml" 412 9965 9988
+type(
+  transition
+)
+"src/bacterie/proteine.ml" 412 9965 9971 "src/bacterie/proteine.ml" 412 9965 10009
+call(
+  stack
+)
+type(
+  place_id list
+)
+"src/bacterie/proteine.ml" 410 9892 9916 "src/bacterie/proteine.ml" 412 9965 10009
+call(
+  stack
+)
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 414 10018 10026 "src/bacterie/proteine.ml" 414 10018 10037
+type(
+  token list
+)
+ident(
+  def finalTokens "src/bacterie/proteine.ml" 416 10099 10103 "src/bacterie/proteine.ml" 419 10221 10227
+)
+"src/bacterie/proteine.ml" 414 10018 10040 "src/bacterie/proteine.ml" 414 10018 10051
+type(
+  transition array
+)
+ident(
+  ext_ref transitions
+)
+"src/bacterie/proteine.ml" 414 10018 10053 "src/bacterie/proteine.ml" 414 10018 10056
+type(
+  transition_id
+)
+ident(
+  int_ref tId "src/bacterie/proteine.ml" 409 9833 9861 "src/bacterie/proteine.ml" 409 9833 9864
+)
+"src/bacterie/proteine.ml" 414 10018 10040 "src/bacterie/proteine.ml" 414 10018 10057
+type(
+  transition
+)
+"src/bacterie/proteine.ml" 414 10018 10040 "src/bacterie/proteine.ml" 414 10018 10076
+call(
+  stack
+)
+type(
+  token list -> token list
+)
+"src/bacterie/proteine.ml" 414 10018 10077 "src/bacterie/proteine.ml" 414 10018 10090
+type(
+  token list
+)
+ident(
+  int_ref initialTokens "src/bacterie/proteine.ml" 410 9892 9900 "src/bacterie/proteine.ml" 410 9892 9913
+)
+"src/bacterie/proteine.ml" 414 10018 10040 "src/bacterie/proteine.ml" 414 10018 10090
+type(
+  token list
+)
+"src/bacterie/proteine.ml" 416 10099 10103 "src/bacterie/proteine.ml" 416 10099 10111
+type(
+  (place_id * token -> unit) -> (place_id * token) list -> unit list
+)
+ident(
+  ext_ref Batteries.List.map
+)
+"src/bacterie/proteine.ml" 417 10113 10125 "src/bacterie/proteine.ml" 417 10113 10126
+type(
+  place_id
+)
+ident(
+  def x "src/bacterie/proteine.ml" 417 10113 10133 "src/bacterie/proteine.ml" 417 10113 10155
+)
+"src/bacterie/proteine.ml" 417 10113 10127 "src/bacterie/proteine.ml" 417 10113 10128
+type(
+  token
+)
+ident(
+  def y "src/bacterie/proteine.ml" 417 10113 10133 "src/bacterie/proteine.ml" 417 10113 10155
+)
+"src/bacterie/proteine.ml" 417 10113 10124 "src/bacterie/proteine.ml" 417 10113 10129
+type(
+  place_id * token
+)
+"src/bacterie/proteine.ml" 417 10113 10133 "src/bacterie/proteine.ml" 417 10113 10139
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/bacterie/proteine.ml" 417 10113 10141 "src/bacterie/proteine.ml" 417 10113 10142
+type(
+  place_id
+)
+ident(
+  int_ref x "src/bacterie/proteine.ml" 417 10113 10125 "src/bacterie/proteine.ml" 417 10113 10126
+)
+"src/bacterie/proteine.ml" 417 10113 10133 "src/bacterie/proteine.ml" 417 10113 10143
+type(
+  place
+)
+"src/bacterie/proteine.ml" 417 10113 10133 "src/bacterie/proteine.ml" 417 10113 10153
+call(
+  tail
+)
+type(
+  token -> unit
+)
+"src/bacterie/proteine.ml" 417 10113 10154 "src/bacterie/proteine.ml" 417 10113 10155
+type(
+  token
+)
+ident(
+  int_ref y "src/bacterie/proteine.ml" 417 10113 10127 "src/bacterie/proteine.ml" 417 10113 10128
+)
+"src/bacterie/proteine.ml" 417 10113 10133 "src/bacterie/proteine.ml" 417 10113 10155
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 417 10113 10119 "src/bacterie/proteine.ml" 417 10113 10156
+type(
+  place_id * token -> unit
+)
+"src/bacterie/proteine.ml" 418 10157 10164 "src/bacterie/proteine.ml" 418 10157 10167
+type(
+  place_id list -> token list -> (place_id * token) list
+)
+ident(
+  ext_ref Misc_library.zip
+)
+"src/bacterie/proteine.ml" 418 10157 10169 "src/bacterie/proteine.ml" 418 10157 10180
+type(
+  transition array
+)
+ident(
+  ext_ref transitions
+)
+"src/bacterie/proteine.ml" 418 10157 10182 "src/bacterie/proteine.ml" 418 10157 10185
+type(
+  transition_id
+)
+ident(
+  int_ref tId "src/bacterie/proteine.ml" 409 9833 9861 "src/bacterie/proteine.ml" 409 9833 9864
+)
+"src/bacterie/proteine.ml" 418 10157 10169 "src/bacterie/proteine.ml" 418 10157 10186
+type(
+  transition
+)
+"src/bacterie/proteine.ml" 418 10157 10168 "src/bacterie/proteine.ml" 418 10157 10206
+call(
+  stack
+)
+type(
+  place_id list
+)
+"src/bacterie/proteine.ml" 418 10157 10207 "src/bacterie/proteine.ml" 418 10157 10218
+type(
+  token list
+)
+ident(
+  int_ref finalTokens "src/bacterie/proteine.ml" 414 10018 10026 "src/bacterie/proteine.ml" 414 10018 10037
+)
+"src/bacterie/proteine.ml" 418 10157 10163 "src/bacterie/proteine.ml" 418 10157 10219
+call(
+  stack
+)
+type(
+  (place_id * token) list
+)
+"src/bacterie/proteine.ml" 416 10099 10103 "src/bacterie/proteine.ml" 418 10157 10219
+call(
+  stack
+)
+type(
+  unit list
+)
+"src/bacterie/proteine.ml" 419 10221 10225 "src/bacterie/proteine.ml" 419 10221 10227
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 416 10099 10103 "src/bacterie/proteine.ml" 419 10221 10227
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 414 10018 10022 "src/bacterie/proteine.ml" 419 10221 10227
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 410 9892 9896 "src/bacterie/proteine.ml" 419 10221 10227
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 423 10336 10344 "src/bacterie/proteine.ml" 423 10336 10345
+type(
+  transition_id
+)
+ident(
+  def t "src/bacterie/proteine.ml" 424 10385 10389 "src/bacterie/proteine.ml" 424 10385 10413
+)
+"src/bacterie/proteine.ml" 423 10336 10348 "src/bacterie/proteine.ml" 423 10336 10369
+type(
+  transition_id list -> transition_id
+)
+ident(
+  ext_ref Misc_library.random_pick_from_list
+)
+"src/bacterie/proteine.ml" 423 10336 10370 "src/bacterie/proteine.ml" 423 10336 10381
+type(
+  transition_id list
+)
+ident(
+  ext_ref launchables
+)
+"src/bacterie/proteine.ml" 423 10336 10348 "src/bacterie/proteine.ml" 423 10336 10381
+call(
+  stack
+)
+type(
+  transition_id
+)
+"src/bacterie/proteine.ml" 424 10385 10389 "src/bacterie/proteine.ml" 424 10385 10393
+type(
+  'b
+)
+ident(
+  int_ref self "src/bacterie/proteine.ml" 375 8873 8879 "src/bacterie/proteine.ml" 375 8873 8885
+)
+"src/bacterie/proteine.ml" 424 10385 10389 "src/bacterie/proteine.ml" 424 10385 10411
+call(
+  tail
+)
+type(
+  transition_id -> unit
+)
+"src/bacterie/proteine.ml" 424 10385 10412 "src/bacterie/proteine.ml" 424 10385 10413
+type(
+  transition_id
+)
+ident(
+  int_ref t "src/bacterie/proteine.ml" 423 10336 10344 "src/bacterie/proteine.ml" 423 10336 10345
+)
+"src/bacterie/proteine.ml" 424 10385 10389 "src/bacterie/proteine.ml" 424 10385 10413
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 423 10336 10340 "src/bacterie/proteine.ml" 424 10385 10413
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 429 10517 10540 "src/bacterie/proteine.ml" 429 10517 10541
+type(
+  string
+)
+ident(
+  def m "src/bacterie/proteine.ml" 430 10555 10559 "src/bacterie/proteine.ml" 432 10628 10674
+)
+"src/bacterie/proteine.ml" 430 10555 10559 "src/bacterie/proteine.ml" 430 10555 10574
+type(
+  (int -> unit) -> int BatSet.PSet.t -> unit BatSet.PSet.t
+)
+ident(
+  ext_ref BatSet.PSet.map
+)
+"src/bacterie/proteine.ml" 431 10576 10587 "src/bacterie/proteine.ml" 431 10576 10588
+type(
+  int
+)
+ident(
+  def x "src/bacterie/proteine.ml" 431 10576 10592 "src/bacterie/proteine.ml" 431 10576 10625
+)
+"src/bacterie/proteine.ml" 431 10576 10592 "src/bacterie/proteine.ml" 431 10576 10598
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/bacterie/proteine.ml" 431 10576 10600 "src/bacterie/proteine.ml" 431 10576 10601
+type(
+  int
+)
+ident(
+  int_ref x "src/bacterie/proteine.ml" 431 10576 10587 "src/bacterie/proteine.ml" 431 10576 10588
+)
+"src/bacterie/proteine.ml" 431 10576 10592 "src/bacterie/proteine.ml" 431 10576 10602
+type(
+  place
+)
+"src/bacterie/proteine.ml" 431 10576 10592 "src/bacterie/proteine.ml" 431 10576 10625
+call(
+  tail
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 431 10576 10582 "src/bacterie/proteine.ml" 431 10576 10626
+type(
+  int -> unit
+)
+"src/bacterie/proteine.ml" 432 10628 10635 "src/bacterie/proteine.ml" 432 10628 10652
+type(
+  string -> (string, int) BatMultiPMap.t -> int BatSet.PSet.t
+)
+ident(
+  ext_ref BatMultiPMap.find
+)
+"src/bacterie/proteine.ml" 432 10628 10653 "src/bacterie/proteine.ml" 432 10628 10654
+type(
+  string
+)
+ident(
+  int_ref m "src/bacterie/proteine.ml" 429 10517 10540 "src/bacterie/proteine.ml" 429 10517 10541
+)
+"src/bacterie/proteine.ml" 432 10628 10655 "src/bacterie/proteine.ml" 432 10628 10673
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref input_message_book "src/bacterie/proteine.ml" 370 8756 8763 "src/bacterie/proteine.ml" 370 8756 8781
+)
+"src/bacterie/proteine.ml" 432 10628 10634 "src/bacterie/proteine.ml" 432 10628 10674
+call(
+  stack
+)
+type(
+  int BatSet.PSet.t
+)
+"src/bacterie/proteine.ml" 430 10555 10559 "src/bacterie/proteine.ml" 432 10628 10674
+call(
+  tail
+)
+type(
+  unit BatSet.PSet.t
+)
+"src/bacterie/proteine.ml" 434 10676 10695 "src/bacterie/proteine.ml" 434 10676 10696
+type(
+  container
+)
+ident(
+  def h "src/bacterie/proteine.ml" 434 10676 10710 "src/bacterie/proteine.ml" 436 10765 10771
+)
+"src/bacterie/proteine.ml" 435 10720 10724 "src/bacterie/proteine.ml" 435 10720 10733
+type(
+  (place -> unit) -> place array -> unit array
+)
+ident(
+  ext_ref Batteries.Array.map
+)
+"src/bacterie/proteine.ml" 435 10720 10739 "src/bacterie/proteine.ml" 435 10720 10740
+type(
+  place
+)
+ident(
+  def x "src/bacterie/proteine.ml" 435 10720 10744 "src/bacterie/proteine.ml" 435 10720 10755
+)
+"src/bacterie/proteine.ml" 435 10720 10744 "src/bacterie/proteine.ml" 435 10720 10745
+type(
+  place
+)
+ident(
+  int_ref x "src/bacterie/proteine.ml" 435 10720 10739 "src/bacterie/proteine.ml" 435 10720 10740
+)
+"src/bacterie/proteine.ml" 435 10720 10744 "src/bacterie/proteine.ml" 435 10720 10753
+call(
+  tail
+)
+type(
+  container -> unit
+)
+"src/bacterie/proteine.ml" 435 10720 10754 "src/bacterie/proteine.ml" 435 10720 10755
+type(
+  container
+)
+ident(
+  int_ref h "src/bacterie/proteine.ml" 434 10676 10695 "src/bacterie/proteine.ml" 434 10676 10696
+)
+"src/bacterie/proteine.ml" 435 10720 10744 "src/bacterie/proteine.ml" 435 10720 10755
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 435 10720 10734 "src/bacterie/proteine.ml" 435 10720 10756
+type(
+  place -> unit
+)
+"src/bacterie/proteine.ml" 435 10720 10757 "src/bacterie/proteine.ml" 435 10720 10763
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/bacterie/proteine.ml" 435 10720 10724 "src/bacterie/proteine.ml" 435 10720 10763
+call(
+  stack
+)
+type(
+  unit array
+)
+"src/bacterie/proteine.ml" 436 10765 10769 "src/bacterie/proteine.ml" 436 10765 10771
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 435 10720 10724 "src/bacterie/proteine.ml" 436 10765 10771
+type(
+  unit
+)
+type(
+  unit
+)
+"src/bacterie/proteine.ml" 438 10773 10792 "src/bacterie/proteine.ml" 438 10773 10793
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  def m "src/bacterie/proteine.ml" 438 10773 10806 "src/bacterie/proteine.ml" 442 10982 11030
+)
+"src/bacterie/proteine.ml" 438 10773 10807 "src/bacterie/proteine.ml" 438 10773 10810
+type(
+  string
+)
+ident(
+  def pat "src/bacterie/proteine.ml" 438 10773 10821 "src/bacterie/proteine.ml" 442 10982 11030
+)
+"src/bacterie/proteine.ml" 439 10831 10839 "src/bacterie/proteine.ml" 439 10831 10840
+type(
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 439 10831 10841 "src/bacterie/proteine.ml" 439 10831 10849
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  def catchers "src/bacterie/proteine.ml" 440 10863 10867 "src/bacterie/proteine.ml" 442 10982 11030
+)
+"src/bacterie/proteine.ml" 439 10831 10850 "src/bacterie/proteine.ml" 439 10831 10851
+type(
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 439 10831 10839 "src/bacterie/proteine.ml" 439 10831 10851
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+"src/bacterie/proteine.ml" 439 10831 10854 "src/bacterie/proteine.ml" 439 10831 10858
+type(
+  (string, int) BatMultiPMap.t * (string, int) BatMultiPMap.t *
+  (string, int) BatMultiPMap.t
+)
+ident(
+  ext_ref maps
+)
+"src/bacterie/proteine.ml" 440 10863 10871 "src/bacterie/proteine.ml" 440 10863 10878
+type(
+  int BatSet.PSet.t
+)
+ident(
+  def targets "src/bacterie/proteine.ml" 441 10915 10919 "src/bacterie/proteine.ml" 442 10982 11030
+)
+"src/bacterie/proteine.ml" 440 10863 10881 "src/bacterie/proteine.ml" 440 10863 10898
+type(
+  string -> (string, int) BatMultiPMap.t -> int BatSet.PSet.t
+)
+ident(
+  ext_ref BatMultiPMap.find
+)
+"src/bacterie/proteine.ml" 440 10863 10899 "src/bacterie/proteine.ml" 440 10863 10902
+type(
+  string
+)
+ident(
+  int_ref pat "src/bacterie/proteine.ml" 438 10773 10807 "src/bacterie/proteine.ml" 438 10773 10810
+)
+"src/bacterie/proteine.ml" 440 10863 10903 "src/bacterie/proteine.ml" 440 10863 10911
+type(
+  (string, int) BatMultiPMap.t
+)
+ident(
+  int_ref catchers "src/bacterie/proteine.ml" 439 10831 10841 "src/bacterie/proteine.ml" 439 10831 10849
+)
+"src/bacterie/proteine.ml" 440 10863 10881 "src/bacterie/proteine.ml" 440 10863 10911
+call(
+  stack
+)
+type(
+  int BatSet.PSet.t
+)
+"src/bacterie/proteine.ml" 441 10915 10923 "src/bacterie/proteine.ml" 441 10915 10933
+type(
+  int
+)
+ident(
+  def bindSiteId "src/bacterie/proteine.ml" 442 10982 10986 "src/bacterie/proteine.ml" 442 10982 11030
+)
+"src/bacterie/proteine.ml" 441 10915 10936 "src/bacterie/proteine.ml" 441 10915 10970
+type(
+  int BatSet.PSet.t -> int
+)
+ident(
+  ext_ref Misc_library.random_pick_from_PSet
+)
+"src/bacterie/proteine.ml" 441 10915 10971 "src/bacterie/proteine.ml" 441 10915 10978
+type(
+  int BatSet.PSet.t
+)
+ident(
+  int_ref targets "src/bacterie/proteine.ml" 440 10863 10871 "src/bacterie/proteine.ml" 440 10863 10878
+)
+"src/bacterie/proteine.ml" 441 10915 10936 "src/bacterie/proteine.ml" 441 10915 10978
+call(
+  stack
+)
+type(
+  int
+)
+"src/bacterie/proteine.ml" 442 10982 10986 "src/bacterie/proteine.ml" 442 10982 10992
+type(
+  place array
+)
+ident(
+  ext_ref places
+)
+"src/bacterie/proteine.ml" 442 10982 10994 "src/bacterie/proteine.ml" 442 10982 11004
+type(
+  int
+)
+ident(
+  int_ref bindSiteId "src/bacterie/proteine.ml" 441 10915 10923 "src/bacterie/proteine.ml" 441 10915 10933
+)
+"src/bacterie/proteine.ml" 442 10982 10986 "src/bacterie/proteine.ml" 442 10982 11005
+type(
+  place
+)
+"src/bacterie/proteine.ml" 442 10982 10986 "src/bacterie/proteine.ml" 442 10982 11028
+call(
+  tail
+)
+type(
+  Types.MyMolecule.molecule -> bool
+)
+"src/bacterie/proteine.ml" 442 10982 11029 "src/bacterie/proteine.ml" 442 10982 11030
+type(
+  Types.MyMolecule.molecule
+)
+ident(
+  int_ref m "src/bacterie/proteine.ml" 438 10773 10792 "src/bacterie/proteine.ml" 438 10773 10793
+)
+"src/bacterie/proteine.ml" 442 10982 10986 "src/bacterie/proteine.ml" 442 10982 11030
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 441 10915 10919 "src/bacterie/proteine.ml" 442 10982 11030
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 440 10863 10867 "src/bacterie/proteine.ml" 442 10982 11030
+type(
+  bool
+)
+"src/bacterie/proteine.ml" 439 10831 10835 "src/bacterie/proteine.ml" 442 10982 11030
+type(
+  bool
+)
+type(
+  bool
+)

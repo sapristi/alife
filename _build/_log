@@ -1,0 +1,98 @@
+### Starting build.
+# Target: src/libs/misc_library.ml.depends, tags: { annot, bin_annot, debug, extension:ml, file:src/libs/misc_library.ml, ocaml, ocamldep, pkg_batteries, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamldep -package batteries -modules src/libs/misc_library.ml > src/libs/misc_library.ml.depends # cached
+# Target: src/libs/misc_library.cmo, tags: { annot, bin_annot, byte, compile, debug, extension:cmo, extension:ml, file:src/libs/misc_library.cmo, file:src/libs/misc_library.ml, implem, ocaml, pkg_batteries, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -c -g -annot -bin-annot -package batteries -I src/libs -o src/libs/misc_library.cmo src/libs/misc_library.ml # cached
+# Target: src/libs/maps.ml.depends, tags: { annot, bin_annot, debug, extension:ml, file:src/libs/maps.ml, ocaml, ocamldep, pkg_batteries, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamldep -package batteries -modules src/libs/maps.ml > src/libs/maps.ml.depends # cached
+# Target: src/libs/maps.cmo, tags: { annot, bin_annot, byte, compile, debug, extension:cmo, extension:ml, file:src/libs/maps.cmo, file:src/libs/maps.ml, implem, ocaml, pkg_batteries, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -c -g -annot -bin-annot -package batteries -I src/libs -o src/libs/maps.cmo src/libs/maps.ml # cached
+# Target: src/libs/local_libs.cma, tags: { annot, bin_annot, byte, debug, extension:cma, file:src/libs/local_libs.cma, library, link, ocaml, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -a src/libs/misc_library.cmo src/libs/maps.cmo -o src/libs/local_libs.cma # cached
+# Target: src/libs/misc_library.cmx, tags: { annot, bin_annot, compile, debug, extension:cmx, extension:ml, file:src/libs/misc_library.cmx, file:src/libs/misc_library.ml, implem, native, ocaml, pkg_batteries, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -c -g -annot -bin-annot -package batteries -I src/libs -o src/libs/misc_library.cmx src/libs/misc_library.ml # cached
+# Target: src/libs/maps.cmx, tags: { annot, bin_annot, compile, debug, extension:cmx, extension:ml, file:src/libs/maps.cmx, file:src/libs/maps.ml, implem, native, ocaml, pkg_batteries, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -c -g -annot -bin-annot -package batteries -I src/libs -o src/libs/maps.cmx src/libs/maps.ml # cached
+# Target: src/libs/local_libs.cmxa, tags: { annot, bin_annot, debug, extension:cmxa, file:src/libs/local_libs.cmxa, library, link, native, ocaml, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -a src/libs/misc_library.cmx src/libs/maps.cmx -o src/libs/local_libs.cmxa # cached
+# Target: src/libs/local_libs.cmxs, tags: { annot, bin_annot, debug, extension:cmxs, file:src/libs/local_libs.cmxs, library, link, native, ocaml, quiet, shared, traverse, use_local_libs }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -shared src/libs/local_libs.cmxa src/libs/misc_library.cmx src/libs/maps.cmx -o src/libs/local_libs.cmxs
+# Target: src/bacterie/reactions.ml.depends, tags: { annot, bin_annot, debug, extension:ml, file:src/bacterie/reactions.ml, ocaml, ocamldep, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamldep -package batteries -modules src/bacterie/reactions.ml > src/bacterie/reactions.ml.depends # cached
+# Target: src/bacterie/reactions.cmo, tags: { annot, bin_annot, byte, compile, debug, extension:cmo, extension:ml, file:src/bacterie/reactions.cmo, file:src/bacterie/reactions.ml, implem, ocaml, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -c -g -annot -bin-annot -I src/libs -I src/bacterie -I src/bacterie -I src/bacterie -package batteries -I src/bacterie -I src/libs -o src/bacterie/reactions.cmo src/bacterie/reactions.ml # cached
+# Target: src/bacterie/reactions.cma, tags: { annot, bin_annot, byte, debug, extension:cma, file:src/bacterie/reactions.cma, library, link, ocaml, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -a src/bacterie/reactions.cmo -o src/bacterie/reactions.cma # cached
+# Target: src/bacterie/reactions.cmx, tags: { annot, bin_annot, compile, debug, extension:cmx, extension:ml, file:src/bacterie/reactions.cmx, file:src/bacterie/reactions.ml, implem, native, ocaml, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -c -g -annot -bin-annot -I src/libs -I src/bacterie -I src/bacterie -I src/bacterie -package batteries -I src/bacterie -I src/libs -o src/bacterie/reactions.cmx src/bacterie/reactions.ml # cached
+# Target: src/bacterie/reactions.cmxa, tags: { annot, bin_annot, debug, extension:cmxa, file:src/bacterie/reactions.cmxa, library, link, native, ocaml, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -a src/bacterie/reactions.cmx -o src/bacterie/reactions.cmxa # cached
+# Target: src/bacterie/reactions.cmxs, tags: { annot, bin_annot, debug, extension:cmxs, file:src/bacterie/reactions.cmxs, library, link, native, ocaml, quiet, shared, traverse, use_reactions }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -shared src/bacterie/reactions.cmxa src/bacterie/reactions.cmx -o src/bacterie/reactions.cmxs
+# Target: src/bacterie/molecule.ml.depends, tags: { annot, bin_annot, debug, extension:ml, file:src/bacterie/molecule.ml, ocaml, ocamldep, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamldep -package batteries -modules src/bacterie/molecule.ml > src/bacterie/molecule.ml.depends # cached
+# Target: src/bacterie/molecule.cmo, tags: { annot, bin_annot, byte, compile, debug, extension:cmo, extension:ml, file:src/bacterie/molecule.cmo, file:src/bacterie/molecule.ml, implem, ocaml, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -c -g -annot -bin-annot -I src/libs -I src/bacterie -I src/bacterie -I src/bacterie -package batteries -I src/bacterie -I src/libs -o src/bacterie/molecule.cmo src/bacterie/molecule.ml # cached
+# Target: src/bacterie/molecule.cma, tags: { annot, bin_annot, byte, debug, extension:cma, file:src/bacterie/molecule.cma, library, link, ocaml, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -a src/bacterie/molecule.cmo -o src/bacterie/molecule.cma # cached
+# Target: src/bacterie/molecule.cmx, tags: { annot, bin_annot, compile, debug, extension:cmx, extension:ml, file:src/bacterie/molecule.cmx, file:src/bacterie/molecule.ml, implem, native, ocaml, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -c -g -annot -bin-annot -I src/libs -I src/bacterie -I src/bacterie -I src/bacterie -package batteries -I src/bacterie -I src/libs -o src/bacterie/molecule.cmx src/bacterie/molecule.ml # cached
+# Target: src/bacterie/molecule.cmxa, tags: { annot, bin_annot, debug, extension:cmxa, file:src/bacterie/molecule.cmxa, library, link, native, ocaml, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -a src/bacterie/molecule.cmx -o src/bacterie/molecule.cmxa # cached
+# Target: src/bacterie/molecule.cmxs, tags: { annot, bin_annot, debug, extension:cmxs, file:src/bacterie/molecule.cmxs, library, link, native, ocaml, quiet, shared, traverse, use_molecule }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -shared src/bacterie/molecule.cmxa src/bacterie/molecule.cmx -o src/bacterie/molecule.cmxs
+# Target: src/bacterie/types.ml.depends, tags: { annot, bin_annot, debug, extension:ml, file:src/bacterie/types.ml, ocaml, ocamldep, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamldep -package batteries -modules src/bacterie/types.ml > src/bacterie/types.ml.depends # cached
+# Target: src/bacterie/types.cmo, tags: { annot, bin_annot, byte, compile, debug, extension:cmo, extension:ml, file:src/bacterie/types.cmo, file:src/bacterie/types.ml, implem, ocaml, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -c -g -annot -bin-annot -I src/libs -I src/bacterie -I src/bacterie -I src/bacterie -package batteries -I src/bacterie -I src/libs -o src/bacterie/types.cmo src/bacterie/types.ml # cached
+# Target: src/bacterie/types.cma, tags: { annot, bin_annot, byte, debug, extension:cma, file:src/bacterie/types.cma, library, link, ocaml, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -a src/bacterie/types.cmo -o src/bacterie/types.cma # cached
+# Target: src/bacterie/types.cmx, tags: { annot, bin_annot, compile, debug, extension:cmx, extension:ml, file:src/bacterie/types.cmx, file:src/bacterie/types.ml, implem, native, ocaml, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -c -g -annot -bin-annot -I src/libs -I src/bacterie -I src/bacterie -I src/bacterie -package batteries -I src/bacterie -I src/libs -o src/bacterie/types.cmx src/bacterie/types.ml # cached
+# Target: src/bacterie/types.cmxa, tags: { annot, bin_annot, debug, extension:cmxa, file:src/bacterie/types.cmxa, library, link, native, ocaml, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -a src/bacterie/types.cmx -o src/bacterie/types.cmxa # cached
+# Target: src/bacterie/types.cmxs, tags: { annot, bin_annot, debug, extension:cmxs, file:src/bacterie/types.cmxs, library, link, native, ocaml, quiet, shared, traverse, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -shared src/bacterie/types.cmxa src/bacterie/types.cmx -o src/bacterie/types.cmxs
+# Target: src/bacterie/proteine.ml.depends, tags: { annot, bin_annot, debug, extension:ml, file:src/bacterie/proteine.ml, ocaml, ocamldep, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamldep -package batteries -modules src/bacterie/proteine.ml > src/bacterie/proteine.ml.depends # cached
+# Target: src/bacterie/proteine.cmo, tags: { annot, bin_annot, byte, compile, debug, extension:cmo, extension:ml, file:src/bacterie/proteine.cmo, file:src/bacterie/proteine.ml, implem, ocaml, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -c -g -annot -bin-annot -I src/libs -I src/bacterie -I src/bacterie -I src/bacterie -package batteries -I src/bacterie -I src/libs -o src/bacterie/proteine.cmo src/bacterie/proteine.ml # cached
+# Target: src/bacterie/proteine.cma, tags: { annot, bin_annot, byte, debug, extension:cma, file:src/bacterie/proteine.cma, library, link, ocaml, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -a src/bacterie/proteine.cmo -o src/bacterie/proteine.cma # cached
+# Target: src/bacterie/proteine.cmx, tags: { annot, bin_annot, compile, debug, extension:cmx, extension:ml, file:src/bacterie/proteine.cmx, file:src/bacterie/proteine.ml, implem, native, ocaml, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -c -g -annot -bin-annot -I src/libs -I src/bacterie -I src/bacterie -I src/bacterie -package batteries -I src/bacterie -I src/libs -o src/bacterie/proteine.cmx src/bacterie/proteine.ml # cached
+# Target: src/bacterie/proteine.cmxa, tags: { annot, bin_annot, debug, extension:cmxa, file:src/bacterie/proteine.cmxa, library, link, native, ocaml, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -a src/bacterie/proteine.cmx -o src/bacterie/proteine.cmxa # cached
+# Target: src/bacterie/proteine.cmxs, tags: { annot, bin_annot, debug, extension:cmxs, file:src/bacterie/proteine.cmxs, library, link, native, ocaml, quiet, shared, traverse, use_proteine }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -shared src/bacterie/proteine.cmxa src/bacterie/proteine.cmx -o src/bacterie/proteine.cmxs
+# Target: src/bacterie/bacterie.ml.depends, tags: { annot, bin_annot, debug, extension:ml, file:src/bacterie/bacterie.ml, ocaml, ocamldep, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamldep -package batteries -modules src/bacterie/bacterie.ml > src/bacterie/bacterie.ml.depends
+# Target: src/bacterie/bacterie.cmo, tags: { annot, bin_annot, byte, compile, debug, extension:cmo, extension:ml, file:src/bacterie/bacterie.cmo, file:src/bacterie/bacterie.ml, implem, ocaml, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -c -g -annot -bin-annot -I src/libs -I src/bacterie -I src/bacterie -I src/bacterie -package batteries -I src/bacterie -I src/libs -o src/bacterie/bacterie.cmo src/bacterie/bacterie.ml
++ /home/sapristi/.opam/system/bin/ocamlfind ocamlc -c -g -annot -bin-annot -I src/libs -I src/bacterie -I src/bacterie -I src/bacterie -package batteries -I src/bacterie -I src/libs -o src/bacterie/bacterie.cmo src/bacterie/bacterie.ml
+File "src/bacterie/bacterie.ml", line 111, characters 4-144:
+Warning 10: this expression should have type unit.
+File "src/bacterie/bacterie.ml", line 119, characters 4-59:
+Warning 10: this expression should have type unit.
+File "src/bacterie/bacterie.ml", line 138, characters 4-131:
+Warning 10: this expression should have type unit.
+File "src/bacterie/bacterie.ml", line 149, characters 4-619:
+Warning 10: this expression should have type unit.
+# Target: src/bacterie/bacterie.cma, tags: { annot, bin_annot, byte, debug, extension:cma, file:src/bacterie/bacterie.cma, library, link, ocaml, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlc -a src/bacterie/proteine.cmo src/bacterie/bacterie.cmo -o src/bacterie/bacterie.cma
+# Target: src/bacterie/bacterie.cmx, tags: { annot, bin_annot, compile, debug, extension:cmx, extension:ml, file:src/bacterie/bacterie.cmx, file:src/bacterie/bacterie.ml, implem, native, ocaml, pkg_batteries, pkg_random, quiet, traverse, use_local_libs, use_molecule, use_proteine, use_types }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -c -g -annot -bin-annot -I src/libs -I src/bacterie -I src/bacterie -I src/bacterie -package batteries -I src/bacterie -I src/libs -o src/bacterie/bacterie.cmx src/bacterie/bacterie.ml
++ /home/sapristi/.opam/system/bin/ocamlfind ocamlopt -c -g -annot -bin-annot -I src/libs -I src/bacterie -I src/bacterie -I src/bacterie -package batteries -I src/bacterie -I src/libs -o src/bacterie/bacterie.cmx src/bacterie/bacterie.ml
+File "src/bacterie/bacterie.ml", line 111, characters 4-144:
+Warning 10: this expression should have type unit.
+File "src/bacterie/bacterie.ml", line 119, characters 4-59:
+Warning 10: this expression should have type unit.
+File "src/bacterie/bacterie.ml", line 138, characters 4-131:
+Warning 10: this expression should have type unit.
+File "src/bacterie/bacterie.ml", line 149, characters 4-619:
+Warning 10: this expression should have type unit.
+# Target: src/bacterie/bacterie.cmxa, tags: { annot, bin_annot, debug, extension:cmxa, file:src/bacterie/bacterie.cmxa, library, link, native, ocaml, quiet, traverse }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -a src/bacterie/proteine.cmx src/bacterie/bacterie.cmx -o src/bacterie/bacterie.cmxa
+# Target: src/bacterie/bacterie.cmxs, tags: { annot, bin_annot, debug, extension:cmxs, file:src/bacterie/bacterie.cmxs, library, link, native, ocaml, quiet, shared, traverse, use_bacterie }
+/home/sapristi/.opam/system/bin/ocamlfind ocamlopt -shared src/bacterie/bacterie.cmxa src/bacterie/proteine.cmx src/bacterie/bacterie.cmx -o src/bacterie/bacterie.cmxs
+# Compilation successful.
