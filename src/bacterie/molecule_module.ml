@@ -144,7 +144,7 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
       match h1, h2 with
       |  (m1, p1), (m2, p2) ->
 	 (Misc_library.insert m1 p1 m2), 0
-  end;
+  end
 
 	      
 end;;

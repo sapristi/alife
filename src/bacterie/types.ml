@@ -1,5 +1,5 @@
 
-open Molecule
+open Molecule_module
 
 
 (* on va d'abord essayer de définir les types des arcs correctement,
@@ -34,4 +34,4 @@ module MolTypes = struct
 end;;
 
 
-module MyMolecule = MolManagement(MolTypes);;
+module MyMolecule = MakeMoleculeManager(MolTypes);;
