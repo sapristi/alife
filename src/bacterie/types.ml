@@ -1,5 +1,5 @@
 
-open Molecule_module
+open Molecule
 
 
 (* on va d'abord essayer de définir les types des arcs correctement,

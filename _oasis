@@ -30,10 +30,10 @@ Library "reactions"
   
 
 Library "molecule"	
-  FindLibName : molecule_mod
+  FindLibName : molecule
   FindLibParent : bacterie
   Path: src/bacterie
-  Modules: Molecule_module
+  Modules: Molecule
   BuildDepends: local_libs
 
 
@@ -42,15 +42,15 @@ Library "types"
   FindLibParent : bacterie
   Path : src/bacterie
   Modules : Types
-  BuildDepends : bacterie.molecule_mod
+  BuildDepends : bacterie.molecule
 
 
 Library "proteine"
-  FindLibName : proteine_mod
+  FindLibName : proteine
   FindLibParent : bacterie
   Path: src/bacterie
-  Modules: Proteine_module
-  BuildDepends: batteries, bacterie.molecule_mod, local_libs
+  Modules: Proteine
+  BuildDepends: batteries, bacterie.molecule, local_libs
 
 
 Library "bacterie"
