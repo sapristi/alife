@@ -8,9 +8,8 @@
 *)
 
 open Batteries
-open Molecule_module
+open Molecule
 open Misc_library
-
 
 
 open Types
@@ -29,15 +28,16 @@ struct
   let set_mol mol token = MolHolder mol
 end;;
 
-
-
-type container = < send_message : string -> unit; add_molecule : molecule -> unit >;;
-
+type return_action =
+  | AddMol of MoleculeHolder.t
+  | SendMessage of string
+  | NoAction
+;;
 
 
 (* *************************************************************************
 				place
-   classe qui gère les places. Une place a un type, et peut contenir un jeton
+   module qui gère les places. Une place a un type, et peut contenir un jeton
    Initialisé seulement avec un type de place, ne contient pas de jeton au début
 *)
 
@@ -48,11 +48,10 @@ struct
       
   type t =
     {mutable tokenHolder : token_holder;
-     placeType : place_type;
-     host : container;}
+     placeType : place_type;}
 
-  let make (placeType : place_type) (host : container) : t =
-    {tokenHolder = EmptyHolder; placeType; host;}
+  let make (placeType : place_type) : t =
+    {tokenHolder = EmptyHolder; placeType;}
       
   let is_empty (p : t) : bool =
     p.tokenHolder = EmptyHolder
@@ -65,7 +64,7 @@ struct
     
   (* Token ajouté par le lancement d'une transition.
   Il faut appliquer les effets de bord suivant le type de place *)
-  let add_token_from_transition (inputToken : Token.t) (p : t) : unit=
+  let add_token_from_transition (inputToken : Token.t) (p : t) : return_action=
     if is_empty p
     then 
       match p.placeType with
@@ -75,21 +74,21 @@ struct
       | Release_place ->
 	 (
 	   match inputToken with
-	   | Token.Empty -> ()
-	   | Token.MolHolder m ->
-	      p.host#add_molecule (MoleculeHolder.get_molecule m)
+	   | Token.Empty -> set_token Token.empty p; NoAction
+	   | Token.MolHolder m -> set_token Token.empty p; AddMol m
 	 );
-	set_token Token.empty p   
+	   
 	   
       (* il faut faire broadcaster le message par l'host *)
       | Send_place s ->
 	 begin
-	   p.host#send_message s;
-	   set_token inputToken p
+	   set_token inputToken p;
+	   SendMessage s
 	 end
       (* il faut déplacer la molécule du token *)
       | Displace_mol_place b ->
 	 begin
+	   (
 	   match inputToken with
 	   | Token.Empty -> set_token inputToken p
 	   | Token.MolHolder m ->
@@ -98,8 +97,10 @@ struct
 		(Token.set_mol (MoleculeHolder.move_forward m) inputToken) p
 	      else set_token
 		(Token.set_mol (MoleculeHolder.move_backward m) inputToken) p
+	   );
+	   NoAction
 	 end
-      | _ ->  set_token inputToken p
+      | _ ->  set_token inputToken p; NoAction
     else
       failwith "non empty place received a token from a transition"
 	
@@ -133,14 +134,10 @@ end;;
 
 (*********************************************************************************
 				transitions
-
-
-classe qui gère les transitions 
-*)
+module qui gère les transitions **************************************************)
 
 module Transition =
 struct
-  
   type t  =
     {places : Place.t array;
      departure_places : int list;
@@ -236,14 +233,13 @@ struct
 end;;
 
 
-(*****************************************************************************************
-					protéine
+(*************************************************************************
+				   protéine
+		      				  réseau de Petri entier *)
 
-											  réseau de Petri entier *)
 
 module Proteine =
 struct
-  
   type t =
     {mol : molecule;
      transitions : Transition.t array;
@@ -254,7 +250,7 @@ struct
      mol_catchers_book : (string, int) BatMultiPMap.t ;}
       
     
-  let make (mol : molecule) (host : container) : t = 
+  let make (mol : molecule) : t = 
   (* liste des signatures des transitions *)
     let transitions_signatures_list = build_transitions mol
   (* liste des signatures des places *)
@@ -264,7 +260,7 @@ struct
    la liste de types données dans la molécule*)
     let places_list : Place.t list = 
       List.map 
-	(fun x -> Place.make x host)
+	(fun x -> Place.make x )
 	places_signatures_list
 	
     in 
@@ -339,7 +335,7 @@ struct
     init_launchables p
 
 
-  let launch_transition (tId : int) p : unit= 
+  let launch_transition (tId : int) p : return_action list= 
     let initialTokens =
       List.fold_left 
 	(fun l x ->
@@ -350,7 +346,7 @@ struct
     let finalTokens =
       Transition.transition_function initialTokens p.transitions.(tId)
     in
-    BatList.iter2
+    BatList.map2
       (fun token place_id ->
 	Place.add_token_from_transition token p.places.(place_id))
       finalTokens p.transitions.(tId).Transition.arrival_places

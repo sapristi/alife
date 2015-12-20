@@ -39,7 +39,7 @@ Alors comment on fait ???
 
 open Types.MyMolecule
 open Maps
-
+open Proteine
 
 (* Table d'association où les clés sont des molécules.
    Permet de stoquer efficacement la protéine associée 
@@ -58,95 +58,101 @@ module MolDoubleMap = MakeDoubleMultiMap
   (struct type t = molecule let compare = Pervasives.compare end)
 
 
-(* Classe qui simule une bactérie, 
-   c'est à dire organise la simulation des protéines. *)
-class bacterie = 
+
   
-  let update_map 
-    (mol : molecule)
-    (molMap : (string, int) BatMultiPMap.t)
-    (map : (string, molecule) BatMultiPMap.t) 
-    
-    :  (string, molecule) BatMultiPMap.t
-    = 
-    BatMultiPMap.foldi 
-      (fun k v m -> BatMultiPMap.add k mol m)
-      molMap 
-      map
-  
-  and update_bindings_map
-    (mol : molecule)
-    (leftMap : (string, int) BatMultiPMap.t)
-    (rightMap :  (string, int) BatMultiPMap.t)
-    (map : MolDoubleMap.set_pair MolDoubleMap.t)
-    : MolDoubleMap.set_pair MolDoubleMap.t
-    = 
-    BatMultiPMap.foldi
-      (fun k v m -> MolDoubleMap.add_left k mol m)
-      leftMap
-      (BatMultiPMap.foldi
-	 (fun k v m -> MolDoubleMap.add_right k mol m)
-	 rightMap
-	 map)
+module Bacterie =
+struct
+  type t =
+    {mutable molecules : (int * Proteine.t) MolMap.t;
+     mutable message_receptors_map :
+       (string, molecule) BatMultiPMap.t;
+     mutable mol_bindings_map :
+       MolDoubleMap.set_pair MolDoubleMap.t;
+     mutable message_queue : string list;}
 
-  in
-
-object(self)
-  val mutable molecules : (int * Proteine.proteine) MolMap.t = MolMap.empty
-  
-  val mutable message_receptors_map : 
-      (string, molecule) BatMultiPMap.t = 
-    BatMultiPMap.create String.compare Pervasives.compare
-    
-  val mutable mol_bindings_map :
-      MolDoubleMap.set_pair MolDoubleMap.t
-      = MolDoubleMap.empty
-
-  val mutable message_queue = []
-
-  method send_message (s : string) : unit = 
-    message_queue <- s :: message_queue
       
-  method launch_message (m : string) : unit = 
-    BatSet.PSet.map 
+  let launch_message (m : string) (bact : t) : unit = 
+    BatSet.PSet.iter 
       (fun x -> 
-	let _,p = MolMap.find x molecules in
-	p#send_message m)
-      (BatMultiPMap.find m message_receptors_map);
-    ()
+	let _,p = MolMap.find x bact.molecules in
+	Proteine.send_message m p)
+      (BatMultiPMap.find m bact.message_receptors_map)
+    
+  let pop_all_messages (bact:t) : unit = 
+    List.iter (fun x -> launch_message x bact) bact.message_queue;
+    bact.message_queue <- []
 
-  method pop_all_messages : unit = 
-    List.map (fun x -> self#launch_message x) message_queue;
-    message_queue <- []
 
-
-  method add_molecule (m : molecule) : unit = 
-    if MolMap.mem m molecules
+  let add_molecule (m : molecule) (bact : t) : unit =
+    
+    let update_map 
+	(mol : molecule)
+	(molMap : (string, int) BatMultiPMap.t)
+	(map : (string, molecule) BatMultiPMap.t) 
+	
+	:  (string, molecule) BatMultiPMap.t
+	= 
+      BatMultiPMap.foldi 
+	(fun k v m -> BatMultiPMap.add k mol m)
+	molMap 
+	map
+	
+    and update_bindings_map
+	(mol : molecule)
+	(leftMap : (string, int) BatMultiPMap.t)
+	(rightMap :  (string, int) BatMultiPMap.t)
+	(map : MolDoubleMap.set_pair MolDoubleMap.t)
+	: MolDoubleMap.set_pair MolDoubleMap.t
+	= 
+      BatMultiPMap.foldi
+	(fun k v m -> MolDoubleMap.add_left k mol m)
+	leftMap
+	(BatMultiPMap.foldi
+	   (fun k v m -> MolDoubleMap.add_right k mol m)
+	   rightMap
+	   map)	
+    in
+    if MolMap.mem m bact.molecules
     then 
-      molecules <- MolMap.modify m (fun x -> let y,z = x in (y+1,z)) molecules
+      bact.molecules <- MolMap.modify m (fun x -> let y,z = x in (y+1,z)) bact.molecules
     else
-      let p = new Proteine.proteine m in
-      p#set_host (self :> Proteine.container);
-      let messageMap, catchersMap, handlesMap = p#get_maps in
-      message_receptors_map <- update_map m messageMap message_receptors_map;
-      mol_bindings_map <- update_bindings_map m handlesMap catchersMap mol_bindings_map;
-      molecules <- MolMap.add m (1,p) molecules;
+      let p = Proteine.make m in
+      bact.message_receptors_map <- update_map m p.Proteine.message_receptors_book bact.message_receptors_map;
+      bact.mol_bindings_map <- update_bindings_map m p.Proteine.handles_book p.Proteine.mol_catchers_book bact.mol_bindings_map;
+      bact.molecules <- MolMap.add m (1,p) bact.molecules
+
+
+  (* il faudrait peut-être mettre dans une file les molécules à ajouter *)
+  let rec execute_actions (actions : return_action list) (bact : t) : unit =
+    match actions with
+    | AddMol mh :: actions' ->
+       add_molecule (MoleculeHolder.get_molecule mh) bact;
+      execute_actions actions' bact
+    | SendMessage m :: actions' ->
+       bact.message_queue <- m :: bact.message_queue;
+      execute_actions actions' bact
+    | NoAction :: actions' -> execute_actions actions' bact
+    | [] -> ()
+
+       let bind_to 
+    (boundMol : molecule) 
+    (hostMol : molecule) 
+    (bindPattern : string)
+    (bact : t)
+    : unit = 
+    
+    let (_,p) = MolMap.find hostMol bact.molecules
+    in 
+    let reac_result = Proteine.bind_mol boundMol bindPattern p
+    in
+    if reac_result
+    then 
+      bact.molecules <- MolMap.rel_change_mol_quantity boundMol (-1) bact.molecules
+    else
+      ()
       
-    
-    
-  method step_simulate : unit = 
-    MolMap.map
-      (fun x -> let (n, prot) = x in  
-		for i = 1 to n do
-		  prot#launch_random_transition
-		done)
-      molecules;
-    self#make_bindings;
-    self#pop_all_messages
-
-
-  method make_bindings : unit = 
-    MolDoubleMap.mapi
+  let make_bindings (bact : t) : unit = 
+    MolDoubleMap.iter
       (fun 
 	(pattern : string) 
 	(mols : MolDoubleMap.set_pair) -> 
@@ -154,35 +160,32 @@ object(self)
 	let handles_l = MolDoubleMap.Set.to_list handles and catchers_l = MolDoubleMap.Set.to_list catchers in
 	let couples_list = Misc_library.get_all_couples handles_l catchers_l
 	in 
-	List.map 
+	List.iter 
 	  (fun x -> 
 	    let (handle, catcher) = x in
-	    let handle_num, _ = MolMap.find handle molecules 
-	    and catcher_num, _ = MolMap.find catcher molecules
+	    let handle_num, _ = MolMap.find handle bact.molecules 
+	    and catcher_num, _ = MolMap.find catcher bact.molecules
 	    in
 	    if Reactions.react handle_num catcher_num
-	    then self#bind_to handle catcher pattern
+	    then bind_to handle catcher pattern bact
 	  )
 	  couples_list)
-      mol_bindings_map;
+      bact.mol_bindings_map;
     ()
-      
-      
-  method bind_to 
-    (boundMol : molecule) 
-    (hostMol : molecule) 
-    (bindPattern : string) 
-    : unit = 
-    
-    let (_,p) = MolMap.find hostMol molecules
-    in 
-    let reac_result = p#bind_mol boundMol bindPattern
-    in
-    if reac_result
-    then 
-      molecules <- MolMap.rel_change_mol_quantity boundMol (-1) molecules
-    else
-      ()
 
 
-end
+	
+  let step_simulate (bact : t) : unit = 
+    MolMap.iter
+      (fun k x -> let (n, prot) = x in  
+		  for i = 1 to n do
+		    let actions = Proteine.launch_random_transition prot in
+		    execute_actions actions bact
+		  done)
+      bact.molecules;
+    make_bindings bact;
+    pop_all_messages bact
+      
+  
+  
+end;;

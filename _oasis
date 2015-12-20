@@ -55,6 +55,6 @@ Library "proteine"
 
 Library "bacterie"
   Path: src/bacterie
-  Modules: 
-#  BuildDepends: local_libs, bacterie.proteine, bacterie.molecule,  batteries, bacterie.types
+  Modules: Bacterie_module
+  BuildDepends: local_libs, bacterie.proteine, bacterie.molecule,  batteries, bacterie.types
 
