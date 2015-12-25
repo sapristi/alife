@@ -5,8 +5,16 @@ open Misc_library
 module type MOLECULE_TYPES = 
 sig 
   type nodeType
+      [@@deriving show]
   type inputLinkType
+      [@@deriving show]
   type outputLinkType
+      [@@deriving show]
+    (*
+  val nodeType_to_string : nodeType -> string
+  val inputLinkType_to_string : inputLinkType -> string
+  val outputLinkType_to_string : outputLinkType -> string
+    *)
 end;;
 
 
@@ -19,25 +27,26 @@ struct
     | InputLink of string * MolTypes.inputLinkType
     | OutputLink of string * MolTypes.outputLinkType
     | Information of string
+      [@@deriving show]
 
   type molecule = acid list
+      [@@deriving show]
     
   type position = int
+      [@@deriving show]
 
   type transition_structure = 
     string * 
       (int * MolTypes.inputLinkType ) list * 
       (int * MolTypes.outputLinkType) list
+      [@@deriving show]
 
-
-
-	  
-  
+					 
 (* Il faut ensuite construire pour chaque transition 
    les tableaux des arcs entrants et sortants. *)
 
-(* Putain mais n'importe quoi. On fait tout en un seul passage
-sur la molecule, en espérant qu'il n'y ait pas trop de transitions.
+(* On fait tout en un seul passage sur la molecule, en espérant 
+qu'il n'y ait pas trop de transitions.
 On retourne une liste contenant les items (transID, inputLinks, outputLinks)
  *)
 
@@ -93,7 +102,7 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
       | InputLink (s,d) :: mol' -> aux mol' nodeN (insert_new_input nodeN s d transL)
       | OutputLink (s,d) :: mol' -> aux mol' nodeN (insert_new_output nodeN s d transL)
       | Information _ :: mol' -> aux mol' nodeN transL
-      | [] -> []
+      | [] -> transL
 	 
     in 
     aux mol 0 []
@@ -111,6 +120,7 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
   module MoleculeHolder =
   struct 
     type t = molecule * int
+      [@@deriving show]
 	  
     let is_empty (h : t) : bool = 
       let m,p = h in m = []

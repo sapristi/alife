@@ -22,54 +22,66 @@ open MyMolecule
 module Token =
 struct 
   type t = Empty | MolHolder of MoleculeHolder.t
+      [@@deriving show]
   let is_empty token = token = Empty
   let empty = Empty
   let make mol = MolHolder mol
   let set_mol mol token = MolHolder mol
-end;;
+
+  let to_string token =
+    match token with
+    | Empty -> "token (empty)"
+    | MolHolder mh -> "token (molecule)"
+end
 
 type return_action =
   | AddMol of MoleculeHolder.t
   | SendMessage of string
   | NoAction
-;;
+      [@@deriving show]
 
 
-(* *************************************************************************
+(* ********************************************************
 				place
-   module qui gère les places. Une place a un type, et peut contenir un jeton
-   Initialisé seulement avec un type de place, ne contient pas de jeton au début
+   Module qui gère les places. Une place a un type, et peut 
+   contenir un jeton. Initialisé seulement avec un type de 
+   place.
 *)
 
 
 module Place =
 struct 
   type token_holder = EmptyHolder | OccupiedHolder of Token.t
+      [@@deriving show]
       
   type t =
     {mutable tokenHolder : token_holder;
      placeType : place_type;}
+      [@@deriving show]
 
   let make (placeType : place_type) : t =
-    {tokenHolder = EmptyHolder; placeType;}
+    if placeType = Initial_place
+    then {tokenHolder = OccupiedHolder Token.empty; placeType;}
+    else {tokenHolder = EmptyHolder; placeType;}
       
   let is_empty (p : t) : bool =
     p.tokenHolder = EmptyHolder
     
   let remove_token (p : t) : unit=
     p.tokenHolder <- EmptyHolder
-    
+      
   let set_token (token : Token.t) (p : t) : unit =
     p.tokenHolder <- OccupiedHolder token
-    
+      
   (* Token ajouté par le lancement d'une transition.
-  Il faut appliquer les effets de bord suivant le type de place *)
+     Il faut appliquer les effets de bord suivant le type de place *)
   let add_token_from_transition (inputToken : Token.t) (p : t) : return_action=
     if is_empty p
     then 
       match p.placeType with
 	
-      (* il faut dire à l'host qu'on a  relaché la molecule attachée au token
+      (* il faut dire à l'host qu'on a  relaché la 
+	 molecule attachée au token.
 	 est ce qu'on vire aussi le token ??? *)
       | Release_place ->
 	 (
@@ -103,7 +115,16 @@ struct
       | _ ->  set_token inputToken p; NoAction
     else
       failwith "non empty place received a token from a transition"
-	
+
+
+  let dot_output (nId : int) (node : t) : string =
+    let token_string = 
+      match node.tokenHolder with
+      | EmptyHolder -> "no token"
+      | OccupiedHolder token -> Token.to_string token
+    in 
+    "p"^(string_of_int nId)^" [shape = record, label = \"{" ^ show_place_type node.placeType ^ "|" ^ token_string ^ "}\"];\n"
+    
 
 (* Token ajouté par un broadcast de message.
    Il faudrait peut-être bien vérifier que la place reçoit des messages,
@@ -132,9 +153,9 @@ struct
 end;;
 
 
-(*********************************************************************************
-				transitions
-module qui gère les transitions **************************************************)
+(**********************************************
+                 transitions
+***********************************************)
 
 module Transition =
 struct
@@ -145,6 +166,7 @@ struct
      departure_links : input_link list;
      arrival_links : output_link list;
     }
+      [@@deriving show]
 
   let launchable (transition : t) =
     let places_are_occupied (places :  Place.t array) (to_try : int list): bool =
@@ -160,7 +182,9 @@ struct
     && (places_are_occupied transition.places transition.departure_places)
       
       
-  let make (places : Place.t array) (depL : (int * input_link) list) (arrL : (int * output_link) list) =
+  let make (places : Place.t array)
+      (depL : (int * input_link) list)
+      (arrL : (int * output_link) list) =
   let departure_places, departure_links = unzip depL and 
       arrival_places, arrival_links = unzip arrL 
   in {places; departure_places; arrival_places;
@@ -229,7 +253,15 @@ struct
       (input_transition_function
 	 transition.departure_links
 	 inputTokens)
-
+      
+  let dot_output (tId : int) (trans : t) : string =
+    (List.fold_left
+       (fun s x -> "p"^(string_of_int x)^" -> t"^(string_of_int tId)^";\n"^s)
+       "" trans.departure_places)
+    ^
+      (List.fold_left
+	 (fun s x -> "t"^(string_of_int tId)^" -> p"^(string_of_int x)^";\n"^s)
+	 "" trans.arrival_places)
 end;;
 
 
@@ -260,7 +292,7 @@ struct
    la liste de types données dans la molécule*)
     let places_list : Place.t list = 
       List.map 
-	(fun x -> Place.make x )
+	(fun x -> Place.make x)
 	places_signatures_list
 	
     in 
@@ -351,9 +383,12 @@ struct
 	Place.add_token_from_transition token p.places.(place_id))
       finalTokens p.transitions.(tId).Transition.arrival_places
       
-  let launch_random_transition p = 
-    let t = random_pick_from_list p.launchables in
-    launch_transition t p
+  let launch_random_transition p : return_action list =
+    if not (p.launchables = [])
+    then 
+      let t = random_pick_from_list p.launchables in
+      launch_transition t p
+    else []
 
       
   (* relaie le message aux places concernées, créant ainsi
@@ -367,7 +402,32 @@ struct
     let targets = BatMultiPMap.find pat p.mol_catchers_book in
     let bindSiteId = Misc_library.random_pick_from_PSet targets in
     Place.add_token_from_binding m p.places.(bindSiteId)
+
+
+  let dot_output (p : t) : string =
+    let rec gen_names prefix suffix n =
+      if n = 0 then ""
+      else prefix^(string_of_int n)^suffix^
+	(gen_names prefix suffix (n-1))
+    in
+    let intro = "digraph G {\n"
+    and graph_edges =
+      Array.fold_left
+	(fun s (id,x) -> (Transition.dot_output id x)^s)
+	"" (Array.mapi (fun n x -> (n+1,x)) p.transitions)
+    and graph_places =
+      Array.fold_left (^) ""
+	(Array.mapi (fun n x -> Place.dot_output (n+1) x)
+	   p.places)
+	
+    and graph_transitions =
+      gen_names "t" " [shape = square];\n" (Array.length p.transitions)
+    and outro = "}\n"
+    in intro ^ graph_edges ^ graph_places ^ graph_transitions ^ outro
       
+  let to_string (prot : t) : string =
+    (string_of_int (Array.length prot.transitions)) ^ " transitions\n" ^
+      (string_of_int (Array.length prot.places)) ^ " places\n";
 end;;
 
 

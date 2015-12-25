@@ -70,7 +70,14 @@ struct
        MolDoubleMap.set_pair MolDoubleMap.t;
      mutable message_queue : string list;}
 
-      
+
+  let empty : t = 
+    {molecules =  MolMap.empty;
+     message_receptors_map = BatMultiPMap.create compare compare;
+     mol_bindings_map = MolDoubleMap.empty;
+     message_queue = [];}
+
+    
   let launch_message (m : string) (bact : t) : unit = 
     BatSet.PSet.iter 
       (fun x -> 
