@@ -5,16 +5,12 @@ open Misc_library
 module type MOLECULE_TYPES = 
 sig 
   type nodeType
-      [@@deriving show]
+      [@@deriving show, yojson]
   type inputLinkType
-      [@@deriving show]
+      [@@deriving show, yojson]
   type outputLinkType
-      [@@deriving show]
-    (*
-  val nodeType_to_string : nodeType -> string
-  val inputLinkType_to_string : inputLinkType -> string
-  val outputLinkType_to_string : outputLinkType -> string
-    *)
+    [@@deriving show, yojson]
+
 end;;
 
 
@@ -27,10 +23,10 @@ struct
     | InputLink of string * MolTypes.inputLinkType
     | OutputLink of string * MolTypes.outputLinkType
     | Information of string
-      [@@deriving show]
+      [@@deriving show, yojson]
 
   type molecule = acid list
-      [@@deriving show]
+      [@@deriving show, yojson]
     
   type position = int
       [@@deriving show]
@@ -47,8 +43,7 @@ struct
 
 (* On fait tout en un seul passage sur la molecule, en espérant 
 qu'il n'y ait pas trop de transitions.
-On retourne une liste contenant les items (transID, inputLinks, outputLinks)
- *)
+On retourne une liste contenant les items (transID, inputLinks, outputLinks)  *)
 
   let build_transitions (mol : molecule) :
       transition_structure list = 
@@ -114,13 +109,12 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)
     | Node d :: mol' -> d :: (build_nodes_list mol')
     | _ :: mol' -> build_nodes_list mol'
     | [] -> []
-  
 
-
+    
   module MoleculeHolder =
   struct 
     type t = molecule * int
-      [@@deriving show]
+      [@@deriving show, yojson]
 	  
     let is_empty (h : t) : bool = 
       let m,p = h in m = []

@@ -34,7 +34,7 @@ Library "molecule"
   FindLibParent : bacterie
   Path: src/bacterie
   Modules: Molecule
-  BuildDepends: local_libs
+  BuildDepends: local_libs, yojson, ppx_deriving_yojson
 
 
 Library "types"
@@ -42,7 +42,7 @@ Library "types"
   FindLibParent : bacterie
   Path : src/bacterie
   Modules : Types
-  BuildDepends : bacterie.molecule, ppx_deriving.show
+  BuildDepends : bacterie.molecule, ppx_deriving.show, yojson, ppx_deriving_yojson
 
 
 Library "proteine"
@@ -50,7 +50,7 @@ Library "proteine"
   FindLibParent : bacterie
   Path: src/bacterie
   Modules: Proteine
-  BuildDepends: batteries, bacterie.molecule, local_libs
+  BuildDepends: batteries, bacterie.molecule, local_libs, yojson
 
 
 Library "bacterie"
@@ -59,8 +59,14 @@ Library "bacterie"
   BuildDepends: local_libs, bacterie.proteine, bacterie.molecule,  batteries, bacterie.types
 
 
+Library "serveur"
+  Path: src/gui
+  Modules: Serveur
+  BuildDepends: unix, bacterie.proteine
+
+
 Executable "test"
   Path : src/
   MainIs : test.ml
-  BuildDepends : bacterie.proteine, bacterie.molecule,  batteries, bacterie.types
+  BuildDepends : bacterie.proteine, bacterie.molecule,  batteries, bacterie.types, serveur
   ByteOpt:  -g

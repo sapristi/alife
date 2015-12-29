@@ -125,7 +125,15 @@ struct
     in 
     "p"^(string_of_int nId)^" [shape = record, label = \"{" ^ show_place_type node.placeType ^ "|" ^ token_string ^ "}\"];\n"
     
+  let to_json_dot (nId : int) (node : t)  =
+    let token_string = 
+      match node.tokenHolder with
+      | EmptyHolder -> "no token"
+      | OccupiedHolder token -> Token.to_string token
+    in 
+    `String ("p"^(string_of_int nId)^" [shape = record, label = \"{" ^ show_place_type node.placeType ^ "|" ^ token_string ^ "}\"];")
 
+      
 (* Token ajouté par un broadcast de message.
    Il faudrait peut-être bien vérifier que la place reçoit des messages,
    que le message correspond, tout ça tout ça *)
@@ -262,6 +270,17 @@ struct
       (List.fold_left
 	 (fun s x -> "t"^(string_of_int tId)^" -> p"^(string_of_int x)^";\n"^s)
 	 "" trans.arrival_places)
+
+
+  let to_json_dot  (tId : int) (trans : t) : Yojson.Safe.json list =
+    (List.fold_left
+       (fun l x -> (`String ("p"^(string_of_int x)^" -> t"^(string_of_int tId)^";"))::l)
+       [] trans.departure_places)
+    @
+      (List.fold_left
+	 (fun l x -> (`String ("t"^(string_of_int tId)^" -> p"^(string_of_int x)^";\n"))::l)
+	 [] trans.arrival_places)
+
 end;;
 
 
@@ -427,7 +446,29 @@ struct
       
   let to_string (prot : t) : string =
     (string_of_int (Array.length prot.transitions)) ^ " transitions\n" ^
-      (string_of_int (Array.length prot.places)) ^ " places\n";
+      (string_of_int (Array.length prot.places)) ^ " places\n"
+    
+
+  let to_json_dot (p : t) =
+    let rec gen_names prefix suffix n =
+      if n = 0 then []
+      else `String (prefix^(string_of_int n)^suffix) :: 
+	(gen_names prefix suffix (n-1))
+    in
+    let intro = `String "digraph G {\n"
+
+    and graph_edges =
+      Array.fold_left
+	(fun l (id,x) -> (Transition.to_json_dot id x)@l) []
+	(Array.mapi (fun n x -> (n+1,x)) p.transitions)
+    and graph_places =
+      Array.fold_left (fun l x -> x ::l) []
+	(Array.mapi (fun n x -> Place.to_json_dot (n+1) x) p.places)
+	
+    and graph_transitions =
+      gen_names "t" " [shape = square];" (Array.length p.transitions)
+    and outro = `String "}"
+    in `List ([intro] @ graph_edges @ graph_places @ graph_transitions @ [outro])
 end;;
 
 
