@@ -32,6 +32,13 @@ struct
     match token with
     | Empty -> "token (empty)"
     | MolHolder mh -> "token (molecule)"
+
+
+  let to_json token =
+    match token with
+    | Empty -> `String "token (empty)"
+    | MolHolder mh -> `String "token (molecule)"
+    
 end
 
 type return_action =
@@ -53,7 +60,12 @@ module Place =
 struct 
   type token_holder = EmptyHolder | OccupiedHolder of Token.t
       [@@deriving show]
-      
+
+  let token_holder_to_json (th : token_holder) : Yojson.Safe.json =
+    match th with
+    | EmptyHolder -> `String "no token"
+    | OccupiedHolder t -> Token.to_json t
+       
   type t =
     {mutable tokenHolder : token_holder;
      placeType : place_type;}
@@ -117,30 +129,12 @@ struct
       failwith "non empty place received a token from a transition"
 
 
-  let dot_output (nId : int) (node : t) : string =
-    let token_string = 
-      match node.tokenHolder with
-      | EmptyHolder -> "no token"
-      | OccupiedHolder token -> Token.to_string token
-    in 
-    "p"^(string_of_int nId)^" [shape = record, label = \"{" ^ show_place_type node.placeType ^ "|" ^ token_string ^ "}\"];\n"
-    
-  let to_json_dot (nId : int) (node : t)  =
-    let token_string = 
-      match node.tokenHolder with
-      | EmptyHolder -> "no token"
-      | OccupiedHolder token -> Token.to_string token
-    in 
-    `String ("p"^(string_of_int nId)^" [shape = record, label = \"{" ^ show_place_type node.placeType ^ "|" ^ token_string ^ "}\"];")
-
-      
 (* Token ajouté par un broadcast de message.
    Il faudrait peut-être bien vérifier que la place reçoit des messages,
    que le message correspond, tout ça tout ça *)
   let add_token_from_message (p : t) : unit =
     if is_empty p
     then set_token Token.empty p
-
 
   (* on renvoie un booléen pour faire remonter facilement si 
      le binding était possible ou pas *)
@@ -157,7 +151,26 @@ struct
     | EmptyHolder -> failwith "cannot pop token from empty place"
     | OccupiedHolder token ->
        ( remove_token p;
-	 token ) 
+	 token )
+	 
+  let dot_output (nId : int) (node : t) : string =
+    let token_string = 
+      match node.tokenHolder with
+      | EmptyHolder -> "no token"
+      | OccupiedHolder token -> Token.to_string token
+    in 
+    "p"^(string_of_int nId)^" [shape = record, label = \"{" ^ show_place_type node.placeType ^ "|" ^ token_string ^ "}\"];"
+    
+  let to_json_dot (nId : int) (node : t)  =
+    let token_string = 
+      match node.tokenHolder with
+      | EmptyHolder -> "no token"
+      | OccupiedHolder token -> Token.to_string token
+    in 
+    `String ("p"^(string_of_int nId)^" [shape = record, label = \"{" ^ show_place_type node.placeType ^ "|" ^ token_string ^ "}\"];")
+
+  let to_json (p : t) =
+    `Assoc [("token", token_holder_to_json p.tokenHolder); ("type", Types.place_type_to_yojson p.placeType)]
 end;;
 
 
@@ -264,11 +277,11 @@ struct
       
   let dot_output (tId : int) (trans : t) : string =
     (List.fold_left
-       (fun s x -> "p"^(string_of_int x)^" -> t"^(string_of_int tId)^";\n"^s)
+       (fun s x -> "p"^(string_of_int x)^" -> t"^(string_of_int tId)^";"^s)
        "" trans.departure_places)
     ^
       (List.fold_left
-	 (fun s x -> "t"^(string_of_int tId)^" -> p"^(string_of_int x)^";\n"^s)
+	 (fun s x -> "t"^(string_of_int tId)^" -> p"^(string_of_int x)^";"^s)
 	 "" trans.arrival_places)
 
 
@@ -278,9 +291,19 @@ struct
        [] trans.departure_places)
     @
       (List.fold_left
-	 (fun l x -> (`String ("t"^(string_of_int tId)^" -> p"^(string_of_int x)^";\n"))::l)
+	 (fun l x -> (`String ("t"^(string_of_int tId)^" -> p"^(string_of_int x)^";"))::l)
 	 [] trans.arrival_places)
 
+
+  let to_json (trans : t) : Yojson.Safe.json =
+    `Assoc [
+      "dep_places",
+      `List (List.map2
+	       (fun x y -> `List (`Int x :: [Types.input_link_to_yojson y]))
+		 trans.departure_places trans.departure_links);
+      "arr_places", 
+      `List (List.map2 (fun x y -> `List (`Int x :: [Types.output_link_to_yojson y])) trans.arrival_places trans.arrival_links);]
+      
 end;;
 
 
@@ -423,39 +446,28 @@ struct
     Place.add_token_from_binding m p.places.(bindSiteId)
 
 
-  let dot_output (p : t) : string =
-    let rec gen_names prefix suffix n =
-      if n = 0 then ""
-      else prefix^(string_of_int n)^suffix^
-	(gen_names prefix suffix (n-1))
-    in
-    let intro = "digraph G {\n"
-    and graph_edges =
-      Array.fold_left
-	(fun s (id,x) -> (Transition.dot_output id x)^s)
-	"" (Array.mapi (fun n x -> (n+1,x)) p.transitions)
-    and graph_places =
-      Array.fold_left (^) ""
-	(Array.mapi (fun n x -> Place.dot_output (n+1) x)
-	   p.places)
-	
-    and graph_transitions =
-      gen_names "t" " [shape = square];\n" (Array.length p.transitions)
-    and outro = "}\n"
-    in intro ^ graph_edges ^ graph_places ^ graph_transitions ^ outro
+      (* il manque les livres, on verra plus tard, 
+	 c'est déjà pas mal *)
+  let to_json (p : t) =
+    `Assoc [
+      "places",
+      `List (Array.to_list (Array.map Place.to_json p.places));
+      "transitions",
+      `List (Array.to_list (Array.map Transition.to_json p.transitions));
+      "molecule",
+      molecule_to_yojson p.mol;
+      "launchables",
+      `List (List.map (fun x -> `Int x) p.launchables);]
       
-  let to_string (prot : t) : string =
-    (string_of_int (Array.length prot.transitions)) ^ " transitions\n" ^
-      (string_of_int (Array.length prot.places)) ^ " places\n"
-    
 
+      
   let to_json_dot (p : t) =
     let rec gen_names prefix suffix n =
       if n = 0 then []
       else `String (prefix^(string_of_int n)^suffix) :: 
 	(gen_names prefix suffix (n-1))
     in
-    let intro = `String "digraph G {\n"
+    let intro = `String "digraph G {"
 
     and graph_edges =
       Array.fold_left
@@ -468,7 +480,7 @@ struct
     and graph_transitions =
       gen_names "t" " [shape = square];" (Array.length p.transitions)
     and outro = `String "}"
-    in `List ([intro] @ graph_edges @ graph_places @ graph_transitions @ [outro])
+    in `List ([intro]  @ graph_places @ graph_transitions @ graph_edges @ [outro])
 end;;
 
 

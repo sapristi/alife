@@ -1,11 +1,29 @@
 import socket
 import sys
 import select
-
+import json
 
 import tkinter as tk
 
 
+from graphviz import Digraph
+
+class DotGraph(Digraph):
+    def __init__(self, desc):
+        Digraph.__init__(self, format = "gif")
+        for i, val in enumerate(desc["places"]):
+            self.node('p'+str(i), "{"+val["type"][0] + "|" + val["token"] + "}", shape="record")
+
+        for i, val in enumerate(desc["transitions"]):
+            tname = 't'+str(i)
+            self.node(tname)
+            for valbis in val["dep_places"]:
+                self.edge('p'+str(valbis[0]), tname)
+
+            for valbis in val["arr_places"]:
+                self.edge(tname, 'p'+str(valbis[0]))
+        
+        
 class NetworkClient:
     
     def __init__(self):
@@ -17,19 +35,15 @@ class NetworkClient:
         self.s.connect((self.HOST, self.PORT))
         self.s.setblocking(0)
 
-
     def get_initial_data(self) :
-        print('sending request')
         self.s.send("gibinitdata\n".encode('utf-8'))
-        print('request send; waiting for answer')
-#        data = self.s.recv(4096)
-#        print('answer received')
-#        return data
+        data = self.s.recv(4096)
+        return data
 
     def get_dot_desc(self) :
         self.s.send("gibdotdata\n".encode('utf-8'))
-#        data = self.s.recv(4096)
-#        return data
+        data = self.s.recv(4096)
+        return data
 
 
     def get_answer(self) :
@@ -50,28 +64,57 @@ class Application(tk.Frame):
         self.pack()
         self.createWidgets()
         self.nc = nc
-        self.nc.connect()
+        self.graph = None
+        self.graph_image = None
 
     def createWidgets(self):
-        self.init_b = tk.Button(self)
+        self.button_frame = tk.Frame(self)
+        self.image_frame = tk.Frame(self)
+
+        self.get_dot_b = tk.Button(self.button_frame)
+        self.get_dot_b["text"] = "connect"
+        self.get_dot_b["command"] = self.connect
+        self.get_dot_b.pack(side="top")
+        
+        self.init_b = tk.Button(self.button_frame)
         self.init_b["text"] = "init"
         self.init_b["command"] = self.init_data
         self.init_b.pack(side="top")
 
-        self.get_dot_b = tk.Button(self)
-        self.get_dot_b["text"] = "get_dot"
-        self.get_dot_b["command"] = self.get_dot
-        self.get_dot_b.pack(side="top")
+        self.print_dot_b = tk.Button(self.button_frame)
+        self.print_dot_b["text"] = "draw_graph"
+        self.print_dot_b["command"] = self.draw_graph
+        self.print_dot_b.pack(side="top")
+
+        self.cv = tk.Canvas(self.image_frame)
+        self.cv.pack(side='right')
         
-        self.QUIT = tk.Button(self, text="QUIT", fg="red", command=self.quit_program)
+        self.QUIT = tk.Button(self.button_frame, text="QUIT", fg="red", command=self.quit_program)
         self.QUIT.pack(side="bottom")
 
+        self.button_frame.pack(side="left")
+        self.image_frame.pack(side="right")
+        
+
+    def connect(self):
+        self.nc.connect()
+        
     def init_data(self):
-        self.nc.get_initial_data()
+        data = self.nc.get_initial_data()
+        s = data.decode('utf-8')
+        print("initialised with " + s)
+        self.graph = DotGraph(json.loads(s))
 
-    def get_dot(self):
-        self.nc.get_dot_desc()
 
+    def draw_graph(self):
+        self.graph.render(filename="temp_graph")
+        self.graph_image = tk.PhotoImage(file = "temp_graph.gif")
+        print("resizing canvas", "height =", self.graph_image.height(), "width = ", self.graph_image.width())
+        self.cv.config(width=self.graph_image.width(), height=self.graph_image.height())
+        self.cv.pack(side = "right")
+        self.cv.create_image(0,0,anchor = "nw", image=self.graph_image)
+        
+        
     def quit_program(self):
         self.nc.disconnect()
         root.destroy()
@@ -86,7 +129,7 @@ def recv_msg():
     client.get_answer()
     root.after(20, recv_msg)
 
-root.after(20, recv_msg)
+#root.after(20, recv_msg)
 
 app.mainloop()
 

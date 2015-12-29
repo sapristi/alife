@@ -100,7 +100,7 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)  *)
       | [] -> transL
 	 
     in 
-    aux mol 0 []
+    aux mol (-1) []
     
       
 (* Construit la liste des noeuds, dans l'ordre rencontré. *)

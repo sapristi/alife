@@ -27,6 +27,7 @@ let make_server server_fun port =
 
 
 let make_prot_interface (prot : Proteine.t) ic oc  =
+  
   try while true do
       let s = input_line ic in
       (
@@ -34,19 +35,20 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	then
 	  (
 	    print_endline "asking for initdata";
-	    let to_send = ((Yojson.Safe.to_string (`Assoc ["data", molecule_to_yojson prot.Proteine.mol]))^"\n") in
+	    let to_send = (Yojson.Safe.to_string (Proteine.to_json prot)) in
+	    print_endline to_send;
 	    output_string oc to_send;
 	    flush oc;
-	    print_string to_send
+	  (*	    print_string to_send*)
 	  )
 	else if s = "gibdotdata"
 	then
 	  (
 	    print_endline "asking for dotdata";
-	    let to_send = ((Yojson.Safe.to_string (`Assoc ["dot", Proteine.to_json_dot prot]))^"\n") in
+	    let to_send = ((Yojson.Safe.to_string (`Assoc ["dot", Proteine.to_json_dot prot]))) in
 	    output_string oc to_send;
 	    flush oc;
-	    print_string to_send
+	  (*	    print_string to_send*)
 	  )
 	else print_endline ("unknown command: "^s)
       );
