@@ -44,11 +44,6 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	else if s = "gibdotdata"
 	then
 	  (
-	    print_endline "asking for dotdata";
-	    let to_send = ((Yojson.Safe.to_string (`Assoc ["dot", Proteine.to_json_dot prot]))) in
-	    output_string oc to_send;
-	    flush oc;
-	  (*	    print_string to_send*)
 	  )
 	else print_endline ("unknown command: "^s)
       );
