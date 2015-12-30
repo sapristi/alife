@@ -38,7 +38,8 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	then
 	  (
 	    print_endline "asking for initdata; sending...";
-	    let to_send = (Yojson.Safe.to_string (Proteine.to_json prot)) in
+	    let json_data = `Assoc ["initdata", (Proteine.to_json prot)] in
+	    let to_send = Yojson.Safe.to_string json_data in
 	    output_string oc to_send;
 	    flush oc;
 	    print_endline "initdata sent";
@@ -47,8 +48,8 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	then
 	  (
 	    print_endline "asking for updatedata; sending...";
-	    let to_send =
-	      (Yojson.Safe.to_string (Proteine.to_json_update prot)) in
+	    let json_data = `Assoc ["updatedata", (Proteine.to_json_update prot)] in 
+	    let to_send = Yojson.Safe.to_string json_data in
 	    output_string oc to_send;
 	    flush oc;
 	    print_endline "updatedata sent";
@@ -57,13 +58,17 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	then
 	  (
 	    print_endline "asked to launch transition";
-	    print_endline s;
-	    print_endline (Yojson.Basic.to_string json_command);
 	    let tId = int_of_string (Bytes.to_string (json_command |> Yojson.Basic.Util.member "arg" |> Yojson.Basic.Util.to_string)) in
 	    print_endline("launching transition "^(string_of_int tId)); 
 	    Proteine.launch_transition tId prot;
 	    Proteine.update_launchables prot;
 	    print_endline (Yojson.Safe.to_string (Proteine.to_json_update prot));
+	    
+	    let json_data = `Assoc ["transition_launch", `Bool true] in
+	    let to_send = Yojson.Safe.to_string json_data in
+	    output_string oc to_send;
+	    flush oc;
+	    print_endline "transition launch report sent";
 	  )
 	else if command = "quit"
 	then
