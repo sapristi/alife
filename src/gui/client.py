@@ -86,7 +86,9 @@ class Application(tk.Frame):
         self.graph = None
         self.graph_image = None
         self.graph_data = None
+#        self.bind("<Configure>", self.pack())
 
+    
     # crée un graphe initial à partir des infos 
     def init_data(self):
         self.nc.ask_initial_data()
@@ -104,6 +106,7 @@ class Application(tk.Frame):
                 print("received init data, creating graph")
                 self.graph_data = json_data["initdata"]
                 self.draw_graph()
+                self.text.insert(tk.INSERT, json_data["initdata"]["molecule"])
                 
             if "updatedata" in json_data:
                 print("received update data, updating graph")
@@ -148,6 +151,7 @@ class Application(tk.Frame):
         self.button_frame = tk.Frame(self)
         self.simul_frame = tk.Frame(self)
         self.image_frame = tk.Frame(self)
+        self.text_frame = tk.Frame(self)
 
         # boutons admin
         self.get_dot_b = tk.Button(self.button_frame, text="connect", command=self.connect)
@@ -174,11 +178,16 @@ class Application(tk.Frame):
         #canvas pour dessiner
         self.cv = tk.Canvas(self.image_frame)
         self.cv.pack(side='right')
+
+        # texte pour changer la molécule
+        self.text = tk.Text(self.text_frame)
+        self.text.pack()
         
         #pack final
         self.button_frame.pack(side="left")
         self.simul_frame.pack(side = "left")
-        self.image_frame.pack(side="right")
+        self.image_frame.pack(side="left")
+        self.text_frame.pack(side= "right")
         
     def quit_program(self):
         self.nc.disconnect()
