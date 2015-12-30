@@ -283,7 +283,7 @@ struct
     {mol : molecule;
      transitions : Transition.t array;
      places : Place.t array;
-     launchables : int list;
+     mutable launchables : int list;
      message_receptors_book : (string, int) BatMultiPMap.t ;
      handles_book : (string, int) BatMultiPMap.t ;
      mol_catchers_book : (string, int) BatMultiPMap.t ;}
@@ -359,7 +359,7 @@ struct
 	then t_l := i :: !t_l
 	else ()
       done;
-      {p with launchables = (!t_l)}
+      p.launchables <- !t_l
     end
 
       
@@ -370,7 +370,7 @@ struct
      (du coup, faire plus efficace devient un peu du bazar)
      on peut faire beaucoup plus efficace, mais pour l'instant 
      on fait au plus simple *)
-  let update_launchables p=
+  let update_launchables p = 
     init_launchables p
 
 
@@ -423,6 +423,14 @@ struct
       molecule_to_yojson p.mol;
       "launchables",
       `List (List.map (fun x -> `Int x) p.launchables);]
+
+  let to_json_update (p:t) =
+    `Assoc [
+      "places",
+      `List (Array.to_list (Array.map Place.to_json p.places));
+      "launchables",
+      `List (List.map (fun x -> `Int x) p.launchables);]
+
       
 end;;
 

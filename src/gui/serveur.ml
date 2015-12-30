@@ -27,23 +27,49 @@ let make_server server_fun port =
 
 
 let make_prot_interface (prot : Proteine.t) ic oc  =
-  
+  Proteine.update_launchables prot;
   try while true do
       let s = input_line ic in
+      let json_command = Yojson.Basic.from_string s in
+      let command = json_command |> Yojson.Basic.Util.member "command" |> Yojson.Basic.Util.to_string in 
       (
-	if s = "gibinitdata"
+	print_endline s;
+	if command = "gibinitdata"
 	then
 	  (
-	    print_endline "asking for initdata";
+	    print_endline "asking for initdata; sending...";
 	    let to_send = (Yojson.Safe.to_string (Proteine.to_json prot)) in
-	    print_endline to_send;
 	    output_string oc to_send;
 	    flush oc;
-	  (*	    print_string to_send*)
+	    print_endline "initdata sent";
 	  )
-	else if s = "gibdotdata"
+	else if command = "gibupdatedata"
 	then
 	  (
+	    print_endline "asking for updatedata; sending...";
+	    let to_send =
+	      (Yojson.Safe.to_string (Proteine.to_json_update prot)) in
+	    output_string oc to_send;
+	    flush oc;
+	    print_endline "updatedata sent";
+	  )
+	else if command = "launch"
+	then
+	  (
+	    print_endline "asked to launch transition";
+	    print_endline s;
+	    print_endline (Yojson.Basic.to_string json_command);
+	    let tId = int_of_string (Bytes.to_string (json_command |> Yojson.Basic.Util.member "arg" |> Yojson.Basic.Util.to_string)) in
+	    print_endline("launching transition "^(string_of_int tId)); 
+	    Proteine.launch_transition tId prot;
+	    Proteine.update_launchables prot;
+	    print_endline (Yojson.Safe.to_string (Proteine.to_json_update prot));
+	  )
+	else if command = "quit"
+	then
+	  (
+	    print_endline "received quit command; exiting";
+	    flush stdout ; exit 0 ;
 	  )
 	else print_endline ("unknown command: "^s)
       );
