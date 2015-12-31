@@ -27,7 +27,7 @@ let make_server server_fun port =
 
 
 let make_prot_interface (prot : Proteine.t) ic oc  =
-  Proteine.update_launchables prot;
+  let p = ref prot in 
   try while true do
       let s = input_line ic in
       let json_command = Yojson.Basic.from_string s in
@@ -38,7 +38,7 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	then
 	  (
 	    print_endline "asking for initdata; sending...";
-	    let json_data = `Assoc ["initdata", (Proteine.to_json prot)] in
+	    let json_data = `Assoc ["initdata", (Proteine.to_json !p)] in
 	    let to_send = Yojson.Safe.to_string json_data in
 	    output_string oc to_send;
 	    flush oc;
@@ -48,7 +48,7 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	then
 	  (
 	    print_endline "asking for updatedata; sending...";
-	    let json_data = `Assoc ["updatedata", (Proteine.to_json_update prot)] in 
+	    let json_data = `Assoc ["updatedata", (Proteine.to_json_update !p)] in 
 	    let to_send = Yojson.Safe.to_string json_data in
 	    output_string oc to_send;
 	    flush oc;
@@ -60,15 +60,38 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	    print_endline "asked to launch transition";
 	    let tId = int_of_string (Bytes.to_string (json_command |> Yojson.Basic.Util.member "arg" |> Yojson.Basic.Util.to_string)) in
 	    print_endline("launching transition "^(string_of_int tId)); 
-	    Proteine.launch_transition tId prot;
-	    Proteine.update_launchables prot;
-	    print_endline (Yojson.Safe.to_string (Proteine.to_json_update prot));
+	    Proteine.launch_transition tId !p;
+	    Proteine.update_launchables !p;
+	    print_endline (Yojson.Safe.to_string (Proteine.to_json_update !p));
 	    
 	    let json_data = `Assoc ["transition_launch", `Bool true] in
 	    let to_send = Yojson.Safe.to_string json_data in
 	    output_string oc to_send;
 	    flush oc;
 	    print_endline "transition launch report sent";
+	  )
+	else if command = "new_mol"
+	then
+	  (
+	    print_endline "simulating new molecule"; 
+	    try 
+	      let new_mol_str = Bytes.to_string (json_command |> Yojson.Basic.Util.member "arg" |> Yojson.Basic.Util.to_string) in 
+	      print_endline new_mol_str;
+	      let new_mol_json = Yojson.Safe.from_string new_mol_str in 
+	      let new_mol = molecule_of_yojson new_mol_json in
+	      match new_mol with
+	      | `Ok mol ->
+		 (
+		   p := Proteine.make mol;
+		   print_endline "new_mol, sending initdata...";
+		   let json_data = `Assoc ["initdata", (Proteine.to_json !p)] in
+		   let to_send = Yojson.Safe.to_string json_data in
+		   output_string oc to_send;
+		   flush oc;
+		   print_endline "initdata sent"
+		 )
+	      | `Error s -> print_endline ("error : "^ s)
+	    with _ -> print_endline "problem decoding molecule"
 	  )
 	else if command = "quit"
 	then

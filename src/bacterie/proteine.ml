@@ -288,6 +288,13 @@ struct
      handles_book : (string, int) BatMultiPMap.t ;
      mol_catchers_book : (string, int) BatMultiPMap.t ;}
       
+  let get_launchables (ts : Transition.t array) =
+    let t_l = ref [] in 
+    for i = 0 to Array.length ts -1 do
+      if Transition.launchable ts.(i)
+      then t_l := i :: !t_l
+      else ()
+    done; !t_l
     
   let make (mol : molecule) : t = 
   (* liste des signatures des transitions *)
@@ -347,20 +354,9 @@ struct
     let (message_receptors_book, mol_catchers_book, handles_book) = 
       create_books places_signatures_list 0
     in 
-    {mol; transitions; places; launchables = [];
+    {mol; transitions; places; launchables = (get_launchables transitions);
      message_receptors_book; handles_book; mol_catchers_book;}
-      
-      
-  let init_launchables p = 
-    let t_l = ref [] in 
-    begin
-      for i = 0 to Array.length p.transitions -1 do
-	if Transition.launchable p.transitions.(i)
-	then t_l := i :: !t_l
-	else ()
-      done;
-      p.launchables <- !t_l
-    end
+
 
       
   (* mettre à jour les transitions qui peuvent être lancées.
@@ -370,8 +366,9 @@ struct
      (du coup, faire plus efficace devient un peu du bazar)
      on peut faire beaucoup plus efficace, mais pour l'instant 
      on fait au plus simple *)
-  let update_launchables p = 
-    init_launchables p
+  let update_launchables p =
+    p.launchables <- get_launchables p.transitions
+
 
 
   let launch_transition (tId : int) p : return_action list= 

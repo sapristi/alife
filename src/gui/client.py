@@ -62,6 +62,11 @@ class NetworkClient:
         req = json.dumps({"command" : "launch", "arg" : tId})
         print("sending request :", req)
         self.s.send((req + "\n").encode('utf-8'))
+
+    def ask_new_mol(self, new_mol):
+        req = json.dumps({"command" : "new_mol", "arg" : new_mol})
+        print("sending request :", req)
+        self.s.send((req + "\n").encode('utf-8'))
         
     def get_answer(self) :
         ready = select.select([self.s], [], [], 0)
@@ -106,7 +111,7 @@ class Application(tk.Frame):
                 print("received init data, creating graph")
                 self.graph_data = json_data["initdata"]
                 self.draw_graph()
-                self.text.insert(tk.INSERT, json_data["initdata"]["molecule"])
+                self.text.insert("1.0", json_data["initdata"]["molecule"])
                 
             if "updatedata" in json_data:
                 print("received update data, updating graph")
@@ -124,6 +129,10 @@ class Application(tk.Frame):
     def launch_transition(self):
         self.nc.ask_transition_launch(self.var_select.get())
 
+    def set_new_mol(self):
+        new_mol_str = (self.text.get("1.0", tk.END)).replace("'", '"')
+        json.dumps(new_mol_str)
+        self.nc.ask_new_mol(new_mol_str)
         
     # updates the drop down menu to select transitions to launch
     def update_launchables(self, new_launchables):
@@ -174,6 +183,11 @@ class Application(tk.Frame):
         self.var_select.set("...")
         self.select_trans_l = tk.OptionMenu(self.simul_frame, self.var_select, "...")
         self.select_trans_l.pack(side="bottom")
+
+        
+        self.new_mol_b = tk.Button(self.simul_frame, text = "new mol", command = self.set_new_mol)
+        self.new_mol_b.pack(side="top")
+
         
         #canvas pour dessiner
         self.cv = tk.Canvas(self.image_frame)
