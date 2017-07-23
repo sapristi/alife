@@ -17,7 +17,7 @@
 open Batteries
 open Molecule
 open Misc_library
-open Moltypes
+open Custom_types
 open MyMolecule
 
 
