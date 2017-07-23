@@ -14,11 +14,17 @@ from graphviz import Digraph
 class DotGraph(Digraph):
     def __init__(self, desc):
         Digraph.__init__(self, format = "gif")
-        self.desc = desc 
+        self.desc = desc
+
+        temp_place = None
+        # crée les nœuds correspondant aux places, et des arcs entre celles-ci
         for i, val in enumerate(desc["places"]):
             self.node('p'+str(i), "{"+val["type"][0] + "|" + val["token"] + "}", shape="record")
 
-        # on crée les places et les arcs
+            if i>0:
+                self.edge('p'+str(i-1), 'p'+str(i), constraint = "false")
+            
+        # ajoute les nœuds correspondant aux transitions, et les arcs correspondants 
         for i, val in enumerate(desc["transitions"]):
             if i in self.desc["launchables"]:
                 color = "red"

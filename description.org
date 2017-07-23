@@ -200,6 +200,8 @@ façon dont les arcs des transitions se combinent.
 Pour que les bactéries puissent avoir un comportement efficace, il faudrait qu'il y ait de l'information 
 ambiante, qui représente plusieurs aspects du monde alentour, que les bactéries puissent mesurer.
 
-* TODO
-  
-  + ajouter des arcs entre tous les nœuds dans le client ?
+* Stuff to do
+
+*** DONE ajouter des arcs entre tous les nœuds dans le client ?
+*** TODO Clarifier les dénominations, en particulier input et output links
+*** TODO Bugs quand le client demande une transition et que ce n'est pas possible
