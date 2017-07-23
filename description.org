@@ -1,3 +1,19 @@
+* Setting up
+
+** Stuff to install 
+
+Using opam, install 
+ - batteries
+ - ppx_deriving.show 
+ - ppx_deriving.yojson
+
+Also requires OCaml, python3 with python3-graphviz and python3-tk
+
+** Usefull stuff
+ Installing with opam :
+ - merlin (completion and errors detection in emacs)
+ - utop (advanced top-level)
+
 * Tasks
 ** Plein de trucs
 

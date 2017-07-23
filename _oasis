@@ -27,7 +27,7 @@ Library "reactions"
   FindLibParent : bacterie
   Path: src/bacterie
   Modules: Reactions
-  
+
 
 Library "molecule"	
   FindLibName : molecule

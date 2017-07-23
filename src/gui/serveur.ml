@@ -80,17 +80,18 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	      let new_mol_json = Yojson.Safe.from_string new_mol_str in 
 	      let new_mol = molecule_of_yojson new_mol_json in
 	      match new_mol with
-	      | `Ok mol ->
-		 (
-		   p := Proteine.make mol;
-		   print_endline "new_mol, sending initdata...";
-		   let json_data = `Assoc ["initdata", (Proteine.to_json !p)] in
-		   let to_send = Yojson.Safe.to_string json_data in
-		   output_string oc to_send;
-		   flush oc;
-		   print_endline "initdata sent"
-		 )
-	      | `Error s -> print_endline ("error : "^ s)
+              | Ok mol ->
+	         (
+	           p := Proteine.make mol;
+	           print_endline "new_mol, sending initdata...";
+	           let json_data = `Assoc ["initdata", (Proteine.to_json !p)] in
+	           let to_send = Yojson.Safe.to_string json_data in
+	           output_string oc to_send;
+	           flush oc;
+	           print_endline "initdata sent"
+	         )
+	      | Error s -> print_endline ("error : "^ s)
+                          
 	    with _ -> print_endline "problem decoding molecule"
 	  )
 	else if command = "quit"
