@@ -1,0 +1,55 @@
+# OASIS_START
+# DO NOT EDIT (digest: 18d526da70007b40eee0ae2a8fcf6b24)
+version = "0.1"
+description = "Simulating life and stuff"
+requires =
+"local_libs bacterie.proteine bacterie.molecule batteries bacterie.types"
+archive(byte) = "bacterie.cma"
+archive(byte, plugin) = "bacterie.cma"
+archive(native) = "bacterie.cmxa"
+archive(native, plugin) = "bacterie.cmxs"
+exists_if = "bacterie.cma"
+package "types" (
+ version = "0.1"
+ description = "Simulating life and stuff"
+ requires = "bacterie.molecule ppx_deriving.show yojson ppx_deriving_yojson"
+ archive(byte) = "types.cma"
+ archive(byte, plugin) = "types.cma"
+ archive(native) = "types.cmxa"
+ archive(native, plugin) = "types.cmxs"
+ exists_if = "types.cma"
+)
+
+package "reactions" (
+ version = "0.1"
+ description = "Simulating life and stuff"
+ archive(byte) = "reactions.cma"
+ archive(byte, plugin) = "reactions.cma"
+ archive(native) = "reactions.cmxa"
+ archive(native, plugin) = "reactions.cmxs"
+ exists_if = "reactions.cma"
+)
+
+package "proteine" (
+ version = "0.1"
+ description = "Simulating life and stuff"
+ requires = "batteries bacterie.molecule local_libs yojson"
+ archive(byte) = "proteine.cma"
+ archive(byte, plugin) = "proteine.cma"
+ archive(native) = "proteine.cmxa"
+ archive(native, plugin) = "proteine.cmxs"
+ exists_if = "proteine.cma"
+)
+
+package "molecule" (
+ version = "0.1"
+ description = "Simulating life and stuff"
+ requires = "local_libs yojson ppx_deriving_yojson"
+ archive(byte) = "molecule.cma"
+ archive(byte, plugin) = "molecule.cma"
+ archive(native) = "molecule.cmxa"
+ archive(native, plugin) = "molecule.cmxs"
+ exists_if = "molecule.cma"
+)
+# OASIS_STOP
+

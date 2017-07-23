@@ -1,17 +1,22 @@
-(*
-#load "../build/misc_library.cmo";;
-#load "../build/molecule.cmo";;
-#directory "../build";;
 
+(*
 #use "topfind";;
 #require "batteries";;
-*)
+#require "yojson" ;;
+#require "ppx_deriving_yojson";;
+
+#directory "/home/sapristi/Documents/projets/alife/_build/src/libs";;
+#directory "/home/sapristi/Documents/projets/alife/_build/src/bacterie";;
+
+    
+#load "misc_library.cmo";;
+#load "molecule.cmo";;
+ *)
+
 
 open Batteries
 open Molecule
 open Misc_library
-
-
 open Types
 open MyMolecule
 
