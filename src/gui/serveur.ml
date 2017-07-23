@@ -40,7 +40,12 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	    print_endline "asking for initdata; sending...";
 	    let json_data = `Assoc ["initdata", (Proteine.to_json !p)] in
 	    let to_send = Yojson.Safe.to_string json_data in
-	    output_string oc to_send;
+
+            
+            print_endline "sending data ...";
+            print_endline to_send;
+            
+            output_string oc to_send;
 	    flush oc;
 	    print_endline "initdata sent";
 	  )
@@ -50,6 +55,10 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	    print_endline "asking for updatedata; sending...";
 	    let json_data = `Assoc ["updatedata", (Proteine.to_json_update !p)] in 
 	    let to_send = Yojson.Safe.to_string json_data in
+
+            print_endline "sending update data ...";
+            print_endline to_send;
+                        
 	    output_string oc to_send;
 	    flush oc;
 	    print_endline "updatedata sent";
@@ -73,17 +82,20 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	else if command = "new_mol"
 	then
 	  (
-	    print_endline "simulating new molecule"; 
+	    print_endline "received new molecule, decoding..."; 
 	    try 
 	      let new_mol_str = Bytes.to_string (json_command |> Yojson.Basic.Util.member "arg" |> Yojson.Basic.Util.to_string) in 
 	      print_endline new_mol_str;
-	      let new_mol_json = Yojson.Safe.from_string new_mol_str in 
+              let new_mol_json =  Yojson.Safe.from_string new_mol_str in
+
+              print_endline  (Yojson.Safe.to_string new_mol_json);
+              
 	      let new_mol = molecule_of_yojson new_mol_json in
 	      match new_mol with
               | Ok mol ->
 	         (
 	           p := Proteine.make mol;
-	           print_endline "new_mol, sending initdata...";
+	           print_endline "new mol decoded, sending new initdata to client...";
 	           let json_data = `Assoc ["initdata", (Proteine.to_json !p)] in
 	           let to_send = Yojson.Safe.to_string json_data in
 	           output_string oc to_send;

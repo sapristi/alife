@@ -50,7 +50,7 @@ Library "proteine"
   FindLibParent : bacterie
   Path: src/bacterie
   Modules: Proteine
-  BuildDepends: batteries, bacterie.molecule, local_libs, yojson
+  BuildDepends: batteries, bacterie.molecule, local_libs, yojson, ppx_deriving_yojson
 
 
 Library "bacterie"
@@ -63,6 +63,7 @@ Library "serveur"
   Path: src/gui
   Modules: Serveur
   BuildDepends: unix, bacterie.proteine, bacterie.custom_types
+
 
 
 Executable "test"

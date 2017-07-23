@@ -3,16 +3,16 @@
 ** Stuff to install 
 
 Using opam, install 
- - batteries
- - ppx_deriving.show 
- - ppx_deriving.yojson
+ + batteries
+ + ppx_deriving.show 
+ + ppx_deriving.yojson
 
 Also requires OCaml, python3 with python3-graphviz and python3-tk
 
 ** Usefull stuff
  Installing with opam :
- - merlin (completion and errors detection in emacs)
- - utop (advanced top-level)
+ + merlin (completion and errors detection in emacs)
+ + utop (advanced top-level)
 
 * Tasks
 ** Plein de trucs
@@ -101,6 +101,7 @@ On crée un type acid (aminé), qui est :
  + soit un Node Comme on le vera dans la partie suivante, un noeud doit pouvoir recevoir des messages et attraper des molécules.
  + soit un InputLink (s,d) où s représente la transition vers laquelle l'arc pointe, et d va permettre de construire la fonction de transion. 
    Le noeud associé est le noeud précédent dans la liste d'acides qui représente la molécule.
+ + soit un OutputLink (s,d) ** à compléter ** 
 
 Une molécule est donc une liste d'acides aminés.
 
@@ -167,9 +168,9 @@ Le réseau de Petri est étendu de manière à pouvoir générer les comportemen
  + (Transmettre de l'information)
 
 
-L'idée est de pouvoir associer une molécule (et un emplacement de cette molécule) à un jeton.
-Une transition pourra alors découper cette molécule à l'emplacement spécifié. Il faudra alors 
-que deux arcs sortant associent une molécule à leur jeton pour garder les deux parties coupées.
+L'idée est de pouvoir associer une molécule M1 (et un emplacement de cette molécule) à un jeton (placé sur une autre molécule M2).
+Une transition de M2 pourra alors découper cette molécule M1 à l'emplacement spécifié. Il faudra alors 
+que deux arcs sortant associent une molécule à leur jeton pour garder les deux parties coupées M1' et M1''.
 Au contraire, si deux arcs entrants ont des jetons qui contiennent une molécule, on pourra les recoller 
 ensemble.
 

@@ -39,7 +39,7 @@ class DotGraph(Digraph):
 class NetworkClient:
     
     def __init__(self):
-        self.HOST = 'wololo'    # The remote host
+        self.HOST = 'Sathobi'    # The remote host
         self.PORT = 1512              # The same port as used by the serverk
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
@@ -132,7 +132,7 @@ class Application(tk.Frame):
     def set_new_mol(self):
         new_mol_str = (self.text.get("1.0", tk.END)).replace("'", '"')
         json.dumps(new_mol_str)
-        self.nc.ask_new_mol(new_mol_str)
+        self.nc.ask_new_mol(new_mol_str.replace("\n", ""))
         
     # updates the drop down menu to select transitions to launch
     def update_launchables(self, new_launchables):

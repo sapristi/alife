@@ -4,6 +4,11 @@
 #require "batteries";;
 #require "yojson" ;;
 #require "ppx_deriving_yojson";;
+#require "ppx_deriving.show";;
+
+
+
+Used to add directories to load librairies (cmo). Can be avoided using -I "path" when launching toplevel.
 
 #directory "/home/sapristi/Documents/projets/alife/_build/src/libs";;
 #directory "/home/sapristi/Documents/projets/alife/_build/src/bacterie";;
@@ -11,6 +16,7 @@
     
 #load "misc_library.cmo";;
 #load "molecule.cmo";;
+#load "custom_types.cmo";;
  *)
 
 
@@ -19,6 +25,7 @@ open Molecule
 open Misc_library
 open Custom_types
 open MyMolecule
+open Maps
 
 
 (* il faudrait faire attention aux molécules vides (ie liste vide),
@@ -293,6 +300,7 @@ struct
      handles_book : (string, int) BatMultiPMap.t ;
      mol_catchers_book : (string, int) BatMultiPMap.t ;}
       
+    
   let get_launchables (ts : Transition.t array) =
     let t_l = ref [] in 
     for i = 0 to Array.length ts -1 do
@@ -437,8 +445,11 @@ struct
 end;;
 
 
+(*   examples de molecules et proteines test *)
 
 
+let mol1 = [Node Initial_place];;
+let prot1 = Proteine.make mol1;;
 
-
-  
+let mol2 = [Node Initial_place; Node Regular_place; OutputLink ("a", Regular_olink); InputLink ("a", Regular_ilink); Node Regular_place];;
+let prot2 = Proteine.make mol2;;
