@@ -37,7 +37,7 @@ Alors comment on fait ???
    
 *)
 
-open Types.MyMolecule
+open Moltypes.MyMolecule
 open Maps
 open Proteine
 
