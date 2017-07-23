@@ -111,7 +111,8 @@ class Application(tk.Frame):
                 print("received init data, creating graph")
                 self.graph_data = json_data["initdata"]
                 self.draw_graph()
-                self.text.insert("1.0", json_data["initdata"]["molecule"])
+                self.text.delete("1.0", tk.END)
+                self.text.insert("1.0", json.dumps(json_data["initdata"]["molecule"]))
                 
             if "updatedata" in json_data:
                 print("received update data, updating graph")
@@ -131,8 +132,8 @@ class Application(tk.Frame):
 
     def set_new_mol(self):
         new_mol_str = (self.text.get("1.0", tk.END)).replace("'", '"')
-        json.dumps(new_mol_str)
-        self.nc.ask_new_mol(new_mol_str.replace("\n", ""))
+        new_mol_json = json.dumps(new_mol_str)
+        self.nc.ask_new_mol(new_mol_str)
         
     # updates the drop down menu to select transitions to launch
     def update_launchables(self, new_launchables):
