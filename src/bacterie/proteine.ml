@@ -159,7 +159,7 @@ struct
 	 token )
 
   let to_json (p : t) =
-    `Assoc [("token", token_holder_to_json p.tokenHolder); ("type", Moltypes.place_type_to_yojson p.placeType)]
+    `Assoc [("token", token_holder_to_json p.tokenHolder); ("type", Custom_types.place_type_to_yojson p.placeType)]
 end;;
 
 
@@ -269,10 +269,10 @@ struct
     `Assoc [
       "dep_places",
       `List (List.map2
-	       (fun x y -> `List (`Int x :: [Moltypes.input_link_to_yojson y]))
+	       (fun x y -> `List (`Int x :: [Custom_types.input_link_to_yojson y]))
 		 trans.departure_places trans.departure_links);
       "arr_places", 
-      `List (List.map2 (fun x y -> `List (`Int x :: [Moltypes.output_link_to_yojson y])) trans.arrival_places trans.arrival_links);]
+      `List (List.map2 (fun x y -> `List (`Int x :: [Custom_types.output_link_to_yojson y])) trans.arrival_places trans.arrival_links);]
       
 end;;
 
