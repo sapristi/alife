@@ -1,0 +1,14 @@
+# structure of my awesome project
+S src
+S src/bacterie
+S src/gui
+S src/libs
+
+B _build/src
+B _build/src/bacterie
+B _build/src/gui
+B _build/src/libs
+
+
+
+PKG yojson
