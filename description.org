@@ -175,10 +175,17 @@ Pour que les bactéries puissent avoir un comportement efficace, il faudrait qu'
 
 ** Description de l'algo au point actuel et éventuelles idées
 
+*** Acide aminé
+
+Quatre types d'acides aminés :
+ - Node
+ - 
+
 *** Molécule
 
-Dans une cellule se trouvent des molécules (liste d'acides aminés). Celles-ci peuvent être « compilées » afin de produire une forme active, qui sera capable d'effectuer des réactions chimiques.
+Dans une cellule se trouvent des molécules (liste d'acides aminés). Celles-ci peuvent être « compilées » afin de produire une forme active, qui sera capable d'effectuer des « réactions chimiques ». 
 
+Les d
 
 
 

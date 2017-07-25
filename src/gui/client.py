@@ -134,7 +134,7 @@ class Application(tk.Frame):
 
     # trigger transition from server
     def launch_transition(self):
-        self.nc.ask_transition_launch(self.var_select.get())
+        self.nc.ask_transition_launch(self.next_transition_to_launch.get())
 
     def set_new_mol(self):
         new_mol_str = (self.text.get("1.0", tk.END)).replace("'", '"')
@@ -146,10 +146,10 @@ class Application(tk.Frame):
         self.select_trans_l['menu'].delete(0,'end')
         if len(new_launchables) > 0:
             for i in new_launchables:
-                self.select_trans_l['menu'].add_command(label=str(i), command=tk._setit(self.var_select, str(i)))
-            self.var_select.set(new_launchables[0])
+                self.select_trans_l['menu'].add_command(label=str(i), command=tk._setit(self.next_transition_to_launch, str(i)))
+            self.next_transition_to_launch.set(new_launchables[0])
         else:
-            self.var_select.set("...")
+            self.next_transition_to_launch.set("...")
 
             
     # renders the graph in the window
@@ -186,9 +186,9 @@ class Application(tk.Frame):
         self.launch_trans_b = tk.Button(self.simul_frame, text = "launch transition", command = self.launch_transition)
         self.launch_trans_b.pack(side="top")
         
-        self.var_select = tk.StringVar(self.simul_frame)
-        self.var_select.set("...")
-        self.select_trans_l = tk.OptionMenu(self.simul_frame, self.var_select, "...")
+        self.next_transition_to_launch = tk.StringVar(self.simul_frame)
+        self.next_transition_to_launch.set("...")
+        self.select_trans_l = tk.OptionMenu(self.simul_frame, self.next_transition_to_launch, "...")
         self.select_trans_l.pack(side="bottom")
 
         
