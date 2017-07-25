@@ -68,16 +68,23 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	  (
 	    print_endline "asked to launch transition";
 	    let tId = int_of_string (Bytes.to_string (json_command |> Yojson.Basic.Util.member "arg" |> Yojson.Basic.Util.to_string)) in
-	    print_endline("launching transition "^(string_of_int tId)); 
-	    Proteine.launch_transition tId !p;
-	    Proteine.update_launchables !p;
-	    print_endline (Yojson.Safe.to_string (Proteine.to_json_update !p));
-	    
-	    let json_data = `Assoc ["transition_launch", `Bool true] in
-	    let to_send = Yojson.Safe.to_string json_data in
-	    output_string oc to_send;
-	    flush oc;
-	    print_endline "transition launch report sent";
+
+            if tId >= 0
+            then
+              begin
+                print_endline("launching transition "^(string_of_int tId)); 
+	        Proteine.launch_transition tId !p;
+	        Proteine.update_launchables !p;
+	        print_endline (Yojson.Safe.to_string (Proteine.to_json_update !p));
+	        
+	        let json_data = `Assoc ["transition_launch", `Bool true] in
+	        let to_send = Yojson.Safe.to_string json_data in
+	        output_string oc to_send;
+	        flush oc;
+	        print_endline "transition launch report sent"
+              end
+            else
+              print_endline("no available transition")
 	  )
 	else if command = "new_mol"
 	then

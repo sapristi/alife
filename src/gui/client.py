@@ -134,7 +134,10 @@ class Application(tk.Frame):
 
     # trigger transition from server
     def launch_transition(self):
-        self.nc.ask_transition_launch(self.next_transition_to_launch.get())
+        trans_id = self.next_transition_to_launch.get()
+        if trans_id == "...":
+            trans_id = "-1"
+        self.nc.ask_transition_launch(trans_id)
 
     def set_new_mol(self):
         new_mol_str = (self.text.get("1.0", tk.END)).replace("'", '"')
