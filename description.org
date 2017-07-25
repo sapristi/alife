@@ -20,53 +20,40 @@ Also requires OCaml, python3 with python3-graphviz and python3-tk
 * Intro
 
 Du coup, on veut ici créer un programme qui réalise le rêve de la vie artificielle :
-héberger et simuler des cellules qui vont évoluer afin de recréer la vie /in silico/
-(on peut toujours rêver).
+héberger et simuler des cellules qui vont évoluer afin de recréer la vie /in silico/ (on peut toujours rêver).
 
 
 ** Résumé des épisodes précédents
 
 Il y a eu plusieurs essais dans ce sens : 
  - Tierra : 
-    + Le monde est un tableau unidimensionnel. Chaque case est soit vide, soit contient une instruction,
-      parmi un jeu d'instruction bien choisi. 
+    + Le monde est un tableau unidimensionnel. Chaque case est soit vide, soit contient une instruction, parmi un jeu d'instruction bien choisi. 
     + Les cellules sont un ensemble contigu de cases, et donc des instructions qu'elles contiennent.
-      Le jeu d'instruction permet aux cellules de lire n'importe où, mais pas d'écrire à l'intérieur d'autres
-      cellules. Les cellules se dupliquent en recopiant leur code génétique vers une partie vide de la bande.
+      Le jeu d'instruction permet aux cellules de lire n'importe où, mais pas d'écrire à l'intérieur d'autres cellules. Les cellules se dupliquent en recopiant leur code génétique vers une partie vide de la bande.
     + Chaque cellule a son processeur propre, qui simule l'exécution de son code.
     + Comportements apparus : spécialisation, parasitage, un peu de complexification
  -l Des trucs d'Hutton : 
     + Le monde est un tableau bidimensionnel. Le monde contient des atomes, qui peuvent se déplacer plus ou moins librement.
-    + Les atomes ont un type donné, et un état qui peut varier au cours du temps. Un jeu de réactions chimique, qui détermine
-      si deux atomes de type et d'état donné qui se rencontrent vont former une liaison. Jeu de réactions chimiques bien choisi.
-    + Les cellules ont une membrane qui forme un cercle, et un brin d'ADN, relié à ses deux extrémités à la membrane. Les cellules 
-      se dupliquent de manière spontanée grâce aux réactions chimiques. 
+    + Les atomes ont un type donné, et un état qui peut varier au cours du temps. Un jeu de réactions chimique, qui détermine si deux atomes de type et d'état donné qui se rencontrent vont former une liaison. Jeu de réactions chimiques bien choisi.
+    + Les cellules ont une membrane qui forme un cercle, et un brin d'ADN, relié à ses deux extrémités à la membrane. Les cellules se dupliquent de manière spontanée grâce aux réactions chimiques. 
     + Le monde est simulé /physiquement/, c'est à dire chaque atome séparemment, et rien d'autre.
     + Comportements apparus : pas grand chose, à part une légère réduction de l'ADN.
 
 
 
-En résumé, Tierra s'est montré prometteur, mais est beaucoup plus proche d'un ordinateur que d'une cellule. On manque 
-en particulier de capacité de réaction, de communication, etc...
-Hutton est très proche en quelques sorte de la biologie, mais ça ne marche pas très bien. Sans parler des coûts de simulation
-faramineux, ni du jeu de réactions chimiques tellement alambiqué pour que ça marche que c'en est un peu absurde. 
+En résumé, Tierra s'est montré prometteur, mais est beaucoup plus proche d'un ordinateur que d'une cellule. On manque en particulier de capacité de réaction, de communication, etc...
+Hutton est très proche en quelques sorte de la biologie, mais ça ne marche pas très bien. Sans parler des coûts de simulation faramineux, ni du jeu de réactions chimiques tellement alambiqué pour que ça marche que c'en est un peu absurde. 
 
 
 ** Où l'on essaie de préparer un autre épisode
 
-Ce que j'aimerait faire, c'est un modèle qui soit à la fois proche du fonctionnement des ordinateurs (c'est à dire en particulier 
- avec une physique très simple, sans avoir besoin de simuler des choses à un niveau très bas), et qui reflète le principe de fonctionnement
-d'une cellule autant qu'il est souhaitable et possible.
+Ce que j'aimerait faire, c'est un modèle qui soit à la fois proche du fonctionnement des ordinateurs (c'est à dire en particulier avec une physique très simple, sans avoir besoin de simuler des choses à un niveau très bas), et qui reflète le principe de fonctionnement d'une cellule autant qu'il est souhaitable et possible.
 
 
-Une première idée à été de faire un peu comme Tierra, mais en plus de dimensions. Une cellule est une matrice, où les fonctions
-sont des instructions qui pointent vers la suivante (contiguë). En trois dimensions, ça peut commencer
-à donner des trucs assez rigolos, mais gérer la duplication semble devenir complexe. On perds aussi la 
-bonne relation qui existait entre les cellules et l'univers.
+Une première idée à été de faire un peu comme Tierra, mais en plus de dimensions. Une cellule est une matrice, où les fonctions sont des instructions qui pointent vers la suivante (contiguë). En trois dimensions, ça peut commencer à donner des trucs assez rigolos, mais gérer la duplication semble devenir complexe. On perds aussi la bonne relation qui existait entre les cellules et l'univers.
  
-l
-La deuxième idée est d'utiliser des modèles complutationnels simples pour simuler les protéines. Partant des automates, j'en
-suis arrivé aux réseaux de Petri, qui me semblent assez prometteurs. On le décrira plus précisement par la suite.
+
+La deuxième idée est d'utiliser des modèles complutationnels simples pour simuler les protéines. Partant des automates, j'en suis arrivé aux réseaux de Petri, qui me semblent assez prometteurs. On le décrira plus précisement par la suite.
 
 
 ** Trucs importants à garder en tête
@@ -76,18 +63,16 @@ La communication, c'est la vie en plus rigolo.
 La vie tout court, c'est déjà pas mal.
 Les ribosomes, c'est trop l'éclate.
 
-
-
 * Description de ce que j'essaie de faire
+
+** But
 
 Le but est d'avoir un modèle unifié de molécules, qui permettent à la fois d'avoir des molécules qui :
  - représentent de l'information (ADN)
  - puissent agir sur d'autres molécules (protéines, enzymes)
  - puissent échanger de l'information (métabolites)
 
-Le modèle proposé est d'avoir tout d'abord des molécules sous forme de liste d'acides (aminés), chaque acide contenant
-soit de l'information, soit un morceau qui permette de reconstituer les fonctionnement de la molécule : on veut la *replier*
-pour obtenir une protéine. Une fois repliée, on aurait un truc qui ressemble fort à un réseau de Petri (plutôt un peu étendu).
+Le modèle proposé est d'avoir tout d'abord des molécules sous forme de liste d'acides (aminés), chaque acide contenant soit de l'information, soit un morceau qui permette de reconstituer les fonctionnement de la molécule : on veut la *replier* pour obtenir une protéine. Une fois repliée, on aurait un truc qui ressemble fort à un réseau de Petri (plutôt un peu étendu).
 
 Un des trucs cool, c'est qu'on peut faire des *ribosomes* ! Et donc permettre à la duplication elle même d'évoluer.
 
@@ -105,8 +90,7 @@ On crée un type acid (aminé), qui est :
 
 Une molécule est donc une liste d'acides aminés.
 
-On définit un foncteur, qui, pour des types de Node, d'InputLink et d'OutputLink donnés, 
-permet de replier une molécule en générant les transitions qui vont bien. Les transitions générées sont du type
+On définit un foncteur, qui, pour des types de Node, d'InputLink et d'OutputLink donnés, permet de replier une molécule en générant les transitions qui vont bien. Les transitions générées sont du type
 
 #+BEGIN_SRC ocaml
 type transition = 
@@ -115,8 +99,7 @@ type transition =
        (int * outputLinkType) array
 #+END_SRC 
 
-Il faut donc recréer la fonction de transition derrière, et peut-être se débarasser des inputLinkType et outputLinkType
-(ce qui est normal vu qu'on ne les connait pas).
+Il faut donc recréer la fonction de transition derrière, et peut-être se débarasser des inputLinkType et outputLinkType (ce qui est normal vu qu'on ne les connait pas).
 
 
 Le type du foncteur en entier est :
@@ -169,36 +152,42 @@ Le réseau de Petri est étendu de manière à pouvoir générer les comportemen
 
 
 L'idée est de pouvoir associer une molécule M1 (et un emplacement de cette molécule) à un jeton (placé sur une autre molécule M2).
-Une transition de M2 pourra alors découper cette molécule M1 à l'emplacement spécifié. Il faudra alors 
-que deux arcs sortant associent une molécule à leur jeton pour garder les deux parties coupées M1' et M1''.
-Au contraire, si deux arcs entrants ont des jetons qui contiennent une molécule, on pourra les recoller 
-ensemble.
+Une transition de M2 pourra alors découper cette molécule M1 à l'emplacement spécifié. Il faudra alors que deux arcs sortant associent une molécule à leur jeton pour garder les deux parties coupées M1' et M1''. Au contraire, si deux arcs entrants ont des jetons qui contiennent une molécule, on pourra les recoller ensemble.
 
-On peut aussi essayer de faire la même chose avec des morceaux d'information associées aux jetons, 
-je ne sais pas si c'est vraiment utile.
+On peut aussi essayer de faire la même chose avec des morceaux d'information associées aux jetons, je ne sais pas si c'est vraiment utile.
 
 
-Pour attraper une molécule ou recevoir un message, l'idée serait d'avoir une propriété sur les 
-noeuds qui leur permettent de créer un jeton en attrapant une molécule ou en recevant un message.
+Pour attraper une molécule ou recevoir un message, l'idée serait d'avoir une propriété sur les noeuds qui leur permettent de créer un jeton en attrapant une molécule ou en recevant un message.
 
 
-Une autre propriété associée aux jetons serait une énergie, mais je ne sais pas encore bien quel rôle 
-lui attribuer. En fait si, il faudrait que recoller deux molécules entre elles demande de l'énergie,
-et que les séparer en libère.
+Une autre propriété associée aux jetons serait une énergie, mais je ne sais pas encore bien quel rôle lui attribuer. En fait si, il faudrait que recoller deux molécules entre elles demande de l'énergie, et que les séparer en libère.
 
 
-Pour l'instant, l'énergie sert à rien, et on la gère un peu n'importe comment. En fait on 
-va la virer, ce sera un peu plus propre.
+Pour l'instant, l'énergie sert à rien, et on la gère un peu n'importe comment. En fait on va la virer, ce sera un peu plus propre.
 
-Par contre, il faudrait peut-être arriver à mettre un ordre un peu plus déterminé sur la 
-façon dont les arcs des transitions se combinent.
-
+Par contre, il faudrait peut-être arriver à mettre un ordre un peu plus déterminé sur la façon dont les arcs des transitions se combinent.
 
 
 *** Dans un futur lointain
 
-Pour que les bactéries puissent avoir un comportement efficace, il faudrait qu'il y ait de l'information 
-ambiante, qui représente plusieurs aspects du monde alentour, que les bactéries puissent mesurer.
+Pour que les bactéries puissent avoir un comportement efficace, il faudrait qu'il y ait de l'information ambiante, qui représente plusieurs aspects du monde alentour, que les bactéries puissent mesurer.
+
+
+** Description de l'algo au point actuel et éventuelles idées
+
+*** Molécule
+
+Dans une cellule se trouvent des molécules (liste d'acides aminés). Celles-ci peuvent être « compilées » afin de produire une forme active, qui sera capable d'effectuer des réactions chimiques.
+
+
+
+
+* Nomenclature
+  + acid 
+    - Node
+    - InputLink
+    - OutputLink
+    - Information
 
 * Stuff to do
 

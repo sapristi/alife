@@ -6,9 +6,9 @@ module type MOLECULE_TYPES =
 sig 
   type nodeType
       [@@deriving show, yojson]
-  type inputLinkType
+  type transitionInputType
       [@@deriving show, yojson]
-  type outputLinkType
+  type transitionOutputType
     [@@deriving show, yojson]
 
 end;;
@@ -20,8 +20,8 @@ struct
   
   type acid = 
     | Node of MolTypes.nodeType
-    | InputLink of string * MolTypes.inputLinkType
-    | OutputLink of string * MolTypes.outputLinkType
+    | TransitionInput of string * MolTypes.transitionInputType
+    | TransitionOutput of string * MolTypes.transitionOutputType
     | Information of string
       [@@deriving show, yojson]
 
@@ -33,8 +33,8 @@ struct
 
   type transition_structure = 
     string * 
-      (int * MolTypes.inputLinkType ) list * 
-      (int * MolTypes.outputLinkType) list
+      (int * MolTypes.transitionInputType ) list * 
+      (int * MolTypes.transitionOutputType) list
       [@@deriving show]
 
 					 
@@ -43,7 +43,7 @@ struct
 
 (* On fait tout en un seul passage sur la molecule, en espérant 
 qu'il n'y ait pas trop de transitions.
-On retourne une liste contenant les items (transID, inputLinks, outputLinks)  *)
+On retourne une liste contenant les items (transID, transitionInputs, transitionOutputs)  *)
 
   let build_transitions (mol : molecule) :
       transition_structure list = 
@@ -53,7 +53,7 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)  *)
     let rec insert_new_input 
 	(nodeN :   int) 
 	(transID : string) 
-	(data :    MolTypes.inputLinkType) 
+	(data :    MolTypes.transitionInputType) 
 	(transL :  transition_structure list) : 
 	
 	transition_structure list =
@@ -72,7 +72,7 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)  *)
     and insert_new_output 
 	(nodeN :   int) 
 	(transID : string)
-	(data :    MolTypes.outputLinkType) 
+	(data :    MolTypes.transitionOutputType) 
 	(transL :  transition_structure list) :
 
 	transition_structure list =  
@@ -94,8 +94,8 @@ On retourne une liste contenant les items (transID, inputLinks, outputLinks)  *)
  
       match mol with
       | Node _ :: mol' -> aux mol' (nodeN + 1) transL
-      | InputLink (s,d) :: mol' -> aux mol' nodeN (insert_new_input nodeN s d transL)
-      | OutputLink (s,d) :: mol' -> aux mol' nodeN (insert_new_output nodeN s d transL)
+      | TransitionInput (s,d) :: mol' -> aux mol' nodeN (insert_new_input nodeN s d transL)
+      | TransitionOutput (s,d) :: mol' -> aux mol' nodeN (insert_new_output nodeN s d transL)
       | Information _ :: mol' -> aux mol' nodeN transL
       | [] -> transL
 	 

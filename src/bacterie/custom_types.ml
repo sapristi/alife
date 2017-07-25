@@ -17,12 +17,12 @@ type place_type =
       [@@deriving show, yojson]
       
       
-type input_link = 
+type transition_input_type = 
   | Regular_ilink
   | Split_ilink
       [@@deriving show, yojson]
 
-type output_link = 
+type transition_output_type = 
   | Regular_olink
   | Bind_olink
   | Mol_output_olink
@@ -32,9 +32,9 @@ type output_link =
 module MolTypes = struct 
     type nodeType = place_type
       [@@deriving show, yojson]
-    type inputLinkType = input_link
+    type transitionInputType = transition_input_type
       [@@deriving show, yojson]
-    type outputLinkType = output_link
+    type transitionOutputType = transition_output_type
       [@@deriving show, yojson]
 end
 

@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 89db1ffc4310b2e00d8207e7494868a4)
+# DO NOT EDIT (digest: 1401a2c4545c8ccd1136511847cc77f2)
 version = "0.1"
 description = "Simulating life and stuff"
 requires =
@@ -22,7 +22,8 @@ package "reactions" (
 package "proteine" (
  version = "0.1"
  description = "Simulating life and stuff"
- requires = "batteries bacterie.molecule local_libs yojson"
+ requires =
+ "batteries bacterie.molecule local_libs yojson ppx_deriving_yojson"
  archive(byte) = "proteine.cma"
  archive(byte, plugin) = "proteine.cma"
  archive(native) = "proteine.cmxa"

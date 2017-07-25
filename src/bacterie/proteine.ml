@@ -180,8 +180,8 @@ struct
     {places : Place.t array;
      departure_places : int list;
      arrival_places : int list;
-     departure_links : input_link list;
-     arrival_links : output_link list;
+     departure_links : transition_input_type list;
+     arrival_links : transition_output_type list;
     }
       [@@deriving show]
 
@@ -200,8 +200,8 @@ struct
       
       
   let make (places : Place.t array)
-      (depL : (int * input_link) list)
-      (arrL : (int * output_link) list) =
+      (depL : (int * transition_input_type) list)
+      (arrL : (int * transition_output_type) list) =
   let departure_places, departure_links = unzip depL and 
       arrival_places, arrival_links = unzip arrL 
   in {places; departure_places; arrival_places;
@@ -214,7 +214,7 @@ struct
      et calcule  la liste des molécules des tokens (qui ont potentiellement
      été coupées *)
     let rec input_transition_function 
-	(ill : input_link list)
+	(ill : transition_input_type list)
 	(tokens : Token.t list)
 	: (MoleculeHolder.t list)   =
       
@@ -235,7 +235,7 @@ struct
     (* fonction qui prends une liste d'arcs entrants et une liste de molécukes, 
        et renvoie une liste de tokens  *)
     and  output_transition_function 
-	(oll : output_link list)
+	(oll : transition_output_type list)
 	(mols : MoleculeHolder.t list)
 	: Token.t list =
       
@@ -276,10 +276,10 @@ struct
     `Assoc [
       "dep_places",
       `List (List.map2
-	       (fun x y -> `List (`Int x :: [Custom_types.input_link_to_yojson y]))
+	       (fun x y -> `List (`Int x :: [Custom_types.transition_input_type_to_yojson y]))
 		 trans.departure_places trans.departure_links);
       "arr_places", 
-      `List (List.map2 (fun x y -> `List (`Int x :: [Custom_types.output_link_to_yojson y])) trans.arrival_places trans.arrival_links);]
+      `List (List.map2 (fun x y -> `List (`Int x :: [Custom_types.transition_output_type_to_yojson y])) trans.arrival_places trans.arrival_links);]
       
 end;;
 
@@ -451,5 +451,5 @@ end;;
 let mol1 = [Node Initial_place];;
 let prot1 = Proteine.make mol1;;
 
-let mol2 = [Node Initial_place; Node Regular_place; OutputLink ("a", Regular_olink); InputLink ("a", Regular_ilink); Node Regular_place];;
+let mol2 = [Node Initial_place; Node Regular_place; TransitionInput ("a", Regular_ilink); TransitionOutput ("a", Regular_olink); Node Regular_place];;
 let prot2 = Proteine.make mol2;;
