@@ -451,5 +451,5 @@ end;;
 let mol1 = [Node Initial_place];;
 let prot1 = Proteine.make mol1;;
 
-let mol2 = [Node Initial_place; Node Regular_place; TransitionInput ("a", Regular_ilink); TransitionOutput ("a", Regular_olink); Node Regular_place];;
+let mol2 = [Node Initial_place; TransitionInput ("a", Regular_ilink); Node Regular_place; TransitionOutput ("a", Regular_olink); Node Regular_place];;
 let prot2 = Proteine.make mol2;;
