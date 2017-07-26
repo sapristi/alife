@@ -1,3 +1,9 @@
+(* * this file *)
+
+(* molecule.ml defines the basic properties of a molecule, some functions to help build a proteine out of it and a module to help it get managed by a protein (i.e. simulate chemical reactions *)
+
+
+
 (* * preamble : load libraries *)
 
 (* next lines are used when compiling in a ocaml toplevel *)
@@ -46,21 +52,17 @@ struct
     | Information of string
                        [@@deriving show, yojson]
                    
-
-                 
+                                      
   type molecule = acid list
                        [@@deriving show, yojson]
                 
-              
-
+                
 (* *** position type definition *)
 (* Correspond à un pointeur vers un des acide de la molécule *)
                 
   type position = int
                     [@@deriving show]
 
-
-                
 
 (* ***  transition structure type definition *)
 (* Transition Input and Output can combine when they share the same identifier, to form a transition. For now, we only put all incomming and outgoing edges into the structure, whose function will be determined later. *)
