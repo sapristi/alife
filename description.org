@@ -190,16 +190,16 @@ Dans une cellule se trouvent des molécules (liste d'acides aminés). Celles-ci 
 Les d
 
 
-
-* Nomenclature
-  + acid 
-    - Node
-    - InputLink
-    - OutputLink
-    - Information
-
 * Stuff to do
 
+
+** v0.0.0
 *** DONE ajouter des arcs entre tous les nœuds dans le client ?
-*** TODO Clarifier les dénominations, en particulier input et output links
-*** TODO Bugs quand le client demande une transition et que ce n'est pas possible
+*** DONE Clarifier les dénominations, en particulier input et output links
+*** DONE Bugs quand le client demande une transition et que ce n'est pas possible
+
+
+** v0.0.1
+*** TODO Modifier l'organistion des molécules : laimsser un seul type d'acide (place) qui sera lui agrémenté de diverses options.  
+    
+   
