@@ -56,18 +56,14 @@ struct
     | MolHolder mh -> `String "token (molecule)"
     
 end
-
-(* * headline
- * line 1
- * line 2 *)
   
 (* * the place module *)
 
 (* ** the return_action type *)
 
-(* Used to describe the action taken when a token goes to a place after transiting through a transition. Determined by the type of the place. *unfinished feature* *)
+(* Used to describe the action taken when a token goes to a place after transiting through a transition. Determined by the type of the place.  *unfinished feature* *)
 
-Type return_action =
+type return_action =
   | AddMol of MoleculeHolder.t
   | SendMessage of string
   | NoAction
@@ -88,10 +84,10 @@ struct
        
   type t =
     {mutable tokenHolder : token_holder;
-     placeType : acid_type;}
+     placeType : place_type;}
       [@@deriving show]
 
-  let make (placeType : acid_type) : t =
+  let make (placeType : place_type) : t =
     if placeType = Initial_place
     then {tokenHolder = OccupiedHolder Token.empty; placeType;}
     else {tokenHolder = EmptyHolder; placeType;}
@@ -112,17 +108,15 @@ struct
     then 
       match p.placeType with
         
-      (* Feature removed from 
-                
-il faut dire à l'host qu'on a  relaché la molecule attachée au token.
-         est ce qu'on vire aussi le token ???   
+      (* il faut dire à l'host qu'on a  relaché la molecule attachée au token.
+         est ce qu'on vire aussi le token ??? *)   
       | Release_place ->
          (
            match inputToken with
            | Token.Empty -> set_token Token.empty p; NoAction
            | Token.MolHolder m -> set_token Token.empty p; AddMol m
          );
-       *)
+           
            
       (* il faut faire broadcaster le message par l'host *)
       | Send_place s ->
@@ -184,42 +178,44 @@ end;;
 (*  + the /transition_function/ calculates the function associated with a transition. Inner workings and more precise goals are still to be defined.  *)
 
 module Transition =
-  struct
-    type t  =
-      {places : Place.t array;
-       departure_places : int list;
-       arrival_places : int list;
-       departure_links : transition_input_type list;
-       arrival_links : transition_output_type list;
+struct
+  type t  =
+    {places : Place.t array;
+     departure_places : int list;
+     arrival_places : int list;
+     departure_links : transition_input_type list;
+     arrival_links : transition_output_type list;
     }
-        [@@deriving show]
+      [@@deriving show]
+
+  let launchable (transition : t) =
+    let places_are_occupied (places :  Place.t array) (to_try : int list): bool =
+      List.fold_left
+        (fun res pId -> (not (Place.is_empty places.(pId))) && res )
+        true to_try
+    and places_are_free  (places :  Place.t array) (to_try : int list): bool =
+      List.fold_left
+        (fun res pId -> Place.is_empty places.(pId) && res )
+        true to_try  
+    in
+    (places_are_free transition.places transition.arrival_places)
+    && (places_are_occupied transition.places transition.departure_places)
       
-    let launchable (transition : t) =
-      let places_are_occupied (places :  Place.t array) (to_try : int list): bool =
-        List.fold_left
-          (fun res pId -> (not (Place.is_empty places.(pId))) && res )
-          true to_try
-      and places_are_free  (places :  Place.t array) (to_try : int list): bool =
-        List.fold_left
-          (fun res pId -> Place.is_empty places.(pId) && res )
-          true to_try  
-      in
-      (places_are_free transition.places transition.arrival_places)
-      && (places_are_occupied transition.places transition.departure_places)
       
-      
-    let make (places : Place.t array)
-             (transIn : (int * transition_input_type) list)
-             (transOut : (int * transition_output_type) list) =
-      let departure_places, trans_input_funs = unzip transIn and 
-          arrival_places, trans_output_funs = unzip transOut 
-      in {places; departure_places; arrival_places;
-          trans_input_funs; trans_output_funs;}
-       
+  let make (places : Place.t array)
+      (depL : (int * transition_input_type) list)
+      (arrL : (int * transition_output_type) list) =
+  let departure_places, departure_links = unzip depL and 
+      arrival_places, arrival_links = unzip arrL 
+  in {places; departure_places; arrival_places;
+      departure_links; arrival_links;}
+
   
-    let transition_function (inputTokens : Token.t list) (transition : t) =
-      
-      (* fonction qui prends une liste d'arcs entrants et une liste de tokens, et calcule  la liste des molécules des tokens (qui ont potentiellement été coupées *)
+  let transition_function (inputTokens : Token.t list) (transition : t) =
+    
+  (* fonction qui prends une liste d'arcs entrants et une liste de tokens, 
+     et calcule  la liste des molécules des tokens (qui ont potentiellement
+     été coupées *)
     let rec input_transition_function 
         (ill : transition_input_type list)
         (tokens : Token.t list)
