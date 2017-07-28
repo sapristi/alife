@@ -95,6 +95,7 @@ Les ribosomes, c'est trop l'éclate.
     Après une opération de repli, on pourra attribuer à une molécule sa forme protéinée, un réseau de pétri (graphe biparti). Il y a plusieurs moyens d'organiser une molécule et la façon dont elle se replie, on va donc détailler et justifier un peu le processus.
 
     
+    
 **** Différentes idées 
      
      Tous les acides de la molécule forment une place, et se retrouvent donc au même niveau. Des places particulières contiennent un arc entrant ou un arc sortant. Plusieurs inconvénients : 
@@ -108,15 +109,24 @@ Les ribosomes, c'est trop l'éclate.
      
      On fonctionnera de manière modulaire, avec les types d'acide suivants :
  + place : correspond à une place du réseau de pétri. On pourra fournir un attribut interne pour effectuer certaines actions
+ + transition_input/output : ajoute un arc sortant/entrant  
  + extension : ajoute un attribut à la place précédente dans la molécule. Quelques types d'extension : 
-   - transition_input/output : ajoute un arc sortant/entrant 
    - information : un morceau d'information
    - autre ? action ?
      
  Les avantages sont les suivants : 
  + facile à étendre
  + du point de vue des mutations possibles, on a facilement des changements de fonctionnalité
-     
+  
+   
+***** Questions
+
+Est-ce qu'on définit un unique type extension (qui contient les transitions) ou on sépare les transitions ?
+À priori c'est pas mal de séparer puisque :
+ + les transitions font partie de la structure du réseau de pétri, au contraire des autres extensions
+ + ça permet de construire le réseau sans avoir à connaitre l'implémentation particulière des types
+
+ 
 ** Processus de reflexion sur comment faire avancer le schmilblick en cours
 
 

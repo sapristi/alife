@@ -44,13 +44,19 @@ Library "custom_types"
   Modules : Custom_types
   BuildDepends : bacterie.molecule, ppx_deriving.show, yojson, ppx_deriving_yojson
 
+Library "petri_modules"
+  FindLibName : petri_modules
+  FindLibParent : bacterie
+  Path : src/bacterie
+  Modules : Petri_modules
+  BuildDepends : local_libs, bacterie.custom_types, yojson, ppx_deriving_yojson, ppx_deriving.show
 
 Library "proteine"
   FindLibName : proteine
   FindLibParent : bacterie
   Path: src/bacterie
   Modules: Proteine
-  BuildDepends: batteries, bacterie.molecule, local_libs, yojson, ppx_deriving_yojson
+  BuildDepends: batteries, bacterie.molecule, bacterie.petri_modules, local_libs, yojson, ppx_deriving_yojson
 
 
 Library "bacterie"
