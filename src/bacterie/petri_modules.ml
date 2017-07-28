@@ -166,9 +166,6 @@ end;;
 
 (* * the transition module *)
 (* Module to manage transitions :  *)
-(*  + the /launchable/ function calculates if a transition can be launched (tokens are present in the starting places and end places are empty) *)
-(*  + the /make/ function build a transition by reorganising data *)
-(*  + the /transition_function/ calculates the function associated with a transition. Inner workings and more precise goals are still to be defined.  *)
 
 module Transition =
 struct
@@ -221,70 +218,75 @@ struct
       departure_links; arrival_links;}
 
 (* ** transition_function function *)
-(* Applique la fonction de transition d'une transition à une liste de tokens *)
-  let transition_function (inputTokens : Token.t list) (transition : t) =
+(* Applique la fonction de transition d'une transition à une liste de tokens. *Ça a l'air particulièrement écrit à l'arrach, il va sûrement falloir tout réécrire. *)
+
+(* On parcourt la liste des token donnés en entrée (qu'on suppose être ceux contenus dans les places de départ), si le token contient une molécule on pop la liste des input_link, et si c'est un split_link, on coupe la molécule -> ça n'a pas du tout l'air de faire la bonne correspondante entre la place d'où vient le token et le lien correspondant. *)
+
+   
+let transition_function (inputTokens : Token.t list) (transition : t) =
     
-  (* fonction qui prends une liste d'arcs entrants et une liste de tokens, 
-     et calcule  la liste des molécules des tokens (qui ont potentiellement
-     été coupées *)
-    let rec input_transition_function 
-        (ill : transition_input_type list)
-        (tokens : Token.t list)
-        : (MoleculeHolder.t list)   =
-      
-      match tokens with
-      | [] -> []
-      | token :: tokens' ->
-         match token with
-         | Token.Empty -> input_transition_function (List.tl ill) tokens'
-         | Token.MolHolder mol -> 
-            match ill with
-            | []  -> []
-            | Regular_ilink ::ill' -> 
-               mol ::  input_transition_function ill' tokens'
-            | Split_ilink :: ill' -> 
-               let mol1, mol2 = MoleculeHolder.cut mol in
-               mol1 :: mol2 :: input_transition_function ill' tokens'
-                 
-    (* fonction qui prends une liste d'arcs entrants et une liste de molécukes, 
-       et renvoie une liste de tokens  *)
-    and  output_transition_function 
-        (oll : transition_output_type list)
-        (mols : MoleculeHolder.t list)
+(* fonction qui prends une liste d'arcs entrants et une liste de tokens,
+et calcule  la liste des molécules des tokens (qui ont potentiellement 
+                                                   été coupées *)
+   let rec input_transition_function 
+             (ill : transition_input_type list)
+             (tokens : Token.t list)
+           : (MoleculeHolder.t list)   =
+     
+     match tokens with
+     | [] -> []
+     | token :: tokens' ->
+        match token with
+        | Token.Empty -> input_transition_function (List.tl ill) tokens'
+        | Token.MolHolder mol -> 
+           match ill with
+           | []  -> []
+           | Regular_ilink ::ill' -> 
+              mol ::  input_transition_function ill' tokens'
+           | Split_ilink :: ill' -> 
+              let mol1, mol2 = MoleculeHolder.cut mol in
+          mol1 :: mol2 :: input_transition_function ill' tokens'
+              
+   (* fonction qui prends une liste d'arcs entrants et une liste de molécukes, 
+  et renvoie une liste de tokens  *)
+   and  output_transition_function 
+          (oll : transition_output_type list)
+          (mols : MoleculeHolder.t list)
         : Token.t list =
-      
-      match oll with
-      | Regular_olink :: oll' -> 
-         Token.empty :: output_transition_function oll'  mols
-      | Bind_olink :: oll' -> 
-         begin
-           match mols with
-           | m1 ::  m2 :: mols' -> 
-              (Token.make (MoleculeHolder.insert m1 m2)) :: output_transition_function oll' mols
-           | m :: [] -> 
-              Token.make m  :: output_transition_function oll'  mols          
-           | [] -> 
-              Token.empty :: output_transition_function oll' mols
-         end
+     
+     match oll with
+     | Regular_olink :: oll' -> 
+        Token.empty :: output_transition_function oll'  mols
+     | Bind_olink :: oll' -> 
+        begin
+          match mols with
+          | m1 ::  m2 :: mols' -> 
+             (Token.make (MoleculeHolder.insert m1 m2)) :: output_transition_function oll' mols
+          | m :: [] -> 
+             Token.make m  :: output_transition_function oll'  mols          
+          | [] -> 
+             Token.empty :: output_transition_function oll' mols
+        end
+       
+     | [] -> []
            
-      | [] -> []
-         
-    in
-    
-    output_transition_function
-      transition.arrival_links
-      (input_transition_function
-         transition.departure_links
-         inputTokens)
+   in
+   
+   output_transition_function
+     transition.arrival_links
+     (input_transition_function
+        transition.departure_links
+        inputTokens)
 
 (* ** to_json function*)
   let to_json (trans : t) : Yojson.Safe.json =
     `Assoc [
-      "dep_places",
-      `List (List.map2
-               (fun x y -> `List (`Int x :: [Custom_types.transition_input_type_to_yojson y]))
-                 trans.departure_places trans.departure_links);
-      "arr_places", 
-      `List (List.map2 (fun x y -> `List (`Int x :: [Custom_types.transition_output_type_to_yojson y])) trans.arrival_places trans.arrival_links);]
+       "dep_places",
+       `List (List.map2
+                (fun x y -> `List (`Int x :: [Custom_types.transition_input_type_to_yojson y]))
+                trans.departure_places trans.departure_links);
+       "arr_places", 
+       `List (List.map2 (fun x y -> `List (`Int x :: [Custom_types.transition_output_type_to_yojson y])) trans.arrival_places trans.arrival_links);]
       
 end;;
+  

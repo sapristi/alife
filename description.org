@@ -117,6 +117,15 @@ Les ribosomes, c'est trop l'éclate.
  + facile à étendre
  + du point de vue des mutations possibles, on a facilement des changements de fonctionnalité
   
+
+Un *GROS PROBLÈME:
+que se passe-t-il si plusieurs transtions input avec la même id partent d'un même nœud, en particulier pour la gestion des token ?
+Plusieurs pistes :
+ - la transition n'est pas crée
+ - seul un des arcs est pris en compte
+ - utiliser un des arcs au hasard
+ - le programme bug
+
 **** Détails d'implémentation
 
 On part donc d'une molécule = liste d'acides.
@@ -245,6 +254,7 @@ Pour que les bactéries puissent avoir un comportement efficace, il faudrait qu'
 
 
 ** v0.0.1
-*** TODO Modifier l'organistion des molécules : laimsser un seul type d'acide (place) qui sera lui agrémenté de diverses options.  
-    
+*** DONE reconstruire les types d'acides
+*** TODO définir et utiliser une convention de nommage qui sépare clairement les noms de types/noms de variables/noms de modules
+*** TODO documenter et implémenter ce qui découle de la nouvelle implémentation des acides
    
