@@ -1,4 +1,6 @@
+(* * map with couple values *)
 
+(* A association map (dictionary) derived from Batteries.Map where the values are a tuple. Two sets are thus linked together by a key. *)
 
 module MakeDoubleMultiMap = 
   functor 
@@ -11,28 +13,28 @@ struct
   module Set = BatSet.Make(ValueT)
   type set_pair = Set.t * Set.t
     
-  let add_left (k : KeyT.t) (v : ValueT.t) (m : set_pair t) = 
+  let add_left (key : KeyT.t) (value : ValueT.t) (map : set_pair t) = 
     begin
-      if mem k m
+      if mem key map
       then 
-	let (l, r) = find k m in
-	add k (Set.add v l, r) m
+        let (l, r) = find key map in
+        add key (Set.add value l, r) map
       else 
-	add k (Set.singleton v, Set.empty) m
+        add key (Set.singleton value, Set.empty) map
     end
 
-  let add_right (k : KeyT.t) (v : ValueT.t) (m : set_pair t) = 
+  let add_right (key : KeyT.t) (value : ValueT.t) (map : set_pair t) = 
     begin
-      if mem k m
+      if mem key map
       then 
-	let (l, r) = find k m in
-	add k (l, Set.add v r) m
+        let (l, r) = find key map in
+        add key (l, Set.add value r) map
       else 
-	add k (Set.empty, Set.singleton v) m
+        add key (Set.empty, Set.singleton value) map
     end
 
-  let get_all_couples (k : KeyT.t) (m : set_pair t) = 
-    let (l,r) = find k m in
+  let get_all_couples (key : KeyT.t) (map : set_pair t) = 
+    let (l,r) = find key map in
     let rl = Set.to_list r and ll = Set.to_list l in
     Misc_library.get_all_couples ll rl
       
@@ -47,11 +49,11 @@ module MakeMolMap =
 struct 
   include BatMap.Make(KeyT)
 
-  let rel_change_mol_quantity (k : KeyT.t) (n : int) m =
+  let rel_change_mol_quantity (key : KeyT.t) (n : int) map =
     modify 
-      k
+      key
       (fun x -> let (a,b) = x in (a+n,b))
-      m
+      map
 
 
 end;;

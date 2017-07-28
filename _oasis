@@ -24,14 +24,14 @@ Library "local_libs"
 
 Library "reactions"	
   FindLibName : reactions
-  FindLibParent : bacterie
+  FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Reactions
 
 
 Library "molecule"	
   FindLibName : molecule
-  FindLibParent : bacterie
+  FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Molecule
   BuildDepends: local_libs, yojson, ppx_deriving_yojson
@@ -39,41 +39,47 @@ Library "molecule"
 
 Library "custom_types"
   FindLibName : custom_types
-  FindLibParent : bacterie
+  FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Custom_types
-  BuildDepends : bacterie.molecule, ppx_deriving.show, yojson, ppx_deriving_yojson
+  BuildDepends : bacterie_libs.molecule, ppx_deriving.show, yojson, ppx_deriving_yojson
 
 Library "petri_modules"
   FindLibName : petri_modules
-  FindLibParent : bacterie
+  FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Petri_modules
-  BuildDepends : local_libs, bacterie.custom_types, yojson, ppx_deriving_yojson, ppx_deriving.show
+  BuildDepends : local_libs, bacterie_libs.custom_types, yojson, ppx_deriving_yojson, ppx_deriving.show
+
 
 Library "proteine"
   FindLibName : proteine
-  FindLibParent : bacterie
+  FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Proteine
-  BuildDepends: batteries, bacterie.molecule, bacterie.petri_modules, local_libs, yojson, ppx_deriving_yojson
+  BuildDepends: batteries, bacterie_libs.molecule, bacterie_libs.petri_modules, local_libs, yojson, ppx_deriving_yojson
 
 
-Library "bacterie"
-  Path: src/bacterie
-  Modules: Bacterie
-  BuildDepends: local_libs, bacterie.proteine, bacterie.molecule,  batteries, bacterie.custom_types
+Library "bacterie_libs"
+  FindLibName : bacterie_libs
+  Path : src/bacterie
+  Modules : Bacterie_libs
+
+# Library "bacterie"
+#   Path: src/bacterie
+#   Modules: Bacterie
+#   BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bacterie_libs.custom_types
 
 
 Library "serveur"
   Path: src/gui
   Modules: Serveur
-  BuildDepends: unix, bacterie.proteine, bacterie.custom_types
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.custom_types
 
 
 
 Executable "test"
   Path : src/
   MainIs : test.ml
-  BuildDepends : bacterie.proteine, bacterie.molecule,  batteries, bacterie.custom_types, serveur
+  BuildDepends : bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bacterie_libs.custom_types, serveur
   ByteOpt:  -g

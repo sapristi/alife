@@ -41,9 +41,14 @@ struct
      transitions : Transition.t array;
      places : Place.t  array;
      mutable launchables : int list;
+
+     (* À reconstruire en suivant la nouvelle forme des molécules
+
      message_receptors_book : (string, int) BatMultiPMap.t ;
      handles_book : (string, int) BatMultiPMap.t ;
-     mol_catchers_book : (string, int) BatMultiPMap.t ;}
+     mol_catchers_book : (string, int) BatMultiPMap.t ;
+      *)
+    }
       
     
   let get_launchables (ts : Transition.t array) =
@@ -82,11 +87,13 @@ struct
   (* dictionnaire pour retrouver rapidement les places
      qui reçoivent des messages *)
     in
-  (* fonction qui permet de créer des dictionnaires pour les 
+  (* À reconstruire avec la nouvelle forme des molécules
+     
+     fonction qui permet de créer des dictionnaires pour les 
      places qui reçoivent des messages, les places qui attrapent
-     des molécules et les poignées *)
+     des molécules et les poignées 
     let rec create_books 
-              (places : place_type list) 
+              (places : Place.t list)
               (n : int) :
 
               (((string, int) BatMultiPMap.t)
@@ -112,9 +119,10 @@ struct
     in 
     let (message_receptors_book, mol_catchers_book, handles_book) = 
       create_books places_signatures_list 0
-    in 
+    in  *)
     {mol; transitions; places; launchables = (get_launchables transitions);
-     message_receptors_book; handles_book; mol_catchers_book;}
+     (* message_receptors_book; handles_book; mol_catchers_book;*)
+    }
 
 
       
@@ -130,7 +138,7 @@ struct
 
 
 
-  let launch_transition (tId : int) p : return_action list= 
+  let launch_transition (tId : int) p = 
     let initialTokens =
       List.fold_left 
         (fun l x ->
@@ -146,7 +154,7 @@ struct
         Place.add_token_from_transition token p.places.(place_id))
       finalTokens p.transitions.(tId).Transition.arrival_places
       
-  let launch_random_transition p : return_action list =
+  let launch_random_transition p  =
     if not (p.launchables = [])
     then 
       let t = random_pick_from_list p.launchables in
@@ -156,6 +164,7 @@ struct
       
   (* relaie le message aux places concernées, créant ainsi
      des tokens quand c'est possible *)
+    (*
   let send_message (m : string) (p : t) = 
     BatSet.PSet.iter 
       (fun x -> Place.add_token_from_message p.places.(x)) 
@@ -165,7 +174,7 @@ struct
     let targets = BatMultiPMap.find pat p.mol_catchers_book in
     let bindSiteId = Misc_library.random_pick_from_PSet targets in
     Place.add_token_from_binding m p.places.(bindSiteId)
-
+     *)
 
       (* il manque les livres, on verra plus tard, 
          c'est déjà pas mal *)
@@ -194,8 +203,8 @@ end;;
 (* *  examples de molecules et proteines test *)
 
 
-let mol1 = [Node Initial_place];;
+let mol1 = [Node Regular_place];;
 let prot1 = Proteine.make mol1;;
 
-let mol2 = [Node Initial_place; TransitionInput ("a", Regular_ilink); Node Regular_place; TransitionOutput ("a", Regular_olink); Node Regular_place];;
+let mol2 = [Node Regular_place; TransitionInput ("a", Regular_ilink); Node Regular_place; TransitionOutput ("a", Regular_olink); Node Regular_place];;
 let prot2 = Proteine.make mol2;;

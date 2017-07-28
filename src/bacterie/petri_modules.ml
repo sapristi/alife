@@ -84,7 +84,7 @@ let remove_token (p : t) : unit=
 let set_token (token : Token.t) (p : t) : unit =
   p.tokenHolder <- OccupiedHolder token
       
-
+  
 (* *** Token reçu d'une transition. :deprecated:  *)
 (*     Il faut appliquer les effets de bord suivant le type de place. on va écrire une autre fonction qui traite les extensions *)
     
@@ -132,6 +132,10 @@ let add_token_from_transition_deprecated (inputToken : Token.t) (p : t) : return
  *)
 
 
+(* *** Token reçu d'une transition. *)
+(* **** TODO ajouter les effets de bords générés par les extensions *)
+let add_token_from_transition (inputToken : Token.t) (place : t) =
+  set_token inputToken place;;
 (* *** Token ajouté par un broadcast de message. *)
 (*    Il faudrait peut-être bien vérifier que la place reçoit des messages, que le message correspond, tout ça tout ça *)
 
