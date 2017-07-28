@@ -35,8 +35,7 @@ module Token =
 
 (* * the place module *)
 
-(* ** the return_action type *)
-(*    :deprecated:  *)
+(* ** the return_action type :deprecated: *)
 (* Used to describe the action taken when a token goes to a place after transiting through a transition. Determined by the type of the place.  *unfinished feature* *)
 (* Ne va à priori plus servir : les places ont une liste d'extensions qui peuvent chacune avoir des effets de bord, qu'on applique à réception d'un token *)
 
@@ -173,6 +172,15 @@ end;;
 
 module Transition =
 struct
+
+(* ** type d'une transition *)
+(* Structure contenant : *)
+(*  - la liste des places de la molécule (pour savoir si des token sont présents) *)
+(*  - la liste des index des places de départ *)
+(*  - la liste des pointeurs des places d'arrivée *)
+(*  - la liste des types de transition entrantes *)
+(*  - la liste des types de transitions sortantes *)
+
   type t  =
     {places : Place.t array;
      departure_places : int list;
@@ -182,6 +190,12 @@ struct
     }
       [@@deriving show]
 
+
+(* ** launchable function *)
+(* Tells whether a given transition can be launched,  *)
+(* i.e. checks whether *)
+(*  - departure places contain a token *)
+(*  - arrival places are token-free *)
   let launchable (transition : t) =
     let places_are_occupied (places :  Place.t array) (to_try : int list): bool =
       List.fold_left
@@ -195,7 +209,9 @@ struct
     (places_are_free transition.places transition.arrival_places)
     && (places_are_occupied transition.places transition.departure_places)
       
-      
+(* ** make function       *)
+(* Creates a transition structure *)
+
   let make (places : Place.t array)
       (depL : (int * transition_input_type) list)
       (arrL : (int * transition_output_type) list) =
@@ -204,7 +220,8 @@ struct
   in {places; departure_places; arrival_places;
       departure_links; arrival_links;}
 
-  
+(* ** transition_function function *)
+(* Applique la fonction de transition d'une transition à une liste de tokens *)
   let transition_function (inputTokens : Token.t list) (transition : t) =
     
   (* fonction qui prends une liste d'arcs entrants et une liste de tokens, 
@@ -260,7 +277,7 @@ struct
          transition.departure_links
          inputTokens)
 
-
+(* ** to_json function*)
   let to_json (trans : t) : Yojson.Safe.json =
     `Assoc [
       "dep_places",
@@ -271,4 +288,3 @@ struct
       `List (List.map2 (fun x y -> `List (`Int x :: [Custom_types.transition_output_type_to_yojson y])) trans.arrival_places trans.arrival_links);]
       
 end;;
-  

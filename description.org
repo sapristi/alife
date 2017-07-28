@@ -93,7 +93,6 @@ Les ribosomes, c'est trop l'éclate.
     + contenir de l'information
       
     Après une opération de repli, on pourra attribuer à une molécule sa forme protéinée, un réseau de pétri (graphe biparti). Il y a plusieurs moyens d'organiser une molécule et la façon dont elle se replie, on va donc détailler et justifier un peu le processus.
-
     
     
 **** Différentes idées 
@@ -118,7 +117,14 @@ Les ribosomes, c'est trop l'éclate.
  + facile à étendre
  + du point de vue des mutations possibles, on a facilement des changements de fonctionnalité
   
-   
+**** Détails d'implémentation
+
+On part donc d'une molécule = liste d'acides.
+ 1. On parcourt la molécule pour en extraire :
+    - d'une part la liste des nœuds, en associant à chaque nœud la liste des extensions qui le suivent
+    - d'autre part tous 
+
+
 ***** Questions
 
 Est-ce qu'on définit un unique type extension (qui contient les transitions) ou on sépare les transitions ?

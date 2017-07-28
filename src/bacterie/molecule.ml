@@ -67,14 +67,20 @@ struct
 
 
 (* *** transition structure type definition *)
-(* Transition Input and Output can combine when they share the same identifier, to form a transition. For now, we only put all incomming and outgoing edges into the structure, whose function will be determined later. *)
 
+(* Structure utilisée pour stoquer une transition.  *)
+(* Triplet contenant : *)
+(*  - une string, l'identifiant de la transition *)
+(*  - une liste int*transInput*Type, dont chaque item contient  *)
+(*  l'entier correspondant au nœud d'où part la transistion,  *)
+(*  et le type de la transition *)
+(*  - de même pour les arcs sortants *)
                 
-  type transition_structure = 
-    string * 
-      (int * AcidTypes.transitionInputType ) list * 
-        (int * AcidTypes.transitionOutputType) list
-                                               [@@deriving show]
+type transition_structure = 
+  string * 
+    (int * AcidTypes.transitionInputType ) list * 
+      (int * AcidTypes.transitionOutputType) list
+                                             [@@deriving show]
 
 (* *** place extensions definition *)
 
@@ -85,66 +91,70 @@ struct
 (* *** build_transitions function *)
 
 (* This function builds the transitions associated with a molecule. This will be used when folding the molecule to get functional form. *)
-(* Il faut ensuite construire pour chaque transition les tableaux des arcs entrants et sortants. On fait tout en un seul passage sur la molecule, en espérant qu'il n'y ait pas trop de transitions. *)
 (* On retourne une liste contenant les items (transID, transitionInputs, transitionOutputs) *)
+(* Algo : on parcourt les acides de la molécule, en gardant en mémoire l'id du dernier nœud visité. Si on tombe sur un acide contenant une transition, on parcourt la liste des transitions déjà créées pour voir si des transitions avec la même id ont déjà été traitées, auquel cas on ajoute cette transition à la transition_structure correspondante, et sinon on créée une nouvelle transition_structure *)
 
-  let build_transitions (mol : molecule) :
-        transition_structure list = 
+(* Idées pour améliorer l'algo :  *)
+(*  - utiliser une table d'associations  (pour accélerer ?)  *)
+
+let build_transitions (mol : molecule) :
+      transition_structure list = 
+  
+  (* insère un arc entrant dans la bonne transition 
+     de la liste des transitions *)
+  let rec insert_new_input 
+            (nodeN :   int) 
+            (transID : string) 
+            (data :    AcidTypes.transitionInputType) 
+            (transL :  transition_structure list) : 
+            
+            transition_structure list =
     
-    (* insère un arc entrant dans la bonne transition 
-       de la liste des transitions *)
-    let rec insert_new_input 
-              (nodeN :   int) 
-              (transID : string) 
-              (data :    AcidTypes.transitionInputType) 
-              (transL :  transition_structure list) : 
-              
-              transition_structure list =
-      
-      match transL with
-      | (t, input, output) :: transL' -> 
-         if transID = t 
-         then (t,  (nodeN, data) :: input, output) :: transL'
-         else (t, input, output) :: (insert_new_input nodeN transID data transL')
-      | [] -> [transID, [nodeN, data], []]
-            
-            
-    (* insère un arc sortant dans la bonne transition 
-       de la liste des transitions *)
-    and insert_new_output 
-          (nodeN :   int) 
-          (transID : string)
-          (data :    AcidTypes.transitionOutputType) 
-          (transL :  transition_structure list) :
+    match transL with
+    | (t, input, output) :: transL' -> 
+       if transID = t 
+       then (t,  (nodeN, data) :: input, output) :: transL'
+       else (t, input, output) :: (insert_new_input nodeN transID data transL')
+    | [] -> [transID, [nodeN, data], []]
           
-          transition_structure list =  
-      
-      match transL with
-      | (t, input, output) :: transL' -> 
-         if transID = t 
-         then (t,  input, (nodeN, data) ::  output) :: transL'
-         else (t, input, output) :: (insert_new_output nodeN transID data transL')
-      | [] -> [transID, [], [nodeN, data]]
-            
-    in 
-    let rec aux 
-              (mol :    molecule)
-              (nodeN :  int) 
-              (transL : transition_structure list) :
-              
-              transition_structure list = 
-      
-      match mol with
-      | Node _ :: mol' -> aux mol' (nodeN + 1) transL
-      | TransitionInput (s,d) :: mol' -> aux mol' nodeN (insert_new_input nodeN s d transL)
-      | TransitionOutput (s,d) :: mol' -> aux mol' nodeN (insert_new_output nodeN s d transL)
-      | Extension _ :: mol' -> aux mol' nodeN transL
-      | [] -> transL
-       
-    in 
-    aux mol (-1) []
+          
+  (* insère un arc sortant dans la bonne transition 
+     de la liste des transitions *)
+  and insert_new_output 
+        (nodeN :   int) 
+        (transID : string)
+        (data :    AcidTypes.transitionOutputType) 
+        (transL :  transition_structure list) :
+        
+        transition_structure list =  
     
-(* *** build_nodes_list function *)
+    match transL with
+    | (t, input, output) :: transL' -> 
+       if transID = t 
+       then (t,  input, (nodeN, data) ::  output) :: transL'
+       else (t, input, output) :: (insert_new_output nodeN transID data transL')
+    | [] -> [transID, [], [nodeN, data]]
+          
+  in 
+  let rec aux 
+            (mol :    molecule)
+            (nodeN :  int) 
+            (transL : transition_structure list) :
+            
+            transition_structure list = 
+    
+    match mol with
+    | Node _ :: mol' -> aux mol' (nodeN + 1) transL
+    | TransitionInput (s,d) :: mol' -> aux mol' nodeN (insert_new_input nodeN s d transL)
+    | TransitionOutput (s,d) :: mol' -> aux mol' nodeN (insert_new_output nodeN s d transL)
+    | Extension _ :: mol' -> aux mol' nodeN transL
+    | [] -> transL
+     
+  in 
+  aux mol (-1) []
+    
+
+(* *** build_nodes_list function :deprecated: *)
 (*     Extrait la liste des noeuds, de la molécule, dans l'ordre rencontré   *)
 
   let rec build_nodes_list (mol : molecule) : AcidTypes.placeType list = 
