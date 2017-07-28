@@ -1,3 +1,10 @@
+# * this file
+# implementation of a client for protein simulation
+# communicates with a server running the simulation
+
+# The server host a particular molecule, and this client can display it's petri net (using DotGraph), launch transitions, etc.
+
+
 import socket
 import sys
 import select
@@ -8,6 +15,9 @@ import tkinter as tk
 
 from graphviz import Digraph
 
+# * DotGraph class
+
+# Used to generate the image of the petri net
 
 # vu qu'on peut pas vraiment mettre à jour les éléments du graphe,
 # on le fait statique et on en recrée un à chaque fois
@@ -40,8 +50,9 @@ class DotGraph(Digraph):
                 self.edge(tname, 'p'+str(valbis[0]), color = color)
 
                 
-        
-        
+# * NetworkClient
+# Hooks between server communication and internal functions
+
 class NetworkClient:
     
     def __init__(self):
@@ -85,6 +96,11 @@ class NetworkClient:
             
     def disconnect(self):
         self.s.close()
+
+# * The Application
+# The main program, managing tk widgets for the UI, internal state and internal functions
+
+# ** TODO separate the interface from the program ?
 
 
 class Application(tk.Frame):
@@ -225,5 +241,3 @@ app = Application(root, client)
 
 
 app.mainloop()
-
-

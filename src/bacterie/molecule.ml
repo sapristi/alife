@@ -171,13 +171,13 @@ let build_transitions (mol : molecule) :
     
     let rec aux mol res = 
       match mol with
-      | Node n :: mol' -> aux mol' ((n, []) ::res)
+      | Node n :: mol' -> aux mol' ((n, []) :: res)
       | Extension e :: mol' ->
          begin
            match res with
            | [] -> aux mol' res
            | (n, ext_l) :: res' ->
-              aux mol' ((n, e :: ext_l) :: res)
+              aux mol' ((n, e :: ext_l) :: res')
          end
       | _ :: mol' -> aux mol' res
       | [] -> res

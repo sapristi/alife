@@ -68,11 +68,14 @@ module Place =
        extensions : extension_type list}
         [@@deriving show]
 (* **** make a place *)
-(* ***** TODO allow place extension to initialise the place with an empty token *)
+(* ***** DONE allow place extension to initialise the place with an empty token *)
 
-let make (place_with_exts : place_type *  place_exts) : t =
-  let placeType,extensions = place_with_exts in
-  {tokenHolder = EmptyHolder; placeType;extensions}
+    let make (place_with_exts : place_type *  place_exts) : t =
+      
+  let placeType, extensions = place_with_exts in
+  if List.mem Init_with_token extensions
+  then {tokenHolder = OccupiedHolder Token.empty; placeType;extensions}
+  else {tokenHolder = EmptyHolder; placeType;extensions}
   
 let is_empty (p : t) : bool =
   p.tokenHolder = EmptyHolder
@@ -84,6 +87,7 @@ let set_token (token : Token.t) (p : t) : unit =
   p.tokenHolder <- OccupiedHolder token
       
   
+
 (* *** Token reçu d'une transition. :deprecated:  *)
 (*     Il faut appliquer les effets de bord suivant le type de place. on va écrire une autre fonction qui traite les extensions *)
     
@@ -159,7 +163,8 @@ let add_token_from_message (p : t) : unit =
     | OccupiedHolder token ->
        ( remove_token p;
          token )
-
+      
+(* *** to_json *)
   let to_json (p : t) =
     `Assoc [("token", token_holder_to_json p.tokenHolder); ("type", Custom_types.place_type_to_yojson p.placeType)]
 end;;
