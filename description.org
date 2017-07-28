@@ -69,61 +69,20 @@ Les ribosomes, c'est trop l'éclate.
 
 ** But
 
-   Le but est d'avoir un modèle unifié de molécules, qui permettent à la fois d'avoir des molécules qui :
+Le but est d'avoir un modèle unifié de molécules, qui permettent à la fois d'avoir des molécules qui :
  - représentent de l'information (ADN)
- - puissent agir sur d'autres molécules (protéines, enzymes), et plus précisement 
-   + Découper une molécule
-   + Insérer une molécule dans une autre
-   + Lire de l'information écrite sur une molécule
+ - puissent agir sur d'autres molécules (protéines, enzymes)
  - puissent échanger de l'information (métabolites)
- 
 
-** Mise en œuvre
-  
-   Le modèle proposé est d'avoir tout d'abord des molécules sous forme de liste d'acides (aminés), chaque acide contenant soit de l'information, soit un morceau qui permette de reconstituer les fonctionnement de la molécule : on veut la *replier* pour obtenir une protéine. Une fois repliée, on aurait un truc qui ressemble fort à un réseau de Petri (plutôt un peu étendu).
-   
-   
-   Un des trucs cool, c'est qu'on peut faire des *ribosomes* ! Et donc permettre à la duplication elle même d'évoluer.
-   
-*** Modèle pour les molécules
-    
-    Une molécule est donc formée par une liste d'acide, dont le role va être de
-    + former des place du réseau de Pétri, 
-    + contribuer à former des transitions du réseau
-    + contenir de l'information
-      
-    Après une opération de repli, on pourra attribuer à une molécule sa forme protéinée, un réseau de pétri (graphe biparti). Il y a plusieurs moyens d'organiser une molécule et la façon dont elle se replie, on va donc détailler et justifier un peu le processus.
+Le modèle proposé est d'avoir tout d'abord des molécules sous forme de liste d'acides (aminés), chaque acide contenant soit de l'information, soit un morceau qui permette de reconstituer les fonctionnement de la molécule : on veut la *replier* pour obtenir une protéine. Une fois repliée, on aurait un truc qui ressemble fort à un réseau de Petri (plutôt un peu étendu).
 
-    
-**** Différentes idées 
-     
-     Tous les acides de la molécule forment une place, et se retrouvent donc au même niveau. Des places particulières contiennent un arc entrant ou un arc sortant. Plusieurs inconvénients : 
- - Ça limite fortement les fonctionnalités d'une protéine
- - Un seul arc entrant ou sortant par place
-  
-   
- Du coup, il faut pouvoir ajouter des attributs à une place. Ou pourrait faire ça de manière interne, mais on précisera dans la partie suivante pourquoi on choisira ici une mméthode externe.
+Un des trucs cool, c'est qu'on peut faire des *ribosomes* ! Et donc permettre à la duplication elle même d'évoluer.
 
-**** Modèle retenu
-     
-     On fonctionnera de manière modulaire, avec les types d'acide suivants :
- + place : correspond à une place du réseau de pétri. On pourra fournir un attribut interne pour effectuer certaines actions
- + extension : ajoute un attribut à la place précédente dans la molécule. Quelques types d'extension : 
-   - transition_input/output : ajoute un arc sortant/entrant 
-   - information : un morceau d'information
-   - autre ? action ?
-     
- Les avantages sont les suivants : 
- + facile à étendre
- + du point de vue des mutations possibles, on a facilement des changements de fonctionnalité
-     
+
 ** Processus de reflexion sur comment faire avancer le schmilblick en cours
 
 
 *** Dans le fichier molecule.ml
-
-
-
 
 On crée un type acid (aminé), qui est :
  + soit un Node Comme on le vera dans la partie suivante, un noeud doit pouvoir recevoir des messages et attraper des molécules.
@@ -216,7 +175,19 @@ Par contre, il faudrait peut-être arriver à mettre un ordre un peu plus déter
 Pour que les bactéries puissent avoir un comportement efficace, il faudrait qu'il y ait de l'information ambiante, qui représente plusieurs aspects du monde alentour, que les bactéries puissent mesurer.
 
 
+** 
 
+*** Acide aminé
+
+Quatre types d'acides aminés :
+ - Node
+ - 
+
+*** Molécule
+
+Dans une cellule se trouvent des molécules (liste d'acides aminés). Celles-ci peuvent être « compilées » afin de produire une forme active, qui sera capable d'effectuer des « réactions chimiques ». 
+
+Les d
 
 
 * Stuff to do
