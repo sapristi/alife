@@ -92,6 +92,7 @@ struct
      fonction qui permet de créer des dictionnaires pour les 
      places qui reçoivent des messages, les places qui attrapent
      des molécules et les poignées 
+
     let rec create_books 
               (places : Place.t list)
               (n : int) :

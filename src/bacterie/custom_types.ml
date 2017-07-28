@@ -57,6 +57,7 @@ type extension_type =
   | Move_ext of bool
   | Send_ext of string
   | Displace_mol_ext of bool
+  | Init_with_token
       [@@deriving show, yojson]
 
 (* * MoleculeManager instantiation *)
