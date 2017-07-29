@@ -71,20 +71,19 @@ module Place =
 (* ***** DONE allow place extension to initialise the place with an empty token *)
 
     let make (place_with_exts : place_type *  place_exts) : t =
+      let placeType, extensions = place_with_exts in
+      if List.mem Init_with_token extensions
+      then {tokenHolder = OccupiedHolder Token.empty; placeType;extensions}
+      else {tokenHolder = EmptyHolder; placeType;extensions}
       
-  let placeType, extensions = place_with_exts in
-  if List.mem Init_with_token extensions
-  then {tokenHolder = OccupiedHolder Token.empty; placeType;extensions}
-  else {tokenHolder = EmptyHolder; placeType;extensions}
-  
-let is_empty (p : t) : bool =
-  p.tokenHolder = EmptyHolder
-  
-let remove_token (p : t) : unit=
-  p.tokenHolder <- EmptyHolder
-  
-let set_token (token : Token.t) (p : t) : unit =
-  p.tokenHolder <- OccupiedHolder token
+    let is_empty (p : t) : bool =
+      p.tokenHolder = EmptyHolder
+      
+    let remove_token (p : t) : unit=
+      p.tokenHolder <- EmptyHolder
+      
+    let set_token (token : Token.t) (p : t) : unit =
+      p.tokenHolder <- OccupiedHolder token
       
   
 
@@ -163,6 +162,27 @@ let add_token_from_message (p : t) : unit =
     | OccupiedHolder token ->
        ( remove_token p;
          token )
+
+(* **** get_msg_receivers *)
+  let rec get_msg_receivers (p : t) : msg_format list =
+    let rec aux exts = 
+    match exts with
+    | [] -> []
+    | Receive_msg_ext msg :: exts' -> msg :: aux exts'
+    | _ :: exts' -> aux exts'
+    in
+    aux p.extensions
+
+(* **** get_mol_catchers *)
+  let get_catchers (p : t) : catch_pattern list =
+    let rec aux exts =
+      match exts with
+      | [] -> []
+      | Catch_ext cp :: exts' -> cp :: aux exts'
+    | _ :: exts' -> aux exts'
+    in
+    aux p.extensions
+                                    
       
 (* *** to_json *)
   let to_json (p : t) =

@@ -48,14 +48,25 @@ type transition_output_type =
   | Bind_olink
       [@@deriving show, yojson]
 
+
+
 (* ** extension *)
+type handle_id = string
+                   [@@deriving show, yojson]
+type catch_pattern = string
+                       [@@deriving show, yojson]
+type receive_pattern = string
+                         [@@deriving show, yojson]
+type msg_format = string
+                    [@@deriving show, yojson]
+                
 type extension_type =
-  | Handle_ext of string
-  | Catch_ext of string
-  | Receive_ext of string
+  | Handle_ext of handle_id
+  | Catch_ext of catch_pattern
+  | Receive_msg_ext of msg_format
   | Release_ext
   | Move_ext of bool
-  | Send_ext of string
+  | Send_msg_ext of msg_format
   | Displace_mol_ext of bool
   | Init_with_token
       [@@deriving show, yojson]

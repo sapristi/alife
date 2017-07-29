@@ -58,18 +58,10 @@ struct
       then t_l := i :: !t_l
       else ()
     done; !t_l
-    
-  let make (mol : molecule) : t = 
-  (* liste des signatures des transitions *)
-    let transitions_signatures_list = build_transitions mol
-  (* liste des signatures des places *)
-    and places_signatures_list = build_nodes_list_with_exts mol
-  in
-(* on crée de nouvelles places à partir de  
-   la liste de types données dans la molécule *)
-    let places_list : Place.t list = 
-      List.map 
-        (fun x -> Place.make x)
+
+(* should maybe be put in the Molecule module, but impossible for now
+due to the type obfuscation *)
+       (fun x -> Place.make x)
         places_signatures_list
         
     in 

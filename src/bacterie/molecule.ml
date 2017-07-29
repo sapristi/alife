@@ -2,8 +2,6 @@
 
 (* molecule.ml defines the basic properties of a molecule, some functions to help build a proteine out of it and a module to help it get managed by a protein (i.e. simulate chemical reactions *)
 
-
-
 (* * preamble : load libraries *)
 
 (* next lines are used when compiling in a ocaml toplevel *)
@@ -76,12 +74,12 @@ struct
 (*  et le type de la transition *)
 (*  - de même pour les arcs sortants *)
                 
-type transition_structure = 
-  string * 
-    (int * AcidTypes.transitionInputType ) list * 
-      (int * AcidTypes.transitionOutputType) list
-                                             [@@deriving show]
-
+  type transition_structure = 
+    string * 
+      (int * AcidTypes.transitionInputType ) list * 
+        (int * AcidTypes.transitionOutputType) list
+                                               [@@deriving show]
+    
 (* *** place extensions definition *)
 
   type place_extensions =
@@ -183,7 +181,30 @@ let build_transitions (mol : molecule) :
       | [] -> res
     in
     aux mol []
-    
+
+(* *** get_handles : *)
+(* Given a molecule, returns a list of tuples (handle_position, handle_id) *)
+
+
+(* *************** TODO Requires either to be put in the protein module, or to reorganise stuff to make acid types visible to the molecule module.I'll do the later for now. *)
+
+
+    (*
+let get_handles (mol : molecule) : (int * handle_id) list =
+  let rec aux mol n =
+    match mol with
+    | Extension ext :: mol' ->
+       begin
+         match ext with
+         | Handle_ext hid -> (n, hid) :: aux mol' (n+1)
+         | _ -> aux  mol' (n+1)
+       end
+    | _ :: mol' -> aux mol' (n+1)
+    | [] -> []
+  in
+  aux mol 0
+     *)
+
 (* ** the MoleculeHolder module *)
 (* Module used to manage a molecule attached at some position to another molecule : defines functions to change the position of attach, cut the molecule, and insert another molecule at position           *)
   module MoleculeHolder =
