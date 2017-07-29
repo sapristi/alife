@@ -35,7 +35,7 @@ let rec zip l1 l2 =
   match l1, l2 with
   | h1 :: t1, h2 :: t2 -> (h1, h2) :: zip t1 t2
   | [], [] -> []
-  | _ -> failwith "zipping list whose size don't match"
+  | _ -> failwith "zipping lists whose size don't match"
 ;;
 
 

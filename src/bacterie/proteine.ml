@@ -24,8 +24,8 @@
 
 open Batteries
 open Misc_library
-open Custom_types
-open MyMolecule
+open Molecule.Molecule
+open Molecule.AcidTypes
 open Maps
 open Petri_modules   
   
@@ -61,7 +61,31 @@ struct
 
 (* should maybe be put in the Molecule module, but impossible for now
 due to the type obfuscation *)
-       (fun x -> Place.make x)
+  let get_handles (mol : molecule) : (int * handle_id) list =
+    let rec aux mol n =
+      match mol with
+      | Extension ext :: mol' ->
+         begin
+           match ext with
+           | Handle_ext hid -> (n,hid) :: aux mol' (n+1)
+           | _ -> aux  mol' (n+1)
+         end
+      | _ :: mol' -> aux mol' (n+1)
+      | [] -> []
+    in
+    aux mol 0
+    
+  let make (mol : molecule) : t = 
+  (* liste des signatures des transitions *)
+    let transitions_signatures_list = build_transitions mol
+  (* liste des signatures des places *)
+    and places_signatures_list = build_nodes_list_with_exts mol
+  in
+(* on crée de nouvelles places à partir de  
+   la liste de types données dans la molécule *)
+    let places_list : Place.t list = 
+      List.map 
+        (fun x -> Place.make x)
         places_signatures_list
         
     in 

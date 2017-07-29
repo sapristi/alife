@@ -79,10 +79,11 @@ module AcidTypes =
 [@@deriving show, yojson]
   end;;
   
+
 (* * MoleculeManager functor *)
 (*   Functor that creates the molecule type and associated functions, given implementations of place_type, transition_input_type and transition_output_type *)
 
-module MakeMoleculeManager = 
+module Molecule = 
   struct 
     
 (* ** type definitions *)
@@ -247,51 +248,50 @@ let build_transitions (mol : molecule) :
       | [] -> []
     in
     aux mol 0
-
+end;;
     
-(* ** the MoleculeHolder module *)
+
+(* * the MoleculeHolder module *)
 
 (* Module used to manage a molecule attached at some position to another molecule : defines functions to change the position of attach, cut the molecule, and insert another molecule at position *)
 
+open Molecule
 module MoleculeHolder =
-    struct 
-      type t = molecule * int
-                            [@@deriving show, yojson]
-             
-      let is_empty (h : t) : bool = 
-        let m,p = h in m = []
-                     
-      let empty = ([],0)
-                
-      let make (mol : molecule) : t = mol,0
-                                    
-      let make_at_pos (mol : molecule) (pos : int) : t = mol,pos
-                                                       
-      let get_molecule (h : t) : molecule =
-        let m,_ = h in m
-                     
-      let move_forward (h : t) : t =
-        let m,p = h in  m, p+1
-                      
-      let move_backward (h : t) : t =
-        let m,p = h in  m, p-1
-                      
-      let get_mol_length (h : t) : int = 
-        let m,p = h in  List.length m
-                      
-      let get_postion (h : t) : int = 
-        let m,p = h in p
-                     
-      let cut (h : t) : t*t =
-        let mol, pos = h in 
-        let m1, m2 = Misc_library.cut_list mol pos in
-        (m1,pos), (m2, 0)
-        
-      let insert (h1 : t) (h2 : t) : t =
-        match h1, h2 with
-        |  (m1, p1), (m2, p2) ->
-         (Misc_library.insert m1 p1 m2), 0
-    end
-    
-    
-end;;
+  struct 
+    type t = molecule * int
+                          [@@deriving show, yojson]
+           
+    let is_empty (h : t) : bool = 
+      let m,p = h in m = []
+                   
+    let empty = ([],0)
+              
+    let make (mol : molecule) : t = mol,0
+                                  
+    let make_at_pos (mol : molecule) (pos : int) : t = mol,pos
+                                                     
+    let get_molecule (h : t) : molecule =
+      let m,_ = h in m
+                   
+    let move_forward (h : t) : t =
+      let m,p = h in  m, p+1
+                    
+    let move_backward (h : t) : t =
+      let m,p = h in  m, p-1
+                    
+    let get_mol_length (h : t) : int = 
+      let m,p = h in  List.length m
+                    
+    let get_postion (h : t) : int = 
+      let m,p = h in p
+                   
+    let cut (h : t) : t*t =
+      let mol, pos = h in 
+      let m1, m2 = Misc_library.cut_list mol pos in
+      (m1,pos), (m2, 0)
+      
+    let insert (h1 : t) (h2 : t) : t =
+      match h1, h2 with
+      |  (m1, p1), (m2, p2) ->
+          (Misc_library.insert m1 p1 m2), 0
+  end;;

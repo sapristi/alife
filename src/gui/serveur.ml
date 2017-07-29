@@ -1,5 +1,5 @@
 open Proteine
-open Custom_types.MyMolecule
+open Molecule.Molecule
   
 let get_my_addr () =
   (Unix.gethostbyname(Unix.gethostname())).Unix.h_addr_list.(0) ;;

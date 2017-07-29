@@ -1,7 +1,6 @@
 
 open Misc_library
-open Custom_types
-open MyMolecule
+open Molecule
 
 (* * the token module *)
    
@@ -61,18 +60,18 @@ module Place =
       | EmptyHolder -> `String "no token"
       | OccupiedHolder t -> Token.to_json t
 
-    type place_exts = extension_type list;;
+    type place_exts = AcidTypes.extension_type list;;
     type t =
       {mutable tokenHolder : token_holder;
-       placeType : place_type;
-       extensions : extension_type list}
+       placeType : AcidTypes.place_type;
+       extensions : AcidTypes.extension_type list}
         [@@deriving show]
 (* **** make a place *)
 (* ***** DONE allow place extension to initialise the place with an empty token *)
 
-    let make (place_with_exts : place_type *  place_exts) : t =
+    let make (place_with_exts : AcidTypes.place_type *  place_exts) : t =
       let placeType, extensions = place_with_exts in
-      if List.mem Init_with_token extensions
+      if List.mem AcidTypes.Init_with_token extensions
       then {tokenHolder = OccupiedHolder Token.empty; placeType;extensions}
       else {tokenHolder = EmptyHolder; placeType;extensions}
       
@@ -147,14 +146,14 @@ let add_token_from_message (p : t) : unit =
 
 (* *** token ajouté quand on attrape une molécule *)
 (*on renvoie un booléen pour faire remonter facilement si le binding était possible ou pas *)
-  let add_token_from_binding (mol : molecule) (p : t) : bool =
+let add_token_from_binding (mol : Molecule.molecule) (p : t) : bool =
     if is_empty p
     then
       ( set_token (Token.make (MoleculeHolder.make mol)) p;
         true )
     else
       false
-
+    
 (* *** remove the token from tokenHolder *)
   let pop_token (p : t) : Token.t =
     match p.tokenHolder with
@@ -164,21 +163,21 @@ let add_token_from_message (p : t) : unit =
          token )
 
 (* **** get_msg_receivers *)
-  let rec get_msg_receivers (p : t) : msg_format list =
+  let rec get_msg_receivers (p : t) : AcidTypes.msg_format list =
     let rec aux exts = 
     match exts with
     | [] -> []
-    | Receive_msg_ext msg :: exts' -> msg :: aux exts'
+    | AcidTypes.Receive_msg_ext msg :: exts' -> msg :: aux exts'
     | _ :: exts' -> aux exts'
     in
     aux p.extensions
 
 (* **** get_mol_catchers *)
-  let get_catchers (p : t) : catch_pattern list =
+  let get_catchers (p : t) : AcidTypes.catch_pattern list =
     let rec aux exts =
       match exts with
       | [] -> []
-      | Catch_ext cp :: exts' -> cp :: aux exts'
+      | AcidTypes.Catch_ext cp :: exts' -> cp :: aux exts'
     | _ :: exts' -> aux exts'
     in
     aux p.extensions
@@ -186,7 +185,7 @@ let add_token_from_message (p : t) : unit =
       
 (* *** to_json *)
   let to_json (p : t) =
-    `Assoc [("token", token_holder_to_json p.tokenHolder); ("type", Custom_types.place_type_to_yojson p.placeType)]
+    `Assoc [("token", token_holder_to_json p.tokenHolder); ("type", AcidTypes.place_type_to_yojson p.placeType)]
 end;;
 
 (* * the transition module *)
@@ -207,8 +206,8 @@ struct
     {places : Place.t array;
      departure_places : int list;
      arrival_places : int list;
-     departure_links : transition_input_type list;
-     arrival_links : transition_output_type list;
+     departure_links : AcidTypes.transition_input_type list;
+     arrival_links : AcidTypes.transition_output_type list;
     }
       [@@deriving show]
 
@@ -235,8 +234,8 @@ struct
 (* Creates a transition structure *)
 
   let make (places : Place.t array)
-      (depL : (int * transition_input_type) list)
-      (arrL : (int * transition_output_type) list) =
+      (depL : (int * AcidTypes.transition_input_type) list)
+      (arrL : (int * AcidTypes.transition_output_type) list) =
   let departure_places, departure_links = unzip depL and 
       arrival_places, arrival_links = unzip arrL 
   in {places; departure_places; arrival_places;
@@ -254,7 +253,7 @@ let transition_function (inputTokens : Token.t list) (transition : t) =
 et calcule  la liste des molécules des tokens (qui ont potentiellement 
                                                    été coupées *)
    let rec input_transition_function 
-             (ill : transition_input_type list)
+             (ill : AcidTypes.transition_input_type list)
              (tokens : Token.t list)
            : (MoleculeHolder.t list)   =
      
@@ -266,23 +265,23 @@ et calcule  la liste des molécules des tokens (qui ont potentiellement
         | Token.MolHolder mol -> 
            match ill with
            | []  -> []
-           | Regular_ilink ::ill' -> 
+           | AcidTypes.Regular_ilink ::ill' -> 
               mol ::  input_transition_function ill' tokens'
-           | Split_ilink :: ill' -> 
+           | AcidTypes.Split_ilink :: ill' -> 
               let mol1, mol2 = MoleculeHolder.cut mol in
           mol1 :: mol2 :: input_transition_function ill' tokens'
               
    (* fonction qui prends une liste d'arcs entrants et une liste de molécukes, 
   et renvoie une liste de tokens  *)
    and  output_transition_function 
-          (oll : transition_output_type list)
+          (oll : AcidTypes.transition_output_type list)
           (mols : MoleculeHolder.t list)
         : Token.t list =
      
      match oll with
-     | Regular_olink :: oll' -> 
+     | AcidTypes.Regular_olink :: oll' -> 
         Token.empty :: output_transition_function oll'  mols
-     | Bind_olink :: oll' -> 
+     | AcidTypes.Bind_olink :: oll' -> 
         begin
           match mols with
           | m1 ::  m2 :: mols' -> 
@@ -308,10 +307,10 @@ et calcule  la liste des molécules des tokens (qui ont potentiellement
     `Assoc [
        "dep_places",
        `List (List.map2
-                (fun x y -> `List (`Int x :: [Custom_types.transition_input_type_to_yojson y]))
+                (fun x y -> `List (`Int x :: [AcidTypes.transition_input_type_to_yojson y]))
                 trans.departure_places trans.departure_links);
        "arr_places", 
-       `List (List.map2 (fun x y -> `List (`Int x :: [Custom_types.transition_output_type_to_yojson y])) trans.arrival_places trans.arrival_links);]
+       `List (List.map2 (fun x y -> `List (`Int x :: [AcidTypes.transition_output_type_to_yojson y])) trans.arrival_places trans.arrival_links);]
       
 end;;
   

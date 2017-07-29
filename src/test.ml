@@ -1,5 +1,5 @@
-open Custom_types;;
-open MyMolecule;;
+open Molecule.Molecule;;
+open Molecule.AcidTypes;;
 open Proteine;;
 open Serveur;;
 

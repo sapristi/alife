@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 0e83b2500ccfff3f86fa9a688da3c6e3)
+# DO NOT EDIT (digest: 39864717c7914f4cce9e661345a575f5)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "bacterie_libs.cma"
@@ -32,7 +32,8 @@ package "proteine" (
 package "petri_modules" (
  version = "0.1"
  description = "Simulating life and stuff"
- requires = "local_libs yojson ppx_deriving_yojson ppx_deriving.show"
+ requires =
+ "local_libs bacterie_libs.molecule yojson ppx_deriving_yojson ppx_deriving.show"
  archive(byte) = "petri_modules.cma"
  archive(byte, plugin) = "petri_modules.cma"
  archive(native) = "petri_modules.cmxa"

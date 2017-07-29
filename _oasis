@@ -42,7 +42,7 @@ Library "petri_modules"
   FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Petri_modules
-  BuildDepends : local_libs, yojson, ppx_deriving_yojson, ppx_deriving.show
+  BuildDepends : local_libs, bacterie_libs.molecule, yojson, ppx_deriving_yojson, ppx_deriving.show
 
 
 Library "proteine"
@@ -61,18 +61,18 @@ Library "bacterie_libs"
 # Library "bacterie"
 #   Path: src/bacterie
 #   Modules: Bacterie
-#   BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bacterie_libs.custom_types
+#   BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bacterie_libs.molecule
 
 
 Library "serveur"
   Path: src/gui
   Modules: Serveur
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.custom_types
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.molecule
 
 
 
 Executable "test"
   Path : src/
   MainIs : test.ml
-  BuildDepends : bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bacterie_libs.custom_types, serveur
+  BuildDepends : bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bacterie_libs.molecule, serveur
   ByteOpt:  -g
