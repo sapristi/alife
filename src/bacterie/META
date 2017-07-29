@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: fedb623b24236452a78eb64cdc8a074a)
+# DO NOT EDIT (digest: 0e83b2500ccfff3f86fa9a688da3c6e3)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "bacterie_libs.cma"
@@ -32,8 +32,7 @@ package "proteine" (
 package "petri_modules" (
  version = "0.1"
  description = "Simulating life and stuff"
- requires =
- "local_libs bacterie_libs.custom_types yojson ppx_deriving_yojson ppx_deriving.show"
+ requires = "local_libs yojson ppx_deriving_yojson ppx_deriving.show"
  archive(byte) = "petri_modules.cma"
  archive(byte, plugin) = "petri_modules.cma"
  archive(native) = "petri_modules.cmxa"
@@ -50,18 +49,6 @@ package "molecule" (
  archive(native) = "molecule.cmxa"
  archive(native, plugin) = "molecule.cmxs"
  exists_if = "molecule.cma"
-)
-
-package "custom_types" (
- version = "0.1"
- description = "Simulating life and stuff"
- requires =
- "bacterie_libs.molecule ppx_deriving.show yojson ppx_deriving_yojson"
- archive(byte) = "custom_types.cma"
- archive(byte, plugin) = "custom_types.cma"
- archive(native) = "custom_types.cmxa"
- archive(native, plugin) = "custom_types.cmxs"
- exists_if = "custom_types.cma"
 )
 # OASIS_STOP
 

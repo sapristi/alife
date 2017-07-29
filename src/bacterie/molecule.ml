@@ -10,33 +10,81 @@
 
 open Misc_library
 
-(* * defining abstract types for acids *)
-
-(*   On définit trois types abstraits pour les acides. *)
-(*   Les types sont implémentés dans le fichier custom_types.ml *)
+(* * defining types for acids *)
 
    
-module type ACID_TYPES = 
-  sig 
-    type placeType
-           [@@deriving show, yojson]
-    type extensionType
-           [@@deriving show, yojson]
-    type transitionOutputType
-           [@@deriving show, yojson]
-    type transitionInputType
-           [@@deriving show, yojson]
-       
+(* ** description générale :in_progress: *)
+(*    Implémentation des types différents acides. Voilà en gros l'organisation : *)
+(*   + place : aucune fonctionalité *)
+(*   + transition : agit sur la molécule contenue dans un token *)
+(*     - regular : rien de particulier *)
+(*     - split : coupe une molécule en 2 (seulement transition_input) *)
+(*     - bind : insère une molécule dans une autre (seulement transition_output) *)
+(*   + extension : autres ? *)
+(*     - handle : poignée pour attraper cette molécule *)
+(*       problème : il faudrait pouvoir attrapper la molécule à n'importe quel acide ? ou alors on attrappe la poignée directement et pas la place associée *)
+(*     - catch : permet d'attraper une molécule. *)
+(*       Est ce qu'il y a une condition d'activation, par exemple un token vide (qui contiendrait ensuite la molécule) ? *)
+(*     - release : lache la molécule attachée *)
+(*     - move : déplace le point de contact de la molécule *)
+(*     - send : envoie un message *)
+(*     - receive : receives a message *)
+
+(*   Questions : est-ce qu'on met l'action move sur les liens ou en extension ? dans les liens c'est plus cohérent, mais dans les extensions ça permet d'en mettre plusiers à la suite. Par contre, à quel moment est-ce qu'on déclenche l'effet de bord ? En recevant le token d'une transition.  Mais du coup pour l'action release, il faudrait aussi la mettre sur les places, puisqu'on agit aussi à l'extérieur du token. Du coup pour l'instant on va mettre à la fois move et release dans les extensions, avec un système pour appliquer les effets des extensions quand on reçoit un token. *)
+
+   
+
+module AcidTypes =
+  struct
+    
+(* ** place *)    
+    type place_type = 
+      | Regular_place
+        [@@deriving show, yojson]
+      
+(* ** transition_input *)
+    type transition_input_type = 
+      | Regular_ilink
+      | Split_ilink
+[@@deriving show, yojson]
+
+(* ** transition_output *)
+    type transition_output_type = 
+      | Regular_olink
+      | Bind_olink
+[@@deriving show, yojson]
+
+
+
+(* ** extension *)
+(* Types used by the extensions. Usefull to use custom types for easier potential changes later on.  *)
+    type handle_id = string
+                       [@@deriving show, yojson]
+    type catch_pattern = string
+                           [@@deriving show, yojson]
+    type receive_pattern = string
+                             [@@deriving show, yojson]
+    type msg_format = string
+                        [@@deriving show, yojson]
+                    
+    type extension_type =
+      | Handle_ext of handle_id
+      | Catch_ext of catch_pattern
+      | Receive_msg_ext of msg_format
+      | Release_ext
+      | Move_ext of bool
+      | Send_msg_ext of msg_format
+      | Displace_mol_ext of bool
+      | Init_with_token
+[@@deriving show, yojson]
   end;;
-
-
+  
 (* * MoleculeManager functor *)
-(*   Functor that creates the molecule type and associated functions, given implementations of placeType, transitionInputType and transitionOutputType *)
+(*   Functor that creates the molecule type and associated functions, given implementations of place_type, transition_input_type and transition_output_type *)
 
 module MakeMoleculeManager = 
-  functor (AcidTypes : ACID_TYPES) -> 
-struct 
-  
+  struct 
+    
 (* ** type definitions *)
 (* *** acid type definition *)
 (* We define how the abstract types get combined to form functional types to eventually create a proteine (petri net) *)
@@ -46,12 +94,12 @@ struct
 (*  + a piece of information : ???? *)
   
   type acid = 
-    | Node of AcidTypes.placeType
-    | TransitionInput of string * AcidTypes.transitionInputType
-    | TransitionOutput of string * AcidTypes.transitionOutputType
-    | Extension of AcidTypes.extensionType
-                       [@@deriving show, yojson]
-                   
+    | Node of AcidTypes.place_type
+    | TransitionInput of string * AcidTypes.transition_input_type
+    | TransitionOutput of string * AcidTypes.transition_output_type
+    | Extension of AcidTypes.extension_type
+                     [@@deriving show, yojson]
+                 
                    
   type molecule = acid list
                        [@@deriving show, yojson]
@@ -76,14 +124,14 @@ struct
                 
   type transition_structure = 
     string * 
-      (int * AcidTypes.transitionInputType ) list * 
-        (int * AcidTypes.transitionOutputType) list
+      (int * AcidTypes.transition_input_type ) list * 
+        (int * AcidTypes.transition_output_type) list
                                                [@@deriving show]
     
 (* *** place extensions definition *)
 
   type place_extensions =
-    AcidTypes.extensionType list
+    AcidTypes.extension_type list
     
 (* ** functions definitions *)
 (* *** build_transitions function *)
@@ -104,7 +152,7 @@ let build_transitions (mol : molecule) :
   let rec insert_new_input 
             (nodeN :   int) 
             (transID : string) 
-            (data :    AcidTypes.transitionInputType) 
+            (data :    AcidTypes.transition_input_type) 
             (transL :  transition_structure list) : 
             
             transition_structure list =
@@ -122,7 +170,7 @@ let build_transitions (mol : molecule) :
   and insert_new_output 
         (nodeN :   int) 
         (transID : string)
-        (data :    AcidTypes.transitionOutputType) 
+        (data :    AcidTypes.transition_output_type) 
         (transL :  transition_structure list) :
         
         transition_structure list =  
@@ -151,11 +199,11 @@ let build_transitions (mol : molecule) :
      
   in 
   aux mol (-1) []
-
+  
 (* *** build_nodes_list function :deprecated: *)
 (*     Extrait la liste des noeuds, de la molécule, dans l'ordre rencontré   *)
 
-  let rec build_nodes_list (mol : molecule) : AcidTypes.placeType list = 
+  let rec build_nodes_list (mol : molecule) : AcidTypes.place_type list = 
     match mol with
     | Node d :: mol' -> d :: (build_nodes_list mol')
     | _ :: mol' -> build_nodes_list mol'
@@ -165,7 +213,7 @@ let build_transitions (mol : molecule) :
 (* Construit la liste des nœuds avec les extensions associéeNote : l'ordre des liste sera dans l'ordre inverse de l'ordre initial de la molécule *)
 
   let build_nodes_list_with_exts (mol : molecule) :
-        (AcidTypes.placeType * (AcidTypes.extensionType list)) list =
+        (AcidTypes.place_type * (AcidTypes.extension_type list)) list =
     
     let rec aux mol res = 
       match mol with
@@ -181,33 +229,31 @@ let build_transitions (mol : molecule) :
       | [] -> res
     in
     aux mol []
+    
 
 (* *** get_handles : *)
 (* Given a molecule, returns a list of tuples (handle_position, handle_id) *)
 
+  let get_handles (mol : molecule) : (int * AcidTypes.handle_id) list =
+    let rec aux mol n =
+      match mol with
+      | Extension ext :: mol' ->
+         begin
+           match ext with
+           | AcidTypes.Handle_ext hid -> (n, hid) :: aux mol' (n+1)
+           | _ -> aux  mol' (n+1)
+         end
+      | _ :: mol' -> aux mol' (n+1)
+      | [] -> []
+    in
+    aux mol 0
 
-(* *************** TODO Requires either to be put in the protein module, or to reorganise stuff to make acid types visible to the molecule module.I'll do the later for now. *)
-
-
-    (*
-let get_handles (mol : molecule) : (int * handle_id) list =
-  let rec aux mol n =
-    match mol with
-    | Extension ext :: mol' ->
-       begin
-         match ext with
-         | Handle_ext hid -> (n, hid) :: aux mol' (n+1)
-         | _ -> aux  mol' (n+1)
-       end
-    | _ :: mol' -> aux mol' (n+1)
-    | [] -> []
-  in
-  aux mol 0
-     *)
-
+    
 (* ** the MoleculeHolder module *)
-(* Module used to manage a molecule attached at some position to another molecule : defines functions to change the position of attach, cut the molecule, and insert another molecule at position           *)
-  module MoleculeHolder =
+
+(* Module used to manage a molecule attached at some position to another molecule : defines functions to change the position of attach, cut the molecule, and insert another molecule at position *)
+
+module MoleculeHolder =
     struct 
       type t = molecule * int
                             [@@deriving show, yojson]
@@ -249,4 +295,3 @@ let get_handles (mol : molecule) : (int * handle_id) list =
     
     
 end;;
-  
