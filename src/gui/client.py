@@ -29,7 +29,7 @@ class DotGraph(Digraph):
         temp_place = None
         # crée les nœuds correspondant aux places, et des arcs entre celles-ci
         for i, val in enumerate(desc["places"]):
-            self.node('p'+str(i), "{"+val["type"][0] + "|" + val["token"] + "}", shape="record")
+            self.node('p'+str(i), "{"+val["type"][0] + "|" + str(val["token"]) + "}", shape="record")
 
             if i>0:
                 self.edge('p'+str(i-1), 'p'+str(i), constraint = "false")
