@@ -22,7 +22,12 @@ let rec insert l1 pos l2 =
 ;;
 
 
-
+let rec append_to_rev_list l1 l2 =
+  match l1 with
+  | h :: l1' -> append_to_rev_list l1' (h::l2)
+  | [] -> l2
+;;
+  
 let rec unzip l = 
   match l with
   | (a,b) :: l' -> 

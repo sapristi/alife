@@ -1,64 +1,78 @@
 
 open Misc_library
+open Molecule.Molecule
 open Molecule
 
 (* * the token module *)
    
 (* Molecules are transformed into proteines by compiling them into a petri net. We define here the tokens used in the petri nets. Tokens go through transitions. *)
 
-(* A token possesses a molecule (possibly empty) and a label. *)
-(* If a molecule is present in the MoleculeHolder and its pointer goes to  *)
+(* A token possesses a molecule (possibly empty), a pointer (int) to a  *)
+(* position of this molecule, and a label. *)
+(* If a molecule is present in the MoleculeHolder and its pointer goes to *)
 (* an acid of type Information, then that piece of information is defined *)
 (* as the label. If not, the label is an empty string. *)
 
 module Token =
   struct
-    type token_label =
-      | No_label
-      | Label of string
-                   [@@deriving show]
 
-    type t = {molHolder : MoleculeHolder.t;
-              label : token_label}
-                                    [@@deriving show]
+    type t = molecule * molecule
+                          [@@deriving show]
+    let is_empty token =
+      token = ([], [])
 
-    let is_empty (token : t) : bool =
-      MoleculeHolder.is_empty token.molHolder
-      
-    let empty =
-      {molHolder = MoleculeHolder.empty; label = No_label}
+    let empty = ([], [])
 
-    let make mol =
-      {molHolder =  mol; label = No_label}
+    let make mol : t =
+      ([], mol)
 
-    let set_mol mol token =
-      {molHolder = MoleculeHolder.make mol; label = token.label}
+    let move_mol_forward token =
+      match token with
+      | m1, a :: m2 -> a :: m1, m2
+      | _, [] -> token
 
+    let move_mol_backward token =
+      match token with
+      | a :: m2, m1 -> m2, a :: m1
+      | [], _ -> token
 
-    let update_label token =
+    let cut_mol token =
+      let m1, m2 = token in
+      (m1, []), ([], m2)
 
-      
-    let to_string token =
-      let molhold_desc =
-        MoleculeHolder.to_string token.molHolder
-                
-      and label_desc =
-        match token.label with
-        | No_label -> "no label"
-        | Label s -> s
+    (* insert source_tok inside dest_tok at the position 
+     of the pointer in dest_tok. The new pointer will correspond
+     to the position of the pointer in source_tok *)
+    let insert source_tok dest_tok =
+      let (s1, s2), (d1, d2) = source_tok, dest_tok in 
+      (s1 @ d1, s2 @ d2)
+               
+    let get_label token =
+      match token with
+      | _, Extension (AcidTypes.Information s) :: m2 -> s
+      | _ -> ""
+           
+
+    let to_string (token : t) : string =
+      let mol_desc =
+        if is_empty token
+        then "empty"
+        else "molecule"
+      and label_desc = get_label token
       in
-      "token ("^molhold_desc^") ("^label_desc^")"
-                      
+      "token ("^mol_desc^") ("^label_desc^")"
+      
                       
     let to_json token =
-      let label_string =
-        match token.label with
-        | No_label -> "no label"
-        | Label s -> s
+      let mol_desc =
+        if is_empty token
+        then "empty"
+        else "molecule"
+      and label_desc = get_label token
       in
       `List [`String "token";
-             `String (MoleculeHolder.to_string token.molHolder);
-             `String label_string]
+             `String mol_desc;
+             `String label_desc]
                       
   end
 
@@ -173,7 +187,7 @@ let add_token_from_message (p : t) : unit =
 let add_token_from_binding (mol : Molecule.molecule) (p : t) : bool =
   if is_empty p
   then
-    ( set_token (Token.make (MoleculeHolder.make mol)) p;
+    ( set_token (Token.make mol) p;
       true;)
   else
     false
@@ -285,7 +299,7 @@ et calcule  la liste des molécules des tokens (qui ont potentiellement
    let rec input_transition_function 
              (ill : AcidTypes.transition_input_type list)
              (tokens : Token.t list)
-           : (MoleculeHolder.t list)   =
+           : (Token.t list)   =
      
      match tokens with
      | [] -> []
@@ -293,35 +307,32 @@ et calcule  la liste des molécules des tokens (qui ont potentiellement
         if Token.is_empty token
         then input_transition_function (List.tl ill) tokens'
         else
-          let mol = token.Token.molHolder in
           match ill with
           | []  -> []
           | AcidTypes.Regular_ilink ::ill' -> 
-             mol ::  input_transition_function ill' tokens'
+             token ::  input_transition_function ill' tokens'
           | AcidTypes.Split_ilink :: ill' -> 
-             let mol1, mol2 = MoleculeHolder.cut mol in
-             mol1 :: mol2 :: input_transition_function ill' tokens'
+             let token1, token2 = Token.cut_mol token in
+             token1 :: token2 :: input_transition_function ill' tokens'
              
    (* fonction qui prends une liste d'arcs entrants et une liste de molécukes, 
   et renvoie une liste de tokens  *)
    and  output_transition_function 
           (oll : AcidTypes.transition_output_type list)
-          (mols : MoleculeHolder.t list)
+          (tokens : Token.t list)
         : Token.t list =
      
      match oll with
      | AcidTypes.Regular_olink :: oll' -> 
-        Token.empty :: output_transition_function oll'  mols
+        Token.empty :: output_transition_function oll'  tokens
      | AcidTypes.Bind_olink :: oll' -> 
         begin
-          match mols with
-          | m1 ::  m2 :: mols' -> 
-             (Token.make (MoleculeHolder.insert m1 m2))
-             :: output_transition_function oll' mols
-          | m :: [] -> 
-             Token.make m  :: output_transition_function oll'  mols          
-          | [] -> 
-             Token.empty :: output_transition_function oll' mols
+          match tokens with
+          | t1 ::  t2 :: tokens' ->
+             (Token.insert t1 t2)
+             :: output_transition_function oll' tokens'
+          | t :: [] -> [t]
+          | [] -> []
         end
        
      | [] -> []

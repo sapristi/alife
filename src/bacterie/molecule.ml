@@ -87,6 +87,7 @@ module AcidTypes =
       | Send_msg_ext of msg_format
       | Displace_mol_ext of bool
       | Init_with_token
+      | Information of string
 [@@deriving show, yojson]
   end;;
   
@@ -268,7 +269,7 @@ let build_transitions (mol : molecule) :
 end;;
     
 
-(* * the MoleculeHolder module *)
+(* * the MoleculeHolder module :deprecated: *)
 
 (* Module used to manage a molecule attached at some position to another molecule : defines functions to change the position of attach, cut the molecule, and insert another molecule at position *)
 
