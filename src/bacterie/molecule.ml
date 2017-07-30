@@ -311,4 +311,9 @@ module MoleculeHolder =
       match h1, h2 with
       |  (m1, p1), (m2, p2) ->
           (Misc_library.insert m1 p1 m2), 0
+
+    let to_string (mh : t) =
+      if is_empty mh
+      then "empty"
+      else "molecule"
   end;;

@@ -245,6 +245,8 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 	- insertion d'une autre molécule (à la position du pointeur)
 	- déplacement du pointeur
 
+	On va aussi ajouter un possible label à un token, qui permettra
+	aux arcs de filtrer les token.
 ****** Places
        Les places sont soit vides, soit contiennent un token. Elles 
        gardent aussi en mémoire la liste des extensions associées, et 

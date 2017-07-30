@@ -9,24 +9,49 @@ open Molecule
 (* il faudrait faire attention aux molécules vides (ie liste vide, et peut-être transformer les tokens qui contiennent une molécule vide en token vide (mais pas sûr) *)
 
 module Token =
-  struct 
-    type t = Empty | MolHolder of MoleculeHolder.t
+  struct
+    type token_label =
+      | No_label
+      | Label of string
+                   [@@deriving show]
+
+    type t = {molHolder : MoleculeHolder.t;
+              label : token_label}
                                     [@@deriving show]
-    let is_empty token = token = Empty
-    let empty = Empty
-    let make mol = MolHolder mol
-    let set_mol mol token = MolHolder mol
+
+    let is_empty (token : t) : bool =
+      MoleculeHolder.is_empty token.molHolder
+      
+    let empty =
+      {molHolder = MoleculeHolder.empty; label = No_label}
+
+    let make mol =
+      {molHolder =  mol; label = No_label}
+
+    let set_mol mol token =
+      {molHolder = MoleculeHolder.make mol; label = token.label}
                           
     let to_string token =
-      match token with
-      | Empty -> "token (empty)"
-      | MolHolder mh -> "token (molecule)"
+      let molhold_desc =
+        MoleculeHolder.to_string token.molHolder
+                
+      and label_desc =
+        match token.label with
+        | No_label -> "no label"
+        | Label s -> s
+      in
+      "token ("^molhold_desc^") ("^label_desc^")"
                       
                       
     let to_json token =
-      match token with
-      | Empty -> `String "token (empty)"
-      | MolHolder mh -> `String "token (molecule)"
+      let label_string =
+        match token.label with
+        | No_label -> "no label"
+        | Label s -> s
+      in
+      `List [`String "token";
+             `String (MoleculeHolder.to_string token.molHolder);
+             `String label_string]
                       
   end
 
@@ -144,7 +169,7 @@ let add_token_from_binding (mol : Molecule.molecule) (p : t) : bool =
   if is_empty p
   then
     ( set_token (Token.make (MoleculeHolder.make mol)) p;
-      true )
+      true;)
   else
     false
     
