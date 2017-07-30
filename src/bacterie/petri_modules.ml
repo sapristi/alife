@@ -34,15 +34,6 @@ module Token =
 
 (* * the place module *)
 
-(* ** the return_action type :deprecated: *)
-(* Used to describe the action taken when a token goes to a place after transiting through a transition. Determined by the type of the place.  *unfinished feature* *)
-(* Ne va à priori plus servir : les places ont une liste d'extensions qui peuvent chacune avoir des effets de bord, qu'on applique à réception d'un token *)
-
-type return_action =
-  | AddMol of MoleculeHolder.t
-  | SendMessage of string
-  | NoAction
-      [@@deriving show]
 
 (* ** the place module *)
 (*    Module qui gère les places. Une place a un type, et peut contenir un jeton.  *)

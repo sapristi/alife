@@ -59,21 +59,6 @@ struct
       else ()
     done; !t_l
 
-(* should maybe be put in the Molecule module, but impossible for now
-due to the type obfuscation *)
-  let get_handles (mol : molecule) : (int * handle_id) list =
-    let rec aux mol n =
-      match mol with
-      | Extension ext :: mol' ->
-         begin
-           match ext with
-           | Handle_ext hid -> (n,hid) :: aux mol' (n+1)
-           | _ -> aux  mol' (n+1)
-         end
-      | _ :: mol' -> aux mol' (n+1)
-      | [] -> []
-    in
-    aux mol 0
     
   let make (mol : molecule) : t = 
   (* liste des signatures des transitions *)
