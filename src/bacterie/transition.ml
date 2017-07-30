@@ -2,6 +2,8 @@
 open Molecule.Molecule
 open Molecule
 open Place
+open Token
+open Misc_library
 
 (* * the transition module *)
 (* Module to manage transitions :  *)

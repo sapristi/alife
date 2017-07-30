@@ -37,20 +37,33 @@ Library "molecule"
   BuildDepends: local_libs, yojson, ppx_deriving_yojson
 
 
-Library "petri_modules"
-  FindLibName : petri_modules
+Library "token"
+  FindLibName : token
   FindLibParent : bacterie_libs
   Path : src/bacterie
-  Modules : Petri_modules
+  Modules : Token
   BuildDepends : local_libs, bacterie_libs.molecule, yojson, ppx_deriving_yojson, ppx_deriving.show
 
+Library "place"
+  FindLibName : place
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Place
+  BuildDepends : local_libs, bacterie_libs.molecule, bacterie_libs.token, yojson, ppx_deriving_yojson, ppx_deriving.show
+
+Library "transition"
+  FindLibName : transition
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Transition
+  BuildDepends : local_libs, bacterie_libs.molecule, bacterie_libs.token, bacterie_libs.place, yojson, ppx_deriving_yojson, ppx_deriving.show
 
 Library "proteine"
   FindLibName : proteine
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Proteine
-  BuildDepends: batteries, bacterie_libs.molecule, bacterie_libs.petri_modules, local_libs, yojson, ppx_deriving_yojson
+  BuildDepends: batteries, bacterie_libs.molecule, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, local_libs, yojson, ppx_deriving_yojson
 
 
 Library "bacterie_libs"

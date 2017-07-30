@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 39864717c7914f4cce9e661345a575f5)
+# DO NOT EDIT (digest: 391f83dfb38a5746b04fc79a529584a9)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "bacterie_libs.cma"
@@ -7,6 +7,30 @@ archive(byte, plugin) = "bacterie_libs.cma"
 archive(native) = "bacterie_libs.cmxa"
 archive(native, plugin) = "bacterie_libs.cmxs"
 exists_if = "bacterie_libs.cma"
+package "transition" (
+ version = "0.1"
+ description = "Simulating life and stuff"
+ requires =
+ "local_libs bacterie_libs.molecule bacterie_libs.token bacterie_libs.place yojson ppx_deriving_yojson ppx_deriving.show"
+ archive(byte) = "transition.cma"
+ archive(byte, plugin) = "transition.cma"
+ archive(native) = "transition.cmxa"
+ archive(native, plugin) = "transition.cmxs"
+ exists_if = "transition.cma"
+)
+
+package "token" (
+ version = "0.1"
+ description = "Simulating life and stuff"
+ requires =
+ "local_libs bacterie_libs.molecule yojson ppx_deriving_yojson ppx_deriving.show"
+ archive(byte) = "token.cma"
+ archive(byte, plugin) = "token.cma"
+ archive(native) = "token.cmxa"
+ archive(native, plugin) = "token.cmxs"
+ exists_if = "token.cma"
+)
+
 package "reactions" (
  version = "0.1"
  description = "Simulating life and stuff"
@@ -21,7 +45,7 @@ package "proteine" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "batteries bacterie_libs.molecule bacterie_libs.petri_modules local_libs yojson ppx_deriving_yojson"
+ "batteries bacterie_libs.molecule bacterie_libs.token bacterie_libs.place bacterie_libs.transition local_libs yojson ppx_deriving_yojson"
  archive(byte) = "proteine.cma"
  archive(byte, plugin) = "proteine.cma"
  archive(native) = "proteine.cmxa"
@@ -29,16 +53,16 @@ package "proteine" (
  exists_if = "proteine.cma"
 )
 
-package "petri_modules" (
+package "place" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "local_libs bacterie_libs.molecule yojson ppx_deriving_yojson ppx_deriving.show"
- archive(byte) = "petri_modules.cma"
- archive(byte, plugin) = "petri_modules.cma"
- archive(native) = "petri_modules.cmxa"
- archive(native, plugin) = "petri_modules.cmxs"
- exists_if = "petri_modules.cma"
+ "local_libs bacterie_libs.molecule bacterie_libs.token yojson ppx_deriving_yojson ppx_deriving.show"
+ archive(byte) = "place.cma"
+ archive(byte, plugin) = "place.cma"
+ archive(native) = "place.cmxa"
+ archive(native, plugin) = "place.cmxs"
+ exists_if = "place.cma"
 )
 
 package "molecule" (

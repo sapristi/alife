@@ -27,7 +27,8 @@ open Misc_library
 open Molecule.Molecule
 open Molecule.AcidTypes
 open Maps
-open Petri_modules   
+open Place
+open Transition
   
 
 
