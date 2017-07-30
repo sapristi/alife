@@ -1,17 +1,22 @@
 * Setting up
 
-** Stuff to installlll Using opam, install
+** Stuff to install Using opam, install
+    + oasis
     + batteries
     + ppx_deriving.show
     + ppx_deriving.yojson
 
     Also requires OCaml, python3 with python3-graphviz and python3
 ** Usefull stuff
-   Installed with opam :
+   ocaml tools (Installed with opam) :
     + merlin (completion and errors detection in emacs)
     + utop (advanced top-level)
 
-    Source files are commented using the outshine emacs mode
+   emacs tools (installed with melpa) : 
+    + outshine / outorg
+    + tuareg-mode
+    + graphviz-dot mode
+
 
 * Intro
 
@@ -24,55 +29,61 @@
 
    Il y a eu plusieurs essais dans ce sens : 
      - Tierra : 
-        + Le monde est un tableau unidimensionnel. Chaque case est soit vide, 
-          soit contient une instruction, parmi un jeu d'instruction bien choisi.
+        + Le monde est un tableau unidimensionnel. Chaque case est soit
+          vide, soit contient une instruction, parmi un jeu 
+          d'instruction bien choisi.
  
-        + Les cellules sont un ensemble contigu de cases, et donc des 
-          instructions qu'elles contiennent.
+        + Les cellules sont un ensemble contigu de cases, et donc des
+	  instructions qu'elles contiennent.
 
-       Le jeu d'instruction permet aux cellules de lire n'importe où, mais pas 
-       d'écrire à l'intérieur d'autres cellules. Les cellules se dupliquent en 
-       recopiant leur code génétique vers une partie vide de la bande.
+       Le jeu d'instruction permet aux cellules de lire n'importe où, 
+       mais pas d'écrire à l'intérieur d'autres cellules. Les cellules 
+       se dupliquent en recopiant leur code génétique vers une partie 
+       vide de la bande.
 
-        + Chaque cellule a son processeur propre, qui simule l'exécution de son code.
+        + Chaque cellule a son processeur propre, qui simule
+          l'exécution de son code.
 
-        + Comportements apparus : spécialisation, parasitage, un peu de complexification
+        + Comportements apparus : spécialisation, parasitage, un peu de 
+          complexification
 
      - Des trucs d'Hutton : 
-        + Le monde est un tableau bidimensionnel. Le monde contient des atomes, 
-          qui peuvent se déplacer plus ou moins librement.
+        + Le monde est un tableau bidimensionnel. Le monde contient
+          des atomes, qui peuvent se déplacer plus ou moins librement.
         
-        + Les atomes ont un type donné, et un état qui peut varier au cours 
-          du temps. Un jeu de réactions chimique, qui détermine si deux atomes 
-          de type et d'état donné qui se rencontrent vont former une liaison. 
+        + Les atomes ont un type donné, et un état qui peut varier au 
+          cours du temps. Un jeu de réactions chimique, qui détermine 
+          si deux atomes de type et d'état donné qui se rencontrent 
+          vont former une liaison. 
           Jeu de réactions chimiques bien choisi.
 
-        + Les cellules ont une membrane qui forme un cercle, et un brin d'ADN, 
-          relié à ses deux extrémités à la membrane. Les cellules se dupliquent 
-          de manière spontanée grâce aux réactions chimiques. 
+        + Les cellules ont une membrane qui forme un cercle, et un brin 
+          d'ADN, relié à ses deux extrémités à la membrane. Les 
+          cellules se dupliquent de manière spontanée grâce aux 
+          réactions chimiques. 
 
         + Le monde est simulé /physiquement/, c'est à dire chaque atome 
           séparemment, et rien d'autre.
 
-        + Comportements apparus : pas grand chose, à part une légère réduction 
-          de l'ADN.
+        + Comportements apparus : pas grand chose, à part une légère 
+          réduction de l'ADN.
 
-     En résumé, Tierra s'est montré prometteur, mais est beaucoup plus proche
-     d'un ordinateur que d'une cellule. On manque en particulier de capacité 
-     de réaction, de communication, etc...
+     En résumé, Tierra s'est montré prometteur, mais est beaucoup plus 
+     proche d'un ordinateur que d'une cellule. On manque en particulier 
+     de capacité de réaction, de communication, etc...
 
      Hutton est très proche en quelques sorte de la biologie, mais 
-     ça ne marche pas très bien. Sans parler des coûts de simulation faramineux, 
-     ni du jeu de réactions chimiques tellement alambiqué pour que ça marche 
-     que c'en est un peu absurde. 
+     ça ne marche pas très bien. Sans parler des coûts de simulation 
+     faramineux, ni du jeu de réactions chimiques tellement alambiqué 
+     pour que ça marche que c'en est un peu absurde. 
 
 
 ** Où l'on essaie de préparer un autre épisode
 
-   Ce que j'aimerait faire, c'est un modèle qui soit à la fois proche du 
-   fonctionnement des ordinateurs (c'est à dire en particulier avec une 
-   physique très simple, sans avoir besoin de simuler des choses à un 
-   niveau très bas), et qui reflète le principe de fonctionnement 
+   Ce que j'aimerait faire, c'est un modèle qui soit à la fois proche
+   du fonctionnement des ordinateurs (c'est à dire en particulier avec 
+   une physique très simple, sans avoir besoin de simuler des choses à 
+   un niveau très bas), et qui reflète le principe de fonctionnement 
    d'une cellule autant qu'il est souhaitable et possible.
 
    Une première idée à été de faire un peu comme Tierra, mais en plus 
@@ -82,9 +93,9 @@
    mais gérer la duplication semble devenir complexe. On perds aussi 
    la bonne relation qui existait entre les cellules et l'univers.
  
-   La deuxième idée est d'utiliser des modèles complutationnels simples pour
-   simuler les protéines. Partant des automates, j'en suis arrivé aux réseaux
-   de Petri, qui me semblent assez prometteurs. 
+   La deuxième idée est d'utiliser des modèles complutationnels simples 
+   pour simuler les protéines. Partant des automates, j'en suis arrivé 
+   aux réseaux de Petri, qui me semblent assez prometteurs. 
    On le décrira plus précisement par la suite.
    
 ** Trucs importants à garder en tête
@@ -98,71 +109,80 @@
 
 ** But
 
-   Le but est d'avoir un modèle unifié de molécules, qui permettent à la fois
-   d'avoir des molécules qui :
+   Le but est d'avoir un modèle unifié de molécules, qui permettent à 
+   la fois d'avoir des molécules qui :
      - représentent de l'information (ADN)
-     - puissent agir sur d'autres molécules (protéines, enzymes), et plus précisement 
+     - puissent agir sur d'autres molécules (protéines, enzymes), et 
+       plus précisement 
         + Découper une molécule
         + Insérer une molécule dans une autre
         + Lire de l'information écrite sur une molécule
      - puissent échanger de l'information (métabolites)
    
-   Enfin en vrai le but c'est de faire des *RIBOSOMES*, ne l'oublions pas.
-
+   Enfin en vrai le but c'est de faire des *RIBOSOMES*, 
+   ne l'oublions pas.
+   
 ** Mise en œuvre
   
-   Le modèle proposé est d'avoir tout d'abord des molécules sous forme de liste
-   d'acides (aminés), chaque acide contenant soit de l'information, soit un
-   morceau qui permette de reconstituer les fonctionnement de la molécule : 
-   on veut la *replier* pour obtenir une protéine. Une fois repliée, on aurait
-   un truc qui ressemble fort à un réseau de Petri (plutôt un peu étendu).
+   Le modèle proposé est d'avoir tout d'abord des molécules sous forme
+   de liste d'acides (aminés), chaque acide contenant soit de
+   l'information, soit un morceau qui permette de reconstituer les
+   fonctionnement de la molécule : 
+   on veut la *replier* pour obtenir une protéine. Une fois repliée,
+   on aurait un truc qui ressemble fort à un réseau de Petri 
+   (plutôt un peu étendu).
    
-   Un des trucs cool, c'est qu'on peut faire des *ribosomes* ! Et donc permettre
-   à la duplication elle même d'évoluer.
+   Un des trucs cool, c'est qu'on peut faire des *ribosomes* ! Et donc 
+   permettre à la duplication elle même d'évoluer.
    
 *** Modèle pour les molécules et la formation du réseau de pétri
     
-    Une molécule est donc formée par une liste d'acide, dont le role va être de
+    Une molécule est donc formée par une liste d'acide, dont le role va 
+    être de
      + former des place du réseau de Pétri, 
      + contribuer à former des transitions du réseau
      + contenir de l'information
        
-     Après une opération de repli, on pourra attribuer à une molécule sa forme 
-     protéinée, un réseau de pétri (graphe biparti). Il y a plusieurs moyens 
-     d'organiser une molécule et la façon dont elle se replie, on va donc 
-     détailler et justifier un peu le processus.
+     Après une opération de repli, on pourra attribuer à une molécule 
+     sa forme protéinée, un réseau de pétri (graphe biparti). Il y a 
+     plusieurs moyens d'organiser une molécule et la façon dont elle se 
+     replie, on va donc détailler et justifier un peu le processus.
     
 **** Différentes idées 
      
-     Tous les acides de la molécule forment une place, et se retrouvent donc 
-     au même niveau. Des places particulières contiennent un arc entrant ou un
-     arc sortant. Plusieurs inconvénients : 
+     Tous les acides de la molécule forment une place, et se retrouvent 
+     donc au même niveau. Des places particulières contiennent un arc 
+     entrant ou un arc sortant. Plusieurs inconvénients : 
        - Ça limite fortement les fonctionnalités d'une protéine
        - Un seul arc entrant ou sortant par place
    
-       Du coup, il faut pouvoir ajouter des attributs à une place. Ou pourrait
-       faire ça de manière interne, mais on précisera dans la partie suivante
-       pourquoi on choisira ici une mméthode externe.
+       Du coup, il faut pouvoir ajouter des attributs à une place. Ou 
+       pourrait faire ça de manière interne, mais on précisera dans la 
+       partie suivante pourquoi on choisira ici une mméthode externe.
 
 **** Modèle retenu
      
-     On fonctionnera de manière modulaire, avec les types d'acide suivants :
-      + place : correspond à une place du réseau de pétri. On pourra fournir
-      un attribut interne pour effectuer certaines actions
+     On fonctionnera de manière modulaire, avec les types d'acide 
+     suivants :
+      + place : correspond à une place du réseau de pétri. On pourra 
+      fournir un attribut interne pour effectuer certaines actions
       + transition_input/output : ajoute un arc sortant/entrant  
-      + extension : ajoute un attribut à la place précédente dans la molécule. 
+      + extension : ajoute un attribut à la place précédente dans la 
+        molécule. 
         Quelques types d'extension : 
          - information : un morceau d'information
          - autre ? action ?
      
       Les avantages sont les suivants : 
        + facile à étendre
-       + du point de vue des mutations possibles, on a facilement des changements de fonctionnalité
+       + du point de vue des mutations possibles, on a facilement des 
+         changements de fonctionnalité
 
 *************** TODO Un *GROS PROBLÈME*:
 
-       Que se passe-t-il si plusieurs transtions input avec la même id partent d'un même nœud, en  
-       particulier pour la gestion des token ?
+       Que se passe-t-il si plusieurs transtions input avec la même id 
+       partent d'un même nœud, en particulier 
+       pour la gestion des token ?
        Plusieurs pistes :
         - la transition n'est pas crée
         - seul un des arcs est pris en compte
@@ -173,11 +193,12 @@
 
 On part donc d'une molécule = liste d'acides.
 On parcourt la molécule pour en extraire :
-    1. d'une part la liste des nœuds, en associant à chaque nœud la liste 
-       des extensions qui le suivent
-    2. d'autre part tous les arcs sont stoqués dans une liste (qui pourrait
-       être remplacée par un dictionnaire) dans laquelle on stoque pour chaque
-       id de transition les transitions correspondantes
+    1. d'une part la liste des nœuds, en associant à chaque nœud la 
+       liste des extensions qui le suivent
+    2. d'autre part tous les arcs sont stoqués dans une liste (qui 
+       pourrait être remplacée par un dictionnaire) dans laquelle on 
+       stoque pour chaque id de transition les transitions 
+       correspondantes
 
 
 ***** Questions
@@ -192,70 +213,78 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
  
 *** Modèle pour les protéines
 
-    Une protéine est donc un réseau de Pétri, c'est à dire un graphe bipartie 
-    (deux types de nœuds) :
-     - des places, qui correspondent directement à un acide de la molécule
-     - des transitions, qui sont construites implicitements à partir d'arcs 
-       entrants et sortans, décrits dans la protéine
+    Une protéine est donc un réseau de Pétri, c'est à dire un graphe 
+    bipartie  (deux types de nœuds) :
+     - des places, qui correspondent directement à un acide de la 
+       molécule
+     - des transitions, qui sont construites implicitements à partir 
+       d'arcs entrants et sortants, décrits dans la protéine
 
-    Les places contiennent des token, qui peuvent eux-même contenir une molécule 
-    (et de l'information, et autre ?).
-    Une transition peut être lancée quand toutes les places de départ de la 
-    transition contiennent un token, et qu'il n'y a pas de token dans les places
-    d'arrivée.
+    Les places contiennent des token, qui peuvent eux-même contenir une 
+    molécule (et de l'information, et autre ?).
+    Une transition peut être lancée quand toutes les places de départ 
+    de la transition contiennent un token, et qu'il n'y a pas de token 
+    dans les places d'arrivée.
 
     Les protéines doivent gérer :
-     1. Le réseau de pétri, c'est à dire le déclenchement de transitions et la
-        gestion des tokens qui va avec
-     2. Tous les effets appliqués sur le tokens par les transitions et les extensions
-     3. L'interface avec la bactérie, c'est à dire l'envoi/reception de message, et 
-        l'attachement/détachement de molécules
-
+     1. Le réseau de pétri, c'est à dire le déclenchement de 
+     transitions et la gestion des tokens qui va avec
+     2. Tous les effets appliqués sur le tokens par les transitions et 
+     les extensions
+     3. L'interface avec la bactérie, c'est à dire l'envoi/reception de 
+     message, et l'attachement/détachement de molécules
+	
 ***** Réseau de pétri
-
+      
 ****** Token et MoleculeManager
-       Un token est soit vide, soit contient un moleculeHolder, qui est lui-même
-       une interface contenant une molécule et un poiteur (entier) vers un des
-       acides de la molécule, et qui permet de manipuler celle-ci : 
+       Un token est soit vide, soit contient un moleculeHolder, qui est 
+       lui-même une interface contenant une molécule et un poiteur 
+       (entier) vers un des acides de la molécule, et qui permet de 
+       manipuler celle-ci : 
         - découpage (à la position du pointeur)
 	- insertion d'une autre molécule (à la position du pointeur)
 	- déplacement du pointeur
 
 ****** Places
-       Les places sont soit vides, soit contiennent un token. Elles gardent
-       aussi en mémoire la liste des extensions associées, et implémentent 
-       une interface pour gérer l'éventuel token.
+       Les places sont soit vides, soit contiennent un token. Elles 
+       gardent aussi en mémoire la liste des extensions associées, et 
+       implémentent une interface pour gérer l'éventuel token.
 
 *************** TODO Ajouter les effets sur les tokens générés par les extensions ?       
 
 ****** Transitions
 
-       Les transitions ont pour l'instant pour rôle de découper et recoller 
-       des molécules. Voilà comment ça se passe :
+       Les transitions ont pour l'instant pour rôle de découper et 
+       recoller des molécules. Voilà comment ça se passe :
  
         1. Quand un token porteur passe par un arc entrant, 
-	   - si le token porte une molécule et que l'arc est de type Split, 
-	     la molécule est coupée en deux, chaque partie est stoquée dans
-	     un token
-	   - sinon, le token (avec l'éventuelle molécule) n'est pas modifié
+	   - si le token porte une molécule et que l'arc est de 
+	   type Split, la molécule est coupée en deux, chaque partie 
+	   est stoquée dans un token
+	   - sinon, le token (avec l'éventuelle molécule) n'est pas 
+	   modifié
 
-	2. Tous les token venant des arcs entrant sont mis dans un « pool »
-	   commun
+	2. Tous les token venant des arcs entrant sont mis dans un « 
+	pool » commun
 
-	3. Les token passent dans les transitions sortantes, dans un ordre
-	   fixe déterminé par les transitions d'arrivée : 
-	   - Si deux token porteur de molécule se trouvent devant un arc de
-	     type Bind, la seconde molécule est insérée dans la première
+	3. Les token passent dans les transitions sortantes, dans un 
+	ordre fixe déterminé par les transitions d'arrivée : 
+	   - Si deux token porteur de molécule se trouvent devant un 
+	   arc de type Bind, la seconde molécule est insérée dans la 
+	   première
 	   - Sinon, un unique token passe par l'arc sortant
 	   - Si il reste des token, ils sont perdus
-	   - Si il n'y a pas assez de token, les places d'arrivée ne sont pas
-	     remplies
+	   - Si il n'y a pas assez de token, les places d'arrivée ne 
+	   sont pas remplies
 	     
-	On remarquera vite que tout ça n'a pas l'air très propre, mais en
-	même temps on traite ici avec le « vivant », donc c'est un peu normal :)
+	On remarquera vite que tout ça n'a pas l'air très propre, mais 
+	en même temps on traite ici avec le « vivant », donc c'est un 
+	peu normal :)
 	Plus sérieusement, on supposera pour l'instant que les capacités
 	évolutives des bactéries ne seront pas affectées. 
 	
+*************** TODO Implémenter proprement ce modèle dans les transitions 
+
 
 ** Processus de reflexion sur comment faire avancer le schmilblick en cours
 
@@ -276,47 +305,166 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
      + (Transmettre de l'information)
 
 
-    L'idée est de pouvoir associer une molécule M1 (et un emplacement de cette
-    molécule) à un jeton (placé sur une autre molécule M2).
-    Une transition de M2 pourra alors découper cette molécule M1 à l'emplacement
-    spécifié. Il faudra alors que deux arcs sortant associent une molécule à
-    leur jeton pour garder les deux parties coupées M1' et M1''. Au contraire,
-    si deux arcs entrants ont des jetons qui contiennent une molécule, on pourra
-    les recoller ensemble.
+    L'idée est de pouvoir associer une molécule M1 (et un emplacement 
+    de cette molécule) à un jeton (placé sur une autre molécule M2).
+    Une transition de M2 pourra alors découper cette molécule M1 à 
+    l'emplacement spécifié. Il faudra alors que deux arcs sortant 
+    associent une molécule à leur jeton pour garder les deux parties 
+    coupées M1' et M1''. Au contraire, si deux arcs entrants ont des 
+    jetons qui contiennent une molécule, on pourra les recoller 
+    ensemble.
 
-    On peut aussi essayer de faire la même chose avec des morceaux d'information
-    associées aux jetons, je ne sais pas si c'est vraiment utile.
+    On peut aussi essayer de faire la même chose avec des morceaux 
+    d'information associées aux jetons, je ne sais pas si c'est 
+    vraiment utile.
     
-    Pour attraper une molécule ou recevoir un message, l'idée serait d'avoir
-    une propriété sur les noeuds qui leur permettent de créer un jeton en
-    attrapant une molécule ou en recevant un message.
+    Pour attraper une molécule ou recevoir un message, l'idée serait 
+    d'avoir une propriété sur les noeuds qui leur permettent de créer 
+    un jeton en attrapant une molécule ou en recevant un message.
 
 
-    Une autre propriété associée aux jetons serait une énergie, mais je ne
-    sais pas encore bien quel rôle lui attribuer. En fait si, il faudrait que
-    recoller deux molécules entre elles demande de l'énergie, et que les
-    séparer en libère.
+    Une autre propriété associée aux jetons serait une énergie, mais je 
+    ne sais pas encore bien quel rôle lui attribuer. En fait si, il 
+    faudrait que recoller deux molécules entre elles demande de 
+    l'énergie, et que les séparer en libère.
 
 
-    Pour l'instant, l'énergie sert à rien, et on la gère un peu n'importe
-    comment. En fait on va la virer, ce sera un peu plus propre.
+    Pour l'instant, l'énergie sert à rien, et on la gère un peu 
+    n'importe comment. En fait on va la virer, ce sera un peu plus 
+    propre.
 
-    Par contre, il faudrait peut-être arriver à mettre un ordre un peu plus
-    déterminé sur la façon dont les arcs des transitions se combinent.
+    Par contre, il faudrait peut-être arriver à mettre un ordre un peu 
+    plus déterminé sur la façon dont les arcs des transitions se 
+    combinent.
 
 *** Ribosome
 
-    Un ribosome est une protéine qui lit un code génétique (ADN) et construit
-    des protéines en fonction de l'information contenue dans l'ADN.
+    Un ribosome est une protéine qui lit un code génétique (ADN) et 
+    construit des protéines en fonction de l'information contenue dans 
+    l'ADN.
 
+    Donc pour implémenter un ribosome, il faut être capable de lire de
+    l'information contenue dans une molécule, de l'interpréter pour 
+    recoller les bons acides au bon endroit sur une molécule en train
+    d'être construite.
 
+***** Implémentation possible d'un ribosome : 
+    La molécule en train d'être construite se trouve à mol_start_place, 
+    et le brin d'ADN lu se trouve à DNA_start_place.
+    
+    Les arcs entrants de transition qui partent de DNA_start_place sont 
+    filtrants (fonctionnalité qui reste à implémenter), donc seule une 
+    des filter_transition_i peut être lancéé (celle qui correspond à 
+    l'information lue sur le brin d'ADN). 
+    
+    Lorsqu'une de ces transitions est lancée, la molécule se retrouve à 
+    mol_temp_place_i, d'où elle va être lancée vers bind_transition_i, 
+    qui lui accolera l'acide correspondant, et enfin rejoindre 
+    mol_end_place (commun à tous les chemins).
+
+    Il suffit ensuite de faire revenir la molécule et l'ADN à leur 
+    place de départ (en ayant fait bouger la tête de lecture sur l'ADN) 
+    pour recommencer l'opération avec le morceau d'information suivant.
+
+    Voir le résultat du code suivant pour le graphe du réseau de pétri
+    décrit, où les chemins que peut suivre la molécule sont en rouge, 
+    les chemins que peut suivre le brin d'ADN est en bleu, et les acides
+    en vert.
+    
+    #+BEGIN_SRC dot :file ribosome.png :cmdline -Kdot -Tpng
+  digraph G {
+          mol_start_place[color = "red"]
+          DNA_start_place[color = "blue"]
+          
+          filter_transition_0[shape = "rectangle"]
+          mol_temp_place_0[color = "red"]
+          bind_transition_0[shape = "rectangle"]
+          
+          filter_transition_1[shape = "rectangle"]
+          mol_temp_place_1[color = "red"]
+          bind_transition_1[shape = "rectangle"]
+
+          
+          filter_transition_n[shape = "rectangle", style = "dotted"]
+          mol_temp_place_n[color = "red", style = "dotted"]
+          bind_transition_n[shape = "rectangle", style = "dotted"]
+          
+          DNA_end_place[color = "blue"]
+          mol_end_place[color = "red"]
+          
+          acid_holder_0[color = "green"]
+          acid_holder_1[color = "green"]
+          acid_holder_n[color = "green"]
+          
+          mol_start_place -> filter_transition_0 ->
+          mol_temp_place_0  -> bind_transition_0 ->
+          mol_end_place [color =red];
+
+          mol_start_place -> filter_transition_1 ->
+          mol_temp_place_1  -> bind_transition_1 ->
+          mol_end_place [color = "red"];
+
+          mol_start_place -> filter_transition_n ->
+          mol_temp_place_n  -> bind_transition_n ->
+          mol_end_place [style = "dotted", color = "red"];
+
+          DNA_start_place -> filter_transition_0 -> DNA_end_place
+          [color = "blue"];
+          DNA_start_place -> filter_transition_1 -> DNA_end_place
+          [color = "blue"];
+          DNA_start_place -> filter_transition_n ->
+          DNA_end_place [style = "dotted", color = "blue"];
+
+          acid_holder_0 -> bind_transition_0 [color = "green"];
+          acid_holder_1 -> bind_transition_1 [color = "green"];
+          acid_holder_n -> bind_transition_n [color = "green", style = "dotted"];
+          
+  }
+#+END_SRC
+ 
+   #+RESULTS:
+   [[file:ribosome.png]]
+
+   En détaillant un chemin en particulier, voici ce que cela donne : 
+ 
+
+    #+BEGIN_SRC dot :file ribosome_detailed.png :cmdline -Kdot -Tpng
+      digraph G {
+              mol_start_place[color = "red"]
+              DNA_start_place[color = "blue"]
+              
+              filter_transition[shape = "rectangle"]
+              mol_temp_place[color = "red"]
+              bind_transition[shape = "rectangle"]
+              
+              DNA_end_place[color = "blue"]
+              mol_end_place[color = "red"]
+              
+              acid_holder[color = "green"]
+
+              mol_start_place -> filter_transition ->
+              mol_temp_place  -> bind_transition ->
+              mol_end_place [color =red];
+
+              DNA_start_place -> filter_transition -> DNA_end_place
+              [color = "blue"];
+              acid_holder -> bind_transition [color = "green"];
+              
+      }
+#+END_SRC
+
+    #+RESULTS:
+    [[file:ribosome_detailed.png]]
+
+    
 **** Modèle 1
 
 *** Dans un futur lointain
 
-    Pour que les bactéries puissent avoir un comportement efficace, il faudrait
-    qu'il y ait de l'information ambiante, qui représente plusieurs aspects du
-    monde alentour, que les bactéries puissent mesurer
+    Pour que les bactéries puissent avoir un comportement efficace, il 
+    faudrait qu'il y ait de l'information ambiante, qui représente 
+    plusieurs aspects du monde alentour, que les bactéries puissent 
+    mesurer
 
 * Stuff to do
 
@@ -332,4 +480,6 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
     les noms de types/noms de variables/noms de modules
 *** TODO documenter et implémenter ce qui découle de la nouvelle implémentation
     des acides
+
+
 

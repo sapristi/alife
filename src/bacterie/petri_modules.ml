@@ -60,11 +60,14 @@ module Place =
 (* **** make a place *)
 (* ***** DONE allow place extension to initialise the place with an empty token *)
 
-    let make (place_with_exts : AcidTypes.place_type *  place_exts) : t =
+    let make (place_with_exts : AcidTypes.place_type *  place_exts)
+        : t =
       let placeType, extensions = place_with_exts in
       if List.mem AcidTypes.Init_with_token extensions
-      then {tokenHolder = OccupiedHolder Token.empty; placeType;extensions}
-      else {tokenHolder = EmptyHolder; placeType;extensions}
+      then
+        {tokenHolder = OccupiedHolder Token.empty; placeType;extensions}
+      else
+        {tokenHolder = EmptyHolder; placeType;extensions}
       
     let is_empty (p : t) : bool =
       p.tokenHolder = EmptyHolder
@@ -138,12 +141,12 @@ let add_token_from_message (p : t) : unit =
 (* *** token ajouté quand on attrape une molécule *)
 (*on renvoie un booléen pour faire remonter facilement si le binding était possible ou pas *)
 let add_token_from_binding (mol : Molecule.molecule) (p : t) : bool =
-    if is_empty p
-    then
-      ( set_token (Token.make (MoleculeHolder.make mol)) p;
-        true )
-    else
-      false
+  if is_empty p
+  then
+    ( set_token (Token.make (MoleculeHolder.make mol)) p;
+      true )
+  else
+    false
     
 (* *** remove the token from tokenHolder *)
   let pop_token (p : t) : Token.t =
@@ -176,7 +179,9 @@ let add_token_from_binding (mol : Molecule.molecule) (p : t) : bool =
       
 (* *** to_json *)
   let to_json (p : t) =
-    `Assoc [("token", token_holder_to_json p.tokenHolder); ("type", AcidTypes.place_type_to_yojson p.placeType)]
+    `Assoc
+     [("token", token_holder_to_json p.tokenHolder);
+      ("type", AcidTypes.place_type_to_yojson p.placeType)]
 end;;
 
 (* * the transition module *)
@@ -209,11 +214,15 @@ struct
 (*  - departure places contain a token *)
 (*  - arrival places are token-free *)
   let launchable (transition : t) =
-    let places_are_occupied (places :  Place.t array) (to_try : int list): bool =
+    let places_are_occupied
+          (places :  Place.t array) (to_try : int list): bool =
+
       List.fold_left
         (fun res pId -> (not (Place.is_empty places.(pId))) && res )
         true to_try
-    and places_are_free  (places :  Place.t array) (to_try : int list): bool =
+    and places_are_free
+          (places :  Place.t array) (to_try : int list): bool =
+
       List.fold_left
         (fun res pId -> Place.is_empty places.(pId) && res )
         true to_try  
@@ -276,7 +285,8 @@ et calcule  la liste des molécules des tokens (qui ont potentiellement
         begin
           match mols with
           | m1 ::  m2 :: mols' -> 
-             (Token.make (MoleculeHolder.insert m1 m2)) :: output_transition_function oll' mols
+             (Token.make (MoleculeHolder.insert m1 m2))
+             :: output_transition_function oll' mols
           | m :: [] -> 
              Token.make m  :: output_transition_function oll'  mols          
           | [] -> 
@@ -301,7 +311,9 @@ et calcule  la liste des molécules des tokens (qui ont potentiellement
                 (fun x y -> `List (`Int x :: [AcidTypes.transition_input_type_to_yojson y]))
                 trans.departure_places trans.departure_links);
        "arr_places", 
-       `List (List.map2 (fun x y -> `List (`Int x :: [AcidTypes.transition_output_type_to_yojson y])) trans.arrival_places trans.arrival_links);]
+       `List (List.map2
+                (fun x y -> `List (`Int x :: [AcidTypes.transition_output_type_to_yojson y]))
+                trans.arrival_places trans.arrival_links);]
       
 end;;
   

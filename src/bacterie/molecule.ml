@@ -1,6 +1,8 @@
 (* * this file *)
-
-(* molecule.ml defines the basic properties of a molecule, some functions to help build a proteine out of it and a module to help it get managed by a protein (i.e. simulate chemical reactions *)
+  
+(*   molecule.ml defines the basic properties of a molecule, some *)
+(*   functions to help build a proteine out of it and a module to help it *)
+(*   get managed by a protein (i.e. simulate chemical reactions *)
 
 (* * preamble : load libraries *)
 
@@ -30,13 +32,22 @@ open Misc_library
 (*     - send : envoie un message *)
 (*     - receive : receives a message *)
 
-(*   Questions : est-ce qu'on met l'action move sur les liens ou en extension ? dans les liens c'est plus cohérent, mais dans les extensions ça permet d'en mettre plusiers à la suite. Par contre, à quel moment est-ce qu'on déclenche l'effet de bord ? En recevant le token d'une transition.  Mais du coup pour l'action release, il faudrait aussi la mettre sur les places, puisqu'on agit aussi à l'extérieur du token. Du coup pour l'instant on va mettre à la fois move et release dans les extensions, avec un système pour appliquer les effets des extensions quand on reçoit un token. *)
+(*   Questions : est-ce qu'on met l'action move sur les liens ou en  *)
+(*   extension ? dans les liens c'est plus cohérent, mais dans les  *)
+(*   extensions ça permet d'en mettre plusiers à la suite. Par contre, à  *)
+(*   quel moment est-ce qu'on déclenche l'effet de bord ? En recevant le  *)
+(*   token d'une transition.  Mais du coup pour l'action release, il  *)
+(*   faudrait aussi la mettre sur les places, puisqu'on agit aussi à  *)
+(*   l'extérieur du token. Du coup pour l'instant on va mettre à la fois  *)
+(*   move et release dans les extensions, avec un système pour appliquer  *)
+(*   les effets des extensions quand on reçoit un token. *)
 
    
 
 module AcidTypes =
   struct
     
+
 (* ** place *)    
     type place_type = 
       | Regular_place
@@ -162,7 +173,8 @@ let build_transitions (mol : molecule) :
     | (t, input, output) :: transL' -> 
        if transID = t 
        then (t,  (nodeN, data) :: input, output) :: transL'
-       else (t, input, output) :: (insert_new_input nodeN transID data transL')
+       else (t, input, output) ::
+              (insert_new_input nodeN transID data transL')
     | [] -> [transID, [nodeN, data], []]
           
           
@@ -180,7 +192,8 @@ let build_transitions (mol : molecule) :
     | (t, input, output) :: transL' -> 
        if transID = t 
        then (t,  input, (nodeN, data) ::  output) :: transL'
-       else (t, input, output) :: (insert_new_output nodeN transID data transL')
+       else (t, input, output) ::
+              (insert_new_output nodeN transID data transL')
     | [] -> [transID, [], [nodeN, data]]
           
   in 
@@ -193,8 +206,12 @@ let build_transitions (mol : molecule) :
     
     match mol with
     | Node _ :: mol' -> aux mol' (nodeN + 1) transL
-    | TransitionInput (s,d) :: mol' -> aux mol' nodeN (insert_new_input nodeN s d transL)
-    | TransitionOutput (s,d) :: mol' -> aux mol' nodeN (insert_new_output nodeN s d transL)
+    | TransitionInput (s,d) :: mol' ->
+       aux mol' nodeN (insert_new_input nodeN s d transL)
+
+    | TransitionOutput (s,d) :: mol' ->
+       aux mol' nodeN (insert_new_output nodeN s d transL)
+
     | Extension _ :: mol' -> aux mol' nodeN transL
     | [] -> transL
      
