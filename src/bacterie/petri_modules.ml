@@ -4,9 +4,12 @@ open Molecule
 
 (* * the token module *)
    
-(* Molecules are transformed into proteines by compiling them into a petri net. We define here the tokens used in the petri nets. Tokens go through transitions, and can hold a molecule on which actions will be performed by the transitions, simulating chemical reactions. *)
+(* Molecules are transformed into proteines by compiling them into a petri net. We define here the tokens used in the petri nets. Tokens go through transitions. *)
 
-(* il faudrait faire attention aux molécules vides (ie liste vide, et peut-être transformer les tokens qui contiennent une molécule vide en token vide (mais pas sûr) *)
+(* A token possesses a molecule (possibly empty) and a label. *)
+(* If a molecule is present in the MoleculeHolder and its pointer goes to  *)
+(* an acid of type Information, then that piece of information is defined *)
+(* as the label. If not, the label is an empty string. *)
 
 module Token =
   struct
@@ -30,7 +33,11 @@ module Token =
 
     let set_mol mol token =
       {molHolder = MoleculeHolder.make mol; label = token.label}
-                          
+
+
+    let update_label token =
+
+      
     let to_string token =
       let molhold_desc =
         MoleculeHolder.to_string token.molHolder
@@ -54,8 +61,6 @@ module Token =
              `String label_string]
                       
   end
-
-
 
 (* * the place module *)
 
@@ -285,17 +290,18 @@ et calcule  la liste des molécules des tokens (qui ont potentiellement
      match tokens with
      | [] -> []
      | token :: tokens' ->
-        match token with
-        | Token.Empty -> input_transition_function (List.tl ill) tokens'
-        | Token.MolHolder mol -> 
-           match ill with
-           | []  -> []
-           | AcidTypes.Regular_ilink ::ill' -> 
-              mol ::  input_transition_function ill' tokens'
-           | AcidTypes.Split_ilink :: ill' -> 
-              let mol1, mol2 = MoleculeHolder.cut mol in
-          mol1 :: mol2 :: input_transition_function ill' tokens'
-              
+        if Token.is_empty token
+        then input_transition_function (List.tl ill) tokens'
+        else
+          let mol = token.Token.molHolder in
+          match ill with
+          | []  -> []
+          | AcidTypes.Regular_ilink ::ill' -> 
+             mol ::  input_transition_function ill' tokens'
+          | AcidTypes.Split_ilink :: ill' -> 
+             let mol1, mol2 = MoleculeHolder.cut mol in
+             mol1 :: mol2 :: input_transition_function ill' tokens'
+             
    (* fonction qui prends une liste d'arcs entrants et une liste de molécukes, 
   et renvoie une liste de tokens  *)
    and  output_transition_function 
