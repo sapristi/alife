@@ -47,7 +47,6 @@ open Misc_library
 module AcidTypes =
   struct
     
-
 (* ** place *)    
     type place_type = 
       | Regular_place
@@ -57,8 +56,9 @@ module AcidTypes =
     type transition_input_type = 
       | Regular_ilink
       | Split_ilink
-[@@deriving show, yojson]
-
+      | Filter_ilink of string
+                          [@@deriving show, yojson]
+                      
 (* ** transition_output *)
     type transition_output_type = 
       | Regular_olink
@@ -88,7 +88,7 @@ module AcidTypes =
       | Displace_mol_ext of bool
       | Init_with_token
       | Information of string
-[@@deriving show, yojson]
+                         [@@deriving show, yojson]
   end;;
   
 

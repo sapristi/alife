@@ -17,7 +17,6 @@
     + tuareg-mode
     + graphviz-dot mode
 
-
 * Intro
 
   Du coup, on veut ici créer un programme qui réalise le rêve de
@@ -468,6 +467,11 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
     plusieurs aspects du monde alentour, que les bactéries puissent 
     mesurer
 
+    Implémenter un système similaire à tierra, où les bactéries qui 
+    font des actions « interdites » reçoivent un malus, et finissent
+    par mourir ?
+    (par exemple : problème de transition, problème lors du décalage
+    d'une molécule à l'intérieur d'un token
 * Stuff to do
 
 ** DONE v0.0.0

@@ -19,49 +19,69 @@ struct
 (*  - la liste des types de transition entrantes *)
 (*  - la liste des types de transitions sortantes *)
 
-  type t  =
-    {places : Place.t array;
-     departure_places : int list;
-     arrival_places : int list;
-     departure_links : AcidTypes.transition_input_type list;
-     arrival_links : AcidTypes.transition_output_type list;
+
+  type t =
+    {
+      input_links : (Place.t * AcidTypes.transition_input_type) list;
+      output_links : (Place.t * AcidTypes.transition_output_type) list;
     }
-      [@@deriving show]
-
-
+    
 (* ** launchable function *)
 (* Tells whether a given transition can be launched,  *)
 (* i.e. checks whether *)
 (*  - departure places contain a token *)
 (*  - arrival places are token-free *)
+
   let launchable (transition : t) =
-    let places_are_occupied
-          (places :  Place.t array) (to_try : int list): bool =
-
-      List.fold_left
-        (fun res pId -> (not (Place.is_empty places.(pId))) && res )
-        true to_try
-    and places_are_free
-          (places :  Place.t array) (to_try : int list): bool =
-
-      List.fold_left
-        (fun res pId -> Place.is_empty places.(pId) && res )
-        true to_try  
+    let launchable_input_link  
+          (input_link : AcidTypes.transition_input_type)
+          (place : Place.t) =
+      match input_link with
+      | AcidTypes.Filter_ilink s ->
+         begin
+           match place.Place.tokenHolder with
+           | Place.EmptyHolder -> false
+           | Place.OccupiedHolder token ->
+              s = Token.get_label token
+         end
+      | _ ->
+         match place.Place.tokenHolder with
+         | Place.EmptyHolder -> false
+         | Place.OccupiedHolder token -> true
+    and launchable_output_link  
+          (output_link : AcidTypes.transition_output_type)
+          (place : Place.t) =
+      Place.is_empty place
     in
-    (places_are_free transition.places transition.arrival_places)
-    && (places_are_occupied transition.places transition.departure_places)
-      
+    List.fold_left
+      (fun res (p, t_i) -> res && launchable_input_link t_i p)
+      true
+      transition.input_links
+    &&
+      List.fold_left
+        (fun res (p, t_o) -> res && launchable_output_link t_o p)
+        true
+        transition.output_links
+    
 (* ** make function       *)
 (* Creates a transition structure *)
 
+    
   let make (places : Place.t array)
-      (depL : (int * AcidTypes.transition_input_type) list)
-      (arrL : (int * AcidTypes.transition_output_type) list) =
-  let departure_places, departure_links = unzip depL and 
-      arrival_places, arrival_links = unzip arrL 
-  in {places; departure_places; arrival_places;
-      departure_links; arrival_links;}
+           (depL : (int * AcidTypes.transition_input_type) list)
+           (arrL : (int * AcidTypes.transition_output_type) list) =
 
+    let input_links =
+      List.map
+        (fun (place_i, link) -> places.(place_i), link)
+        depL
+    and output_links =
+      List.map
+        (fun (place_i, link) -> places.(place_i), link)
+        arrL
+    in
+    {input_links; output_links}
+          
 (* ** transition_function function *)
 (* Applique la fonction de transition d'une transition à une liste de tokens. *Ça a l'air particulièrement écrit à l'arrach, il va sûrement falloir tout réécrire. *)
 
@@ -136,3 +156,46 @@ et calcule  la liste des molécules des tokens (qui ont potentiellement
       
 end;;
   
+
+  (*
+  type t  =
+    {places : Place.t array;
+     departure_places : int list;
+     arrival_places : int list;
+     departure_links : AcidTypes.transition_input_type list;
+     arrival_links : AcidTypes.transition_output_type list;
+    }
+      [@@deriving show]
+   *)
+
+  
+    (*
+  let launchable (transition : t) =
+    let places_are_occupied
+          (places :  Place.t array) (to_try : int list): bool =
+
+      List.fold_left
+        (fun res pId -> (not (Place.is_empty places.(pId))) && res )
+        true to_try
+    and places_are_free
+          (places :  Place.t array) (to_try : int list): bool =
+
+      List.fold_left
+        (fun res pId -> Place.is_empty places.(pId) && res )
+        true to_try  
+    in
+    (places_are_free transition.places transition.arrival_places)
+    && (places_are_occupied transition.places transition.departure_places)
+     *)
+
+
+(*  
+  let make (places : Place.t array)
+      (depL : (int * AcidTypes.transition_input_type) list)
+      (arrL : (int * AcidTypes.transition_output_type) list) =
+  let departure_places, departure_links = unzip depL and 
+      arrival_places, arrival_links = unzip arrL 
+  in {places; departure_places; arrival_places;
+      departure_links; arrival_links;}
+
+ *)
