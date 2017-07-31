@@ -142,27 +142,14 @@ struct
 
 
   let launch_transition (tId : int) p = 
-    let initialTokens =
-      List.fold_left 
-        (fun l x ->
-          let token = Place.pop_token p.places.(x) in
-          token :: l)
-        [] p.transitions.(tId).Transition.departure_places
-    in 
-    let finalTokens =
-      Transition.transition_function initialTokens p.transitions.(tId)
-    in
-    BatList.map2
-      (fun token place_id ->
-        Place.add_token_from_transition token p.places.(place_id))
-      finalTokens p.transitions.(tId).Transition.arrival_places
+    Transition.apply_transition p.transitions.(tId)
       
   let launch_random_transition p  =
     if not (p.launchables = [])
     then 
       let t = random_pick_from_list p.launchables in
       launch_transition t p
-    else []
+    else ()
 
       
   (* relaie le message aux places concernées, créant ainsi

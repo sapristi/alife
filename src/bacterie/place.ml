@@ -38,7 +38,14 @@ module Place =
         {tokenHolder = OccupiedHolder Token.empty; placeType;extensions}
       else
         {tokenHolder = EmptyHolder; placeType;extensions}
-      
+
+    let pop_token_for_transition (p : t) : Token.t =
+      match p.tokenHolder with
+      | EmptyHolder -> failwith "asking for token from empty place"
+      | OccupiedHolder token ->
+         p.tokenHolder <- EmptyHolder; token
+         
+         
     let is_empty (p : t) : bool =
       p.tokenHolder = EmptyHolder
       
