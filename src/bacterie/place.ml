@@ -157,6 +157,5 @@ let add_token_from_binding (mol : Molecule.molecule) (p : t) : bool =
 (* ** to_json *)
   let to_json (p : t) =
     `Assoc
-     [("token", token_holder_to_json p.tokenHolder);
-      ("type", AcidTypes.place_type_to_yojson p.placeType)]
+     [("token", token_holder_to_json p.tokenHolder)]
 end;;
