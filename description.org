@@ -471,7 +471,7 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
     font des actions « interdites » reçoivent un malus, et finissent
     par mourir ?
     (par exemple : problème de transition, problème lors du décalage
-    d'une molécule à l'intérieur d'un token
+    d'une molécule à l'intérieur d'
 * Stuff to do
 
 ** DONE v0.0.0
@@ -482,10 +482,9 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 
 ** v0.0.1
 *** DONE reconstruire les types d'acides
-*** DONE définir et utiliser une convention de nommage qui sépare clairement
-    les noms de types/noms de variables/noms de modules
-*** TODO documenter et implémenter ce qui découle de la nouvelle implémentation
-    des acides
+*** TODO définir et utiliser une convention de nommage qui sépare clairement les noms de types/noms de variables/noms de modules
+*** TODO documenter et implémenter ce qui découle de la nouvelle implémentation des acides
+*** TODO améliorer l'interface client (et donc la transformation en json)
 
 
 

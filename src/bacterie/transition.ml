@@ -76,55 +76,58 @@ let launchable (transition : t) =
 
     {places; input_links; output_links}
           
-(* ** transition_function function *)
-(* Applique la fonction de transition d'une transition à une liste de tokens. *Ça a l'air particulièrement écrit à l'arrach, il va sûrement falloir tout réécrire. *)
+(* ** apply_transition function *)
+(* Applique la fonction de transition d'une transition à une liste de tokens.  *)
 
-(* On parcourt la liste des token donnés en entrée (qu'on suppose être ceux contenus dans les places de départ), si le token contient une molécule on pop la liste des input_link, et si c'est un split_link, on coupe la molécule -> ça n'a pas du tout l'air de faire la bonne correspondante entre la place d'où vient le token et le lien correspondant. *)
+(* La fonction apply_transitions_input parcourt la liste des (place*transitions d'entrée), on prend le token de la place et on applique éventuellement les split. Ça nous donne une liste de token, qu'on donne à manger à la fonction apply_transition_outputs. *)
+(* Cette fonction parcourt la liste des (place * transition de sortie), et leur donne un token (éventuellement en combinant deux token pour un bind). *)
 
-  let apply_transition (transition : t) =
-    let rec apply_transition_inputs
-              (i_arc_l :
-                 (Place.t * AcidTypes.transition_input_type) list)
-            : Token.t list =
-      match i_arc_l with
-      | (place, transi) :: i_arc_l' ->
-         begin
-           let token = Place.pop_token_for_transition place in
-           match transi with
-           | AcidTypes.Split_ilink  -> 
-              let token1, token2 = Token.cut_mol token in
-              token1 :: token2 ::
-                apply_transition_inputs i_arc_l' 
-           | _ -> token :: apply_transition_inputs i_arc_l'
-         end
-      | [] -> []
-      and apply_transition_outputs 
-            (o_arc_l :
-               (Place.t * AcidTypes.transition_output_type) list)
-            (tokens : Token.t list) =
+(* Du coup, certaines places d'arrivée peuvent ne pas reçevoir de token, *)
+(* ou certains token peuvent être perdus. On va dire pour l'instant que *)
+(* ce n'est pas grave, et que c'est au bactéries de gérer tout ça. *)
 
-        match o_arc_l, tokens with
-        | (place, AcidTypes.Bind_olink) :: o_arc_l',
-          t1 :: t2 :: tokens' ->
-           Place.add_token_from_transition (Token.insert t1 t2) place;
-           apply_transition_outputs o_arc_l' tokens'
-        | (place, _) :: o_arc_l',
-          token :: tokens' ->
-           Place.add_token_from_transition token place;
-           apply_transition_outputs o_arc_l' tokens'
-        | _ -> ()
-    in
-    let i_arc_l = List.map
-                    (fun (pid, t) -> transition.places.(pid),t)  
-                    transition.input_links
-    and o_arc_l = List.map
-                    (fun (pid, t) -> transition.places.(pid),t)  
-                    transition.output_links
-    in apply_transition_outputs
-         o_arc_l
-         (apply_transition_inputs i_arc_l)
-     
+let apply_transition (transition : t) =
+  let rec apply_transition_inputs
+            (i_arc_l :
+               (Place.t * AcidTypes.transition_input_type) list)
+          : Token.t list =
+    match i_arc_l with
+    | (place, transi) :: i_arc_l' ->
+       begin
+         let token = Place.pop_token_for_transition place in
+         match transi with
+         | AcidTypes.Split_ilink  -> 
+            let token1, token2 = Token.cut_mol token in
+            token1 :: token2 ::
+              apply_transition_inputs i_arc_l' 
+         | _ -> token :: apply_transition_inputs i_arc_l'
+       end
+    | [] -> []
+    and apply_transition_outputs 
+          (o_arc_l :
+             (Place.t * AcidTypes.transition_output_type) list)
+          (tokens : Token.t list) =
 
+      match o_arc_l, tokens with
+      | (place, AcidTypes.Bind_olink) :: o_arc_l',
+        t1 :: t2 :: tokens' ->
+         Place.add_token_from_transition (Token.insert t1 t2) place;
+         apply_transition_outputs o_arc_l' tokens'
+      | (place, _) :: o_arc_l',
+        token :: tokens' ->
+         Place.add_token_from_transition token place;
+         apply_transition_outputs o_arc_l' tokens'
+      | _ -> ()
+  in
+  let i_arc_l = List.map
+                  (fun (pid, t) -> transition.places.(pid),t)  
+                  transition.input_links
+  and o_arc_l = List.map
+                  (fun (pid, t) -> transition.places.(pid),t)  
+                  transition.output_links
+  in apply_transition_outputs
+       o_arc_l
+       (apply_transition_inputs i_arc_l)
 
 (* ** to_json function*)
   let to_json (trans : t) : Yojson.Safe.json =
@@ -140,61 +143,3 @@ let launchable (transition : t) =
       
 end;;
   
-
-  (*
-  type t  =
-    {places : Place.t array;
-     departure_places : int list;
-     arrival_places : int list;
-     departure_links : AcidTypes.transition_input_type list;
-     arrival_links : AcidTypes.transition_output_type list;
-    }
-      [@@deriving show]
-   *)
-
-  
-    (*
-  let launchable (transition : t) =
-    let places_are_occupied
-          (places :  Place.t array) (to_try : int list): bool =
-
-      List.fold_left
-        (fun res pId -> (not (Place.is_empty places.(pId))) && res )
-        true to_try
-    and places_are_free
-          (places :  Place.t array) (to_try : int list): bool =
-
-      List.fold_left
-        (fun res pId -> Place.is_empty places.(pId) && res )
-        true to_try  
-    in
-    (places_are_free transition.places transition.arrival_places)
-    && (places_are_occupied transition.places transition.departure_places)
-     *)
-
-
-(*  
-  let make (places : Place.t array)
-      (depL : (int * AcidTypes.transition_input_type) list)
-      (arrL : (int * AcidTypes.transition_output_type) list) =
-  let departure_places, departure_links = unzip depL and 
-      arrival_places, arrival_links = unzip arrL 
-  in {places; departure_places; arrival_places;
-      departure_links; arrival_links;}
-
- *)
-
-  (*
-
-  let to_json (trans : t) : Yojson.Safe.json =
-    `Assoc [
-       "dep_places",
-       `List (List.map2
-                (fun x y -> `List (`Int x :: [AcidTypes.transition_input_type_to_yojson y]))
-                trans.departure_places trans.departure_links);
-       "arr_places", 
-       `List (List.map2
-                (fun x y -> `List (`Int x :: [AcidTypes.transition_output_type_to_yojson y]))
-                trans.arrival_places trans.arrival_links);]
-      
-   *)
