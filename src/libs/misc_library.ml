@@ -76,3 +76,15 @@ let get_all_couples
 	  l2)
     []
     l1
+
+
+    
+let idProvider = object
+    val mutable id = 0
+
+    method get_id () =
+      let res = id in
+      id <- id +1;
+      res
+
+  end

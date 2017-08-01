@@ -22,6 +22,9 @@ from graphviz import Digraph
 # vu qu'on peut pas vraiment mettre à jour les éléments du graphe,
 # on le fait statique et on en recrée un à chaque fois
 class DotGraph(Digraph):
+
+
+    
     def __init__(self, desc):
         Digraph.__init__(self, format = "gif")
         self.desc = desc
@@ -29,7 +32,7 @@ class DotGraph(Digraph):
         temp_place = None
         # crée les nœuds correspondant aux places, et des arcs entre celles-ci
         for i, val in enumerate(desc["places"]):
-            self.node('p'+str(i), "{"+val["type"][0] + "|" + str(val["token"]) + "}", shape="record")
+            self.node('p'+str(i), "{place" + str(val["id"]) + "|" + str(val["token"]) + "}", shape="record")
 
             if i>0:
                 self.edge('p'+str(i-1), 'p'+str(i), constraint = "false")

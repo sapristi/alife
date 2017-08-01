@@ -1,4 +1,4 @@
-
+open Misc_library
 open Molecule.Molecule
 open Molecule
 open Token
@@ -25,7 +25,8 @@ module Place =
     type t =
       {mutable tokenHolder : token_holder;
        placeType : AcidTypes.place_type;
-       extensions : AcidTypes.extension_type list}
+       extensions : AcidTypes.extension_type list;
+       global_id : int;}
         [@@deriving show]
 (* **** make a place *)
 (* ***** DONE allow place extension to initialise the place with an empty token *)
@@ -35,9 +36,15 @@ module Place =
       let placeType, extensions = place_with_exts in
       if List.mem AcidTypes.Init_with_token extensions
       then
-        {tokenHolder = OccupiedHolder Token.empty; placeType;extensions}
+        {tokenHolder = OccupiedHolder (Token.make_empty ());
+         placeType;
+         extensions;
+         global_id = idProvider#get_id (); }
       else
-        {tokenHolder = EmptyHolder; placeType;extensions}
+        {tokenHolder = EmptyHolder;
+         placeType;
+         extensions;
+         global_id = idProvider#get_id (); }
 
     let pop_token_for_transition (p : t) : Token.t =
       match p.tokenHolder with
@@ -113,7 +120,7 @@ let add_token_from_transition (inputToken : Token.t) (place : t) =
 
 let add_token_from_message (p : t) : unit =
   if is_empty p
-  then set_token Token.empty p
+  then set_token (Token.make_empty ()) p
 
 (* ** token ajouté quand on attrape une molécule *)
 (*on renvoie un booléen pour faire remonter facilement si le binding était possible ou pas *)
@@ -157,5 +164,5 @@ let add_token_from_binding (mol : Molecule.molecule) (p : t) : bool =
 (* ** to_json *)
   let to_json (p : t) =
     `Assoc
-     [("token", token_holder_to_json p.tokenHolder)]
+     [("id", `Int p.global_id); ("token", token_holder_to_json p.tokenHolder)]
 end;;
