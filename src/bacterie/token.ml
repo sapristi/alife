@@ -85,7 +85,8 @@ module Token =
         else "molecule"
       and label_desc = get_label token
       in
-      `Assoc ["mol", `String mol_desc;
+      `Assoc ["id", `Int token.global_id;
+              "mol", `String mol_desc;
              "label", `String label_desc]
                       
   end
