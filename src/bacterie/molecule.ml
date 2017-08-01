@@ -230,7 +230,7 @@ let build_transitions (mol : molecule) :
 
 (* *** build_nodes_list_with_exts function *)
 (* Construit la liste des nœuds avec les extensions associée (inversant ainsi l'ordre de la liste des nœuds. *)
-(* L'ordre est ensuite reinversé, sinon ça bugge au niveau de l'initialisation des token (ce que je ne comprends pas) *)
+(* L'ordre est ensuite reinversé, sinon la liste des places est inversé dans la protéine. *)
 
 let build_nodes_list_with_exts (mol : molecule) :
       (AcidTypes.place_type * (AcidTypes.extension_type list)) list =
