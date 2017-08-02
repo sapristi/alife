@@ -287,6 +287,52 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 *************** TODO Implémenter proprement ce modèle dans les transitions 
 
 
+*** Modèle pour une bactérie
+    
+    Une bactérie est simplement une boite contenant des protéines,
+    dont il faut organiser le déroulement des interactions.
+    
+    Il y a principalement trois choses à gérer : 
+     + une protéine en attrape une autre
+     + les transitions du réseau de pétri d'une protéine 
+     + l'échange de message (on verra plus tard)
+
+**** Une protéine en attrape une autre
+
+
+     Une molécule peut en attrapper une autre si elle a une place avec
+     une extension « mol_catcher » correspondant à une « handle » sur
+     une autre protéine.
+ 
+     On peut donc garder en mémoire une table qui référence des couples
+     de molécule (catcher, handle), indexés par un identifier.
+
+     Il faut ensuite déterminer si deux protéines d'un de ces couples 
+     interagissent, en fonction du nombre présent de chacune d'elles.
+
+     On pourrait faire en sorte qu'avoir plusieurs catcher/handle du
+     avec le même id augmente les chances d'interaction, mais ce n'est
+     pas le facteur principal pour de vraies réactions chimiques, et ça
+     compliquerait un peu le modèle.
+
+     Donc dans le cas où on aurait plusieurs catcher/handle, on peut 
+     simplement en choisir un aléatoirement.
+
+*************** TODO Que se passe-t-il si une protéine réagit avec elle même ? 
+
+**** Transitions du réseau de pétri
+
+     On peut organiser la répartition du temps de calcul (= nb de transitions
+     lancées) entre les protéines de diverses manières
+
+***** Rapide, un peu grossier
+      Chaque molécule présente possède un unique représentant sous forme protéinée.
+      
+      Le nombre de molécules présente détermine la vitesse de réaction.
+
+      Si une molécule est attrapée par une autre, on peut considérer qu'il y en a 
+      une de moins dans la bactérie, jusqu'au moment où elle est relachée.
+
 ** Processus de reflexion sur comment faire avancer le schmilblick en cours
 
 *** Dans le fichier proteine.ml
@@ -485,6 +531,6 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 *** TODO définir et utiliser une convention de nommage qui sépare clairement les noms de types/noms de variables/noms de modules
 *** TODO documenter et implémenter ce qui découle de la nouvelle implémentation des acides
 *** TODO améliorer l'interface client (et donc la transformation en json)
-
+*** TODO réimplémenter les dictionnaires d'une protéine pour simuler des réactions
 
 

@@ -61,9 +61,59 @@ module Place =
       
     let set_token (token : Token.t) (p : t) : unit =
       p.tokenHolder <- OccupiedHolder token
-      
-  
 
+
+(* ** Token reçu d'une transition. *)
+(* **** TODO ajouter les effets de bords générés par les extensions *)
+    let add_token_from_transition (inputToken : Token.t) (place : t) =
+      set_token inputToken place;;
+
+      
+(* ** Token ajouté par un broadcast de message. *)
+(*    Il faudrait peut-être bien vérifier que la place reçoit des messages, que le message correspond, tout ça tout ça *)
+
+    let add_token_from_message (p : t) : unit =
+      if is_empty p
+      then set_token (Token.make_empty ()) p
+      
+(* ** token ajouté quand on attrape une molécule *)
+(*on renvoie un booléen pour faire remonter facilement si le binding était possible ou pas *)
+    let add_token_from_binding (mol : Molecule.molecule) (p : t) : bool =
+      if is_empty p
+      then
+        ( set_token (Token.make mol) p;
+          true;)
+      else
+        false
+      
+(* ** remove the token from tokenHolder *)
+    let pop_token (p : t) : Token.t =
+      match p.tokenHolder with
+      | EmptyHolder -> failwith "cannot pop token from empty place"
+      | OccupiedHolder token ->
+         ( remove_token p;
+         token )
+
+(* **** get_msg_receivers *)
+    let rec get_msg_receivers (p : t) : AcidTypes.msg_format list =
+      let rec aux exts = 
+        match exts with
+        | [] -> []
+        | AcidTypes.Receive_msg_ext msg :: exts' -> msg :: aux exts'
+        | _ :: exts' -> aux exts'
+      in
+      aux p.extensions
+
+                                    
+      
+(* ** to_json *)
+    let to_json (p : t) =
+      `Assoc
+       [("id", `Int p.global_id); ("token", token_holder_to_json p.tokenHolder)]
+  end;;
+
+
+  
 (* ** Token reçu d'une transition. :deprecated:  *)
 (*     Il faut appliquer les effets de bord suivant le type de place. on va écrire une autre fonction qui traite les extensions *)
     
@@ -109,60 +159,3 @@ let add_token_from_transition_deprecated (inputToken : Token.t) (p : t) : return
   else
     failwith "non empty place received a token from a transition"
  *)
-
-
-(* ** Token reçu d'une transition. *)
-(* **** TODO ajouter les effets de bords générés par les extensions *)
-let add_token_from_transition (inputToken : Token.t) (place : t) =
-  set_token inputToken place;;
-(* ** Token ajouté par un broadcast de message. *)
-(*    Il faudrait peut-être bien vérifier que la place reçoit des messages, que le message correspond, tout ça tout ça *)
-
-let add_token_from_message (p : t) : unit =
-  if is_empty p
-  then set_token (Token.make_empty ()) p
-
-(* ** token ajouté quand on attrape une molécule *)
-(*on renvoie un booléen pour faire remonter facilement si le binding était possible ou pas *)
-let add_token_from_binding (mol : Molecule.molecule) (p : t) : bool =
-  if is_empty p
-  then
-    ( set_token (Token.make mol) p;
-      true;)
-  else
-    false
-    
-(* ** remove the token from tokenHolder *)
-  let pop_token (p : t) : Token.t =
-    match p.tokenHolder with
-    | EmptyHolder -> failwith "cannot pop token from empty place"
-    | OccupiedHolder token ->
-       ( remove_token p;
-         token )
-
-(* **** get_msg_receivers *)
-  let rec get_msg_receivers (p : t) : AcidTypes.msg_format list =
-    let rec aux exts = 
-    match exts with
-    | [] -> []
-    | AcidTypes.Receive_msg_ext msg :: exts' -> msg :: aux exts'
-    | _ :: exts' -> aux exts'
-    in
-    aux p.extensions
-
-(* **** get_mol_catchers *)
-  let get_catchers (p : t) : AcidTypes.catch_pattern list =
-    let rec aux exts =
-      match exts with
-      | [] -> []
-      | AcidTypes.Catch_ext cp :: exts' -> cp :: aux exts'
-    | _ :: exts' -> aux exts'
-    in
-    aux p.extensions
-                                    
-      
-(* ** to_json *)
-  let to_json (p : t) =
-    `Assoc
-     [("id", `Int p.global_id); ("token", token_holder_to_json p.tokenHolder)]
-end;;

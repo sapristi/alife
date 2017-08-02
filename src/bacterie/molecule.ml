@@ -11,7 +11,7 @@
 (* #load "misc_library.ml" *)
 
 open Misc_library
-
+open Batteries
 (* * defining types for acids *)
 
    
@@ -252,7 +252,7 @@ let build_nodes_list_with_exts (mol : molecule) :
 
 (* *** get_handles : *)
 (* Given a molecule, returns a list of tuples (handle_position, handle_id) *)
-
+(*
   let get_handles (mol : molecule) : (int * AcidTypes.handle_id) list =
     let rec aux mol n =
       match mol with
@@ -266,6 +266,43 @@ let build_nodes_list_with_exts (mol : molecule) :
       | [] -> []
     in
     aux mol 0
+ *)
+  
+  let build_handles_book (mol : molecule) : (string, int) BatMultiPMap.t =
+    let rec aux mol n map =
+      match mol with
+      | Extension ext :: mol' ->
+         begin
+           match ext with
+           | AcidTypes.Handle_ext hid ->
+              aux mol' (n+1) (BatMultiPMap.add hid n map)
+           | _ -> aux  mol' (n+1) map
+         end
+      | _ :: mol' -> aux mol' (n+1) map
+      | [] -> map
+    in
+    aux mol 0 BatMultiPMap.empty
+
+  let build_catchers_book (mol : molecule) : (string, int) BatMultiPMap.t =
+    let rec aux  mol n map =
+      match mol with
+      | Node _ :: mol' -> aux mol' (n+1) map
+      | Extension ext :: mol' ->
+         if n >= 0
+         then
+           begin
+             match ext with
+             | AcidTypes.Handle_ext hid ->
+                aux mol' n (BatMultiPMap.add hid n map)
+             | _ -> aux  mol' n map
+           end
+         else
+           aux mol' n map
+      | _ :: mol' -> aux mol' n map
+      | [] -> map
+    in
+    aux mol (-1) BatMultiPMap.empty
+    
 end;;
     
 

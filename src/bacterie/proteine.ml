@@ -24,8 +24,8 @@
 
 open Batteries
 open Misc_library
-open Molecule.Molecule
-open Molecule.AcidTypes
+open Molecule
+open AcidTypes
 open Maps
 open Place
 open Transition
@@ -38,16 +38,15 @@ open Transition
 module Proteine =
 struct
   type t =
-    {mol : molecule;
+    {mol : Molecule.molecule;
      transitions : Transition.t array;
      places : Place.t  array;
      mutable launchables : int list;
-
-     (* À reconstruire en suivant la nouvelle forme des molécules
-
-     message_receptors_book : (string, int) BatMultiPMap.t ;
-     handles_book : (string, int) BatMultiPMap.t ;
+     handles_book : (string, int) BatMultiPMap.t;
      mol_catchers_book : (string, int) BatMultiPMap.t ;
+     
+     (* À reconstruire en suivant la nouvelle forme des molécule
+     message_receptors_book : (string, int) BatMultiPMap.t ;
       *)
     }
       
@@ -61,11 +60,11 @@ struct
     done; !t_l
 
     
-  let make (mol : molecule) : t = 
+  let make (mol : Molecule.molecule) : t = 
   (* liste des signatures des transitions *)
-    let transitions_signatures_list = build_transitions mol
+    let transitions_signatures_list = Molecule.build_transitions mol
   (* liste des signatures des places *)
-    and places_signatures_list = build_nodes_list_with_exts mol
+    and places_signatures_list = Molecule.build_nodes_list_with_exts mol
   in
 (* on crée de nouvelles places à partir de  
    la liste de types données dans la molécule *)
@@ -86,8 +85,9 @@ struct
     in 
     let (transitions : Transition.t array) = 
       Array.of_list transitions_list    
-  (* dictionnaire pour retrouver rapidement les places
-     qui reçoivent des messages *)
+    in
+    let handles_book = Molecule.build_handles_book mol
+    and mol_catchers_book = Molecule.build_catchers_book mol
     in
   (* À reconstruire avec la nouvelle forme des molécules
      
@@ -124,7 +124,8 @@ struct
       create_books places_signatures_list 0
     in  *)
     {mol; transitions; places; launchables = (get_launchables transitions);
-     (* message_receptors_book; handles_book; mol_catchers_book;*)
+     handles_book; mol_catchers_book;
+     (* message_receptors_book; handles_book; *)
     }
 
 
@@ -175,7 +176,7 @@ struct
       "transitions",
       `List (Array.to_list (Array.map Transition.to_json p.transitions));
       "molecule",
-      molecule_to_yojson p.mol;
+      Molecule.molecule_to_yojson p.mol;
       "launchables",
       `List (List.map (fun x -> `Int x) p.launchables);]
 
@@ -184,17 +185,8 @@ struct
       "places",
       `List (Array.to_list (Array.map Place.to_json p.places));
       "launchables",
-      `List (List.map (fun x -> `Int x) p.launchables);]
-
-      
+      `List (List.map (fun x -> `Int x) p.launchables);]      
 end;;
 
 
-(* *  examples de molecules et proteines test *)
-
-
-let mol1 = [Node Regular_place];;
-let prot1 = Proteine.make mol1;;
-
-let mol2 = [Node Regular_place; Extension Init_with_token; TransitionInput ("a", Regular_ilink); Node Regular_place; TransitionOutput ("a", Regular_olink); Node Regular_place];;
-let prot2 = Proteine.make mol2;;
+  

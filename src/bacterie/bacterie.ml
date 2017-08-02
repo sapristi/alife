@@ -31,12 +31,13 @@
 (*    c'est à dire référencer quelles molécules  reçoivent quel message *)
 
 (*   - Et aussi savoir quelles molécules peuvent s'accrocher à quelles autres. *)
-   
+open Molecule.Molecule
 open Molecule
+   
 open Maps
 open Proteine
 
-(*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée  *)
+(*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
 
 module MolMap = MakeMolMap
@@ -56,20 +57,22 @@ module Bacterie =
 struct
   type t =
     {mutable molecules : (int * Proteine.t) MolMap.t;
-     mutable message_receptors_map :
-       (string, molecule) BatMultiPMap.t;
      mutable mol_bindings_map :
-       MolDoubleMap.set_pair MolDoubleMap.t;
-     mutable message_queue : string list;}
-
+               MolDoubleMap.set_pair MolDoubleMap.t;
+(*     mutable message_receptors_map :
+               (string, molecule) BatMultiPMap.t;
+     mutable message_queue : string list;*)
+    }
+    
 
   let empty : t = 
     {molecules =  MolMap.empty;
-     message_receptors_map = BatMultiPMap.create compare compare;
      mol_bindings_map = MolDoubleMap.empty;
-     message_queue = [];}
+     (* message_receptors_map = BatMultiPMap.create compare compare;
+     message_queue = [];*)
+    }
 
-    
+    (*
   let launch_message (m : string) (bact : t) : unit = 
     BatSet.PSet.iter 
       (fun x -> 
@@ -80,7 +83,7 @@ struct
   let pop_all_messages (bact:t) : unit = 
     List.iter (fun x -> launch_message x bact) bact.message_queue;
     bact.message_queue <- []
-
+     *)
 
   let add_molecule (m : molecule) (bact : t) : unit =
     
@@ -116,7 +119,7 @@ struct
       bact.molecules <- MolMap.modify m (fun x -> let y,z = x in (y+1,z)) bact.molecules
     else
       let p = Proteine.make m in
-      bact.message_receptors_map <- update_map m p.Proteine.message_receptors_book bact.message_receptors_map;
+      (*     bact.message_receptors_map <- update_map m p.Proteine.message_receptors_book bact.message_receptors_map; *)
       bact.mol_bindings_map <- update_bindings_map m p.Proteine.handles_book p.Proteine.mol_catchers_book bact.mol_bindings_map;
       bact.molecules <- MolMap.add m (1,p) bact.molecules
 
@@ -183,7 +186,7 @@ struct
                   done)
       bact.molecules;
     make_bindings bact;
-    pop_all_messages bact
+    (*    pop_all_messages bact *)
       
   
   
