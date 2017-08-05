@@ -65,24 +65,22 @@ Library "proteine"
   Modules: Proteine
   BuildDepends: batteries, bacterie_libs.molecule, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, local_libs, yojson, ppx_deriving_yojson
 
+Library "bacterie"
+  FindLibName : bacterie
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Bacterie
+  BuildDepends: local_libs, bacterie_libs.molecule, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.proteine, batteries, bacterie_libs.proteine
 
 Library "bacterie_libs"
   FindLibName : bacterie_libs
   Path : src/bacterie
   Modules : Bacterie_libs
 
-# Library "bacterie"
-#   Path: src/bacterie
-#   Modules: Bacterie
-#   BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bacterie_libs.molecule
-
-
 Library "serveur"
   Path: src/gui
   Modules: Serveur
   BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.molecule
-
-
 
 Executable "test"
   Path : src/

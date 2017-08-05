@@ -22,31 +22,38 @@ open Batteries
 (*     - regular : rien de particulier *)
 (*     - split : coupe une molécule en 2 (seulement transition_input) *)
 (*     - bind : insère une molécule dans une autre (seulement transition_output) *)
+(*     - release : supprime le token, et relache l'éventuelle molécule *)
+(*       contenue dans celui-ci *)
 (*   + extension : autres ? *)
 (*     - handle : poignée pour attraper cette molécule *)
 (*       problème : il faudrait pouvoir attrapper la molécule à n'importe quel acide ? ou alors on attrappe la poignée directement et pas la place associée *)
 (*     - catch : permet d'attraper une molécule. *)
 (*       Est ce qu'il y a une condition d'activation, par exemple un token vide (qui contiendrait ensuite la molécule) ? *)
-(*     - release : lache la molécule attachée *)
+(*     - release : lache la molécule attachée -> plutot dans les transitions *)
 (*     - move : déplace le point de contact de la molécule *)
 (*     - send : envoie un message *)
 (*     - receive : receives a message *)
 
-(*   Questions : est-ce qu'on met l'action move sur les liens ou en  *)
-(*   extension ? dans les liens c'est plus cohérent, mais dans les  *)
-(*   extensions ça permet d'en mettre plusiers à la suite. Par contre, à  *)
-(*   quel moment est-ce qu'on déclenche l'effet de bord ? En recevant le  *)
-(*   token d'une transition.  Mais du coup pour l'action release, il  *)
-(*   faudrait aussi la mettre sur les places, puisqu'on agit aussi à  *)
-(*   l'extérieur du token. Du coup pour l'instant on va mettre à la fois  *)
-(*   move et release dans les extensions, avec un système pour appliquer  *)
+(*   Questions : est-ce qu'on met l'action move sur les liens ou en *)
+(*   extension ? dans les liens c'est plus cohérent, mais dans les *)
+(*   extensions ça permet d'en mettre plusiers à la suite. Par contre, à *)
+(*   quel moment est-ce qu'on déclenche l'effet de bord ? En recevant le *)
+(*   token d'une transition.  Mais du coup pour l'action release, il *)
+(*   faudrait aussi la mettre sur les places, puisqu'on agit aussi à *)
+(*   l'extérieur du token. Du coup pour l'instant on va mettre à la fois *)
+(*   move et release dans les extensions, avec un système pour appliquer *)
 (*   les effets des extensions quand on reçoit un token. *)
 
-   
+(*   L'autre question est, comment appliquer les effets de bord qui *)
+(*   affectent la bactérie ? *)
+(*   Le plus simple est de mettre les actions ayant de tels effets de bord *)
+(*   sur les transitions, donc send_message et release_mol seront sur *)
+(*   les olink *)
+  
 
 module AcidTypes =
   struct
-    
+
 (* ** place *)    
     type place_type = 
       | Regular_place
@@ -63,6 +70,7 @@ module AcidTypes =
     type transition_output_type = 
       | Regular_olink
       | Bind_olink
+      | Release_olink
 [@@deriving show, yojson]
 
 
@@ -71,7 +79,7 @@ module AcidTypes =
 (* Types used by the extensions. Usefull to use custom types for easier potential changes later on.  *)
     type handle_id = string
                        [@@deriving show, yojson]
-    type catch_pattern = string
+    type bind_pattern = string
                            [@@deriving show, yojson]
     type receive_pattern = string
                              [@@deriving show, yojson]
@@ -80,10 +88,9 @@ module AcidTypes =
                     
     type extension_type =
       | Handle_ext of handle_id
-      | Catch_ext of catch_pattern
+      | Catch_ext of bind_pattern
       | Receive_msg_ext of msg_format
       | Release_ext
-      | Move_ext of bool
       | Send_msg_ext of msg_format
       | Displace_mol_ext of bool
       | Init_with_token
@@ -114,7 +121,7 @@ module Molecule =
                      [@@deriving show, yojson]
                  
                    
-  type molecule = acid list
+  type t = acid list
                        [@@deriving show, yojson]
                 
                 
@@ -157,7 +164,7 @@ module Molecule =
 (*   - utiliser une table d'associations  (pour accélerer ?) *)
 (*   - TODO : faire attention si plusieurs arcs entrants ou sortant correspondent au même nœud et à la même transition, auquel cas ça buggerait *)
 
-let build_transitions (mol : molecule) :
+let build_transitions (mol : t) :
       transition_structure list = 
   
   (* insère un arc entrant dans la bonne transition 
@@ -199,7 +206,7 @@ let build_transitions (mol : molecule) :
           
   in 
   let rec aux 
-            (mol :    molecule)
+            (mol :    t)
             (nodeN :  int) 
             (transL : transition_structure list) :
             
@@ -222,7 +229,7 @@ let build_transitions (mol : molecule) :
 (* *** build_nodes_list function :deprecated: *)
 (*     Extrait la liste des noeuds, de la molécule, dans l'ordre rencontré   *)
 
-  let rec build_nodes_list (mol : molecule) : AcidTypes.place_type list = 
+  let rec build_nodes_list (mol : t) : AcidTypes.place_type list = 
     match mol with
     | Node d :: mol' -> d :: (build_nodes_list mol')
     | _ :: mol' -> build_nodes_list mol'
@@ -232,7 +239,7 @@ let build_transitions (mol : molecule) :
 (* Construit la liste des nœuds avec les extensions associée (inversant ainsi l'ordre de la liste des nœuds. *)
 (* L'ordre est ensuite reinversé, sinon la liste des places est inversé dans la protéine. *)
 
-let build_nodes_list_with_exts (mol : molecule) :
+let build_nodes_list_with_exts (mol : t) :
       (AcidTypes.place_type * (AcidTypes.extension_type list)) list =
   
   let rec aux mol res = 
@@ -268,7 +275,7 @@ let build_nodes_list_with_exts (mol : molecule) :
     aux mol 0
  *)
   
-  let build_handles_book (mol : molecule) : (string, int) BatMultiPMap.t =
+  let build_handles_book (mol : t) : (string, int) BatMultiPMap.t =
     let rec aux mol n map =
       match mol with
       | Extension ext :: mol' ->
@@ -283,7 +290,7 @@ let build_nodes_list_with_exts (mol : molecule) :
     in
     aux mol 0 BatMultiPMap.empty
 
-  let build_catchers_book (mol : molecule) : (string, int) BatMultiPMap.t =
+  let build_catchers_book (mol : t) : (string, int) BatMultiPMap.t =
     let rec aux  mol n map =
       match mol with
       | Node _ :: mol' -> aux mol' (n+1) map
@@ -305,53 +312,3 @@ let build_nodes_list_with_exts (mol : molecule) :
     
 end;;
     
-
-(* * the MoleculeHolder module :deprecated: *)
-
-(* Module used to manage a molecule attached at some position to another molecule : defines functions to change the position of attach, cut the molecule, and insert another molecule at position *)
-
-open Molecule
-module MoleculeHolder =
-  struct 
-    type t = molecule * int
-                          [@@deriving show, yojson]
-           
-    let is_empty (h : t) : bool = 
-      let m,p = h in m = []
-                   
-    let empty = ([],0)
-              
-    let make (mol : molecule) : t = mol,0
-                                  
-    let make_at_pos (mol : molecule) (pos : int) : t = mol,pos
-                                                     
-    let get_molecule (h : t) : molecule =
-      let m,_ = h in m
-                   
-    let move_forward (h : t) : t =
-      let m,p = h in  m, p+1
-                    
-    let move_backward (h : t) : t =
-      let m,p = h in  m, p-1
-                    
-    let get_mol_length (h : t) : int = 
-      let m,p = h in  List.length m
-                    
-    let get_postion (h : t) : int = 
-      let m,p = h in p
-                   
-    let cut (h : t) : t*t =
-      let mol, pos = h in 
-      let m1, m2 = Misc_library.cut_list mol pos in
-      (m1,pos), (m2, 0)
-      
-    let insert (h1 : t) (h2 : t) : t =
-      match h1, h2 with
-      |  (m1, p1), (m2, p2) ->
-          (Misc_library.insert m1 p1 m2), 0
-
-    let to_string (mh : t) =
-      if is_empty mh
-      then "empty"
-      else "molecule"
-  end;;

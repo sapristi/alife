@@ -31,17 +31,20 @@
 (*    c'est à dire référencer quelles molécules  reçoivent quel message *)
 
 (*   - Et aussi savoir quelles molécules peuvent s'accrocher à quelles autres. *)
-open Molecule.Molecule
 open Molecule
-   
-open Maps
+open Transition
 open Proteine
 
+open Misc_library
+open Maps
+
+
+   
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
 
 module MolMap = MakeMolMap
-  (struct type t = molecule let compare = Pervasives.compare end)
+  (struct type t = Molecule.t let compare = Pervasives.compare end)
 
 
 (*   Table d'association où les clés sont des chaînes,  et les valeurs un doublet d'ensembles de molécules. *)
@@ -50,7 +53,7 @@ module MolMap = MakeMolMap
 (*   et à droite celles susceptibles de s'accrocher. *)
 module MolDoubleMap = MakeDoubleMultiMap
   (struct type t = string let compare = String.compare end)
-  (struct type t = molecule let compare = Pervasives.compare end)
+  (struct type t = Molecule.t let compare = Pervasives.compare end)
 
   
 module Bacterie =
@@ -84,23 +87,11 @@ struct
     List.iter (fun x -> launch_message x bact) bact.message_queue;
     bact.message_queue <- []
      *)
-
-  let add_molecule (m : molecule) (bact : t) : unit =
     
-    let update_map 
-        (mol : molecule)
-        (molMap : (string, int) BatMultiPMap.t)
-        (map : (string, molecule) BatMultiPMap.t) 
+  let add_molecule (m : Molecule.t) (bact : t) : unit =
         
-        :  (string, molecule) BatMultiPMap.t
-        = 
-      BatMultiPMap.foldi 
-        (fun k v m -> BatMultiPMap.add k mol m)
-        molMap 
-        map
-        
-    and update_bindings_map
-        (mol : molecule)
+    let rec update_bindings_map
+        (mol : Molecule.t)
         (leftMap : (string, int) BatMultiPMap.t)
         (rightMap :  (string, int) BatMultiPMap.t)
         (map : MolDoubleMap.set_pair MolDoubleMap.t)
@@ -125,21 +116,20 @@ struct
 
 
   (* il faudrait peut-être mettre dans une file les molécules à ajouter *)
-  let rec execute_actions (actions : return_action list) (bact : t) : unit =
+  let rec execute_actions (actions : Transition.transition_effect list) (bact : t) : unit =
     match actions with
-    | AddMol mh :: actions' ->
-       add_molecule (MoleculeHolder.get_molecule mh) bact;
-      execute_actions actions' bact
-    | SendMessage m :: actions' ->
-       bact.message_queue <- m :: bact.message_queue;
-      execute_actions actions' bact
-    | NoAction :: actions' -> execute_actions actions' bact
+    | Transition.Release_effect mol :: actions' ->
+       add_molecule mol bact;
+       execute_actions actions' bact
+    | Transition.Message_effect m :: actions' ->
+       (* bact.message_queue <- m :: bact.message_queue; *)
+       execute_actions actions' bact
     | [] -> ()
 
-       let bind_to 
-    (boundMol : molecule) 
-    (hostMol : molecule) 
-    (bindPattern : string)
+  let bind_to 
+    (boundMol : Molecule.t) 
+    (hostMol : Molecule.t) 
+    (bindPattern : AcidTypes.bind_pattern)
     (bact : t)
     : unit = 
     
@@ -191,3 +181,7 @@ struct
   
   
 end;;
+
+
+
+  

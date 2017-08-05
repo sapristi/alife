@@ -86,7 +86,11 @@ let launchable (transition : t) =
 (* ou certains token peuvent être perdus. On va dire pour l'instant que *)
 (* ce n'est pas grave, et que c'est au bactéries de gérer tout ça. *)
 
-let apply_transition (transition : t) =
+  type transition_effect =
+    | Message_effect of string
+    | Release_effect of Molecule.t
+                      
+let apply_transition (transition : t) : transition_effect list=
   let rec apply_transition_inputs
             (i_arc_l :
                (Place.t * AcidTypes.transition_input_type) list)
@@ -106,18 +110,25 @@ let apply_transition (transition : t) =
     and apply_transition_outputs 
           (o_arc_l :
              (Place.t * AcidTypes.transition_output_type) list)
-          (tokens : Token.t list) =
+          (tokens : Token.t list) :
+          transition_effect list =
 
       match o_arc_l, tokens with
       | (place, AcidTypes.Bind_olink) :: o_arc_l',
         t1 :: t2 :: tokens' ->
          Place.add_token_from_transition (Token.insert t1 t2) place;
          apply_transition_outputs o_arc_l' tokens'
-      | (place, _) :: o_arc_l',
+      | (place, AcidTypes.Release_olink) :: o_arc_l',
+        token :: tokens' ->
+         if Token.is_empty token
+         then apply_transition_outputs o_arc_l' tokens'
+         else Release_effect (Token.get_mol token) ::
+                (apply_transition_outputs o_arc_l' tokens')
+      | (place, AcidTypes.Regular_olink) :: o_arc_l',
         token :: tokens' ->
          Place.add_token_from_transition token place;
          apply_transition_outputs o_arc_l' tokens'
-      | _ -> ()
+      | _ -> []
   in
   let i_arc_l = List.map
                   (fun (pid, t) -> transition.places.(pid),t)  

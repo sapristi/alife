@@ -284,8 +284,15 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 	Plus sérieusement, on supposera pour l'instant que les capacités
 	évolutives des bactéries ne seront pas affectées. 
 	
-*************** TODO Implémenter proprement ce modèle dans les transitions 
+*************** DONE Implémenter proprement ce modèle dans les transitions 
 
+
+	Une transition peut affecter les token, mais aussi l'environnement
+	(c'est à dire la bactérie), par exemple en relachant une molécule.
+	
+	Comme c'est la bactérie qui a l'initiative pour lancer une transition,
+	on donne un type de retour aux transition qui permettra de passer 
+	l'information nécéssaire.
 
 *** Modèle pour une bactérie
     

@@ -1,5 +1,5 @@
 open Proteine
-open Molecule.Molecule
+open Molecule
   
 let get_my_addr () =
   (Unix.gethostbyname(Unix.gethostname())).Unix.h_addr_list.(0) ;;
@@ -97,7 +97,7 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 
               print_endline  (Yojson.Safe.to_string new_mol_json);
               
-	      let new_mol = molecule_of_yojson new_mol_json in
+	      let new_mol = Molecule.of_yojson new_mol_json in
 	      match new_mol with
               | Ok mol ->
 	         (

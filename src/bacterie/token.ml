@@ -1,6 +1,6 @@
 open Misc_library
-open Molecule.Molecule
 open Molecule
+
 (* * the token module *)
    
 (* Molecules are transformed into proteines by compiling them into a petri net. We define here the tokens used in the petri nets. Tokens go through transitions. *)
@@ -15,13 +15,13 @@ module Token =
   struct
 
     type t =
-      {mutable linked_mol : molecule * molecule;
+      {mutable linked_mol : Molecule.t * Molecule.t;
        global_id : int}
                           [@@deriving show]
     let is_empty (token : t) =
       token.linked_mol = ([], [])
 
-    let make (mol : molecule) : t =
+    let make (mol : Molecule.t) : t =
       {linked_mol = ([], mol);
        global_id = idProvider#get_id ();}
 
@@ -29,10 +29,17 @@ module Token =
       {linked_mol = ([], []);
        global_id = idProvider#get_id ();}
       
-    let make_at_mol_cut (mol1 : molecule) (mol2 : molecule) : t =
+    let make_at_mol_cut (mol1 : Molecule.t) (mol2 : Molecule.t) : t =
       {linked_mol = (mol1, mol2);
        global_id = idProvider#get_id ();}
 
+    let get_mol (token : t) : Molecule.t =
+      let rec aux split_mol = 
+        match split_mol with
+        |[], m2 -> m2
+        | a :: m1', m2 -> aux (m1',(a::m2))
+      in aux token.linked_mol
+      
     let move_mol_forward (token : t) : unit  =
       token.linked_mol <- 
         match token.linked_mol with
@@ -64,7 +71,7 @@ module Token =
                
     let get_label (token : t) =
       match token.linked_mol with
-      | _, Extension (AcidTypes.Information s) :: m2 -> s
+      | _, Molecule.Extension (AcidTypes.Information s) :: m2 -> s
       | _ -> ""
            
 

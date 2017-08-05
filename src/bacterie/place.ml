@@ -78,7 +78,7 @@ module Place =
       
 (* ** token ajouté quand on attrape une molécule *)
 (*on renvoie un booléen pour faire remonter facilement si le binding était possible ou pas *)
-    let add_token_from_binding (mol : Molecule.molecule) (p : t) : bool =
+    let add_token_from_binding (mol : Molecule.t) (p : t) : bool =
       if is_empty p
       then
         ( set_token (Token.make mol) p;

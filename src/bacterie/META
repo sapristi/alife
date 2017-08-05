@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 391f83dfb38a5746b04fc79a529584a9)
+# DO NOT EDIT (digest: e20b836fb1dc277331c0eb5401589221)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "bacterie_libs.cma"
@@ -74,6 +74,18 @@ package "molecule" (
  archive(native) = "molecule.cmxa"
  archive(native, plugin) = "molecule.cmxs"
  exists_if = "molecule.cma"
+)
+
+package "bacterie" (
+ version = "0.1"
+ description = "Simulating life and stuff"
+ requires =
+ "local_libs bacterie_libs.molecule bacterie_libs.token bacterie_libs.place bacterie_libs.transition bacterie_libs.proteine batteries bacterie_libs.proteine"
+ archive(byte) = "bacterie.cma"
+ archive(byte, plugin) = "bacterie.cma"
+ archive(native) = "bacterie.cmxa"
+ archive(native, plugin) = "bacterie.cmxs"
+ exists_if = "bacterie.cma"
 )
 # OASIS_STOP
 

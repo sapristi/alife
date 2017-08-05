@@ -38,7 +38,7 @@ open Transition
 module Proteine =
 struct
   type t =
-    {mol : Molecule.molecule;
+    {mol : Molecule.t;
      transitions : Transition.t array;
      places : Place.t  array;
      mutable launchables : int list;
@@ -60,113 +60,86 @@ struct
     done; !t_l
 
     
-  let make (mol : Molecule.molecule) : t = 
+  let make (mol : Molecule.t) : t = 
   (* liste des signatures des transitions *)
     let transitions_signatures_list = Molecule.build_transitions mol
   (* liste des signatures des places *)
     and places_signatures_list = Molecule.build_nodes_list_with_exts mol
   in
-(* on crée de nouvelles places à partir de  
-   la liste de types données dans la molécule *)
-    let places_list : Place.t list = 
-      List.map 
-        (fun x -> Place.make x)
-        places_signatures_list
-        
-    in 
-    let (places : Place.t array) = Array.of_list places_list
+  (* on crée de nouvelles places à partir de la liste de types données dans la molécule *)
+  let places_list : Place.t list = 
+    List.map 
+      (fun x -> Place.make x)
+      places_signatures_list
+    
+  in 
+  let (places : Place.t array) = Array.of_list places_list
+  in
+  let (transitions_list : Transition.t list) = 
+    List.map 
+      (fun x -> let s, ila, ola = x in
+                Transition.make places ila ola)
+      transitions_signatures_list
+    
+  in 
+  let (transitions : Transition.t array) = 
+    Array.of_list transitions_list    
+  in
+  let handles_book = Molecule.build_handles_book mol
+  and mol_catchers_book = Molecule.build_catchers_book mol
+                        
+
+  in
+  {mol; transitions; places;
+   launchables = (get_launchables transitions);
+   handles_book; mol_catchers_book;
+   (* message_receptors_book; handles_book; *)
+  }
+
+(* mettre à jour les transitions qui peuvent être lancées. *)
+(* Il faut prendre en compte la transition qui vient d'être lancée,  *)
+(* ainsi que les tokens qui ont pu arriver par message  *)
+
+(* (du coup, faire plus efficace devient un peu du bazar) *)
+(* on peut faire beaucoup plus efficace, mais pour l'instant  *)
+(* on fait au plus simple *)
+
+let update_launchables p =
+  p.launchables <- get_launchables p.transitions
+
+
+let launch_transition (tId : int) p = 
+  Transition.apply_transition p.transitions.(tId)
+    
+let launch_random_transition p  =
+  if not (p.launchables = [])
+  then 
+    let t = random_pick_from_list p.launchables in
+    launch_transition t p
+  else []
+
+(* binds to a random free place if possible. *)
+(* Returns true if bound happened, false otherwise *)
+  let bind_mol (mol : Molecule.t)
+               (bind_pattern : AcidTypes.bind_pattern)
+               (prot : t)
+      : bool =
+    let bind_places_ids =
+      BatMultiPMap.find bind_pattern prot.handles_book 
     in
-    let (transitions_list : Transition.t list) = 
-      List.map 
-        (fun x -> let s, ila, ola = x in
-                  Transition.make places ila ola)
-        transitions_signatures_list
-        
-    in 
-    let (transitions : Transition.t array) = 
-      Array.of_list transitions_list    
+    let free_places_ids = 
+      BatSet.PSet.filter
+        (fun id -> Place.is_empty prot.places.(id))
+        bind_places_ids
     in
-    let handles_book = Molecule.build_handles_book mol
-    and mol_catchers_book = Molecule.build_catchers_book mol
-    in
-  (* À reconstruire avec la nouvelle forme des molécules
-     
-     fonction qui permet de créer des dictionnaires pour les 
-     places qui reçoivent des messages, les places qui attrapent
-     des molécules et les poignées 
-
-    let rec create_books 
-              (places : Place.t list)
-              (n : int) :
-
-              (((string, int) BatMultiPMap.t)
-               * ((string, int) BatMultiPMap.t)
-               * ((string, int) BatMultiPMap.t))
-      =
-      match places with
-      | p :: places' ->
-         let imb, mcb, hb = create_books places' (n+1) in 
-         begin
-           match p with
-           | Receive_place s -> BatMultiPMap.add s n imb, mcb, hb
-           | Catch_place s -> imb, BatMultiPMap.add s n mcb, hb
-           | Handle_place s -> imb, mcb, BatMultiPMap.add s n hb
-           | _ -> imb, mcb, hb
-         end
-      | [] -> 
-         (
-           BatMultiPMap.create compare (-), 
-           BatMultiPMap.create compare (-), 
-           BatMultiPMap.create compare (-)
-         )
-    in 
-    let (message_receptors_book, mol_catchers_book, handles_book) = 
-      create_books places_signatures_list 0
-    in  *)
-    {mol; transitions; places; launchables = (get_launchables transitions);
-     handles_book; mol_catchers_book;
-     (* message_receptors_book; handles_book; *)
-    }
-
-
+    if BatSet.PSet.is_empty free_places_ids
+    then false
+    else
+      let bind_place_id =
+        Misc_library.random_pick_from_PSet free_places_ids
+      in
+      Place.add_token_from_binding mol prot.places.(bind_place_id)
       
-  (* mettre à jour les transitions qui peuvent être lancées.
-     Il faut prendre en compte la transition qui vient d'être lancée, 
-     ainsi que les tokens qui ont pu arriver par message 
-
-     (du coup, faire plus efficace devient un peu du bazar)
-     on peut faire beaucoup plus efficace, mais pour l'instant 
-     on fait au plus simple *)
-  let update_launchables p =
-    p.launchables <- get_launchables p.transitions
-
-
-
-  let launch_transition (tId : int) p = 
-    Transition.apply_transition p.transitions.(tId)
-      
-  let launch_random_transition p  =
-    if not (p.launchables = [])
-    then 
-      let t = random_pick_from_list p.launchables in
-      launch_transition t p
-    else ()
-
-      
-  (* relaie le message aux places concernées, créant ainsi
-     des tokens quand c'est possible *)
-    (*
-  let send_message (m : string) (p : t) = 
-    BatSet.PSet.iter 
-      (fun x -> Place.add_token_from_message p.places.(x)) 
-      (BatMultiPMap.find m p.message_receptors_book)
-
-  let bind_mol (m : molecule)  (pat : string) (p : t) : bool = 
-    let targets = BatMultiPMap.find pat p.mol_catchers_book in
-    let bindSiteId = Misc_library.random_pick_from_PSet targets in
-    Place.add_token_from_binding m p.places.(bindSiteId)
-     *)
-
       (* il manque les livres, on verra plus tard, 
          c'est déjà pas mal *)
   let to_json (p : t) =
@@ -176,7 +149,7 @@ struct
       "transitions",
       `List (Array.to_list (Array.map Transition.to_json p.transitions));
       "molecule",
-      Molecule.molecule_to_yojson p.mol;
+      Molecule.to_yojson p.mol;
       "launchables",
       `List (List.map (fun x -> `Int x) p.launchables);]
 
@@ -189,4 +162,16 @@ struct
 end;;
 
 
-  
+    (* relaie le message aux places concernées, créant ainsi
+     des tokens quand c'est possible *)
+    (*
+  let send_message (m : string) (p : t) = 
+    BatSet.PSet.iter 
+      (fun x -> Place.add_token_from_message p.places.(x)) 
+      (BatMultiPMap.find m p.message_receptors_book)
+
+  let bind_mol (m : molecule)  (pat : string) (p : t) : bool = 
+    let targets = BatMultiPMap.find pat p.mol_catchers_book in
+    let bindSiteId = Misc_library.random_pick_from_PSet targets in
+    Place.add_token_from_binding m p.places.(bindSiteId)
+     *)
