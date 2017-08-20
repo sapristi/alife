@@ -77,13 +77,20 @@ Library "bacterie_libs"
   Path : src/bacterie
   Modules : Bacterie_libs
 
-Library "serveur"
-  Path: src/gui
-  Modules: Serveur
+Library "mol_serveur"
+  Path: src/gui/mol_simul
+  Modules: Mol_serveur
   BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.molecule
 
-Executable "test"
+
+Library "bact_serveur"
+  Path: src/gui/bact_simul
+  Modules: Bact_serveur
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.molecule
+
+
+Executable "mol_test"
   Path : src/
-  MainIs : test.ml
-  BuildDepends : bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bacterie_libs.molecule, serveur
+  MainIs : mol_test.ml
+  BuildDepends : bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bacterie_libs.molecule, mol_serveur
   ByteOpt:  -g

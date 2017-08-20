@@ -38,6 +38,7 @@ open Proteine
 open Misc_library
 open Maps
 
+open Batteries
 
    
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
@@ -175,11 +176,22 @@ struct
                     execute_actions actions bact
                   done)
       bact.molecules;
-    make_bindings bact;
+    make_bindings bact
     (*    pop_all_messages bact *)
+    
+    
+  let to_json (bact : t) =
+    let mol_enum = MolMap.enum bact.molecules in
+    let trimmed_mol_enum = Enum.map (fun (a,(b,c)) -> a,b) mol_enum in
+    let trimmed_mol_list = List.of_enum trimmed_mol_enum in
+    
+    `Assoc [
+       "molecules list",
+       `List (List.map (fun (mol, nb) ->
+                  `Assoc ["mol", Molecule.to_yojson mol;
+                          "nb", `Int nb]) trimmed_mol_list)
+     ]
       
-  
-  
 end;;
 
 
