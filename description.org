@@ -513,6 +513,66 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
     
 **** Modèle 1
 
+*** Bacterie
+    Une bacterie contient des molécules. Pour chaque molecule, on connait
+    le nombre présent, et on simule une unique forme protéinée pour 
+    toutes les molécules du même type.
+****** Note : on pourrait imaginer d'autres formes d'interprétation :
+      + fonction (par ex log) du nombre de mols
+       + ou autre.
+
+      La simulation est alors découpée en (pour l'instant) deux étapes :
+       + Simulation des protéines
+       + Résolution des catch/bind
+
+**** Simulation des protéines
+
+   La protéine associée à chaque molécule lance un certain nombre
+   de transitions de son réseau de pétri. Pour choisir ce nombre,
+   on pourrait :
+    + le faire correspondre au nombre de mol présentes
+    (ou une fonction de celui-ci
+    + Prendre le pgcd de tous les nombres de molécules
+    (ou même diviser par le plus petit et arrondir)
+    pour que le coût de simulation ne dépende pas du 
+    nombre de molécules).
+
+**** Résolution des catch/bind
+
+On calcule combien de bind sont effectués.
+
+Pour le déroulé du bind en lui même, on peut aussi avoir
+plusieurs choix :
+ + Le bind crée un token
+ + Le bind peut seulement se dérouler si un token vide
+   se trouve sur la place avec le catcher
+ + Si un token occupé par une molécule se trouve sur la
+ place, la molécule est remplacée, ou alors une des deux 
+ au hasard.
+
+
+****** Note : du coup pour le simulateur
+On calcule les catch/bind, puis
+on attribue à chaque molécule un certain
+nb de transitions. On peut alors soit
+observer les transitions de chaque molécule,
+soit tout exécuter, etc.
+
+
+*** Le monde
+
+Quelques idées : 
+ + les bactéries peuvent se duppliquer sans restriction physique.
+   À chaque nouvelle bactérie créée on attribue une certaines
+   distribution des différentes ressources (acides aminés ?)
+ + Matrice (tridimensionnelle), avec des « commandes » pour 
+   interagir avec les cellules voisines, se déplacer,
+   communiquer, etc..
+ + Hôtes pour simuler un comportement multicellulaire : 
+   l'hôte a différents emplacements pour cellules, où 
+   se trouvent  des recepteurs particuliers, qui permettent
+   à l'hôte d'effectuer des actions dans un autre monde physique.
+
 *** Dans un futur lointain
 
     Pour que les bactéries puissent avoir un comportement efficace, il 
