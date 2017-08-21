@@ -1,8 +1,9 @@
 open Molecule.Molecule;;
 open Molecule.AcidTypes;;
 open Proteine;;
-open Mol_simul_serveur;;
 
+open Bacterie;;
+open Bact_simul_serveur;;
   
 let mol2 = [
     Node Regular_place; Extension Init_with_token; TransitionInput ("a", Regular_ilink); Node Regular_place; TransitionOutput ("a", Regular_olink);
@@ -27,6 +28,9 @@ let mol3 = [
 
   ];;
 
-let prot3 = Proteine.make mol3;;
+let bact = Bacterie.empty;;
   
-go_prot_interface prot2;;
+  Bacterie.add_molecule mol2 bact;;
+    Bacterie.add_molecule mol3 bact;;
+  
+go_bact_interface bact;;

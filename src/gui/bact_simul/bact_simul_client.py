@@ -20,7 +20,7 @@ class NetworkClient:
         self.s.setblocking(0)
         print("connection to server established")
 
-    def send_request(self, request):
+    def send_request(self, req):
         print("sending request :", req)
         self.s.send((req + "\n").encode('utf-8'))
         
@@ -71,11 +71,11 @@ class Application(tk.Frame):
 
     def init_bactery(self, data):
         self.bactery_data = data
-        print self.bactery_data
+        print(self.bactery_data)
         
     def createWidgets(self):
         tk.Button(self, text="Connect", command=self.connect).pack()
-        tk.Button(self, text="Init", command=self.connect).pack()
+        tk.Button(self, text="Init", command=self.request_init_data).pack()
 
 
 client = NetworkClient()

@@ -70,27 +70,35 @@ Library "bacterie"
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Bacterie
-  BuildDepends: local_libs, bacterie_libs.molecule, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.proteine, batteries, bacterie_libs.proteine
+  BuildDepends: local_libs, bacterie_libs.molecule, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.proteine, batteries
 
 Library "bacterie_libs"
   FindLibName : bacterie_libs
   Path : src/bacterie
   Modules : Bacterie_libs
 
-Library "mol_serveur"
+Library "mol_simul_serveur"
   Path: src/gui/mol_simul
-  Modules: Mol_serveur
+  Modules: Mol_simul_serveur
   BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.molecule
 
 
-Library "bact_serveur"
+Library "bact_simul_serveur"
   Path: src/gui/bact_simul
-  Modules: Bact_serveur
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.molecule
+  Modules: Bact_simul_serveur
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.molecule, bacterie
 
 
 Executable "mol_test"
   Path : src/
   MainIs : mol_test.ml
-  BuildDepends : bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bacterie_libs.molecule, mol_serveur
+  BuildDepends : bacterie_libs.proteine, bacterie_libs.molecule,  batteries, mol_simul_serveur
+  ByteOpt:  -g
+
+
+
+Executable "bact_test"
+  Path : src/
+  MainIs : bact_test.ml
+  BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bact_simul_serveur
   ByteOpt:  -g
