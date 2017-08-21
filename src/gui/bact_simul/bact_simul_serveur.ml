@@ -27,33 +27,68 @@ let make_server server_fun port =
 let make_bact_interface bact ic oc =
 
   
-  try while true do
+  (* try *)
+    while true do
       let s = input_line ic in
-      let json_command = Yojson.Basic.from_string s in
-      let command = json_command |> Yojson.Basic.Util.member "command" |> Yojson.Basic.Util.to_string in 
+
+      print_endline "received message, printing";
+      print_endline s;
+      print_endline "end of message";
+
+
+      
+      let json_command = Yojson.Safe.from_string s in
+      let command = Yojson.Safe.to_string (Yojson.Safe.Util.member "command" json_command) in  
       (
-	print_endline s;
-	if command = "gibinitdata"
+	print_endline command;
+	if String.equal command "\"gibinitdata\""
 	then
 	  (
-            
 	    print_endline "asking for initdata; sending...";
 
-            
-	    let json_data = `Assoc ["bactery_init_desc", (Bacterie.to_json bact)] in
-	    let to_send = Yojson.Safe.to_string json_data in
+	    let json_data = `Assoc
+                             ["target", `String "main";
+                              "purpose", `String "bactery_init_desc";
+                              "data", (Bacterie.to_json bact)] in
 
+            let to_send = Yojson.Safe.to_string json_data in
             
-            print_endline "sending data ...";
+            print_endline "sending init data ...";
             print_endline to_send;
             
             output_string oc to_send;
 	    flush oc;
-	    print_endline "initdata sent";
+	    print_endline "init data sent";
 	  )
+        else if command = "\"give prot desc\""
+        then
+          (
+            let data = Yojson.Safe.Util.member "data" json_command in
+            let mol_or_error = Molecule.of_yojson data in
+            match mol_or_error with
+            | Ok mol -> 
+               let prot = Proteine.make mol in
+               let prot_json = Proteine.to_json prot in
+
+               let to_send_json =
+                 `Assoc
+                  ["target", Yojson.Safe.Util.member "return target" json_command;
+                   "purpose", `String "prot desc";
+                   "data", prot_json]
+
+               in
+               
+               print_endline "sending prot data ...";
+               
+               output_string oc (Yojson.Safe.to_string to_send_json);
+	       flush oc;
+	       print_endline "prot data sent";
+               
+            | Error s -> print_endline ("error : "^ s)
+          )
       )
       done
-  with _ -> Printf.printf "End of text\n" ; flush stdout ; exit 0 ;;
+(*  with _ -> Printf.printf "End of text\n" ; flush stdout ; exit 0 ;;*)
 
 let go_bact_interface bact = 
    Unix.handle_unix_error make_server (make_bact_interface bact) 1512;;

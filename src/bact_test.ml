@@ -32,5 +32,5 @@ let bact = Bacterie.empty;;
   
   Bacterie.add_molecule mol2 bact;;
     Bacterie.add_molecule mol3 bact;;
-  
+      
 go_bact_interface bact;;

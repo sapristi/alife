@@ -188,7 +188,8 @@ struct
     `Assoc [
        "molecules list",
        `List (List.map (fun (mol, nb) ->
-                  `Assoc ["mol", Molecule.to_yojson mol;
+                  `Assoc ["name", `String (Molecule.to_string mol);
+                          "mol_json", Molecule.to_yojson mol;
                           "nb", `Int nb]) trimmed_mol_list)
      ]
       

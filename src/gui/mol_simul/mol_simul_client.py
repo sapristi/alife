@@ -1,3 +1,4 @@
+
 # * this file
 # implementation of a client for protein simulation
 # communicates with a server running the simulation
@@ -22,8 +23,6 @@ from graphviz import Digraph
 # vu qu'on peut pas vraiment mettre à jour les éléments du graphe,
 # on le fait statique et on en recrée un à chaque fois
 class DotGraph(Digraph):
-
-
     
     def __init__(self, desc):
         Digraph.__init__(self, format = "gif")

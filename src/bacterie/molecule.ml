@@ -164,67 +164,67 @@ module Molecule =
 (*   - utiliser une table d'associations  (pour accélerer ?) *)
 (*   - TODO : faire attention si plusieurs arcs entrants ou sortant correspondent au même nœud et à la même transition, auquel cas ça buggerait *)
 
-let build_transitions (mol : t) :
-      transition_structure list = 
-  
-  (* insère un arc entrant dans la bonne transition 
-     de la liste des transitions *)
-  let rec insert_new_input 
-            (nodeN :   int) 
-            (transID : string) 
-            (data :    AcidTypes.transition_input_type) 
-            (transL :  transition_structure list) : 
-            
-            transition_structure list =
+  let build_transitions (mol : t) :
+        transition_structure list = 
     
-    match transL with
-    | (t, input, output) :: transL' -> 
-       if transID = t 
-       then (t,  (nodeN, data) :: input, output) :: transL'
-       else (t, input, output) ::
-              (insert_new_input nodeN transID data transL')
-    | [] -> [transID, [nodeN, data], []]
+    (* insère un arc entrant dans la bonne transition 
+     de la liste des transitions *)
+    let rec insert_new_input 
+              (nodeN :   int) 
+              (transID : string) 
+              (data :    AcidTypes.transition_input_type) 
+              (transL :  transition_structure list) : 
+              
+              transition_structure list =
+    
+      match transL with
+      | (t, input, output) :: transL' -> 
+         if transID = t 
+         then (t,  (nodeN, data) :: input, output) :: transL'
+         else (t, input, output) ::
+                (insert_new_input nodeN transID data transL')
+      | [] -> [transID, [nodeN, data], []]
           
           
   (* insère un arc sortant dans la bonne transition 
      de la liste des transitions *)
-  and insert_new_output 
-        (nodeN :   int) 
-        (transID : string)
-        (data :    AcidTypes.transition_output_type) 
-        (transL :  transition_structure list) :
-        
-        transition_structure list =  
-    
-    match transL with
-    | (t, input, output) :: transL' -> 
-       if transID = t 
-       then (t,  input, (nodeN, data) ::  output) :: transL'
-       else (t, input, output) ::
-              (insert_new_output nodeN transID data transL')
-    | [] -> [transID, [], [nodeN, data]]
+    and insert_new_output 
+          (nodeN :   int) 
+          (transID : string)
+          (data :    AcidTypes.transition_output_type) 
+          (transL :  transition_structure list) :
           
-  in 
-  let rec aux 
-            (mol :    t)
-            (nodeN :  int) 
-            (transL : transition_structure list) :
+        transition_structure list =  
+      
+      match transL with
+      | (t, input, output) :: transL' -> 
+         if transID = t 
+         then (t,  input, (nodeN, data) ::  output) :: transL'
+         else (t, input, output) ::
+                (insert_new_output nodeN transID data transL')
+      | [] -> [transID, [], [nodeN, data]]
             
-            transition_structure list = 
-    
-    match mol with
-    | Node _ :: mol' -> aux mol' (nodeN + 1) transL
-    | TransitionInput (s,d) :: mol' ->
-       aux mol' nodeN (insert_new_input nodeN s d transL)
+    in 
+    let rec aux 
+              (mol :    t)
+              (nodeN :  int) 
+              (transL : transition_structure list) :
+              
+              transition_structure list = 
+      
+      match mol with
+      | Node _ :: mol' -> aux mol' (nodeN + 1) transL
+      | TransitionInput (s,d) :: mol' ->
+         aux mol' nodeN (insert_new_input nodeN s d transL)
 
-    | TransitionOutput (s,d) :: mol' ->
-       aux mol' nodeN (insert_new_output nodeN s d transL)
-
-    | Extension _ :: mol' -> aux mol' nodeN transL
-    | [] -> transL
+      | TransitionOutput (s,d) :: mol' ->
+         aux mol' nodeN (insert_new_output nodeN s d transL)
+        
+      | Extension _ :: mol' -> aux mol' nodeN transL
+      | [] -> transL
      
-  in 
-  aux mol (-1) []
+    in 
+    aux mol (-1) []
   
 (* *** build_nodes_list function :deprecated: *)
 (*     Extrait la liste des noeuds, de la molécule, dans l'ordre rencontré   *)
@@ -239,24 +239,24 @@ let build_transitions (mol : t) :
 (* Construit la liste des nœuds avec les extensions associée (inversant ainsi l'ordre de la liste des nœuds. *)
 (* L'ordre est ensuite reinversé, sinon la liste des places est inversé dans la protéine. *)
 
-let build_nodes_list_with_exts (mol : t) :
-      (AcidTypes.place_type * (AcidTypes.extension_type list)) list =
-  
-  let rec aux mol res = 
-    match mol with
-    | Node n :: mol' -> aux mol' ((n, []) :: res)
-    | Extension e :: mol' ->
-       begin
-         match res with
-         | [] -> aux mol' res
-         | (n, ext_l) :: res' ->
-            aux mol' ((n, e :: ext_l) :: res')
-       end
-    | _ :: mol' -> aux mol' res
-    | [] -> res
-  in
-  List.rev (aux mol [])
-
+  let build_nodes_list_with_exts (mol : t) :
+        (AcidTypes.place_type * (AcidTypes.extension_type list)) list =
+    
+    let rec aux mol res = 
+      match mol with
+      | Node n :: mol' -> aux mol' ((n, []) :: res)
+      | Extension e :: mol' ->
+         begin
+           match res with
+           | [] -> aux mol' res
+           | (n, ext_l) :: res' ->
+              aux mol' ((n, e :: ext_l) :: res')
+         end
+      | _ :: mol' -> aux mol' res
+      | [] -> res
+    in
+    List.rev (aux mol [])
+    
 (* *** get_handles : *)
 (* Given a molecule, returns a list of tuples (handle_position, handle_id) *)
 (*
@@ -309,6 +309,27 @@ let build_nodes_list_with_exts (mol : t) :
       | [] -> map
     in
     aux mol (-1) BatMultiPMap.empty
+
+(* Used as a descriptor for a molecule *)
     
+  let rec to_string (mol : t) : string =
+    match mol with
+    | Node AcidTypes.Regular_place :: mol' -> "N"^(to_string mol')
+    | TransitionInput (s,ti_t) :: mol' ->
+       begin
+         match ti_t with
+         | AcidTypes.Regular_ilink -> "TIR"^s^(to_string mol')
+         | AcidTypes.Split_ilink -> "TIS"^s^(to_string mol')
+         | AcidTypes.Filter_ilink f -> "TIF"^s^";"^f^(to_string mol')
+       end     
+    | TransitionOutput (s,to_t) :: mol'  ->
+       begin
+         match to_t with
+         | AcidTypes.Regular_olink -> "TOR"^s^(to_string mol')
+         | AcidTypes.Bind_olink -> "TOB"^s^(to_string mol')
+         | AcidTypes.Release_olink -> "TOL"^s^(to_string mol')
+       end
+    | Extension _ :: mol' -> "E"^(to_string mol')
+    | [] -> ""
 end;;
     

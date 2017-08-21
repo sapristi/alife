@@ -16,7 +16,7 @@
     + outshine / outorg
     + tuareg-mode
     + graphviz-dot mode
-
+      
 * Intro
 
   Du coup, on veut ici créer un programme qui réalise le rêve de
@@ -103,6 +103,7 @@
    La communication, c'est la vie en plus rigolo.
    La vie tout court, c'est déjà pas mal.
    Les ribosomes, c'est trop l'éclate.
+   Toute action engendre une réaction.
 
 * Description de ce que j'essaie de faire
 
@@ -209,7 +210,6 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 
 
 
- 
 *** Modèle pour les protéines
 
     Une protéine est donc un réseau de Pétri, c'est à dire un graphe 
@@ -293,7 +293,7 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 	Comme c'est la bactérie qui a l'initiative pour lancer une transition,
 	on donne un type de retour aux transition qui permettra de passer 
 	l'information nécéssaire.
-
+	
 *** Modèle pour une bactérie
     
     Une bactérie est simplement une boite contenant des protéines,
@@ -327,6 +327,23 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 
 *************** TODO Que se passe-t-il si une protéine réagit avec elle même ? 
 
+*************** TODO Ce mode de réaction est trop déséquilibré.
+		Une petite molécule peut attrapper et donc détruire ou
+		désactiver trop facilement d'autres molécules.
+		Autre idées : 
+		 + Deux molécules réagissent en formant un réseau de pétri 
+		 élargi.
+		Enfin c'est compliqué, mais à creuser
+*************** TODO Il faudrait aussi permettre d'attrapper une molécule 
+		par les acides (ou plutôt ce qui la compose au niveau inférieur;
+		non encore implémenté).
+		Ça permettrait au moins d'attrapper les composants de base
+		(ce que le ribosome ne peut pas faire pour l'instant,
+		puisque pour attrapper qqchose il faut une poignée : pas très 
+		pratique).
+
+
+		 
 **** Transitions du réseau de pétri
 
      On peut organiser la répartition du temps de calcul (= nb de transitions
@@ -586,7 +603,7 @@ Quelques idées :
     (par exemple : problème de transition, problème lors du décalage
     d'une molécule à l'intérieur d'
 * Stuff to do
-
+  
 ** DONE v0.0.0
 *** DONE ajouter des arcs entre tous les nœuds dans le client ?
 *** DONE Clarifier les dénominations, en particulier input et output links

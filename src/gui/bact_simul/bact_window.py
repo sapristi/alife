@@ -2,16 +2,22 @@
 import tkinter as tk
 
 
-class Application(tk.Frame):
-    def __init__(self, master=None, nc=None):
+class BactFrame(tk.Frame):
+    def __init__(self, master=None, mainApp = None):
         tk.Frame.__init__(self, master)
         self.root = master
+        self.mainApp = mainApp
         self.pack()
-        self.nc = nc
         self.createWidgets()
+        self.bactery_data = None
         
+    def set_data(self, data):
+        print("received data, updating mol list")
+        self.bactery_data = data
+        for mol in data["molecules list"]:
+            item_name = mol["name"][0:15]+"(" + str(mol["nb"]) + ")"
+            self.molList_listbox.insert(tk.END, item_name)
         
-    
     def createWidgets(self):
         
         self.button_frame = tk.LabelFrame(self, text = "Simulation")
@@ -56,9 +62,9 @@ class Application(tk.Frame):
 
 
         #molecules list frame
-        molList_listbox = tk.Listbox(self.molList_frame)
-        molExamine_button = tk.Button(self.molList_frame, text = "examine", command = print("todo"))
-        molList_listbox.pack()
+        self.molList_listbox = tk.Listbox(self.molList_frame)
+        molExamine_button = tk.Button(self.molList_frame, text = "examine", command = self.examine_mol)
+        self.molList_listbox.pack()
         molExamine_button.pack()
         
         #pack final
@@ -69,7 +75,10 @@ class Application(tk.Frame):
         self.rbut_v.set(1)
         self.select_autoSimul()
 
-        
+    def examine_mol(self):  
+        molID = self.molList_listbox.curselection()[0]
+        mol_desc = self.bactery_data["molecules list"][molID]
+        self.mainApp.examine_mol(mol_desc)
         
     def enable_frame(self, frame):
         for child in frame.winfo_children():
@@ -90,14 +99,13 @@ class Application(tk.Frame):
     def autoSimul_launch(self):
         print("todo")
 
-    def quit_program(self):
-        root.destroy()
 
 
-root = tk.Tk()
-app = Application(root)
-app.master.title("Bactérie") 
-
-app.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = Application(root)
+    app.master.title("Bactérie") 
+    
+    app.mainloop()
 
         
