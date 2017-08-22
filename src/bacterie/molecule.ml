@@ -329,7 +329,18 @@ module Molecule =
          | AcidTypes.Bind_olink -> "TOB"^s^(to_string mol')
          | AcidTypes.Release_olink -> "TOL"^s^(to_string mol')
        end
-    | Extension _ :: mol' -> "E"^(to_string mol')
+    | Extension e :: mol' ->
+       begin
+         match e with
+         | AcidTypes.Handle_ext hid -> "EH"^hid^(to_string mol')
+         | AcidTypes.Catch_ext bid -> "EC"^bid^(to_string mol')
+         | AcidTypes.Receive_msg_ext s -> "ERM"^s^(to_string mol')
+         | AcidTypes.Release_ext  -> "ER"^(to_string mol')
+         | AcidTypes.Send_msg_ext s -> "ESM"^s^(to_string mol')
+         | AcidTypes.Displace_mol_ext b -> "ED"^(string_of_bool b)^(to_string mol')
+         | AcidTypes.Init_with_token -> "EIT"^(to_string mol')
+         | AcidTypes.Information s -> "EI"^s^(to_string mol')
+       end
     | [] -> ""
 end;;
     

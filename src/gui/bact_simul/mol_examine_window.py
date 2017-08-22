@@ -29,6 +29,36 @@ class MolGraph(Digraph):
 
             if i>0:
                 self.edge(str(i-1), str(i))
+
+class PetriGraph(Digraph):
+    
+    def __init__(self, desc):
+        Digraph.__init__(self, format = "gif")
+        self.desc = desc
+
+        temp_place = None
+        # crée les nœuds correspondant aux places, et des arcs entre celles-ci
+        for i, val in enumerate(desc["places"]):
+            self.node('p'+str(i), "{place" + str(val["id"]) + "|" + str(val["token"]) + "}", shape="record")
+
+            if i>0:
+                self.edge('p'+str(i-1), 'p'+str(i), constraint = "false")
+            
+        # ajoute les nœuds correspondant aux transitions, et les arcs correspondants 
+        for i, val in enumerate(desc["transitions"]):
+            if i in self.desc["launchables"]:
+                color = "red"
+            else :
+                color = "black"
+            
+            tname = 't'+str(i)
+            self.node(tname, color = color)
+            for valbis in val["dep_places"]:
+                self.edge('p'+str(valbis[0]), tname, color = color)
+
+            for valbis in val["arr_places"]:
+                self.edge(tname, 'p'+str(valbis[0]), color = color)
+
                 
 class MolFrame(tk.Frame):
     def __init__(self, root, mol_desc, host):
@@ -40,7 +70,7 @@ class MolFrame(tk.Frame):
 
         self.host.nc.send_request(
             json.dumps({"command" : "give prot desc",
-                        "return target" : mol_desc["mol_json"],
+                        "return target" : mol_desc["name"],
                         "data" : mol_desc["mol_json"]}
             ))
                                                    
@@ -51,11 +81,18 @@ class MolFrame(tk.Frame):
         self.root.title("Molécule " + mol_desc["name"])
         
 
-    def recv_msg(self, json_data):
+    def recv_msg(self, json_msg):
         purpose = json_msg["purpose"]
         data = json_msg["data"]
         if purpose == "prot desc":
             print("received proteine description")
+            petri_graph = PetriGraph(data)
+            petri_graph.render(filename=self.mol_desc["name"]+"_petri_image")
+            print("petri graph generated")
+            self.petriImage_img = tk.PhotoImage(file=self.mol_desc["name"]+"_petri_image.gif")
+            self.petriImage_cv.config(width=self.petriImage_img.width(), height = self.petriImage_img.height())
+            self.petriImage_cv.create_image(0,0,anchor="nw", image=self.petriImage_img)
+            
         
     def createWidgets(self):
         
@@ -72,10 +109,11 @@ class MolFrame(tk.Frame):
         # texte pour changer la molécule
         molDesc_frame = tk.LabelFrame(self, text = "molecule text description")
         self.molDesc_text = tk.Text(molDesc_frame)
+        self.molDesc_text.insert("1.0", json.dumps(self.mol_desc["mol_json"]))
         self.molDesc_text.pack()
         
-        molDesc_frame.grid(row = 0, column = 0)
-        molImage_frame.grid(row = 0, column = 1)
+        molDesc_frame.grid(row = 1, column = 0)
+        molImage_frame.grid(row = 0, column = 0)
         petriImage_frame.grid(row = 1, column = 1)
 
         

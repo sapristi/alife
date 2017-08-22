@@ -100,7 +100,7 @@ class MainApp(tk.Frame):
         molWindow = tk.Toplevel()
         print(mol_desc["mol_json"])
         
-        self.components[str(mol_desc["mol_json"])] = MolFrame(molWindow, mol_desc, self)
+        self.components[mol_desc["name"]] = MolFrame(molWindow, mol_desc, self)
         
         
     def createWidgets(self):
