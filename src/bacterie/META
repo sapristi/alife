@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: d9534f81b209a44bde5c60e1eaaa549f)
+# DO NOT EDIT (digest: 2b6ad257c3c7ca4566b561df0a558002)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "bacterie_libs.cma"
@@ -11,7 +11,7 @@ package "transition" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "local_libs bacterie_libs.molecule bacterie_libs.token bacterie_libs.place yojson ppx_deriving_yojson ppx_deriving.show"
+ "local_libs bacterie_libs.proteine bacterie_libs.token bacterie_libs.place yojson ppx_deriving_yojson ppx_deriving.show"
  archive(byte) = "transition.cma"
  archive(byte, plugin) = "transition.cma"
  archive(native) = "transition.cmxa"
@@ -23,7 +23,7 @@ package "token" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "local_libs bacterie_libs.molecule yojson ppx_deriving_yojson ppx_deriving.show"
+ "local_libs bacterie_libs.proteine yojson ppx_deriving_yojson ppx_deriving.show"
  archive(byte) = "token.cma"
  archive(byte, plugin) = "token.cma"
  archive(native) = "token.cmxa"
@@ -44,8 +44,7 @@ package "reactions" (
 package "proteine" (
  version = "0.1"
  description = "Simulating life and stuff"
- requires =
- "batteries bacterie_libs.molecule bacterie_libs.token bacterie_libs.place bacterie_libs.transition local_libs yojson ppx_deriving_yojson"
+ requires = "local_libs yojson ppx_deriving_yojson"
  archive(byte) = "proteine.cma"
  archive(byte, plugin) = "proteine.cma"
  archive(native) = "proteine.cmxa"
@@ -57,7 +56,7 @@ package "place" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "local_libs bacterie_libs.molecule bacterie_libs.token yojson ppx_deriving_yojson ppx_deriving.show"
+ "local_libs bacterie_libs.proteine bacterie_libs.token yojson ppx_deriving_yojson ppx_deriving.show"
  archive(byte) = "place.cma"
  archive(byte, plugin) = "place.cma"
  archive(native) = "place.cmxa"
@@ -65,22 +64,23 @@ package "place" (
  exists_if = "place.cma"
 )
 
-package "molecule" (
+package "petri_net" (
  version = "0.1"
  description = "Simulating life and stuff"
- requires = "local_libs yojson ppx_deriving_yojson"
- archive(byte) = "molecule.cma"
- archive(byte, plugin) = "molecule.cma"
- archive(native) = "molecule.cmxa"
- archive(native, plugin) = "molecule.cmxs"
- exists_if = "molecule.cma"
+ requires =
+ "batteries bacterie_libs.proteine bacterie_libs.token bacterie_libs.place bacterie_libs.transition local_libs yojson ppx_deriving_yojson"
+ archive(byte) = "petri_net.cma"
+ archive(byte, plugin) = "petri_net.cma"
+ archive(native) = "petri_net.cmxa"
+ archive(native, plugin) = "petri_net.cmxs"
+ exists_if = "petri_net.cma"
 )
 
 package "bacterie" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "local_libs bacterie_libs.molecule bacterie_libs.token bacterie_libs.place bacterie_libs.transition bacterie_libs.proteine batteries"
+ "local_libs bacterie_libs.proteine bacterie_libs.token bacterie_libs.place bacterie_libs.transition bacterie_libs.petri_net batteries"
  archive(byte) = "bacterie.cma"
  archive(byte, plugin) = "bacterie.cma"
  archive(native) = "bacterie.cmxa"

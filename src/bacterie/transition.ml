@@ -1,6 +1,6 @@
-
-open Molecule.Molecule
 open Molecule
+open Proteine.Proteine
+open Proteine
 open Place
 open Token
 open Misc_library

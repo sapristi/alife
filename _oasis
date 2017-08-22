@@ -29,11 +29,11 @@ Library "reactions"
   Modules: Reactions
 
 
-Library "molecule"	
-  FindLibName : molecule
+Library "proteine"	
+  FindLibName : proteine
   FindLibParent : bacterie_libs
   Path: src/bacterie
-  Modules: Molecule
+  Modules: Proteine
   BuildDepends: local_libs, yojson, ppx_deriving_yojson
 
 
@@ -42,35 +42,35 @@ Library "token"
   FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Token
-  BuildDepends : local_libs, bacterie_libs.molecule, yojson, ppx_deriving_yojson, ppx_deriving.show
+  BuildDepends : local_libs, bacterie_libs.proteine, yojson, ppx_deriving_yojson, ppx_deriving.show
 
 Library "place"
   FindLibName : place
   FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Place
-  BuildDepends : local_libs, bacterie_libs.molecule, bacterie_libs.token, yojson, ppx_deriving_yojson, ppx_deriving.show
+  BuildDepends : local_libs, bacterie_libs.proteine, bacterie_libs.token, yojson, ppx_deriving_yojson, ppx_deriving.show
 
 Library "transition"
   FindLibName : transition
   FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Transition
-  BuildDepends : local_libs, bacterie_libs.molecule, bacterie_libs.token, bacterie_libs.place, yojson, ppx_deriving_yojson, ppx_deriving.show
+  BuildDepends : local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, yojson, ppx_deriving_yojson, ppx_deriving.show
 
-Library "proteine"
-  FindLibName : proteine
+Library "petri_net"
+  FindLibName : petri_net
   FindLibParent : bacterie_libs
   Path: src/bacterie
-  Modules: Proteine
-  BuildDepends: batteries, bacterie_libs.molecule, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, local_libs, yojson, ppx_deriving_yojson
+  Modules: Petri_net
+  BuildDepends: batteries, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, local_libs, yojson, ppx_deriving_yojson
 
 Library "bacterie"
   FindLibName : bacterie
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Bacterie
-  BuildDepends: local_libs, bacterie_libs.molecule, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.proteine, batteries
+  BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.petri_net, batteries
 
 Library "bacterie_libs"
   FindLibName : bacterie_libs
@@ -80,19 +80,19 @@ Library "bacterie_libs"
 Library "mol_simul_serveur"
   Path: src/gui/mol_simul
   Modules: Mol_simul_serveur
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.molecule
+  BuildDepends: unix, bacterie_libs.petri_net, bacterie_libs.molecule
 
 
 Library "bact_simul_serveur"
   Path: src/gui/bact_simul
   Modules: Bact_simul_serveur
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.molecule, bacterie
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie
 
 
 Executable "mol_test"
   Path : src/
   MainIs : mol_test.ml
-  BuildDepends : bacterie_libs.proteine, bacterie_libs.molecule,  batteries, mol_simul_serveur
+  BuildDepends : bacterie_libs.proteine, bacterie_libs.petri_net,  batteries, mol_simul_serveur
   ByteOpt:  -g
 
 

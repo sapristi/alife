@@ -31,13 +31,16 @@
 (*    c'est à dire référencer quelles molécules  reçoivent quel message *)
 
 (*   - Et aussi savoir quelles molécules peuvent s'accrocher à quelles autres. *)
+
+(* * libs *)
 open Molecule
 open Transition
 open Proteine
 
 open Misc_library
 open Maps
-
+open Petri_net
+   
 open Batteries
 
    
@@ -48,71 +51,23 @@ module MolMap = MakeMolMap
   (struct type t = Molecule.t let compare = Pervasives.compare end)
 
 
-(*   Table d'association où les clés sont des chaînes,  et les valeurs un doublet d'ensembles de molécules. *)
-(*   Une chaîne représente l'identifiant d'un site d'accroche, *)
-(*   la valeur associée contient à gauche les protéines qui sont attrapables, *)
-(*   et à droite celles susceptibles de s'accrocher. *)
-module MolDoubleMap = MakeDoubleMultiMap
-  (struct type t = string let compare = String.compare end)
-  (struct type t = Molecule.t let compare = Pervasives.compare end)
-
   
 module Bacterie =
 struct
   type t =
-    {mutable molecules : (int * Proteine.t) MolMap.t;
-     mutable mol_bindings_map :
-               MolDoubleMap.set_pair MolDoubleMap.t;
-(*     mutable message_receptors_map :
-               (string, molecule) BatMultiPMap.t;
-     mutable message_queue : string list;*)
-    }
+    {mutable molecules : (int * PetriNet.t) MolMap.t}
     
 
   let empty : t = 
-    {molecules =  MolMap.empty;
-     mol_bindings_map = MolDoubleMap.empty;
-     (* message_receptors_map = BatMultiPMap.create compare compare;
-     message_queue = [];*)
-    }
-
-    (*
-  let launch_message (m : string) (bact : t) : unit = 
-    BatSet.PSet.iter 
-      (fun x -> 
-        let _,p = MolMap.find x bact.molecules in
-        Proteine.send_message m p)
-      (BatMultiPMap.find m bact.message_receptors_map)
-    
-  let pop_all_messages (bact:t) : unit = 
-    List.iter (fun x -> launch_message x bact) bact.message_queue;
-    bact.message_queue <- []
-     *)
+    {molecules =  MolMap.empty;}
     
   let add_molecule (m : Molecule.t) (bact : t) : unit =
         
-    let rec update_bindings_map
-        (mol : Molecule.t)
-        (leftMap : (string, int) BatMultiPMap.t)
-        (rightMap :  (string, int) BatMultiPMap.t)
-        (map : MolDoubleMap.set_pair MolDoubleMap.t)
-        : MolDoubleMap.set_pair MolDoubleMap.t
-        = 
-      BatMultiPMap.foldi
-        (fun k v m -> MolDoubleMap.add_left k mol m)
-        leftMap
-        (BatMultiPMap.foldi
-           (fun k v m -> MolDoubleMap.add_right k mol m)
-           rightMap
-           map) 
-    in
     if MolMap.mem m bact.molecules
     then 
       bact.molecules <- MolMap.modify m (fun x -> let y,z = x in (y+1,z)) bact.molecules
     else
-      let p = Proteine.make m in
-      (*     bact.message_receptors_map <- update_map m p.Proteine.message_receptors_book bact.message_receptors_map; *)
-      bact.mol_bindings_map <- update_bindings_map m p.Proteine.handles_book p.Proteine.mol_catchers_book bact.mol_bindings_map;
+      let p = PetriNet.make m in
       bact.molecules <- MolMap.add m (1,p) bact.molecules
 
 
@@ -136,7 +91,7 @@ struct
     
     let (_,p) = MolMap.find hostMol bact.molecules
     in 
-    let reac_result = Proteine.bind_mol boundMol bindPattern p
+    let reac_result = PetriNet.bind_mol boundMol bindPattern p
     in
     if reac_result
     then 
@@ -145,25 +100,6 @@ struct
       ()
       
   let make_bindings (bact : t) : unit = 
-    MolDoubleMap.iter
-      (fun 
-        (pattern : string) 
-        (mols : MolDoubleMap.set_pair) -> 
-        let handles, catchers = mols in 
-        let handles_l = MolDoubleMap.Set.to_list handles and catchers_l = MolDoubleMap.Set.to_list catchers in
-        let couples_list = Misc_library.get_all_couples handles_l catchers_l
-        in 
-        List.iter 
-          (fun x -> 
-            let (handle, catcher) = x in
-            let handle_num, _ = MolMap.find handle bact.molecules 
-            and catcher_num, _ = MolMap.find catcher bact.molecules
-            in
-            if Reactions.react handle_num catcher_num
-            then bind_to handle catcher pattern bact
-          )
-          couples_list)
-      bact.mol_bindings_map;
     ()
 
 
@@ -172,7 +108,7 @@ struct
     MolMap.iter
       (fun k x -> let (n, prot) = x in  
                   for i = 1 to n do
-                    let actions = Proteine.launch_random_transition prot in
+                    let actions = PetriNet.launch_random_transition prot in
                     execute_actions actions bact
                   done)
       bact.molecules;
@@ -189,7 +125,7 @@ struct
        "molecules list",
        `List (List.map (fun (mol, nb) ->
                   `Assoc ["name", `String (Molecule.to_string mol);
-                          "mol_json", Molecule.to_yojson mol;
+                          "mol_json", Proteine.to_yojson (Molecule.to_prot mol);
                           "nb", `Int nb]) trimmed_mol_list)
      ]
       

@@ -25,6 +25,7 @@
 open Batteries
 open Misc_library
 open Molecule
+open Proteine
 open AcidTypes
 open Maps
 open Place
@@ -35,10 +36,10 @@ open Transition
 (* * the proteine module *)
 
 
-module Proteine =
+module PetriNet =
 struct
   type t =
-    {mol : Molecule.t;
+    {prot : Proteine.t;
      transitions : Transition.t array;
      places : Place.t  array;
      mutable launchables : int list;
@@ -60,11 +61,12 @@ struct
     done; !t_l
 
     
-  let make (mol : Molecule.t) : t = 
+  let make (mol : Molecule.t) : t =
+    let prot = Molecule.to_prot mol in 
   (* liste des signatures des transitions *)
-    let transitions_signatures_list = Molecule.build_transitions mol
+    let transitions_signatures_list = Proteine.build_transitions prot
   (* liste des signatures des places *)
-    and places_signatures_list = Molecule.build_nodes_list_with_exts mol
+    and places_signatures_list = Proteine.build_nodes_list_with_exts prot
   in
   (* on crée de nouvelles places à partir de la liste de types données dans la molécule *)
   let places_list : Place.t list = 
@@ -85,12 +87,12 @@ struct
   let (transitions : Transition.t array) = 
     Array.of_list transitions_list    
   in
-  let handles_book = Molecule.build_handles_book mol
-  and mol_catchers_book = Molecule.build_catchers_book mol
+  let handles_book = Proteine.build_handles_book prot
+  and mol_catchers_book = Proteine.build_catchers_book prot
                         
 
   in
-  {mol; transitions; places;
+  {prot; transitions; places;
    launchables = (get_launchables transitions);
    handles_book; mol_catchers_book;
    (* message_receptors_book; handles_book; *)
@@ -122,14 +124,14 @@ let launch_random_transition p  =
 (* Returns true if bound happened, false otherwise *)
   let bind_mol (mol : Molecule.t)
                (bind_pattern : AcidTypes.bind_pattern)
-               (prot : t)
+               (pnet : t)
       : bool =
     let bind_places_ids =
-      BatMultiPMap.find bind_pattern prot.handles_book 
+      BatMultiPMap.find bind_pattern pnet.handles_book 
     in
     let free_places_ids = 
       BatSet.PSet.filter
-        (fun id -> Place.is_empty prot.places.(id))
+        (fun id -> Place.is_empty pnet.places.(id))
         bind_places_ids
     in
     if BatSet.PSet.is_empty free_places_ids
@@ -138,7 +140,7 @@ let launch_random_transition p  =
       let bind_place_id =
         Misc_library.random_pick_from_PSet free_places_ids
       in
-      Place.add_token_from_binding mol prot.places.(bind_place_id)
+      Place.add_token_from_binding mol pnet.places.(bind_place_id)
       
       (* il manque les livres, on verra plus tard, 
          c'est déjà pas mal *)
@@ -149,7 +151,7 @@ let launch_random_transition p  =
       "transitions",
       `List (Array.to_list (Array.map Transition.to_json p.transitions));
       "molecule",
-      Molecule.to_yojson p.mol;
+      Proteine.to_yojson p.prot;
       "launchables",
       `List (List.map (fun x -> `Int x) p.launchables);]
 

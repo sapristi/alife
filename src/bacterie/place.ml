@@ -1,6 +1,7 @@
 open Misc_library
-open Molecule.Molecule
 open Molecule
+open Proteine.Proteine
+open Proteine
 open Token
    
 (* * the place module *)
@@ -34,7 +35,7 @@ module Place =
     let make (place_with_exts : AcidTypes.place_type *  place_exts)
         : t =
       let placeType, extensions = place_with_exts in
-      if List.mem AcidTypes.Init_with_token extensions
+      if List.mem AcidTypes.Init_with_token_ext extensions
       then
         {tokenHolder = OccupiedHolder (Token.make_empty ());
          placeType;
@@ -93,16 +94,6 @@ module Place =
       | OccupiedHolder token ->
          ( remove_token p;
          token )
-
-(* **** get_msg_receivers *)
-    let rec get_msg_receivers (p : t) : AcidTypes.msg_format list =
-      let rec aux exts = 
-        match exts with
-        | [] -> []
-        | AcidTypes.Receive_msg_ext msg :: exts' -> msg :: aux exts'
-        | _ :: exts' -> aux exts'
-      in
-      aux p.extensions
 
                                     
       

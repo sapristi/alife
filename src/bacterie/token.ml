@@ -1,6 +1,6 @@
 open Misc_library
 open Molecule
-
+open Proteine
 (* * the token module *)
    
 (* Molecules are transformed into proteines by compiling them into a petri net. We define here the tokens used in the petri nets. Tokens go through transitions. *)
@@ -71,7 +71,7 @@ module Token =
                
     let get_label (token : t) =
       match token.linked_mol with
-      | _, Molecule.Extension (AcidTypes.Information s) :: m2 -> s
+      | _, a :: m2 -> Molecule.atom_to_string a
       | _ -> ""
            
 
