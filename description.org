@@ -367,9 +367,20 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 
     Pour résoudre ça, on crée un niveau en dessous : une molécule est 
     une liste d'atomes, qui vont être interprétés en acides puis en protéines.
-    
+
+
+    Un problème est que cela ajoute un niveau d'interprétation dans 
+    l'édifice, mais ce niveau peut paraître naturel quand on veut 
+    fabriquer des acides :
+    l'avantage est que cela permet de limiter le nb de briques
+    de base (atomes), ce serait un peu bizarre d'avoir tous les types
+    d'acides qui se baladent dans la nature (sans parler de tous 
+    les identifiants dont on a besoin).
+
     Reste à savoir comment organiser pratiquement tout ça pour que ça reste 
     cohérent, pratique et joli.
+
+
 
 *** Dans le fichier petri_net.ml
 
