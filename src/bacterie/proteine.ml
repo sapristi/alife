@@ -1,177 +1,346 @@
 (* * this file *)
-(* We define here the working of a proteine, implemented using the acid type defined in custom_types. *)
-(* modules in this file have custom json serialisers, that are used to communicate data with a client *)
+  
+(*   molecule.ml defines the basic properties of a molecule, some *)
+(*   functions to help build a proteine out of it and a module to help it *)
+(*   get managed by a protein (i.e. simulate chemical reactions *)
 
-(* * preamble *)
-(* commands used when compiling the file in a toplevel *)
+(* * preamble : load libraries *)
 
-(* #use "topfind";; *)
-(* #require "batteries";; *)
-(* #require "yojson" ;; *)
-(* #require "ppx_deriving_yojson";; *)
-(* #require "ppx_deriving.show";; *)
+(* next lines are used when compiling in a ocaml toplevel *)
+(* #directory "../../_build/src/libs" *)
+(* #load "misc_library.ml" *)
 
-(* Used to add directories to load librairies (cmo). Can be avoided using -I "path" when launching toplevel. *)
-
-(* #directory "/home/sapristi/Documents/projets/alife/_build/src/libs";; *)
-(* #directory "/home/sapristi/Documents/projets/alife/_build/src/bacterie";; *)
-
-    
-(* #load "misc_library.cmo";; *)
-(* #load "molecule.cmo";; *)
-(* #load "custom_types.cmo";; *)
-
-
-open Batteries
 open Misc_library
-open Molecule
-open AcidTypes
-open Maps
-open Place
-open Transition
+open Batteries
+(* * defining types for acids *)
+
+   
+(* ** description générale :in_progress: *)
+(*    Implémentation des types différents acides. Voilà en gros l'organisation : *)
+(*   + place : aucune fonctionalité *)
+(*   + transition : agit sur la molécule contenue dans un token *)
+(*     - regular : rien de particulier *)
+(*     - split : coupe une molécule en 2 (seulement transition_input) *)
+(*     - bind : insère une molécule dans une autre (seulement transition_output) *)
+(*     - release : supprime le token, et relache l'éventuelle molécule *)
+(*       contenue dans celui-ci *)
+(*   + extension : autres ? *)
+(*     - handle : poignée pour attraper cette molécule *)
+(*       problème : il faudrait pouvoir attrapper la molécule à n'importe quel acide ? ou alors on attrappe la poignée directement et pas la place associée *)
+(*     - catch : permet d'attraper une molécule. *)
+(*       Est ce qu'il y a une condition d'activation, par exemple un token vide (qui contiendrait ensuite la molécule) ? *)
+(*     - release : lache la molécule attachée -> plutot dans les transitions *)
+(*     - move : déplace le point de contact de la molécule *)
+(*     - send : envoie un message *)
+(*     - receive : receives a message *)
+
+(*   Questions : est-ce qu'on met l'action move sur les liens ou en *)
+(*   extension ? dans les liens c'est plus cohérent, mais dans les *)
+(*   extensions ça permet d'en mettre plusiers à la suite. Par contre, à *)
+(*   quel moment est-ce qu'on déclenche l'effet de bord ? En recevant le *)
+(*   token d'une transition.  Mais du coup pour l'action release, il *)
+(*   faudrait aussi la mettre sur les places, puisqu'on agit aussi à *)
+(*   l'extérieur du token. Du coup pour l'instant on va mettre à la fois *)
+(*   move et release dans les extensions, avec un système pour appliquer *)
+(*   les effets des extensions quand on reçoit un token. *)
+
+(*   L'autre question est, comment appliquer les effets de bord qui *)
+(*   affectent la bactérie ? *)
+(*   Le plus simple est de mettre les actions ayant de tels effets de bord *)
+(*   sur les transitions, donc send_message et release_mol seront sur *)
+(*   les olink *)
   
 
+module AcidTypes =
+  struct
 
-(* * the proteine module *)
+(* ** place *)    
+    type place_type = 
+      | Regular_place
+        [@@deriving show, yojson]
+      
+(* ** transition_input *)
+    type transition_input_type = 
+      | Regular_ilink
+      | Split_ilink
+      | Filter_ilink of string
+                          [@@deriving show, yojson]
+                      
+(* ** transition_output *)
+    type transition_output_type = 
+      | Regular_olink
+      | Bind_olink
+      | Release_olink
+[@@deriving show, yojson]
 
 
-module Proteine =
-struct
-  type t =
-    {mol : Molecule.t;
-     transitions : Transition.t array;
-     places : Place.t  array;
-     mutable launchables : int list;
-     handles_book : (string, int) BatMultiPMap.t;
-     mol_catchers_book : (string, int) BatMultiPMap.t ;
+
+(* ** extension *)
+(* Types used by the extensions. Usefull to use custom types for easier potential changes later on.  *)
+    type handle_id = string
+                       [@@deriving show, yojson]
+    type bind_pattern = string
+                           [@@deriving show, yojson]
+    type receive_pattern = string
+                             [@@deriving show, yojson]
+    type msg_format = string
+                        [@@deriving show, yojson]
+                    
+    type extension_type =
+      | Handle_ext of handle_id
+      | Catch_ext of bind_pattern
+      | Receive_msg_ext of msg_format
+      | Release_ext
+      | Send_msg_ext of msg_format
+      | Displace_mol_ext of bool
+      | Init_with_token
+      | Information of string
+                         [@@deriving show, yojson]
+  end;;
+  
+
+(* * MoleculeManager functor *)
+(*   Functor that creates the molecule type and associated functions, given implementations of place_type, transition_input_type and transition_output_type *)
+
+module Molecule = 
+  struct 
+    
+(* ** type definitions *)
+(* *** acid type definition *)
+(* We define how the abstract types get combined to form functional types to eventually create a proteine (petri net) *)
+(*  + Node : used as a token placeholder in the petri net *)
+(*  + TransitionInput :  an incomming edge into a transition of the petri net *)
+(*  + a transition output : an outgoing edge into a transition of the petri net *)
+(*  + a piece of information : ???? *)
+  
+  type acid = 
+    | Node of AcidTypes.place_type
+    | TransitionInput of string * AcidTypes.transition_input_type
+    | TransitionOutput of string * AcidTypes.transition_output_type
+    | Extension of AcidTypes.extension_type
+                     [@@deriving show, yojson]
+                 
+                   
+  type t = acid list
+                       [@@deriving show, yojson]
+                
+                
+(* *** position type definition *)
+(* Correspond à un pointeur vers un des acide de la molécule *)
+                
+  type position = int
+                    [@@deriving show]
+
+
+(* *** transition structure type definition *)
+
+(* Structure utilisée pour stoquer une transition.  *)
+(* Triplet contenant : *)
+(*  - une string, l'identifiant de la transition *)
+(*  - une liste int*transInput*Type, dont chaque item contient  *)
+(*  l'entier correspondant au nœud d'où part la transistion,  *)
+(*  et le type de la transition *)
+(*  - de même pour les arcs sortants *)
+                
+  type transition_structure = 
+    string * 
+      (int * AcidTypes.transition_input_type ) list * 
+        (int * AcidTypes.transition_output_type) list
+                                               [@@deriving show]
+    
+(* *** place extensions definition *)
+
+  type place_extensions =
+    AcidTypes.extension_type list
+    
+(* ** functions definitions *)
+(* *** build_transitions function *)
+
+(* This function builds the transitions associated with a molecule. This will be used when folding the molecule to get functional form. *)
+(* On retourne une liste contenant les items (transID, transitionInputs, transitionOutputs) *)
+(* Algo : on parcourt les acides de la molécule, en gardant en mémoire l'id du dernier nœud visité. Si on tombe sur un acide contenant une transition, on parcourt la liste des transitions déjà créées pour voir si des transitions avec la même id ont déjà été traitées, auquel cas on ajoute cette transition à la transition_structure correspondante, et sinon on créée une nouvelle transition_structure *)
+
+(* Idées pour améliorer l'algo : *)
+(*   - utiliser une table d'associations  (pour accélerer ?) *)
+(*   - TODO : faire attention si plusieurs arcs entrants ou sortant correspondent au même nœud et à la même transition, auquel cas ça buggerait *)
+
+  let build_transitions (mol : t) :
+        transition_structure list = 
+    
+    (* insère un arc entrant dans la bonne transition 
+     de la liste des transitions *)
+    let rec insert_new_input 
+              (nodeN :   int) 
+              (transID : string) 
+              (data :    AcidTypes.transition_input_type) 
+              (transL :  transition_structure list) : 
+              
+              transition_structure list =
+    
+      match transL with
+      | (t, input, output) :: transL' -> 
+         if transID = t 
+         then (t,  (nodeN, data) :: input, output) :: transL'
+         else (t, input, output) ::
+                (insert_new_input nodeN transID data transL')
+      | [] -> [transID, [nodeN, data], []]
+          
+          
+  (* insère un arc sortant dans la bonne transition 
+     de la liste des transitions *)
+    and insert_new_output 
+          (nodeN :   int) 
+          (transID : string)
+          (data :    AcidTypes.transition_output_type) 
+          (transL :  transition_structure list) :
+          
+        transition_structure list =  
+      
+      match transL with
+      | (t, input, output) :: transL' -> 
+         if transID = t 
+         then (t,  input, (nodeN, data) ::  output) :: transL'
+         else (t, input, output) ::
+                (insert_new_output nodeN transID data transL')
+      | [] -> [transID, [], [nodeN, data]]
+            
+    in 
+    let rec aux 
+              (mol :    t)
+              (nodeN :  int) 
+              (transL : transition_structure list) :
+              
+              transition_structure list = 
+      
+      match mol with
+      | Node _ :: mol' -> aux mol' (nodeN + 1) transL
+      | TransitionInput (s,d) :: mol' ->
+         aux mol' nodeN (insert_new_input nodeN s d transL)
+
+      | TransitionOutput (s,d) :: mol' ->
+         aux mol' nodeN (insert_new_output nodeN s d transL)
+        
+      | Extension _ :: mol' -> aux mol' nodeN transL
+      | [] -> transL
      
-     (* À reconstruire en suivant la nouvelle forme des molécule
-     message_receptors_book : (string, int) BatMultiPMap.t ;
-      *)
-    }
-      
+    in 
+    aux mol (-1) []
+  
+(* *** build_nodes_list function :deprecated: *)
+(*     Extrait la liste des noeuds, de la molécule, dans l'ordre rencontré   *)
+
+  let rec build_nodes_list (mol : t) : AcidTypes.place_type list = 
+    match mol with
+    | Node d :: mol' -> d :: (build_nodes_list mol')
+    | _ :: mol' -> build_nodes_list mol'
+    | [] -> []
+
+(* *** build_nodes_list_with_exts function *)
+(* Construit la liste des nœuds avec les extensions associée (inversant ainsi l'ordre de la liste des nœuds. *)
+(* L'ordre est ensuite reinversé, sinon la liste des places est inversé dans la protéine. *)
+
+  let build_nodes_list_with_exts (mol : t) :
+        (AcidTypes.place_type * (AcidTypes.extension_type list)) list =
     
-  let get_launchables (ts : Transition.t array) =
-    let t_l = ref [] in 
-    for i = 0 to Array.length ts -1 do
-      if Transition.launchable ts.(i)
-      then t_l := i :: !t_l
-      else ()
-    done; !t_l
-
-    
-  let make (mol : Molecule.t) : t = 
-  (* liste des signatures des transitions *)
-    let transitions_signatures_list = Molecule.build_transitions mol
-  (* liste des signatures des places *)
-    and places_signatures_list = Molecule.build_nodes_list_with_exts mol
-  in
-  (* on crée de nouvelles places à partir de la liste de types données dans la molécule *)
-  let places_list : Place.t list = 
-    List.map 
-      (fun x -> Place.make x)
-      places_signatures_list
-    
-  in 
-  let (places : Place.t array) = Array.of_list places_list
-  in
-  let (transitions_list : Transition.t list) = 
-    List.map 
-      (fun x -> let s, ila, ola = x in
-                Transition.make places ila ola)
-      transitions_signatures_list
-    
-  in 
-  let (transitions : Transition.t array) = 
-    Array.of_list transitions_list    
-  in
-  let handles_book = Molecule.build_handles_book mol
-  and mol_catchers_book = Molecule.build_catchers_book mol
-                        
-
-  in
-  {mol; transitions; places;
-   launchables = (get_launchables transitions);
-   handles_book; mol_catchers_book;
-   (* message_receptors_book; handles_book; *)
-  }
-
-(* mettre à jour les transitions qui peuvent être lancées. *)
-(* Il faut prendre en compte la transition qui vient d'être lancée,  *)
-(* ainsi que les tokens qui ont pu arriver par message  *)
-
-(* (du coup, faire plus efficace devient un peu du bazar) *)
-(* on peut faire beaucoup plus efficace, mais pour l'instant  *)
-(* on fait au plus simple *)
-
-let update_launchables p =
-  p.launchables <- get_launchables p.transitions
-
-
-let launch_transition (tId : int) p = 
-  Transition.apply_transition p.transitions.(tId)
-    
-let launch_random_transition p  =
-  if not (p.launchables = [])
-  then 
-    let t = random_pick_from_list p.launchables in
-    launch_transition t p
-  else []
-
-(* binds to a random free place if possible. *)
-(* Returns true if bound happened, false otherwise *)
-  let bind_mol (mol : Molecule.t)
-               (bind_pattern : AcidTypes.bind_pattern)
-               (prot : t)
-      : bool =
-    let bind_places_ids =
-      BatMultiPMap.find bind_pattern prot.handles_book 
+    let rec aux mol res = 
+      match mol with
+      | Node n :: mol' -> aux mol' ((n, []) :: res)
+      | Extension e :: mol' ->
+         begin
+           match res with
+           | [] -> aux mol' res
+           | (n, ext_l) :: res' ->
+              aux mol' ((n, e :: ext_l) :: res')
+         end
+      | _ :: mol' -> aux mol' res
+      | [] -> res
     in
-    let free_places_ids = 
-      BatSet.PSet.filter
-        (fun id -> Place.is_empty prot.places.(id))
-        bind_places_ids
+    List.rev (aux mol [])
+    
+(* *** get_handles : *)
+(* Given a molecule, returns a list of tuples (handle_position, handle_id) *)
+(*
+  let get_handles (mol : molecule) : (int * AcidTypes.handle_id) list =
+    let rec aux mol n =
+      match mol with
+      | Extension ext :: mol' ->
+         begin
+           match ext with
+           | AcidTypes.Handle_ext hid -> (n, hid) :: aux mol' (n+1)
+           | _ -> aux  mol' (n+1)
+         end
+      | _ :: mol' -> aux mol' (n+1)
+      | [] -> []
     in
-    if BatSet.PSet.is_empty free_places_ids
-    then false
-    else
-      let bind_place_id =
-        Misc_library.random_pick_from_PSet free_places_ids
-      in
-      Place.add_token_from_binding mol prot.places.(bind_place_id)
-      
-      (* il manque les livres, on verra plus tard, 
-         c'est déjà pas mal *)
-  let to_json (p : t) =
-    `Assoc [
-      "places",
-      `List (Array.to_list (Array.map Place.to_json p.places));
-      "transitions",
-      `List (Array.to_list (Array.map Transition.to_json p.transitions));
-      "molecule",
-      Molecule.to_yojson p.mol;
-      "launchables",
-      `List (List.map (fun x -> `Int x) p.launchables);]
+    aux mol 0
+ *)
+  
+  let build_handles_book (mol : t) : (string, int) BatMultiPMap.t =
+    let rec aux mol n map =
+      match mol with
+      | Extension ext :: mol' ->
+         begin
+           match ext with
+           | AcidTypes.Handle_ext hid ->
+              aux mol' (n+1) (BatMultiPMap.add hid n map)
+           | _ -> aux  mol' (n+1) map
+         end
+      | _ :: mol' -> aux mol' (n+1) map
+      | [] -> map
+    in
+    aux mol 0 BatMultiPMap.empty
 
-  let to_json_update (p:t) =
-    `Assoc [
-      "places",
-      `List (Array.to_list (Array.map Place.to_json p.places));
-      "launchables",
-      `List (List.map (fun x -> `Int x) p.launchables);]      
+  let build_catchers_book (mol : t) : (string, int) BatMultiPMap.t =
+    let rec aux  mol n map =
+      match mol with
+      | Node _ :: mol' -> aux mol' (n+1) map
+      | Extension ext :: mol' ->
+         if n >= 0
+         then
+           begin
+             match ext with
+             | AcidTypes.Handle_ext hid ->
+                aux mol' n (BatMultiPMap.add hid n map)
+             | _ -> aux  mol' n map
+           end
+         else
+           aux mol' n map
+      | _ :: mol' -> aux mol' n map
+      | [] -> map
+    in
+    aux mol (-1) BatMultiPMap.empty
+
+(* Used as a descriptor for a molecule *)
+    
+  let rec to_string (mol : t) : string =
+    match mol with
+    | Node AcidTypes.Regular_place :: mol' -> "N"^(to_string mol')
+    | TransitionInput (s,ti_t) :: mol' ->
+       begin
+         match ti_t with
+         | AcidTypes.Regular_ilink -> "TIR"^s^(to_string mol')
+         | AcidTypes.Split_ilink -> "TIS"^s^(to_string mol')
+         | AcidTypes.Filter_ilink f -> "TIF"^s^";"^f^(to_string mol')
+       end     
+    | TransitionOutput (s,to_t) :: mol'  ->
+       begin
+         match to_t with
+         | AcidTypes.Regular_olink -> "TOR"^s^(to_string mol')
+         | AcidTypes.Bind_olink -> "TOB"^s^(to_string mol')
+         | AcidTypes.Release_olink -> "TOL"^s^(to_string mol')
+       end
+    | Extension e :: mol' ->
+       begin
+         match e with
+         | AcidTypes.Handle_ext hid -> "EH"^hid^(to_string mol')
+         | AcidTypes.Catch_ext bid -> "EC"^bid^(to_string mol')
+         | AcidTypes.Receive_msg_ext s -> "ERM"^s^(to_string mol')
+         | AcidTypes.Release_ext  -> "ER"^(to_string mol')
+         | AcidTypes.Send_msg_ext s -> "ESM"^s^(to_string mol')
+         | AcidTypes.Displace_mol_ext b -> "ED"^(string_of_bool b)^(to_string mol')
+         | AcidTypes.Init_with_token -> "EIT"^(to_string mol')
+         | AcidTypes.Information s -> "EI"^s^(to_string mol')
+       end
+    | [] -> ""
 end;;
-
-
-    (* relaie le message aux places concernées, créant ainsi
-     des tokens quand c'est possible *)
-    (*
-  let send_message (m : string) (p : t) = 
-    BatSet.PSet.iter 
-      (fun x -> Place.add_token_from_message p.places.(x)) 
-      (BatMultiPMap.find m p.message_receptors_book)
-
-  let bind_mol (m : molecule)  (pat : string) (p : t) : bool = 
-    let targets = BatMultiPMap.find pat p.mol_catchers_book in
-    let bindSiteId = Misc_library.random_pick_from_PSet targets in
-    Place.add_token_from_binding m p.places.(bindSiteId)
-     *)
+    
