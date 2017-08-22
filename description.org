@@ -124,33 +124,31 @@
    
 ** Mise en œuvre
   
-   Le modèle proposé est d'avoir tout d'abord des molécules sous forme
+   Le modèle proposé est d'avoir tout d'abord des protéines sous forme
    de liste d'acides (aminés), chaque acide contenant soit de
    l'information, soit un morceau qui permette de reconstituer les
-   fonctionnement de la molécule : 
-   on veut la *replier* pour obtenir une protéine. Une fois repliée,
-   on aurait un truc qui ressemble fort à un réseau de Petri 
-   (plutôt un peu étendu).
+   fonctionnement de la protéine : 
+   on veut la *replier* pour obtenir un réseau de pétri (plutôt un peu étendu).
    
    Un des trucs cool, c'est qu'on peut faire des *ribosomes* ! Et donc 
-   permettre à la duplication elle même d'évoluer.
-   
-*** Modèle pour les molécules et la formation du réseau de pétri
+   permettre à la duplication elle même d'évoluer.   
+
+*** Modèle pour les protéines et la formation du réseau de pétri
     
-    Une molécule est donc formée par une liste d'acide, dont le role va 
+    Une protéine est donc formée par une liste d'acide, dont le rôle va 
     être de
      + former des place du réseau de Pétri, 
      + contribuer à former des transitions du réseau
      + contenir de l'information
        
-     Après une opération de repli, on pourra attribuer à une molécule 
-     sa forme protéinée, un réseau de pétri (graphe biparti). Il y a 
-     plusieurs moyens d'organiser une molécule et la façon dont elle se 
+     Après une opération de repli, on pourra attribuer à une protéine 
+     un réseau de pétri (graphe biparti). Il y a plusieurs moyens 
+     d'organiser une protéine et la façon dont elle se 
      replie, on va donc détailler et justifier un peu le processus.
     
 **** Différentes idées 
      
-     Tous les acides de la molécule forment une place, et se retrouvent 
+     Tous les acides de la protéine forment une place, et se retrouvent 
      donc au même niveau. Des places particulières contiennent un arc 
      entrant ou un arc sortant. Plusieurs inconvénients : 
        - Ça limite fortement les fonctionnalités d'une protéine
@@ -191,8 +189,8 @@
 
 **** Détails d'implémentation
 
-On part donc d'une molécule = liste d'acides.
-On parcourt la molécule pour en extraire :
+On part donc d'une protéine = liste d'acides.
+On parcourt la protéine pour en extraire :
     1. d'une part la liste des nœuds, en associant à chaque nœud la 
        liste des extensions qui le suivent
     2. d'autre part tous les arcs sont stoqués dans une liste (qui 
@@ -200,7 +198,7 @@ On parcourt la molécule pour en extraire :
        stoque pour chaque id de transition les transitions 
        correspondantes
 
-
+       
 ***** Questions
 
 Est-ce qu'on définit un unique type extension (qui contient les transitions) ou on sépare les transitions ?
@@ -209,13 +207,11 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
  + ça permet de construire le réseau sans avoir à connaitre l'implémentation particulière des types
 
 
+*** Modèle pour le réseau de pétri
 
-*** Modèle pour les protéines
-
-    Une protéine est donc un réseau de Pétri, c'est à dire un graphe 
-    bipartie  (deux types de nœuds) :
+    Un réseau de Pétri est un graphe bipartie  (deux types de nœuds) :
      - des places, qui correspondent directement à un acide de la 
-       molécule
+       protéine
      - des transitions, qui sont construites implicitements à partir 
        d'arcs entrants et sortants, décrits dans la protéine
 
@@ -359,7 +355,23 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 
 ** Processus de reflexion sur comment faire avancer le schmilblick en cours
 
-*** Dans le fichier proteine.ml
+
+*** Interactions entre proteines
+
+    Les protéines sont sensés pouvoir interagir entre elles, notemment
+    en s'attrappant les une les autres. 
+    Le modèle de départ suppose qu'on peut attrapper une protéine dès lors
+    qu'une des places contient une extension « Handle » (avec une certaine clé)
+    Problème : comment attrapper un simple acide ?
+    (oui c'est très problèmatique si on veut fabriquer de nouvelles molécules)
+
+    Pour résoudre ça, on crée un niveau en dessous : une molécule est 
+    une liste d'atomes, qui vont être interprétés en acides puis en protéines.
+    
+    Reste à savoir comment organiser pratiquement tout ça pour que ça reste 
+    cohérent, pratique et joli.
+
+*** Dans le fichier petri_net.ml
 
     On simule l'avancement d'un réseau de Petri.
 
@@ -575,7 +587,6 @@ nb de transitions. On peut alors soit
 observer les transitions de chaque molécule,
 soit tout exécuter, etc.
 
-
 *** Le monde
 
 Quelques idées : 
@@ -589,6 +600,9 @@ Quelques idées :
    l'hôte a différents emplacements pour cellules, où 
    se trouvent  des recepteurs particuliers, qui permettent
    à l'hôte d'effectuer des actions dans un autre monde physique.
+ + Graphe (lazy ?) ou les nœuds contiennent pour chaque arc une 
+   interface permettant de simuler une membrane. On peut imaginer
+   différentes interfaces, avec différents niveaux de « difficulté ».
 
 *** Dans un futur lointain
 

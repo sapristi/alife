@@ -1,6 +1,7 @@
 open Proteine
 open Molecule
 open Bacterie
+open Petri_net
    
 let get_my_addr () =
   (Unix.gethostbyname(Unix.gethostname())).Unix.h_addr_list.(0) ;;
@@ -67,8 +68,8 @@ let make_bact_interface bact ic oc =
             let mol_or_error = Molecule.of_yojson data in
             match mol_or_error with
             | Ok mol -> 
-               let prot = Proteine.make mol in
-               let prot_json = Proteine.to_json prot in
+               let prot = PetriNet.make mol in
+               let prot_json = PetriNet.to_json prot in
 
                let to_send_json =
                  `Assoc
