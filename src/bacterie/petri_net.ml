@@ -26,11 +26,11 @@ open Batteries
 open Misc_library
 open Molecule
 open Proteine
-open AcidTypes
 open Maps
 open Place
 open Transition
   
+open Acid_types
 
 
 (* * the proteine module *)
@@ -93,7 +93,7 @@ struct
   }
 
   let make_from_mol (mol : Molecule.t) : t =
-    let prot = Molecule.to_prot mol in
+    let prot = Proteine.from_mol mol in
     make_from_prot prot
     
 (* mettre à jour les transitions qui peuvent être lancées. *)

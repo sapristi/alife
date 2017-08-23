@@ -23,7 +23,8 @@ open Molecule
 module Graber =
   struct
     
-    type t = Str.regexp
+    type t = string
+               [@@deriving show, yojson]
 
     type grab =
       | No_grab
@@ -40,10 +41,11 @@ module Graber =
            (Atome.to_string a)^(aux l')
         | [] -> ""
       in
-      Str.regexp (aux l)
+      aux l
 
-    let get_match_pos (mol : Molecule.t) (rex : t) : grab =
+    let get_match_pos (mol : Molecule.t) (graber : t) : grab =
       let s = Molecule.to_string mol in
+      let rex = Str.regexp graber in
       if Str.string_match rex s 0
       then
         try

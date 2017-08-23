@@ -36,11 +36,9 @@
 open Molecule
 open Transition
 open Proteine
-
 open Misc_library
 open Maps
 open Petri_net
-   
 open Batteries
 
    
@@ -71,7 +69,7 @@ struct
       bact.molecules <- MolMap.add m (1,p) bact.molecules
 
   let add_proteine (prot : Proteine.t) (bact : t) : unit =
-    let mol = Molecule.from_proteine prot in
+    let mol = Proteine.to_molecule prot in
     add_molecule mol bact
     
   (* il faudrait peut-être mettre dans une file les molécules à ajouter *)
@@ -85,22 +83,6 @@ struct
        execute_actions actions' bact
     | [] -> ()
 
-  let bind_to 
-    (boundMol : Molecule.t) 
-    (hostMol : Molecule.t) 
-    (bindPattern : AcidTypes.bind_pattern)
-    (bact : t)
-    : unit = 
-    
-    let (_,p) = MolMap.find hostMol bact.molecules
-    in 
-    let reac_result = PetriNet.bind_mol boundMol bindPattern p
-    in
-    if reac_result
-    then 
-      bact.molecules <- MolMap.rel_change_mol_quantity boundMol (-1) bact.molecules
-    else
-      ()
       
   let make_bindings (bact : t) : unit = 
     ()
@@ -129,7 +111,7 @@ struct
        `List (List.map
                 (fun (mol, nb) ->
                   `Assoc ["name", `String (Molecule.to_string mol);
-                          "mol_json", Proteine.to_yojson (Molecule.to_prot mol);
+                          "mol_json", Proteine.to_yojson (Proteine.from_mol mol);
                           "nb", `Int nb])
                 trimmed_mol_list)
      ]

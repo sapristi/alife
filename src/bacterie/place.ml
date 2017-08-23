@@ -3,7 +3,7 @@ open Molecule
 open Proteine.Proteine
 open Proteine
 open Token
-   
+open Acid_types
 (* * the place module *)
 
 

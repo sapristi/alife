@@ -4,7 +4,8 @@ open Proteine
 open Place
 open Token
 open Misc_library
-
+open Acid_types
+   
 (* * the transition module *)
 (* Module to manage transitions :  *)
 

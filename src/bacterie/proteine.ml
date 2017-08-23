@@ -13,7 +13,8 @@
 open Misc_library
 open Batteries
 open Acid_types
-   
+open Molecule
+open Atome
 
 module Proteine = 
   struct 
@@ -207,7 +208,97 @@ module Proteine =
     aux prot (-1) BatMultiPMap.empty
 
 (* Used as a descriptor for a molecule *)
-    
+
+    let rec from_mol (mol : Molecule.t) : t =
+      match mol with
+        
+      | A::A::A::mol' -> (Node Regular_place) :: from_mol mol'
+                       
+      | B::A::A::mol' ->
+         let s,mol'' = Molecule.extract_message_from_mol mol' in
+         (TransitionInput (s,Regular_ilink)) :: (from_mol mol'')
+         
+      | B::B::A::mol' ->
+         let s,mol'' = Molecule.extract_message_from_mol mol' in
+         (TransitionInput (s,Split_ilink)) :: (from_mol mol'')
+         
+      | B::C::a::mol' ->
+         let s,mol'' = Molecule.extract_message_from_mol mol' in
+         (TransitionInput (s,Filter_ilink (Atome.to_string a))) :: from_mol mol''
+         
+      | C::A::A::mol'->
+         let s,mol'' = Molecule.extract_message_from_mol mol' in
+         (TransitionOutput (s,Regular_olink)) :: from_mol mol''
+         
+      | C::B::A::mol'->
+         let s,mol'' = Molecule.extract_message_from_mol mol' in
+         (TransitionOutput (s,Bind_olink)) :: from_mol mol''
+         
+      | C::C::A::mol'->
+         let s,mol'' = Molecule.extract_message_from_mol mol' in
+         (TransitionOutput (s,Release_olink)) :: from_mol mol''
+         
+      | D::A::A::mol'->
+         let s,mol'' = Molecule.extract_message_from_mol mol' in
+         (Extension (Handle_ext s)) :: from_mol mol''
+         
+      | D::B::A::mol'->
+         let s,mol'' = Molecule.extract_message_from_mol mol' in
+         (Extension (Catch_ext s)) :: from_mol mol''
+         
+      | D::D::A::mol'->
+         (Extension Release_ext) :: from_mol mol'
+        
+      | D::B::B::mol'->
+         (Extension (Displace_mol_ext true)) :: from_mol mol'
+        
+      | D::B::C::mol'->
+         (Extension (Displace_mol_ext false)) :: from_mol mol'
+        
+      | D::C::B::mol'->
+         (Extension Init_with_token_ext) :: from_mol mol'
+        
+      | D::D::B::mol' ->
+         let s,mol'' = Molecule.extract_message_from_mol mol' in
+         (Extension (Information_ext s)) :: from_mol mol''
+         
+      | _ -> []
+
+  
+    let rec to_molecule (prot : t) : Molecule.t =
+      match prot with
+      | Node Regular_place :: prot' ->
+         Atome.A::A::A::(to_molecule prot')
+      | TransitionInput (s,Regular_ilink) :: prot' ->
+         Atome.B::A::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+      | TransitionInput (s,Split_ilink) :: prot' ->
+         Atome.B::B::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+      | TransitionInput (s,(Filter_ilink f)) :: prot' ->
+         let a = Atome.of_char (f.[0]) in
+         Atome.B::C::a::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+      | TransitionOutput (s,Regular_olink) :: prot' ->
+         Atome.C::A::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+      | TransitionOutput (s,Bind_olink) :: prot' ->
+         C::B::A::(to_molecule prot')
+      | TransitionOutput (s,Release_olink) :: prot' ->
+         C::C::A::(to_molecule prot')
+      | Extension (Handle_ext s) :: prot' ->
+         Atome.D::A::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+      | Extension (Catch_ext s) :: prot' ->
+         Atome.D::B::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+      | Extension Release_ext :: prot' ->
+         D::D::A::(to_molecule prot')
+      | Extension (Displace_mol_ext true) :: prot' ->
+         D::B::B::(to_molecule prot')
+      | Extension (Displace_mol_ext false) :: prot' ->
+         D::B::C::(to_molecule prot')
+      | Extension Init_with_token_ext :: prot' ->
+         D::C::B::(to_molecule prot')
+      | Extension (Information_ext s) :: prot' ->
+         Atome.D::D::B::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+      | [] -> []
+
+           
   let rec to_string (prot : t) : string =
     match prot with
     | Node AcidTypes.Regular_place :: prot' -> "N"^(to_string prot')

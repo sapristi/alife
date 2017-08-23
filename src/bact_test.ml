@@ -1,10 +1,10 @@
 open Molecule;;
-open Proteine.AcidTypes;;
-open Proteine.Proteine;;
+open Proteine;;
+open Proteine;;
 open Petri_net
 open Bacterie;;
 open Bact_simul_serveur;;
-
+open Acid_types.AcidTypes
   
 
 let prot2 = [
@@ -28,7 +28,7 @@ let prot3 = [
   ];;
 
 let print_prot prot = 
-  let mol = Molecule.from_proteine prot in
+  let mol = Proteine.to_molecule prot in
     let str = Molecule.to_string mol in
     print_endline str;;
 
