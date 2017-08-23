@@ -368,19 +368,50 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
     Pour résoudre ça, on crée un niveau en dessous : une molécule est 
     une liste d'atomes, qui vont être interprétés en acides puis en protéines.
 
+    Une protéine pourra alors disposer d'un site qui attrappe une molécule,
+    en la reconnaissant avec une expression régulière.
 
-    Un problème est que cela ajoute un niveau d'interprétation dans 
-    l'édifice, mais ce niveau peut paraître naturel quand on veut 
-    fabriquer des acides :
-    l'avantage est que cela permet de limiter le nb de briques
-    de base (atomes), ce serait un peu bizarre d'avoir tous les types
-    d'acides qui se baladent dans la nature (sans parler de tous 
-    les identifiants dont on a besoin).
+**** Conséquences de ce modèle
+     Un problème est que cela ajoute un niveau d'interprétation dans 
+     l'édifice, mais ce niveau peut paraître naturel quand on veut 
+     fabriquer des acides :
+     l'avantage est que cela permet de limiter le nb de briques
+     de base (atomes), ce serait un peu bizarre d'avoir tous les types
+     d'acides qui se baladent dans la nature (sans parler de tous 
+     les identifiants dont on a besoin).
+     
+     Reste à savoir comment organiser pratiquement tout ça pour que ça reste 
+     cohérent, pratique et joli.
+     
+     Ce qui serait joli, ce serait d'avoir des connecteurs (à deux ou trois 
+     branches), et des morceaux d'information, mais plus compliqué à 
+     manipuler; il pourrait être intéressant de comparer avec une 
+     structure linéaire pour les molécules.
+     
+**** Un autre type de réaction
 
-    Reste à savoir comment organiser pratiquement tout ça pour que ça reste 
-    cohérent, pratique et joli.
+     On peut garder un système de poignées et de sites qui attrappent 
+     des poignées, mais avec un autre effet: au lieu d'avoir une protéine
+     qui capture et une molécule capturée, les deux protéines seront 
+     « liées », en joignant par exemple les deux réseaux de pétri.
 
 
+*** Membrane
+
+    La membrane est une partie essentielle d'une bactérie, puisqu'elle 
+    la définit en établissant une barrière avec le monde extérieur.
+
+    Pour l'implémentation d'une membrane, les fonctionnalités désirées sont :
+     + Permettre à la bactérie de réguler les entrées/sorties de molécules
+     + Établir une barrière /difficile/ à franchir pour les molécules
+       extérieures non désirées.
+     + Avoir un taille nécéssaire en fonction de la quantité de molécules
+       présentes, sous risque d'effets néfastes.
+    
+    Idée : Implémenter dans les cellules deux bornes qui doivent 
+    être reliées par un certain nombre de protéines.
+    (il faut que les protéines puissent se lier entre elles avec 
+    des catch/bind)
 
 *** Dans le fichier petri_net.ml
 
