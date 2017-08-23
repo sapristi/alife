@@ -1,5 +1,3 @@
-
-
 Name: alife
 Version: 0.1
 Synopsis: Simulating life and stuff
@@ -15,11 +13,12 @@ BuildTools: ocamlbuild
 Plugins: META (0.4), DevFiles (0.4)
 
 
-
 Library "local_libs"
    Path: src/libs
    Modules : Misc_library, Maps
    BuildDepends : batteries
+
+
 
 Library "atome"	
   FindLibName : atome
@@ -27,19 +26,35 @@ Library "atome"
   Path: src/bacterie
   Modules: Atome
 
-Library "molecule"	
-  FindLibName : molecule
+Library "graber"	
+  FindLibName : graber
   FindLibParent : bacterie_libs
   Path: src/bacterie
-  Modules: Molecule
+  Modules: Graber
+  BuildDepends: bacterie_libs.atome
 
+
+Library "acid_types"	
+  FindLibName : acid_types
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Acid_types
+  BuildDepends: bacterie_libs.atome, bacterie_libs.graber
 
 Library "proteine"	
   FindLibName : proteine
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Proteine
-  BuildDepends: local_libs, yojson, ppx_deriving_yojson
+  BuildDepends: local_libs, yojson, ppx_deriving_yojson, bacterie_libs.acid_types
+
+
+Library "molecule"	
+  FindLibName : molecule
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Molecule
+  BuildDepends: local_libs, yojson, ppx_deriving_yojson, bacterie_libs.proteine, bacterie_libs.atome, bacterie_libs.acid_types
 
 
 Library "token"
@@ -47,7 +62,7 @@ Library "token"
   FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Token
-  BuildDepends : local_libs, bacterie_libs.proteine, yojson, ppx_deriving_yojson, ppx_deriving.show
+  BuildDepends : local_libs, bacterie_libs.atome, bacterie_libs.molecule, bacterie_libs.proteine, yojson, ppx_deriving_yojson, ppx_deriving.show
 
 Library "place"
   FindLibName : place
@@ -86,7 +101,7 @@ Library "bacterie_libs"
 Library "bact_simul_serveur"
   Path: src/gui/bact_simul
   Modules: Bact_simul_serveur
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome
 
 
 Executable "bact_test"

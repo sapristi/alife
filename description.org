@@ -383,18 +383,31 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
      Reste à savoir comment organiser pratiquement tout ça pour que ça reste 
      cohérent, pratique et joli.
      
+
+***** Molécule linéaire
+
+      Le modèle le plus simple pour une molécule est simplement d'avoir
+      une molécule linéaire (une liste).
+      Des suites d'atomes sont alors interprétées directement comme 
+      des acides, les atomes suivants pouvant donner de l'information 
+      supplémentaire, etc.
+
+      Mais le problème, 
+      
+***** Molécule sous forme de graphe
+      
      Ce qui serait joli, ce serait d'avoir des connecteurs (à deux ou trois 
      branches), et des morceaux d'information, mais plus compliqué à 
      manipuler; il pourrait être intéressant de comparer avec une 
      structure linéaire pour les molécules.
      
+
 **** Un autre type de réaction
 
      On peut garder un système de poignées et de sites qui attrappent 
      des poignées, mais avec un autre effet: au lieu d'avoir une protéine
      qui capture et une molécule capturée, les deux protéines seront 
      « liées », en joignant par exemple les deux réseaux de pétri.
-
 
 *** Membrane
 

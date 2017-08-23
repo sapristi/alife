@@ -67,10 +67,13 @@ struct
     then 
       bact.molecules <- MolMap.modify m (fun x -> let y,z = x in (y+1,z)) bact.molecules
     else
-      let p = PetriNet.make m in
+      let p = PetriNet.make_from_mol m in
       bact.molecules <- MolMap.add m (1,p) bact.molecules
 
-
+  let add_proteine (prot : Proteine.t) (bact : t) : unit =
+    let mol = Molecule.from_proteine prot in
+    add_molecule mol bact
+    
   (* il faudrait peut-être mettre dans une file les molécules à ajouter *)
   let rec execute_actions (actions : Transition.transition_effect list) (bact : t) : unit =
     match actions with
@@ -123,10 +126,12 @@ struct
     
     `Assoc [
        "molecules list",
-       `List (List.map (fun (mol, nb) ->
+       `List (List.map
+                (fun (mol, nb) ->
                   `Assoc ["name", `String (Molecule.to_string mol);
                           "mol_json", Proteine.to_yojson (Molecule.to_prot mol);
-                          "nb", `Int nb]) trimmed_mol_list)
+                          "nb", `Int nb])
+                trimmed_mol_list)
      ]
       
 end;;

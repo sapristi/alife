@@ -1,9 +1,11 @@
-
 open Proteine
-open AcidTypes
+open Acid_types
 open Atome
-
    
+(* * Molecule *)
+(*    Defines a molecule built as a list of atoms. We have to *)
+(*    interpret parts of the list as acids. *)
+
 module Molecule =
   struct
     
@@ -38,7 +40,7 @@ module Molecule =
          
       | B::C::a::mol' ->
          let s,mol'' = extract_message_from_mol mol' in
-         (Proteine.TransitionInput (s,Filter_ilink (atom_to_string a))) :: to_prot mol''
+         (Proteine.TransitionInput (s,Filter_ilink (Atome.to_string a))) :: to_prot mol''
          
       | C::A::A::mol'->
          let s,mol'' = extract_message_from_mol mol' in
@@ -90,11 +92,33 @@ module Molecule =
     let rec from_proteine (prot : Proteine.t) : t =
       match prot with
       | Proteine.Node Regular_place :: prot' ->
-         A::A::A::(from_proteine prot')
+         Atome.A::A::A::(from_proteine prot')
       | Proteine.TransitionInput (s,Regular_ilink) :: prot' ->
-         B::A::A::((string_to_acid_list s)@[D])@(from_proteine prot')
+         Atome.B::A::A::((string_to_acid_list s)@[D])@(from_proteine prot')
       | Proteine.TransitionInput (s,Split_ilink) :: prot' ->
-         B::B::A::((string_to_acid_list s)@[D])@(from_proteine prot')
-      | Proteine.TransitionInput (s,Filter_ilink (atom_to_string a))
+         Atome.B::B::A::((string_to_acid_list s)@[D])@(from_proteine prot')
+      | Proteine.TransitionInput (s,(Filter_ilink f)) :: prot' ->
+         let a = Atome.of_char (f.[0]) in
+         Atome.B::C::a::((string_to_acid_list s)@[D])@(from_proteine prot')
+      | Proteine.TransitionOutput (s,Regular_olink) :: prot' ->
+         Atome.C::A::A::((string_to_acid_list s)@[D])@(from_proteine prot')
+      | Proteine.TransitionOutput (s,Bind_olink) :: prot' ->
+         C::B::A::(from_proteine prot')
+      | Proteine.TransitionOutput (s,Release_olink) :: prot' ->
+         C::C::A::(from_proteine prot')
+      | Proteine.Extension (Handle_ext s) :: prot' ->
+         Atome.D::A::A::((string_to_acid_list s)@[D])@(from_proteine prot')
+      | Proteine.Extension (Catch_ext s) :: prot' ->
+         Atome.D::B::A::((string_to_acid_list s)@[D])@(from_proteine prot')
+      | Proteine.Extension Release_ext :: prot' ->
+         D::D::A::(from_proteine prot')
+      | Proteine.Extension (Displace_mol_ext true) :: prot' ->
+         D::B::B::(from_proteine prot')
+      | Proteine.Extension (Displace_mol_ext false) :: prot' ->
+         D::B::C::(from_proteine prot')
+      | Proteine.Extension Init_with_token_ext :: prot' ->
+         D::C::B::(from_proteine prot')
+      | Proteine.Extension (Information_ext s) :: prot' ->
+         Atome.D::D::B::((string_to_acid_list s)@[D])@(from_proteine prot')
       | [] -> []
   end

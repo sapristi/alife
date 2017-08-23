@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 2b6ad257c3c7ca4566b561df0a558002)
+# DO NOT EDIT (digest: 42aa029276080ec74edba996a76928db)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "bacterie_libs.cma"
@@ -29,16 +29,6 @@ package "token" (
  archive(native) = "token.cmxa"
  archive(native, plugin) = "token.cmxs"
  exists_if = "token.cma"
-)
-
-package "reactions" (
- version = "0.1"
- description = "Simulating life and stuff"
- archive(byte) = "reactions.cma"
- archive(byte, plugin) = "reactions.cma"
- archive(native) = "reactions.cmxa"
- archive(native, plugin) = "reactions.cmxs"
- exists_if = "reactions.cma"
 )
 
 package "proteine" (
@@ -76,6 +66,17 @@ package "petri_net" (
  exists_if = "petri_net.cma"
 )
 
+package "molecule" (
+ version = "0.1"
+ description = "Simulating life and stuff"
+ requires = "local_libs yojson ppx_deriving_yojson bacterie_libs.proteine"
+ archive(byte) = "molecule.cma"
+ archive(byte, plugin) = "molecule.cma"
+ archive(native) = "molecule.cmxa"
+ archive(native, plugin) = "molecule.cmxs"
+ exists_if = "molecule.cma"
+)
+
 package "bacterie" (
  version = "0.1"
  description = "Simulating life and stuff"
@@ -86,6 +87,16 @@ package "bacterie" (
  archive(native) = "bacterie.cmxa"
  archive(native, plugin) = "bacterie.cmxs"
  exists_if = "bacterie.cma"
+)
+
+package "atome" (
+ version = "0.1"
+ description = "Simulating life and stuff"
+ archive(byte) = "atome.cma"
+ archive(byte, plugin) = "atome.cma"
+ archive(native) = "atome.cmxa"
+ archive(native, plugin) = "atome.cmxs"
+ exists_if = "atome.cma"
 )
 # OASIS_STOP
 

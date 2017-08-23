@@ -1,9 +1,11 @@
+(* tezzre *)
+
 
 module Atome =
   struct
     type t =  A | B | C | D
                             [@@deriving show, yojson]
-                               
+
     let to_string (a : t) : string =
       match a with
       | A -> "A"

@@ -45,10 +45,6 @@ struct
      mutable launchables : int list;
      handles_book : (string, int) BatMultiPMap.t;
      mol_catchers_book : (string, int) BatMultiPMap.t ;
-     
-     (* À reconstruire en suivant la nouvelle forme des molécule
-     message_receptors_book : (string, int) BatMultiPMap.t ;
-      *)
     }
       
     
@@ -59,10 +55,8 @@ struct
       then t_l := i :: !t_l
       else ()
     done; !t_l
-
     
-  let make (mol : Molecule.t) : t =
-    let prot = Molecule.to_prot mol in 
+  let make_from_prot (prot : Proteine.t) : t =
   (* liste des signatures des transitions *)
     let transitions_signatures_list = Proteine.build_transitions prot
   (* liste des signatures des places *)
@@ -98,6 +92,10 @@ struct
    (* message_receptors_book; handles_book; *)
   }
 
+  let make_from_mol (mol : Molecule.t) : t =
+    let prot = Molecule.to_prot mol in
+    make_from_prot prot
+    
 (* mettre à jour les transitions qui peuvent être lancées. *)
 (* Il faut prendre en compte la transition qui vient d'être lancée,  *)
 (* ainsi que les tokens qui ont pu arriver par message  *)
@@ -142,8 +140,6 @@ let launch_random_transition p  =
       in
       Place.add_token_from_binding mol pnet.places.(bind_place_id)
       
-      (* il manque les livres, on verra plus tard, 
-         c'est déjà pas mal *)
   let to_json (p : t) =
     `Assoc [
       "places",
@@ -163,17 +159,3 @@ let launch_random_transition p  =
       `List (List.map (fun x -> `Int x) p.launchables);]      
 end;;
 
-
-    (* relaie le message aux places concernées, créant ainsi
-     des tokens quand c'est possible *)
-    (*
-  let send_message (m : string) (p : t) = 
-    BatSet.PSet.iter 
-      (fun x -> Place.add_token_from_message p.places.(x)) 
-      (BatMultiPMap.find m p.message_receptors_book)
-
-  let bind_mol (m : molecule)  (pat : string) (p : t) : bool = 
-    let targets = BatMultiPMap.find pat p.mol_catchers_book in
-    let bindSiteId = Misc_library.random_pick_from_PSet targets in
-    Place.add_token_from_binding m p.places.(bindSiteId)
-     *)
