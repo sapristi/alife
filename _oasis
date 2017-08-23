@@ -21,12 +21,17 @@ Library "local_libs"
    Modules : Misc_library, Maps
    BuildDepends : batteries
 
-
-Library "reactions"	
-  FindLibName : reactions
+Library "atome"	
+  FindLibName : atome
   FindLibParent : bacterie_libs
   Path: src/bacterie
-  Modules: Reactions
+  Modules: Atome
+
+Library "molecule"	
+  FindLibName : molecule
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Molecule
 
 
 Library "proteine"	

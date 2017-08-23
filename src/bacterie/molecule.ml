@@ -1,38 +1,25 @@
 
 open Proteine
 open AcidTypes
-
-module Atom =
-  struct
-    type t =  A | B | C | D
-                            [@@deriving show, yojson]
-                               
-    let to_string (a : t) : string =
-      match a with
-      | A -> "A"
-      | B -> "B"
-      | C -> "C"
-      | D -> "D"
-        
-  end
+open Atome
 
    
 module Molecule =
   struct
     
                           
-    type t = Atom.t list
+    type t = Atome.t list
                      [@@deriving show, yojson]
            
     let to_string (mol : t) : string =
-      List.fold_right (fun a s -> (Atom.to_string a)^s) mol ""
+      List.fold_right (fun a s -> (Atome.to_string a)^s) mol ""
       
     let rec extract_message_from_mol (mol : t) : (string*t) =
       match mol with
       | D::mol' ->  "",  mol'
       | a::mol' ->
          let (s, mol'') = extract_message_from_mol mol' in
-         (Atom.to_string a)^s,mol'' 
+         (Atome.to_string a)^s,mol'' 
       | [] -> failwith "can't read message in mol"
             
             
@@ -95,14 +82,7 @@ module Molecule =
       let n = String.length s in
       let res = ref [] in
       for i=1 to n do
-        let atom = 
-          match s.[n-i] with
-          | 'A' -> A
-          | 'B' -> B
-          | 'C' -> C
-          | 'D' -> D
-          | _ -> failwith "cannot interpret this string as atoms"
-        in
+        let atom = Atome.of_char s.[n-i] in
         res := atom::(!res)
       done;
       !res
