@@ -22,7 +22,7 @@ module Token =
     let is_empty (token : t) =
       token.linked_mol = ([], [])
 
-    let make (mol : Molecule.t) : t =
+    let make_at_mol_start (mol : Molecule.t) : t =
       {linked_mol = ([], mol);
        global_id = idProvider#get_id ();}
 
@@ -34,6 +34,10 @@ module Token =
       {linked_mol = (mol1, mol2);
        global_id = idProvider#get_id ();}
 
+    let make (mol : Molecule.t) (pos : int) : t =
+      let mol1, mol2 = cut_list mol pos in
+      make_at_mol_cut mol1 mol2
+      
     let get_mol (token : t) : Molecule.t =
       let rec aux split_mol = 
         match split_mol with

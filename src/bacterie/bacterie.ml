@@ -40,7 +40,7 @@ open Misc_library
 open Maps
 open Petri_net
 open Batteries
-
+open Graber
    
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
@@ -68,6 +68,14 @@ struct
       let p = PetriNet.make_from_mol m in
       bact.molecules <- MolMap.add m (1,p) bact.molecules
 
+  let add_to_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
+      
+    if MolMap.mem mol bact.molecules
+    then 
+      bact.molecules <- MolMap.modify mol (fun x -> let y,z = x in (y+n,z)) bact.molecules
+    else
+      failwith "cannot update absent molecule"
+    
   let add_proteine (prot : Proteine.t) (bact : t) : unit =
     let mol = Proteine.to_molecule prot in
     add_molecule mol bact
@@ -83,23 +91,56 @@ struct
        execute_actions actions' bact
     | [] -> ()
 
-      
-  let make_bindings (bact : t) : unit = 
-    ()
 
+  let asymetric_grab mol pnet = 
+      let grabs = PetriNet.get_possible_mol_grabs mol pnet
+      in
+      if not (grabs = [])
+      then
+        let grab,pid = random_pick_from_list grabs in
+          match grab with
+          | Graber.No_grab -> false
+          | Graber.Grab pos -> PetriNet.grab mol pos pid pnet
+      else
+        false
 
-        
+(* Resolve grabs when two molecules interact.Only one of the two molecules will get to grab the *)
+(* other one, randomly decided. *)
+
+(* We could also decide that if a mol can't grab,  *)
+(* then the other will try *)
+
+  let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
+      : unit =
+    let _,pnet1 = MolMap.find mol1 bact.molecules
+    and _,pnet2 = MolMap.find mol1 bact.molecules in
+    if Random.bool ()
+    then
+      (
+        if asymetric_grab mol2 pnet1
+        then add_to_mol_quantity mol2 (-1) bact
+      )
+    else 
+     if  asymetric_grab mol1 pnet2
+     then add_to_mol_quantity mol1 (-1) bact
+
+    
+  let make_reactions (bact : t) =
+
+    
+    
   let step_simulate (bact : t) : unit = 
     MolMap.iter
-      (fun k x -> let (n, prot) = x in  
-                  for i = 1 to n do
-                    let actions = PetriNet.launch_random_transition prot in
-                    execute_actions actions bact
-                  done)
-      bact.molecules;
-    make_bindings bact
-    (*    pop_all_messages bact *)
+      (fun k x ->
+        let (n, prot) = x in  
+        for i = 1 to n do
+          let actions = PetriNet.launch_random_transition prot in
+          execute_actions actions bact
+        done)
+      bact.molecules
     
+    (*    pop_all_messages bact *)
+
     
   let to_json (bact : t) =
     let mol_enum = MolMap.enum bact.molecules in
@@ -117,7 +158,3 @@ struct
      ]
       
 end;;
-
-
-
-  

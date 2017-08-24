@@ -1,6 +1,8 @@
 (* * this file *)
-(* We define here the working of a proteine, implemented using the acid type defined in custom_types. *)
-(* modules in this file have custom json serialisers, that are used to communicate data with a client *)
+(*   We define here the working of a proteine, implemented using the acid  *)
+(*   type defined in custom_types. *)
+(*   modules in this file have custom json serialisers, that are used to  *)
+(*   communicate data with a client *)
 
 (* * preamble *)
 (* commands used when compiling the file in a toplevel *)
@@ -29,10 +31,10 @@ open Proteine
 open Maps
 open Place
 open Transition
-  
 open Acid_types
-
-
+open Graber
+open Random
+open Token  
 (* * the proteine module *)
 
 
@@ -45,6 +47,7 @@ struct
      mutable launchables : int list;
      handles_book : (string, int) BatMultiPMap.t;
      mol_catchers_book : (string, int) BatMultiPMap.t ;
+     mol_grabers_book : (Graber.t, int) BatMultiPMap.t;
     }
       
     
@@ -83,13 +86,13 @@ struct
   in
   let handles_book = Proteine.build_handles_book prot
   and mol_catchers_book = Proteine.build_catchers_book prot
-                        
+  and mol_grabers_book = Proteine.build_grabers_book prot
 
   in
   {prot; transitions; places;
    launchables = (get_launchables transitions);
    handles_book; mol_catchers_book;
-   (* message_receptors_book; handles_book; *)
+   mol_grabers_book;
   }
 
   let make_from_mol (mol : Molecule.t) : t =
@@ -104,42 +107,33 @@ struct
 (* on peut faire beaucoup plus efficace, mais pour l'instant  *)
 (* on fait au plus simple *)
 
-let update_launchables p =
-  p.launchables <- get_launchables p.transitions
+  let update_launchables p =
+    p.launchables <- get_launchables p.transitions
 
 
-let launch_transition (tId : int) p = 
-  Transition.apply_transition p.transitions.(tId)
+  let launch_transition (tId : int) p = 
+    Transition.apply_transition p.transitions.(tId)
     
-let launch_random_transition p  =
-  if not (p.launchables = [])
-  then 
-    let t = random_pick_from_list p.launchables in
-    launch_transition t p
-  else []
+  let launch_random_transition p  =
+    if not (p.launchables = [])
+    then 
+      let t = random_pick_from_list p.launchables in
+      launch_transition t p
+    else []
+    
+(* returns a list of all the possible grabs of a molecule *)
+  let get_possible_mol_grabs (mol : Molecule.t) (pnet : t) : (Graber.grab*int) list =
+    Array.fold_lefti
+      (fun g_list i place ->
+        (Place.get_possible_mol_grabs mol place i)@g_list)
+      [] pnet.places
 
-(* binds to a random free place if possible. *)
-(* Returns true if bound happened, false otherwise *)
-  let bind_mol (mol : Molecule.t)
-               (bind_pattern : AcidTypes.bind_pattern)
-               (pnet : t)
-      : bool =
-    let bind_places_ids =
-      BatMultiPMap.find bind_pattern pnet.handles_book 
-    in
-    let free_places_ids = 
-      BatSet.PSet.filter
-        (fun id -> Place.is_empty pnet.places.(id))
-        bind_places_ids
-    in
-    if BatSet.PSet.is_empty free_places_ids
-    then false
-    else
-      let bind_place_id =
-        Misc_library.random_pick_from_PSet free_places_ids
-      in
-      Place.add_token_from_binding mol pnet.places.(bind_place_id)
-      
+  let grab (mol : Molecule.t) (pos : int) (pid : int) (pnet : t)
+    : bool = 
+    let token = Token.make mol pos in
+    Place.add_token_from_grab token (pnet.places.(pid))
+    
+    
   let to_json (p : t) =
     `Assoc [
       "places",
@@ -159,3 +153,24 @@ let launch_random_transition p  =
       `List (List.map (fun x -> `Int x) p.launchables);]      
 end;;
 
+
+
+      (* reliquat de la fonction qui associe catchers et 
+       handle; pourra servir plus tard *)
+    (*
+    let bind_places_ids =
+      BatMultiPMap.find bind_pattern pnet.handles_book 
+    in
+    let free_places_ids = 
+      BatSet.PSet.filter
+        (fun id -> Place.is_empty pnet.places.(id))
+        bind_places_ids
+    in
+    if BatSet.PSet.is_empty free_places_ids
+    then false
+    else
+      let bind_place_id =
+        Misc_library.random_pick_from_PSet free_places_ids
+      in
+      Place.add_token_from_binding mol pnet.places.(bind_place_id)
+     *)

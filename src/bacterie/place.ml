@@ -4,6 +4,8 @@ open Proteine.Proteine
 open Proteine
 open Token
 open Acid_types
+open Graber
+   
 (* * the place module *)
 
 
@@ -27,7 +29,9 @@ module Place =
       {mutable tokenHolder : token_holder;
        placeType : AcidTypes.place_type;
        extensions : AcidTypes.extension_type list;
-       global_id : int;}
+       global_id : int;
+       grabers : Graber.t list;
+      }
         [@@deriving show]
 (* **** make a place *)
 (* ***** DONE allow place extension to initialise the place with an empty token *)
@@ -35,18 +39,24 @@ module Place =
     let make (place_with_exts : AcidTypes.place_type *  place_exts)
         : t =
       let placeType, extensions = place_with_exts in
-      if List.mem AcidTypes.Init_with_token_ext extensions
-      then
-        {tokenHolder = OccupiedHolder (Token.make_empty ());
+      let tokenHolder = 
+        if List.mem AcidTypes.Init_with_token_ext extensions
+        then
+          OccupiedHolder (Token.make_empty ())
+        else
+          EmptyHolder
+      and grabers =
+        List.fold_left
+          (fun l acide ->
+            match acide with AcidTypes.Grab_ext g -> g::l | _ -> l)
+          [] extensions
+      in
+        {tokenHolder;
          placeType;
          extensions;
-         global_id = idProvider#get_id (); }
-      else
-        {tokenHolder = EmptyHolder;
-         placeType;
-         extensions;
-         global_id = idProvider#get_id (); }
-
+         global_id = idProvider#get_id ();
+         grabers}
+     
     let pop_token_for_transition (p : t) : Token.t =
       match p.tokenHolder with
       | EmptyHolder -> failwith "asking for token from empty place"
@@ -79,10 +89,11 @@ module Place =
       
 (* ** token ajouté quand on attrape une molécule *)
 (*on renvoie un booléen pour faire remonter facilement si le binding était possible ou pas *)
-    let add_token_from_binding (mol : Molecule.t) (p : t) : bool =
+    let add_token_from_grab (token : Token.t) (p : t)
+        : bool =
       if is_empty p
       then
-        ( set_token (Token.make mol) p;
+        ( set_token token p;
           true;)
       else
         false
@@ -95,58 +106,24 @@ module Place =
          ( remove_token p;
          token )
 
-                                    
+(* returns a list containing all the possible grab
+   of the molecule by the grabers associated with index of the place *)
+        
+    let get_possible_mol_grabs (mol : Molecule.t) (place : t) (i : int)
+        : ((Graber.grab * int) list) =
+      if is_empty place
+      then
+        List.fold_left
+          (fun g_list g ->
+            match Graber.get_match_pos mol g with
+            | Graber.Grab n -> (Graber.Grab n, i) :: g_list
+            | Graber.No_grab -> g_list
+          ) [] place.grabers
+      else
+        []
       
 (* ** to_json *)
     let to_json (p : t) =
       `Assoc
        [("id", `Int p.global_id); ("token", token_holder_to_json p.tokenHolder)]
   end;;
-
-
-  
-(* ** Token reçu d'une transition. :deprecated:  *)
-(*     Il faut appliquer les effets de bord suivant le type de place. on va écrire une autre fonction qui traite les extensions *)
-    
-(*
-let add_token_from_transition_deprecated (inputToken : Token.t) (p : t) : return_action=
-  if is_empty p
-  then 
-    match p.placeType with
-      
-    (* il faut dire à l'host qu'on a  relaché la molecule attachée au token.
-       est ce qu'on vire aussi le token ??? *)   
-
-    | Release_place ->
-       (
-         match inputToken with
-         | Token.Empty -> set_token Token.empty p; NoAction
-         | Token.MolHolder m -> set_token Token.empty p; AddMol m
-       );
-         
-         
-    (* il faut faire broadcaster le message par l'host *)
-    | Send_place s ->
-       begin
-         set_token inputToken p;
-         SendMessage s
-       end
-    (* il faut déplacer la molécule du token *)
-    | Displace_mol_place b ->
-       begin
-         (
-         match inputToken with
-         | Token.Empty -> set_token inputToken p
-         | Token.MolHolder m ->
-            if b
-            then set_token
-                   (Token.set_mol (MoleculeHolder.move_forward m) inputToken) p
-            else set_token
-                   (Token.set_mol (MoleculeHolder.move_backward m) inputToken) p
-         );
-         NoAction
-       end
-    | _ ->  set_token inputToken p; NoAction
-  else
-    failwith "non empty place received a token from a transition"
- *)

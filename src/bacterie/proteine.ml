@@ -1,8 +1,8 @@
 (* * this file *)
   
-(*   proteine.ml defines the basic properties of a molecule, some *)
-(*   functions to help build a proteine out of it and a module to help it *)
-(*   get managed by a protein (i.e. simulate chemical reactions *)
+(*   proteine.ml defines the basic properties of a proteine, some *)
+(*   functions to help build a petri-net out of it and a module to help it *)
+(*   get managed by a petri-net (i.e. simulate chemical reactions *)
 
 (* * preamble : load libraries *)
 
@@ -15,53 +15,57 @@ open Batteries
 open Acid_types
 open Molecule
 open Atome
-
+open Graber
+   
 module Proteine = 
   struct 
     
 (* ** type definitions *)
 (* *** acid type definition *)
-(* We define how the abstract types get combined to form functional types to eventually create a proteine (petri net) *)
-(*  + Node : used as a token placeholder in the petri net *)
-(*  + TransitionInput :  an incomming edge into a transition of the petri net *)
-(*  + a transition output : an outgoing edge into a transition of the petri net *)
-(*  + a piece of information : ???? *)
+(*     We define how the abstract types get combined to form functional  *)
+(*     types to eventually create petri net *)
+(*       + Node : used as a token placeholder in the petri net *)
+(*       + TransitionInput :  an incomming edge into a transition of the  *)
+(*       petri net *)
+(*       + a transition output : an outgoing edge into a transition of the  *)
+(*       petri net *)
+(*       + a piece of information : ???? *)
   
-    type acid = 
-      | Node of AcidTypes.place_type
-      | TransitionInput of string * AcidTypes.transition_input_type
-      | TransitionOutput of string * AcidTypes.transition_output_type
-      | Extension of AcidTypes.extension_type
-                       [@@deriving show, yojson]
+type acid = 
+  | Node of AcidTypes.place_type
+  | TransitionInput of string * AcidTypes.transition_input_type
+  | TransitionOutput of string * AcidTypes.transition_output_type
+  | Extension of AcidTypes.extension_type
+                   [@@deriving show, yojson]
                  
+
 (* * A proteine *)                   
     type t = acid list
                   [@@deriving show, yojson]
                 
                 
 (* *** position type definition *)
-(* Correspond à un pointeur vers un des acide de la molécule *)
+(*     Correspond à un pointeur vers un des acide de la molécule *)
                 
-  type position = int
-                    [@@deriving show]
-
+type position = int
+                  [@@deriving show]
 
 (* *** transition structure type definition *)
 
-(* Structure utilisée pour stoquer une transition.  *)
-(* Triplet contenant : *)
-(*  - une string, l'identifiant de la transition *)
-(*  - une liste int*transInput*Type, dont chaque item contient  *)
-(*  l'entier correspondant au nœud d'où part la transistion,  *)
-(*  et le type de la transition *)
-(*  - de même pour les arcs sortants *)
+(*     Structure utilisée pour stoquer une transition. *)
+(*     Triplet contenant : *)
+(*       - une string, l'identifiant de la transition *)
+(*       - une liste int*transInputType , dont chaque item contient *)
+(*       l'entier correspondant au nœud d'où part la transistion, *)
+(*       et le type de la transition *)
+(*       - de même pour les arcs sortants *)
                 
-  type transition_structure = 
-    string * 
-      (int * AcidTypes.transition_input_type ) list * 
-        (int * AcidTypes.transition_output_type) list
-                                               [@@deriving show]
-    
+type transition_structure = 
+  string * 
+    (int * AcidTypes.transition_input_type ) list * 
+      (int * AcidTypes.transition_output_type) list
+                                             [@@deriving show]
+
 (* *** place extensions definition *)
 
   type place_extensions =
@@ -70,76 +74,89 @@ module Proteine =
 (* ** functions definitions *)
 (* *** build_transitions function *)
 
-(* This function builds the transitions associated with a molecule. This will be used when folding the molecule to get functional form. *)
-(* On retourne une liste contenant les items (transID, transitionInputs, transitionOutputs) *)
-(* Algo : on parcourt les acides de la molécule, en gardant en mémoire l'id du dernier nœud visité. Si on tombe sur un acide contenant une transition, on parcourt la liste des transitions déjà créées pour voir si des transitions avec la même id ont déjà été traitées, auquel cas on ajoute cette transition à la transition_structure correspondante, et sinon on créée une nouvelle transition_structure *)
+(*     This function builds the transitions defined by the acides of a *)
+(*     proteine. This will be used when folding the proteine to get  *)
+(*     functional form. *)
+(*     On retourne une liste contenant les items (transID, *)
+(*     transitionInputs, transitionOutputs) *)
 
-(* Idées pour améliorer l'algo : *)
-(*   - utiliser une table d'associations  (pour accélerer ?) *)
-(*   - TODO : faire attention si plusieurs arcs entrants ou sortant correspondent au même nœud et à la même transition, auquel cas ça buggerait *)
+(*     Algo : on parcourt les acides de la molécule, en gardant en  *)
+(*     mémoire l'id du dernier nœud visité. Si on tombe sur un acide  *)
+(*     contenant une transition, on parcourt la liste des transitions  *)
+(*     déjà créées pour voir si des transitions avec la même id ont déjà  *)
+(*     été traitées, auquel cas on ajoute cette transition à la  *)
+(*     transition_structure correspondante, et sinon on créée une  *)
+(*     nouvelle transition_structure *)
 
-  let build_transitions (prot : t) :
-        transition_structure list = 
-    
-    (* insère un arc entrant dans la bonne transition 
-     de la liste des transitions *)
-    let rec insert_new_input 
-              (nodeN :   int) 
-              (transID : string) 
-              (data :    AcidTypes.transition_input_type) 
-              (transL :  transition_structure list) : 
-              
-              transition_structure list =
-    
-      match transL with
-      | (t, input, output) :: transL' -> 
-         if transID = t 
-         then (t,  (nodeN, data) :: input, output) :: transL'
-         else (t, input, output) ::
-                (insert_new_input nodeN transID data transL')
-      | [] -> [transID, [nodeN, data], []]
-          
-          
-  (* insère un arc sortant dans la bonne transition 
-     de la liste des transitions *)
-    and insert_new_output 
-          (nodeN :   int) 
-          (transID : string)
-          (data :    AcidTypes.transition_output_type) 
-          (transL :  transition_structure list) :
-          
-        transition_structure list =  
-      
-      match transL with
-      | (t, input, output) :: transL' -> 
-         if transID = t 
-         then (t,  input, (nodeN, data) ::  output) :: transL'
-         else (t, input, output) ::
-                (insert_new_output nodeN transID data transL')
-      | [] -> [transID, [], [nodeN, data]]
-            
-    in 
-    let rec aux 
-              (prot :    t)
-              (nodeN :  int) 
-              (transL : transition_structure list) :
-              
-              transition_structure list = 
-      
-      match prot with
-      | Node _ :: prot' -> aux prot' (nodeN + 1) transL
-      | TransitionInput (s,d) :: prot' ->
-         aux prot' nodeN (insert_new_input nodeN s d transL)
+(*     Idées pour améliorer l'algo : *)
+(*       - utiliser une table d'associations  (pour accélerer ?) *)
+(*       - TODO : faire attention si plusieurs arcs entrants ou sortant  *)
+(*       correspondent au même nœud et à la même transition, auquel cas ça  *)
+(*       buggerait *)
 
-      | TransitionOutput (s,d) :: prot' ->
-         aux prot' nodeN (insert_new_output nodeN s d transL)
-        
-      | Extension _ :: prot' -> aux prot' nodeN transL
-      | [] -> transL
-     
-    in 
-    aux prot (-1) []
+let build_transitions (prot : t) :
+      transition_structure list = 
   
+  (* insère un arc entrant dans la bonne transition 
+   de la liste des transitions *)
+  let rec insert_new_input 
+            (nodeN :   int) 
+            (transID : string) 
+            (data :    AcidTypes.transition_input_type) 
+            (transL :  transition_structure list) : 
+            
+            transition_structure list =
+  
+    match transL with
+    | (t, input, output) :: transL' -> 
+       if transID = t 
+       then (t,  (nodeN, data) :: input, output) :: transL'
+       else (t, input, output) ::
+              (insert_new_input nodeN transID data transL')
+    | [] -> [transID, [nodeN, data], []]
+        
+        
+(* insère un arc sortant dans la bonne transition 
+   de la liste des transitions *)
+  and insert_new_output 
+        (nodeN :   int) 
+        (transID : string)
+        (data :    AcidTypes.transition_output_type) 
+        (transL :  transition_structure list) :
+        
+      transition_structure list =  
+    
+    match transL with
+    | (t, input, output) :: transL' -> 
+       if transID = t 
+       then (t,  input, (nodeN, data) ::  output) :: transL'
+       else (t, input, output) ::
+              (insert_new_output nodeN transID data transL')
+    | [] -> [transID, [], [nodeN, data]]
+          
+  in 
+  let rec aux 
+            (prot :    t)
+            (nodeN :  int) 
+            (transL : transition_structure list) :
+            
+            transition_structure list = 
+    
+    match prot with
+    | Node _ :: prot' -> aux prot' (nodeN + 1) transL
+    | TransitionInput (s,d) :: prot' ->
+       aux prot' nodeN (insert_new_input nodeN s d transL)
+
+    | TransitionOutput (s,d) :: prot' ->
+       aux prot' nodeN (insert_new_output nodeN s d transL)
+      
+    | Extension _ :: prot' -> aux prot' nodeN transL
+    | [] -> transL
+   
+  in 
+  aux prot (-1) []
+  
+
 (* *** build_nodes_list function :deprecated: *)
 (*     Extrait la liste des noeuds, de la molécule, dans l'ordre rencontré   *)
 
@@ -150,8 +167,10 @@ module Proteine =
     | [] -> []
 
 (* *** build_nodes_list_with_exts function *)
-(* Construit la liste des nœuds avec les extensions associée (inversant ainsi l'ordre de la liste des nœuds. *)
-(* L'ordre est ensuite reinversé, sinon la liste des places est inversé dans la protéine. *)
+(*     Construit la liste des nœuds avec les extensions associée  *)
+(*     (inversant ainsi l'ordre de la liste des nœuds). *)
+(*     L'ordre est ensuite reinversé, sinon la liste des places est  *)
+(*     inversé dans la protéine. *)
 
   let build_nodes_list_with_exts (prot : t) :
         (AcidTypes.place_type * (AcidTypes.extension_type list)) list =
@@ -186,7 +205,7 @@ module Proteine =
       | [] -> map
     in
     aux prot 0 BatMultiPMap.empty
-
+    
   let build_catchers_book (prot : t) : (string, int) BatMultiPMap.t =
     let rec aux  prot n map =
       match prot with
@@ -207,97 +226,126 @@ module Proteine =
     in
     aux prot (-1) BatMultiPMap.empty
 
+  let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
+    let rec aux  prot n map =
+      match prot with
+      | Node _ :: prot' -> aux prot' (n+1) map
+      | Extension ext :: prot' ->
+         if n >= 0
+         then
+           begin
+             match ext with
+             | AcidTypes.Grab_ext g ->
+                aux prot' n (BatMultiPMap.add g n map)
+             | _ -> aux  prot' n map
+           end
+         else
+           aux prot' n map
+      | _ :: prot' -> aux prot' n map
+      | [] -> map
+    in
+    aux prot (-1) BatMultiPMap.empty
 (* Used as a descriptor for a molecule *)
 
-    let rec from_mol (mol : Molecule.t) : t =
-      match mol with
-        
-      | A::A::A::mol' -> (Node Regular_place) :: from_mol mol'
-                       
-      | B::A::A::mol' ->
-         let s,mol'' = Molecule.extract_message_from_mol mol' in
-         (TransitionInput (s,Regular_ilink)) :: (from_mol mol'')
+  let rec from_mol (mol : Molecule.t) : t =
+    match mol with
+      
+    | A::A::A::mol' -> (Node Regular_place) :: from_mol mol'
+                     
+    | B::A::A::mol' ->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (TransitionInput (s,Regular_ilink)) :: (from_mol mol'')
+       
+    | B::B::A::mol' ->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (TransitionInput (s,Split_ilink)) :: (from_mol mol'')
+       
+    | B::C::a::mol' ->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (TransitionInput (s,Filter_ilink (Atome.to_string a))) :: from_mol mol''
+       
+    | C::A::A::mol'->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (TransitionOutput (s,Regular_olink)) :: from_mol mol''
+       
+    | C::B::A::mol'->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (TransitionOutput (s,Bind_olink)) :: from_mol mol''
+       
+    | C::C::A::mol'->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (TransitionOutput (s,Release_olink)) :: from_mol mol''
+       
+    | D::A::A::mol'->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (Extension (Handle_ext s)) :: from_mol mol''
+       
+    | D::B::A::mol'->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (Extension (Catch_ext s)) :: from_mol mol''
+       
+    | D::D::A::mol'->
+       (Extension Release_ext) :: from_mol mol'
+      
+    | D::B::B::mol'->
+       (Extension (Displace_mol_ext true)) :: from_mol mol'
+      
+    | D::B::C::mol'->
+       (Extension (Displace_mol_ext false)) :: from_mol mol'
+      
+    | D::C::B::mol'->
+       (Extension Init_with_token_ext) :: from_mol mol'
+      
+    | D::D::B::mol' ->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (Extension (Information_ext s)) :: from_mol mol''
+       
+    | D::D::C::mol' ->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       let g = Graber.build_from_string s in
+       (Extension (Grab_ext g)) :: from_mol mol''
+       
+    | _ -> []
          
-      | B::B::A::mol' ->
-         let s,mol'' = Molecule.extract_message_from_mol mol' in
-         (TransitionInput (s,Split_ilink)) :: (from_mol mol'')
-         
-      | B::C::a::mol' ->
-         let s,mol'' = Molecule.extract_message_from_mol mol' in
-         (TransitionInput (s,Filter_ilink (Atome.to_string a))) :: from_mol mol''
-         
-      | C::A::A::mol'->
-         let s,mol'' = Molecule.extract_message_from_mol mol' in
-         (TransitionOutput (s,Regular_olink)) :: from_mol mol''
-         
-      | C::B::A::mol'->
-         let s,mol'' = Molecule.extract_message_from_mol mol' in
-         (TransitionOutput (s,Bind_olink)) :: from_mol mol''
-         
-      | C::C::A::mol'->
-         let s,mol'' = Molecule.extract_message_from_mol mol' in
-         (TransitionOutput (s,Release_olink)) :: from_mol mol''
-         
-      | D::A::A::mol'->
-         let s,mol'' = Molecule.extract_message_from_mol mol' in
-         (Extension (Handle_ext s)) :: from_mol mol''
-         
-      | D::B::A::mol'->
-         let s,mol'' = Molecule.extract_message_from_mol mol' in
-         (Extension (Catch_ext s)) :: from_mol mol''
-         
-      | D::D::A::mol'->
-         (Extension Release_ext) :: from_mol mol'
-        
-      | D::B::B::mol'->
-         (Extension (Displace_mol_ext true)) :: from_mol mol'
-        
-      | D::B::C::mol'->
-         (Extension (Displace_mol_ext false)) :: from_mol mol'
-        
-      | D::C::B::mol'->
-         (Extension Init_with_token_ext) :: from_mol mol'
-        
-      | D::D::B::mol' ->
-         let s,mol'' = Molecule.extract_message_from_mol mol' in
-         (Extension (Information_ext s)) :: from_mol mol''
-         
-      | _ -> []
-
   
-    let rec to_molecule (prot : t) : Molecule.t =
-      match prot with
-      | Node Regular_place :: prot' ->
-         Atome.A::A::A::(to_molecule prot')
-      | TransitionInput (s,Regular_ilink) :: prot' ->
-         Atome.B::A::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
-      | TransitionInput (s,Split_ilink) :: prot' ->
-         Atome.B::B::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
-      | TransitionInput (s,(Filter_ilink f)) :: prot' ->
-         let a = Atome.of_char (f.[0]) in
-         Atome.B::C::a::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
-      | TransitionOutput (s,Regular_olink) :: prot' ->
+  let rec to_molecule (prot : t) : Molecule.t =
+    match prot with
+    | Node Regular_place :: prot' ->
+       Atome.A::A::A::(to_molecule prot')
+    | TransitionInput (s,Regular_ilink) :: prot' ->
+       Atome.B::A::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+    | TransitionInput (s,Split_ilink) :: prot' ->
+       Atome.B::B::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+    | TransitionInput (s,(Filter_ilink f)) :: prot' ->
+       let a = Atome.of_char (f.[0]) in
+       Atome.B::C::a::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+    | TransitionOutput (s,Regular_olink) :: prot' ->
          Atome.C::A::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
-      | TransitionOutput (s,Bind_olink) :: prot' ->
-         C::B::A::(to_molecule prot')
-      | TransitionOutput (s,Release_olink) :: prot' ->
-         C::C::A::(to_molecule prot')
-      | Extension (Handle_ext s) :: prot' ->
-         Atome.D::A::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
-      | Extension (Catch_ext s) :: prot' ->
-         Atome.D::B::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
-      | Extension Release_ext :: prot' ->
-         D::D::A::(to_molecule prot')
-      | Extension (Displace_mol_ext true) :: prot' ->
-         D::B::B::(to_molecule prot')
-      | Extension (Displace_mol_ext false) :: prot' ->
-         D::B::C::(to_molecule prot')
-      | Extension Init_with_token_ext :: prot' ->
-         D::C::B::(to_molecule prot')
-      | Extension (Information_ext s) :: prot' ->
-         Atome.D::D::B::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
-      | [] -> []
+    | TransitionOutput (s,Bind_olink) :: prot' ->
+       C::B::A::(to_molecule prot')
+    | TransitionOutput (s,Release_olink) :: prot' ->
+       C::C::A::(to_molecule prot')
+    | Extension (Handle_ext s) :: prot' ->
+       Atome.D::A::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+    | Extension (Catch_ext s) :: prot' ->
+       Atome.D::B::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+    | Extension Release_ext :: prot' ->
+       D::D::A::(to_molecule prot')
+    | Extension (Displace_mol_ext true) :: prot' ->
+       D::B::B::(to_molecule prot')
+    | Extension (Displace_mol_ext false) :: prot' ->
+       D::B::C::(to_molecule prot')
+    | Extension Init_with_token_ext :: prot' ->
+       D::C::B::(to_molecule prot')
+    | Extension (Information_ext s) :: prot' ->
+       Atome.D::D::B::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
 
+      
+    | Extension (Grab_ext g) :: prot' ->
+      D::D::C::((g.id)@(to_molecule prot'))
+      
+    | [] -> []
+          
            
   let rec to_string (prot : t) : string =
     match prot with
@@ -325,7 +373,7 @@ module Proteine =
          | AcidTypes.Displace_mol_ext b -> "ED"^(string_of_bool b)^(to_string prot')
          | AcidTypes.Init_with_token_ext -> "EIT"^(to_string prot')
          | AcidTypes.Information_ext s -> "EI"^s^(to_string prot')
+         | AcidTypes.Grab_ext g -> "EG"^(to_string prot')
        end
     | [] -> ""
 end;;
-    
