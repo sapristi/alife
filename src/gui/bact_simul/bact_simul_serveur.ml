@@ -43,7 +43,7 @@ let make_bact_interface bact ic oc =
       let command = Yojson.Safe.to_string (Yojson.Safe.Util.member "command" json_command) in  
       (
 	print_endline command;
-	if String.equal command "\"gibinitdata\""
+	if command = "\"gibinitdata\""
 	then
 	  (
 	    print_endline "asking for initdata; sending...";
@@ -62,7 +62,7 @@ let make_bact_interface bact ic oc =
 	    flush oc;
 	    print_endline "init data sent";
 	  )
-        else if command = "\"give prot desc\""
+        else if command = "\"give prot desc for exam\""
         then
           (
             let data = Yojson.Safe.Util.member "data" json_command in
@@ -87,6 +87,30 @@ let make_bact_interface bact ic oc =
 	       print_endline "prot data sent";
                
             | Error s -> print_endline ("error : "^ s)
+          )
+        else if command = "\"give prot desc for simul\""
+        then
+          (
+            let data = Yojson.Safe.Util.member "data" json_command in
+            let mol_str = Yojson.Safe.Util.to_string data in
+            let mol = Molecule.string_to_acid_list mol_str in
+            let _,pnet = MolMap.find mol bact.molecules
+            in
+            let pnet_json = PetriNet.to_json pnet in
+            
+            let to_send_json =
+              `Assoc
+               ["target", Yojson.Safe.Util.member "return target" json_command;
+                "purpose", `String "prot desc";
+                "data", pnet_json]
+              
+            in
+            
+            print_endline "sending prot data ...";
+            
+            output_string oc (Yojson.Safe.to_string to_send_json);
+	    flush oc;
+	    print_endline "prot data sent";
           )
       )
       done

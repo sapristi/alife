@@ -21,9 +21,9 @@ class PNetFrame(tk.Frame):
             
 
         self.host.nc.send_request(
-            json.dumps({"command" : "give prot desc",
+            json.dumps({"command" : "give prot desc for simul",
                         "return target" : self.name,
-                        "data" : mol_desc["mol_json"]}
+                        "data" : mol_desc["name"]}
             ))
 
         

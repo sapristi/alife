@@ -19,7 +19,7 @@ class MolFrame(tk.Frame):
             os.makedirs(self.temp_dir)
             
         self.host.nc.send_request(
-            json.dumps({"command" : "give prot desc",
+            json.dumps({"command" : "give prot desc for exam",
                         "return target" : self.name,
                         "data" : mol_desc["mol_json"]}
             ))
