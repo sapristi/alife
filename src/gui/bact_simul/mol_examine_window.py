@@ -1,97 +1,40 @@
 
 import json
 import tkinter as tk
+import os
 
-
-from graphviz import Digraph
-
-class MolGraph(Digraph):
-    def __init__(self, mol_json):
-        Digraph.__init__(self, format = "gif", graph_attr = {"rankdir" : "LR"})
-        for i, acid in enumerate(mol_json):
-
-            if acid[0] == "Node":
-                self.node(str(i), label = "", shape = "square")
-
-            elif acid[0] == "TransitionInput":
-                
-                self.node(str(i), label = "", shape = "triangle")
-                self.node(acid[1]+str(i), shape = "plaintext", label = acid[1])
-                self.edge(str(i), acid[1]+str(i))
-                
-            elif acid[0] == "TransitionOutput":
-                self.node(str(i), label = "", shape = "invtriangle")
-                self.node(acid[1]+str(i), shape = "plaintext", label = acid[1])
-                self.edge(acid[1]+str(i), str(i))
-                
-            elif acid[0] == "Extension":
-                self.node(str(i), shape = "circle", label="")
-
-            if i>0:
-                self.edge(str(i-1), str(i))
-
-class PetriGraph(Digraph):
-    
-    def __init__(self, desc):
-        Digraph.__init__(self, format = "gif")
-        self.desc = desc
-
-        temp_place = None
-        # crée les nœuds correspondant aux places, et des arcs entre celles-ci
-        for i, val in enumerate(desc["places"]):
-            self.node('p'+str(i), "{place" + str(val["id"]) + "|" + str(val["token"]) + "}", shape="record")
-
-            if i>0:
-                self.edge('p'+str(i-1), 'p'+str(i), constraint = "false")
-            
-        # ajoute les nœuds correspondant aux transitions, et les arcs correspondants 
-        for i, val in enumerate(desc["transitions"]):
-            if i in self.desc["launchables"]:
-                color = "red"
-            else :
-                color = "black"
-            
-            tname = 't'+str(i)
-            self.node(tname, color = color)
-            for valbis in val["dep_places"]:
-                self.edge('p'+str(valbis[0]), tname, color = color)
-
-            for valbis in val["arr_places"]:
-                self.edge(tname, 'p'+str(valbis[0]), color = color)
-
+from graph_generators import MolGraph, PetriGraph
                 
 class MolFrame(tk.Frame):
-    def __init__(self, root, mol_desc, host):
+    def __init__(self, root, mol_desc, host, name):
         tk.Frame.__init__(self, root)
         self.root = root
         self.host = host
         self.pack()
         self.mol_desc = mol_desc
-
+        self.temp_dir = "tempdir"
+        self.name = name
+        
+        if not os.path.exists(self.temp_dir):
+            os.makedirs(self.temp_dir)
+            
         self.host.nc.send_request(
             json.dumps({"command" : "give prot desc",
-                        "return target" : mol_desc["name"],
+                        "return target" : self.name,
                         "data" : mol_desc["mol_json"]}
             ))
-                                                   
-        mol_graph = MolGraph(mol_desc["mol_json"])
-        mol_graph.render(filename=mol_desc["name"]+"_mol_image")
+        
         self.createWidgets()
         
-        self.root.title("Molécule " + mol_desc["name"])
-        
+        self.root.title("Mol Exam " + mol_desc["name"])
 
+            
     def recv_msg(self, json_msg):
         purpose = json_msg["purpose"]
         data = json_msg["data"]
         if purpose == "prot desc":
             print("received proteine description")
-            petri_graph = PetriGraph(data)
-            petri_graph.render(filename=self.mol_desc["name"]+"_petri_image")
-            print("petri graph generated")
-            self.petriImage_img = tk.PhotoImage(file=self.mol_desc["name"]+"_petri_image.gif")
-            self.petriImage_cv.config(width=self.petriImage_img.width(), height = self.petriImage_img.height())
-            self.petriImage_cv.create_image(0,0,anchor="nw", image=self.petriImage_img)
+            self.setup_graphs(self.mol_desc["mol_json"],data,self.mol_desc["name"])
             
         
     def createWidgets(self):
@@ -102,10 +45,10 @@ class MolFrame(tk.Frame):
         self.petriImage_cv.pack()
 
         molImage_frame = tk.LabelFrame(self, text = "molecule")
-        self.molImage_img = tk.PhotoImage(file=self.mol_desc["name"]+"_mol_image.gif")
-        self.molImage_cv = tk.Canvas(molImage_frame, width=self.molImage_img.width(), height = self.molImage_img.height())
+        
+        self.molImage_cv = tk.Canvas(molImage_frame)
         self.molImage_cv.pack()
-        self.molImage_cv.create_image(0,0,anchor="nw", image=self.molImage_img)
+        
         # texte pour changer la molécule
         molDesc_frame = tk.LabelFrame(self, text = "molecule text description")
         self.molDesc_text = tk.Text(molDesc_frame)
@@ -116,7 +59,31 @@ class MolFrame(tk.Frame):
         molImage_frame.grid(row = 0, column = 0)
         petriImage_frame.grid(row = 1, column = 1)
 
+    def setup_graphs(self, mol_data, pnet_data, name):
         
+        mol_graph = MolGraph(mol_data)
+        mol_graph.render(
+            filename=self.temp_dir + "/" + name +"_mol_image")
+        self.molImage_img = tk.PhotoImage(
+            file=self.temp_dir + "/" + name +"_mol_image.gif")
+        self.molImage_cv.config(
+            width = self.molImage_img.width(),
+            height = self.molImage_img.height())
+        self.molImage_cv.create_image(0,0,anchor="nw", image=self.molImage_img)
+        
+        
+        petri_graph = PetriGraph(pnet_data)
+        petri_graph.render(
+            filename=self.temp_dir + "/" + name +"_petri_image")
+        print("petri graph generated")
+        self.petriImage_img = tk.PhotoImage(
+            file=self.temp_dir + "/" + name +"_petri_image.gif")
+        self.petriImage_cv.config(
+            width = self.petriImage_img.width(),
+            height = self.petriImage_img.height())
+        self.petriImage_cv.create_image(0,0,anchor="nw", image=self.petriImage_img)
+        
+
     def quit_program(self):
         root.destroy()
 

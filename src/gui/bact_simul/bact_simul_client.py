@@ -8,7 +8,7 @@ import tkinter as tk
 
 from bact_window import BactFrame
 from mol_examine_window import MolFrame
-
+from pnet_simul_window import PNetFrame
 # * NetworkClient
 # Hooks between server communication and internal functions
 
@@ -98,10 +98,14 @@ class MainApp(tk.Frame):
 
     def examine_mol(self, mol_desc):
         molWindow = tk.Toplevel()
-        print(mol_desc["mol_json"])
-        
-        self.components[mol_desc["name"]] = MolFrame(molWindow, mol_desc, self)
-        
+        name = mol_desc["name"] + "_mol_exam"
+        self.components[name] = MolFrame(molWindow, mol_desc, self, name)
+
+    def simule_pnet(self, mol_desc):
+        simulWindow = tk.Toplevel()
+        name = mol_desc["name"] + "_pnet_simul"
+        self.components[name] = PNetFrame(simulWindow, mol_desc, self, name)
+
         
     def createWidgets(self):
         tk.Button(self, text="Connect", command=self.connect).grid(row = 0, column = 0)
@@ -118,4 +122,4 @@ root = tk.Tk()
 app = MainApp(root, client)
 app.master.title("Main") 
 
-app.mainloop()
+root.mainloop()

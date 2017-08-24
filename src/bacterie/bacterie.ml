@@ -8,7 +8,7 @@
 (*    ( ça voudrait dire qu'il faudrait bien les ranger *)
 (*    pour vite les retrouver. Mais tout ça c'est pour plus tard) *)
 
-(*   - on crée une protéine par type de molécule, la vitesse de simulation *)
+(*   - on crée un petri-net par type de molécule, la vitesse de simulation *)
 (*    dépend du nombre de molécules (parce que à la fois c'est plus simple *)
 (*    et ça va plus vite, donc on se prive pas) *)
    
@@ -19,18 +19,6 @@
 (*   - Il faudrait aussi tester rapidement si une molécule a une forme *)
 (*    protéinée qui fait quelque chose, pour pas s'embêter avec *)
 
-(*   - Et puis finalement la division, yavait plusieurs idées : *)
-(*      + au moment où les conditions sont réunies *)
-(* 	* on crée automatiquement une nouvelle cellule *)
-(* 	* on a une action spécifique qui crée une nouvelle cellule *)
-(*      + On peut soit créer la nouvelle cellule à l'exterieur, soit *)
-(*      À L'INTERIEUR PETE SA MERE, du coup faut faire gaffe à pas en *)
-(*      rajouter trop, mais ça peut donner des choses rigolotes. *)
-
-(*   - Il faut aussi implémenter un système de messages, *)
-(*    c'est à dire référencer quelles molécules  reçoivent quel message *)
-
-(*   - Et aussi savoir quelles molécules peuvent s'accrocher à quelles autres. *)
 
 (* * libs *)
 open Molecule
@@ -110,19 +98,19 @@ struct
 (* We could also decide that if a mol can't grab, *)
 (* then the other will try *)
 
-let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
-    : unit =
-  let _,pnet1 = MolMap.find mol1 bact.molecules
-  and _,pnet2 = MolMap.find mol1 bact.molecules in
-  if Random.bool ()
-  then
-    (
-      if asymetric_grab mol2 pnet1
-      then add_to_mol_quantity mol2 (-1) bact
-    )
-  else 
-   if  asymetric_grab mol1 pnet2
-   then add_to_mol_quantity mol1 (-1) bact
+  let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
+      : unit =
+    let _,pnet1 = MolMap.find mol1 bact.molecules
+    and _,pnet2 = MolMap.find mol1 bact.molecules in
+    if Random.bool ()
+    then
+      (
+        if asymetric_grab mol2 pnet1
+        then add_to_mol_quantity mol2 (-1) bact
+      )
+    else 
+      if  asymetric_grab mol1 pnet2
+      then add_to_mol_quantity mol1 (-1) bact
 
 (* Reactions between molecules : *)
 (* we have to simulate molecules collision, *)

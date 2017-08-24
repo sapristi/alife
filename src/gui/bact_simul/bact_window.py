@@ -50,8 +50,8 @@ class BactFrame(tk.Frame):
         self.stepSimul_frame = tk.Frame(self.button_frame)
         stepSimul_rbutton = tk.Radiobutton(self.button_frame, text="Step-simul", variable=self.rbut_v, value=2, command = self.select_stepSimul)
         
-        stepSimulEvalCatch_button = tk.Button(self.stepSimul_frame, text = "eval catch", command = print("todo"))
-        stepSimulSimulProts_button = tk.Button(self.stepSimul_frame, text = "simul prots", command = print("todo"))
+        stepSimulEvalCatch_button = tk.Button(self.stepSimul_frame, text = "eval catch", command = self.todo)
+        stepSimulSimulProts_button = tk.Button(self.stepSimul_frame, text = "simul prots", command = self.todo)
         
 
         stepSimulEvalCatch_button.grid(row = 1)
@@ -64,8 +64,11 @@ class BactFrame(tk.Frame):
         #molecules list frame
         self.molList_listbox = tk.Listbox(self.molList_frame)
         molExamine_button = tk.Button(self.molList_frame, text = "examine", command = self.examine_mol)
+        pnetSimul_button = tk.Button(self.molList_frame, text = "simulate", command = self.simule_pnet)
+        
         self.molList_listbox.pack()
         molExamine_button.pack()
+        pnetSimul_button.pack()
         
         #pack final
         self.button_frame.pack(side="left")
@@ -75,10 +78,18 @@ class BactFrame(tk.Frame):
         self.rbut_v.set(1)
         self.select_autoSimul()
 
+    def todo(self):
+        print("todo")
+        
     def examine_mol(self):  
         molID = self.molList_listbox.curselection()[0]
         mol_desc = self.bactery_data["molecules list"][molID]
         self.mainApp.examine_mol(mol_desc)
+        
+    def simule_pnet(self):  
+        molID = self.molList_listbox.curselection()[0]
+        mol_desc = self.bactery_data["molecules list"][molID]
+        self.mainApp.simule_pnet(mol_desc)
         
     def enable_frame(self, frame):
         for child in frame.winfo_children():
@@ -97,7 +108,7 @@ class BactFrame(tk.Frame):
         self.disable_frame(self.stepSimul_frame)
         
     def autoSimul_launch(self):
-        print("todo")
+        self.todo()
 
 
 
