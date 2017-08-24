@@ -107,26 +107,37 @@ struct
 (* Resolve grabs when two molecules interact.Only one of the two molecules will get to grab the *)
 (* other one, randomly decided. *)
 
-(* We could also decide that if a mol can't grab,  *)
+(* We could also decide that if a mol can't grab, *)
 (* then the other will try *)
 
-  let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
-      : unit =
-    let _,pnet1 = MolMap.find mol1 bact.molecules
-    and _,pnet2 = MolMap.find mol1 bact.molecules in
-    if Random.bool ()
-    then
-      (
-        if asymetric_grab mol2 pnet1
-        then add_to_mol_quantity mol2 (-1) bact
-      )
-    else 
-     if  asymetric_grab mol1 pnet2
-     then add_to_mol_quantity mol1 (-1) bact
+let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
+    : unit =
+  let _,pnet1 = MolMap.find mol1 bact.molecules
+  and _,pnet2 = MolMap.find mol1 bact.molecules in
+  if Random.bool ()
+  then
+    (
+      if asymetric_grab mol2 pnet1
+      then add_to_mol_quantity mol2 (-1) bact
+    )
+  else 
+   if  asymetric_grab mol1 pnet2
+   then add_to_mol_quantity mol1 (-1) bact
 
-    
+(* Reactions between molecules : *)
+(* we have to simulate molecules collision, *)
+(* then try grabs (and later catch) *)
+
+(* For now, collisions are static and do *)
+(* not depend on anything (e.g. the number of molecules) *)
+  
   let make_reactions (bact : t) =
-
+    Enum.iter
+      (fun mol1 ->
+        Enum.iter
+          (fun mol2 -> try_grabs mol1 mol2 bact)
+          (MolMap.keys bact.molecules))
+      (MolMap.keys bact.molecules)
     
     
   let step_simulate (bact : t) : unit = 
@@ -137,7 +148,8 @@ struct
           let actions = PetriNet.launch_random_transition prot in
           execute_actions actions bact
         done)
-      bact.molecules
+      bact.molecules;
+    make_reactions bact
     
     (*    pop_all_messages bact *)
 
