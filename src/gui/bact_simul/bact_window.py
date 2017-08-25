@@ -15,7 +15,7 @@ class BactFrame(tk.Frame):
         print("received data, updating mol list")
         self.bactery_data = data
         for mol in data["molecules list"]:
-            item_name = mol["name"][0:15]+"(" + str(mol["nb"]) + ")"
+            item_name = mol["mol"][0:15]+"(" + str(mol["nb"]) + ")"
             self.molList_listbox.insert(tk.END, item_name)
         
     def createWidgets(self):

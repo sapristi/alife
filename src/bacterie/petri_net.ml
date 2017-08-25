@@ -107,7 +107,7 @@ struct
 (* on peut faire beaucoup plus efficace, mais pour l'instant  *)
 (* on fait au plus simple *)
 
-  let update_launchables p =
+  let update_launchables (p : t) : unit =
     p.launchables <- get_launchables p.transitions
 
 

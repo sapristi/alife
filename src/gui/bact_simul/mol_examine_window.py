@@ -6,27 +6,27 @@ import os
 from graph_generators import MolGraph, PetriGraph
                 
 class MolFrame(tk.Frame):
-    def __init__(self, root, mol_desc, host, name):
+    def __init__(self, root, mol_desc, host, instance_name):
         tk.Frame.__init__(self, root)
         self.root = root
         self.host = host
         self.pack()
         self.mol_desc = mol_desc
         self.temp_dir = "tempdir"
-        self.name = name
+        self.instance_name = instance_name
         
         if not os.path.exists(self.temp_dir):
             os.makedirs(self.temp_dir)
             
         self.host.nc.send_request(
-            json.dumps({"command" : "give prot desc for exam",
-                        "return target" : self.name,
-                        "data" : mol_desc["mol_json"]}
+            json.dumps({"command" : "give data for mol exam",
+                        "return target" : self.instance_name,
+                        "data" : mol_desc}
             ))
         
         self.createWidgets()
         
-        self.root.title("Mol Exam " + mol_desc["name"])
+        self.root.title("Mol Exam " + mol_desc)
 
             
     def recv_msg(self, json_msg):
@@ -34,7 +34,9 @@ class MolFrame(tk.Frame):
         data = json_msg["data"]
         if purpose == "prot desc":
             print("received proteine description")
-            self.setup_graphs(self.mol_desc["mol_json"],data,self.mol_desc["name"])
+            prot = data["prot"]
+            pnet = data["pnet"]
+            self.setup_graphs(prot,pnet,self.mol_desc)
             
         
     def createWidgets(self):
@@ -52,7 +54,7 @@ class MolFrame(tk.Frame):
         # texte pour changer la molécule
         molDesc_frame = tk.LabelFrame(self, text = "molecule text description")
         self.molDesc_text = tk.Text(molDesc_frame)
-        self.molDesc_text.insert("1.0", json.dumps(self.mol_desc["mol_json"]))
+
         self.molDesc_text.pack()
         
         molDesc_frame.grid(row = 1, column = 0)
@@ -82,7 +84,8 @@ class MolFrame(tk.Frame):
             width = self.petriImage_img.width(),
             height = self.petriImage_img.height())
         self.petriImage_cv.create_image(0,0,anchor="nw", image=self.petriImage_img)
-        
+
+        self.molDesc_text.insert("1.0", json.dumps(mol_data))
 
     def quit_program(self):
         root.destroy()

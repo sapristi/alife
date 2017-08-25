@@ -98,13 +98,13 @@ class MainApp(tk.Frame):
 
     def examine_mol(self, mol_desc):
         molWindow = tk.Toplevel()
-        name = mol_desc["name"] + "_mol_exam"
-        self.components[name] = MolFrame(molWindow, mol_desc, self, name)
+        name = mol_desc["mol"] + "_mol_exam"
+        self.components[name] = MolFrame(molWindow, mol_desc["mol"], self, name)
 
     def simule_pnet(self, mol_desc):
         simulWindow = tk.Toplevel()
-        name = mol_desc["name"] + "_pnet_simul"
-        self.components[name] = PNetFrame(simulWindow, mol_desc, self, name)
+        name = mol_desc["mol"] + "_pnet_simul"
+        self.components[name] = PNetFrame(simulWindow, mol_desc["mol"], self, name)
 
         
     def createWidgets(self):

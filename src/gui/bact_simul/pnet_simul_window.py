@@ -23,12 +23,12 @@ class PNetFrame(tk.Frame):
         self.host.nc.send_request(
             json.dumps({"command" : "give prot desc for simul",
                         "return target" : self.name,
-                        "data" : mol_desc["name"]}
+                        "data" : self.mol_desc}
             ))
 
         
         self.createWidgets()
-        self.root.title("PNet simul " + mol_desc["name"])
+        self.root.title("PNet simul " + self.mol_desc)
 
         
     def recv_msg(self, json_msg):
@@ -57,7 +57,7 @@ class PNetFrame(tk.Frame):
             json.dumps({"command" : "launch transition",
                         "return target" : self.name,
                         "data" :
-                        { "mol" : self.mol_desc["mol_json"],
+                        { "mol" : self.mol_desc,
                           "trans_id" : trans_id } }
             ))
 
@@ -83,6 +83,9 @@ class PNetFrame(tk.Frame):
         button_frame.pack()
 
 
+        tokens_frame = tk.LabelFrame(self, text = "Tokens")
+
+        
         
     def update_launchables(self, new_launchables):
         self.select_trans_l['menu'].delete(0,'end')

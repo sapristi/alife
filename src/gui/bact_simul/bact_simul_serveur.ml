@@ -37,33 +37,39 @@ let make_bact_interface bact ic oc =
                       "data", (Bacterie.to_json bact)] in
     
     let to_send = Yojson.Safe.to_string json_data in
+
     
     output_string oc to_send;
     flush oc;
+    print_endline to_send;
     print_endline "init data sent";
 
-  and give_prot_desc_for_exam json_command =
+  and give_data_for_mol_exam json_command =
   
     let data = Yojson.Safe.Util.member "data" json_command in
-    let prot_or_error = Proteine.of_yojson data in
-    match prot_or_error with
-    | Ok prot -> 
-       let pnet = PetriNet.make_from_prot prot in
-       let pnet_json = PetriNet.to_json pnet in
-       
-       let to_send_json =
-         `Assoc
-          ["target", Yojson.Safe.Util.member "return target" json_command;
-           "purpose", `String "prot desc";
-           "data", pnet_json]
-         
-       in
-       output_string oc (Yojson.Safe.to_string to_send_json);
-       flush oc;
-       print_endline "prot data sent";
-       
-    | Error s -> print_endline ("error : "^ s)
-
+    let mol_str = Yojson.Safe.Util.to_string data in
+    let mol = Molecule.string_to_acid_list mol_str in
+    let prot = Proteine.from_mol mol 
+    and pnet = PetriNet.make_from_mol mol in
+    let pnet_json = PetriNet.to_json pnet
+    and prot_json = Proteine.to_yojson prot
+    in
+    let to_send_json =
+      `Assoc
+       ["target", Yojson.Safe.Util.member "return target" json_command;
+        "purpose", `String "prot desc";
+        "data",
+        `Assoc
+         ["prot", prot_json;
+          "pnet", pnet_json]
+       ] 
+    in
+    let to_send = Yojson.Safe.to_string to_send_json in
+    output_string oc to_send;
+    flush oc;
+    print_endline to_send;
+    print_endline "data for mol exam sent";
+    
   and give_prot_desc_for_simul json_command =
     let data = Yojson.Safe.Util.member "data" json_command in
     let mol_str = Yojson.Safe.Util.to_string data in
@@ -79,10 +85,38 @@ let make_bact_interface bact ic oc =
         "data", pnet_json]
       
     in
-    
-    output_string oc (Yojson.Safe.to_string to_send_json);
+    let to_send = Yojson.Safe.to_string to_send_json in
+    output_string oc to_send;
     flush oc;
-    print_endline "prot data sent";
+    print_endline to_send;
+    print_endline "data for mol simul sent";
+
+  and launch_transition json_command =
+    let data_json = Yojson.Safe.Util.member "data" json_command in
+    let mol_json = Yojson.Safe.Util.member "mol" data_json
+    and trans_id_json = Yojson.Safe.Util.member "trans_id" data_json in
+    let mol_str = Yojson.Safe.Util.to_string mol_json
+    and trans_id_str = Yojson.Safe.Util.to_string trans_id_json in
+    let trans_id = int_of_string trans_id_str in
+    
+    let mol = Molecule.string_to_acid_list mol_str in
+    Bacterie.launch_transition trans_id mol bact;
+    let _,pnet = MolMap.find mol bact.molecules
+    in
+    let pnet_update_json = PetriNet.to_json_update pnet in
+    
+    let to_send_json =
+      `Assoc
+       ["target", Yojson.Safe.Util.member "return target" json_command;
+        "purpose", `String "updatedata";
+        "data", pnet_update_json]
+      
+    in
+    let to_send = Yojson.Safe.to_string to_send_json in
+    output_string oc to_send;
+    flush oc;
+    print_endline to_send;
+    print_endline "data for mol simul sent";
   in
 
   (* try *)
@@ -93,24 +127,21 @@ let make_bact_interface bact ic oc =
     print_endline s;
     print_endline "end of message";
     
-    let json_command = Yojson.Safe.from_string s in
-    let command = Yojson.Safe.to_string (Yojson.Safe.Util.member "command" json_command) in  
+    let json_message = Yojson.Safe.from_string s in
+    let command = Yojson.Safe.to_string (Yojson.Safe.Util.member "command" json_message) in  
     (
-      print_endline command;
+      
       if command = "\"gibinitdata\""
       then gibinitdata ()
       
-      else if command = "\"give prot desc for exam\""
-      then give_prot_desc_for_exam json_command
+      else if command = "\"give data for mol exam\""
+      then give_data_for_mol_exam json_message
 
       else if command = "\"give prot desc for simul\""
-      then give_prot_desc_for_simul json_command 
+      then give_prot_desc_for_simul json_message 
 
       else if command = "\"launch transition\""
-      then
-        (
-          print_endline "todo"
-        )
+      then launch_transition json_message
       
     )
   done

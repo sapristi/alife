@@ -131,9 +131,10 @@ struct
   let step_simulate (bact : t) : unit = 
     MolMap.iter
       (fun k x ->
-        let (n, prot) = x in  
+        let (n, pnet) = x in  
         for i = 1 to n do
-          let actions = PetriNet.launch_random_transition prot in
+          let actions = PetriNet.launch_random_transition pnet in
+          PetriNet.update_launchables pnet;
           execute_actions actions bact
         done)
       bact.molecules;
@@ -141,6 +142,11 @@ struct
     
     (*    pop_all_messages bact *)
 
+  let launch_transition tid mol bact : unit =
+    let _,pnet = MolMap.find mol bact.molecules in
+    let actions = PetriNet.launch_transition tid pnet in
+    PetriNet.update_launchables pnet;
+    execute_actions actions bact
     
   let to_json (bact : t) =
     let mol_enum = MolMap.enum bact.molecules in
@@ -151,8 +157,7 @@ struct
        "molecules list",
        `List (List.map
                 (fun (mol, nb) ->
-                  `Assoc ["name", `String (Molecule.to_string mol);
-                          "mol_json", Proteine.to_yojson (Proteine.from_mol mol);
+                  `Assoc ["mol", `String (Molecule.to_string mol);
                           "nb", `Int nb])
                 trimmed_mol_list)
      ]
