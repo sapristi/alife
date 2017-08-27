@@ -94,11 +94,11 @@ let make_prot_interface (pnet : PetriNet.t) ic oc  =
 	    try 
 	      let new_prot_str = Bytes.to_string (json_command |> Yojson.Basic.Util.member "arg" |> Yojson.Basic.Util.to_string) in 
 	      print_endline new_prot_str;
-              let new_mol_json =  Yojson.Safe.from_string new_prot_str in
+              let new_prot_json =  Yojson.Safe.from_string new_prot_str in
 
-              print_endline  (Yojson.Safe.to_string new_mol_json);
+              print_endline  (Yojson.Safe.to_string new_prot_json);
               
-	      let new_prot = Proteine.of_yojson new_mol_json in
+	      let new_prot = Proteine.of_yojson new_prot_json in
 	      match new_prot with
               | Ok prot ->
 	         (
