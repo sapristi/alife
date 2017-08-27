@@ -165,6 +165,27 @@ let make_bact_interface bact ic oc =
     print_endline to_send;
     print_endline "data for prot of mol sent";
 
+  and pnet_of_mol json_command =
+    let data_json = Yojson.Safe.Util.member "data" json_command in
+    let mol_str = Yojson.Safe.Util.to_string data_json in
+    let mol = Molecule.string_to_acid_list mol_str in
+
+    let pnet = PetriNet.make_from_mol mol in
+    let pnet_json = PetriNet.to_json pnet in
+    
+    let to_send_json =
+      `Assoc
+       ["target", Yojson.Safe.Util.member "return target" json_command;
+        "purpose", `String "pnet desc";
+        "data", pnet_json]
+         
+    in
+    let to_send = Yojson.Safe.to_string to_send_json in
+    output_string oc to_send;
+    flush oc;
+    print_endline to_send;
+    print_endline "data for pnet of mol sent";
+
   in
 
   let main_loop () = 
@@ -197,6 +218,9 @@ let make_bact_interface bact ic oc =
         
         else if command = "\"mol of prot\""
         then mol_of_prot json_message
+        
+        else if command = "\"pnet of mol\""
+        then pnet_of_mol json_message
 
         else Printf.printf "did not recognize command"
       )

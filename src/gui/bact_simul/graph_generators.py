@@ -1,7 +1,7 @@
 
 from graphviz import Digraph
 
-class MolGraph(Digraph):
+class ProtGraph(Digraph):
     def __init__(self, mol_json):
         Digraph.__init__(self, format = "gif", graph_attr = {"rankdir" : "LR"})
         for i, acid in enumerate(mol_json):

@@ -3,7 +3,7 @@ import json
 import tkinter as tk
 import os
 
-from graph_generators import MolGraph, PetriGraph
+from graph_generators import ProtGraph, PetriGraph
                 
 class MolFrame(tk.Frame):
     def __init__(self, root, mol_desc, host, instance_name):
@@ -63,14 +63,17 @@ class MolFrame(tk.Frame):
 
     def setup_graphs(self, mol_data, pnet_data, name):
         
-        mol_graph = MolGraph(mol_data)
+        mol_graph = ProtGraph(mol_data)
         mol_graph.render(
             filename=self.temp_dir + "/" + name +"_mol_image")
+
         self.molImage_img = tk.PhotoImage(
             file=self.temp_dir + "/" + name +"_mol_image.gif")
+
         self.molImage_cv.config(
             width = self.molImage_img.width(),
             height = self.molImage_img.height())
+
         self.molImage_cv.create_image(0,0,anchor="nw", image=self.molImage_img)
         
         
