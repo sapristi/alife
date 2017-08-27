@@ -78,12 +78,11 @@ class ProtSynthFrame(tk.Frame):
 
 
     def prot_to_mol(self):
-        prot_desc = self.prot_text.get("1.0", tk.END).replace("'",'"')
-        prot_desc_json = json.dumps(prot_desc)
+        prot_desc = self.prot_text.get("1.0", tk.END)
         self.host.nc.send_request(
             json.dumps({"command" : "mol of prot",
                         "return target" : self.instance_name,
-                        "data" : prot_desc_json}
+                        "data" : prot_desc}
             ))
 
     def gen_graphs(self):

@@ -121,7 +121,10 @@ let make_bact_interface bact ic oc =
 
   and mol_of_prot json_command =
     let data_json = Yojson.Safe.Util.member "data" json_command in
-    let prot_or_error = Proteine.of_yojson data_json in
+    let data_str = Yojson.Safe.Util.to_string data_json in
+    let prot_str = Bytes.to_string data_str in
+    let prot_json = Yojson.Safe.from_string prot_str in
+    let prot_or_error = Proteine.of_yojson prot_json in
     match prot_or_error with
     | Ok prot ->
        let mol = Proteine.to_molecule prot in
