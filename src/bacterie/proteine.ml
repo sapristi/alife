@@ -305,8 +305,8 @@ let build_transitions (prot : t) :
        let g = Graber.build_from_string s in
        (Extension (Grab_ext g)) :: from_mol mol''
        
-    | _ -> []
-         
+    | a :: mol' -> from_mol mol'
+    | [] -> []
   
   let rec to_molecule (prot : t) : Molecule.t =
     match prot with
@@ -339,8 +339,6 @@ let build_transitions (prot : t) :
        D::C::B::(to_molecule prot')
     | Extension (Information_ext s) :: prot' ->
        Atome.D::D::B::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
-
-      
     | Extension (Grab_ext g) :: prot' ->
       D::D::C::((g.id)@(to_molecule prot'))
       

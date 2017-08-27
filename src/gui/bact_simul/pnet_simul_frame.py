@@ -49,7 +49,7 @@ class PNetFrame(tk.Frame):
            
     # trigger transition from server
     def launch_transition(self):
-        trans_id = self.next_transition_to_launch.get()
+        trans_id = self.transition_svar.get()
         if trans_id == "...":
             trans_id = "-1"
 
@@ -76,25 +76,33 @@ class PNetFrame(tk.Frame):
         self.launch_trans_b = tk.Button(button_frame, text = "launch transition", command = self.launch_transition)
         self.launch_trans_b.pack(side="top")
         
-        self.next_transition_to_launch = tk.StringVar(button_frame)
-        self.next_transition_to_launch.set("...")
-        self.select_trans_l = tk.OptionMenu(button_frame, self.next_transition_to_launch, "...")
+        self.transition_svar = tk.StringVar(button_frame)
+        self.transition_svar.set("...")
+        self.select_trans_l = tk.OptionMenu(button_frame, self.transition_svar, "...")
         self.select_trans_l.pack(side="bottom")
         button_frame.pack()
 
 
         tokens_frame = tk.LabelFrame(self, text = "Tokens")
+        self.tokens_svar = tk.StringVar(button_frame)
+        self.tokens_svar.set("...")
+        self.select_token_l = tk.OptionMenu(tokens_frame, self.transition_svar, "...")
+        self.select_token.pack()
+        self.exam_token_button = tk.Button(tokens_frame, text = "Examine token", command = self.examine_token)
+        self.exam_token_button.pack()
+        tokens_frame.pack()
 
-        
+    def examine_token(self):
+        print("todo")
         
     def update_launchables(self, new_launchables):
         self.select_trans_l['menu'].delete(0,'end')
         if len(new_launchables) > 0:
             for i in new_launchables:
-                self.select_trans_l['menu'].add_command(label=str(i), command=tk._setit(self.next_transition_to_launch, str(i)))
-            self.next_transition_to_launch.set(new_launchables[0])
+                self.select_trans_l['menu'].add_command(label=str(i), command=tk._setit(self.transition_svar, str(i)))
+            self.transition_svar.set(new_launchables[0])
         else:
-            self.next_transition_to_launch.set("...")
+            self.transition_svar.set("...")
 
 
     

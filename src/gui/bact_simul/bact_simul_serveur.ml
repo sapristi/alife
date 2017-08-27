@@ -74,7 +74,7 @@ let make_bact_interface bact ic oc =
     let data = Yojson.Safe.Util.member "data" json_command in
     let mol_str = Yojson.Safe.Util.to_string data in
     let mol = Molecule.string_to_acid_list mol_str in
-    let _,pnet = MolMap.find mol bact.molecules
+    let _,pnet = MolMap.find mol bact.Bacterie.molecules
     in
     let pnet_json = PetriNet.to_json pnet in
     
@@ -101,7 +101,7 @@ let make_bact_interface bact ic oc =
     
     let mol = Molecule.string_to_acid_list mol_str in
     Bacterie.launch_transition trans_id mol bact;
-    let _,pnet = MolMap.find mol bact.molecules
+    let _,pnet = MolMap.find mol bact.Bacterie.molecules
     in
     let pnet_update_json = PetriNet.to_json_update pnet in
     

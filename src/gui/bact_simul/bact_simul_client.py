@@ -6,9 +6,9 @@ import json
 import tkinter as tk
 
 
-from bact_window import BactFrame
-from mol_examine_window import MolFrame
-from pnet_simul_window import PNetFrame
+from bact_frame import BactFrame
+from mol_examine_frame import MolFrame
+from pnet_simul_frame import PNetFrame
 # * NetworkClient
 # Hooks between server communication and internal functions
 
