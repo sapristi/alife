@@ -119,34 +119,40 @@ let make_bact_interface bact ic oc =
     print_endline "data for mol simul sent";
   in
 
-  (* try *)
-  while true do
-    let s = input_line ic in
-    
-    print_endline "received message, printing";
-    print_endline s;
-    print_endline "end of message";
-    
-    let json_message = Yojson.Safe.from_string s in
-    let command = Yojson.Safe.to_string (Yojson.Safe.Util.member "command" json_message) in  
-    (
+  let main_loop () = 
+    (* try *)
+    while true do
+      let s = input_line ic in
       
-      if command = "\"gibinitdata\""
-      then gibinitdata ()
+      print_endline "received message, printing";
+      print_endline s;
+      print_endline "end of message";
       
-      else if command = "\"give data for mol exam\""
-      then give_data_for_mol_exam json_message
-
-      else if command = "\"give prot desc for simul\""
-      then give_prot_desc_for_simul json_message 
-
-      else if command = "\"launch transition\""
-      then launch_transition json_message
-      
-    )
-  done
+      let json_message = Yojson.Safe.from_string s in
+      let command = Yojson.Safe.to_string (Yojson.Safe.Util.member "command" json_message) in  
+      (
+        
+        if command = "\"gibinitdata\""
+        then gibinitdata ()
+        
+        else if command = "\"give data for mol exam\""
+        then give_data_for_mol_exam json_message
+        
+        else if command = "\"give prot desc for simul\""
+        then give_prot_desc_for_simul json_message 
+        
+        else if command = "\"launch transition\""
+        then launch_transition json_message
+        
+      )
+    done
 (*  with _ -> Printf.printf "End of text\n" ; flush stdout ; exit 0 ;;*)
-  
-let go_bact_interface bact = 
-   Unix.handle_unix_error make_server (make_bact_interface bact) 1512;;
 
+  in
+  main_loop ()
+
+  
+          
+let go_bact_interface bact =
+  Unix.handle_unix_error make_server (make_bact_interface bact) 1512;;
+  

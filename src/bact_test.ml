@@ -26,19 +26,23 @@ let prot3 = [
     TransitionOutput ("B", Regular_olink);
 
   ];;
-
+  
 let print_prot prot = 
   let mol = Proteine.to_molecule prot in
-    let str = Molecule.to_string mol in
-    print_endline str;;
-
-  print_prot prot2;;
-    print_prot prot3;;
-
+  let str = Molecule.to_string mol in
+  print_endline str;
   
-let bact = Bacterie.empty;;
-  
-  Bacterie.add_proteine prot2 bact;;
-    Bacterie.add_proteine prot3 bact;;
+    in
+    print_prot prot2;
+    print_prot prot3;
+    
+    
+    let make_bact () =
+      let bact =Bacterie.empty in
       
-go_bact_interface bact;;
+      Bacterie.add_proteine prot2 bact;
+      Bacterie.add_proteine prot3 bact;
+      bact
+    in
+    go_bact_interface (make_bact ())
+         

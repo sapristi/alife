@@ -68,7 +68,7 @@ class PNetFrame(tk.Frame):
         self.petriImage_cv = tk.Canvas(petriImage_frame)
         self.petriImage_cv.pack()
 
-        petriImage_frame.pack()
+        petriImage_frame.grid(row=0, column=0)
 
         
         #boutons gestion simuls
@@ -80,17 +80,11 @@ class PNetFrame(tk.Frame):
         self.transition_svar.set("...")
         self.select_trans_l = tk.OptionMenu(button_frame, self.transition_svar, "...")
         self.select_trans_l.pack(side="bottom")
-        button_frame.pack()
+        button_frame.grid(row=1, column=0)
 
 
-        tokens_frame = tk.LabelFrame(self, text = "Tokens")
-        self.tokens_svar = tk.StringVar(button_frame)
-        self.tokens_svar.set("...")
-        self.select_token_l = tk.OptionMenu(tokens_frame, self.transition_svar, "...")
-        self.select_token.pack()
-        self.exam_token_button = tk.Button(tokens_frame, text = "Examine token", command = self.examine_token)
-        self.exam_token_button.pack()
-        tokens_frame.pack()
+        self.tokens_frame = tk.LabelFrame(self, text = "Tokens")
+        self.tokens_frame.grid(row=0, column=1)
 
     def examine_token(self):
         print("todo")
@@ -119,3 +113,30 @@ class PNetFrame(tk.Frame):
             width = self.petriImage_img.width(),
             height = self.petriImage_img.height())
         self.petriImage_cv.create_image(0,0,anchor="nw", image=self.petriImage_img)
+
+
+        for child in self.tokens_frame.winfo_children():
+            child.pack_forget()
+            child.destroy()
+            
+        places = self.pnet_data["places"]
+        tokens = [place["token"] for place in places if place["token"] != "no token"]
+        
+        for token in tokens:
+            t_frame = self.make_token_frame(self.tokens_frame, token["id"], None, None)
+            t_frame.pack()
+
+        
+    def make_token_frame(self, root, tid, mol1 = None, mol2 = None):
+        tframe = tk.Frame(root)
+        id_label = tk.Label(tframe, text = "id : " + str(tid))
+        id_label.grid(row = 0, column = 0)
+        if not mol1 == None:
+            mol1_label = tk.Label(tframe, text = mol1)
+            mol2_label = tk.Label(tframe, text = mol2)
+            mol1_label.grid(row=0, column = 1)
+            mol1_label.grid(row=1, column = 2)
+        else:
+            nomol_label = tk.Label(tframe, text = "Empty token")
+            nomol_label.grid(row = 0, column = 1)
+        return tframe

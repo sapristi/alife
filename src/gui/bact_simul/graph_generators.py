@@ -34,23 +34,43 @@ class PetriGraph(Digraph):
 
         temp_place = None
         # crée les nœuds correspondant aux places, et des arcs entre celles-ci
-        for i, val in enumerate(desc["places"]):
-            self.node('p'+str(i), "{place" + str(val["id"]) + "|" + str(val["token"]) + "}", shape="record")
+        for i, place in enumerate(desc["places"]):
+            if place["token"] == "no token":
+                shape = "circle"
+                label = ""
+            else:
+                shape = "doublecircle"
+                label = str(place["token"]["id"])
 
-            if i>0:
-                self.edge('p'+str(i-1), 'p'+str(i), constraint = "false")
+            self.node('p'+str(i), label = label, shape=shape)
+
             
         # ajoute les nœuds correspondant aux transitions, et les arcs correspondants 
-        for i, val in enumerate(desc["transitions"]):
+        for i, transition in enumerate(desc["transitions"]):
             if i in self.desc["launchables"]:
                 color = "red"
             else :
                 color = "black"
-            
+                
             tname = 't'+str(i)
-            self.node(tname, color = color)
-            for valbis in val["dep_places"]:
-                self.edge('p'+str(valbis[0]), tname, color = color)
+            self.node(tname, color = color, shape = "rectangle")
+            print(str(transition))
+            for node_id, trans_t in transition["dep_places"].items():
+                if trans_t[0] == "Regular_ilink":
+                    label = "reg"
+                elif trans_t[0] == "Split_ilink":
+                    label = "split"
+                elif trans_t[0] == "Filter_ilink":
+                    label = "filter " + trans_t[1]
+                
+                self.edge('p'+str(node_id), tname, color = color, label = label)
 
-            for valbis in val["arr_places"]:
-                self.edge(tname, 'p'+str(valbis[0]), color = color)
+            for node_id, trans_t in transition["arr_places"].items():
+                if trans_t[0] == "Regular_olink":
+                    label = "reg"
+                elif trans_t[0] == "Bind_olink":
+                    label = "bind"
+                elif trans_t[0] == "Release_olink":
+                    label = "release " + trans_t[1]
+                    
+                self.edge(tname, 'p'+str(node_id), color = color, label = label)
