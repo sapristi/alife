@@ -9,6 +9,7 @@ import tkinter as tk
 from bact_frame import BactFrame
 from mol_examine_frame import MolFrame
 from pnet_simul_frame import PNetFrame
+from prot_synthesis_frame import ProtSynthFrame
 # * NetworkClient
 # Hooks between server communication and internal functions
 
@@ -106,6 +107,9 @@ class MainApp(tk.Frame):
         name = mol_desc["mol"] + "_pnet_simul"
         self.components[name] = PNetFrame(simulWindow, mol_desc["mol"], self, name)
 
+    def open_synth_window(self):
+        synthWindow = tk.Toplevel()
+        self.components["synthWindow"] = ProtSynthFrame(synthWindow, self)
         
     def createWidgets(self):
         tk.Button(self, text="Connect", command=self.connect).grid(row = 0, column = 0)

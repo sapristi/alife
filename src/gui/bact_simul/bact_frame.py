@@ -52,7 +52,6 @@ class BactFrame(tk.Frame):
         
         stepSimulEvalCatch_button = tk.Button(self.stepSimul_frame, text = "eval catch", command = self.todo)
         stepSimulSimulProts_button = tk.Button(self.stepSimul_frame, text = "simul prots", command = self.todo)
-        
 
         stepSimulEvalCatch_button.grid(row = 1)
         stepSimulSimulProts_button.grid(row = 2)
@@ -65,10 +64,12 @@ class BactFrame(tk.Frame):
         self.molList_listbox = tk.Listbox(self.molList_frame)
         molExamine_button = tk.Button(self.molList_frame, text = "examine", command = self.examine_mol)
         pnetSimul_button = tk.Button(self.molList_frame, text = "simulate", command = self.simule_pnet)
+        molSynth_button = tk.Button(self.molList_frame, text = "Mol Synthesis", command = self.open_synth_window)
         
         self.molList_listbox.pack()
         molExamine_button.pack()
         pnetSimul_button.pack()
+        molSynth_button.pack()
         
         #pack final
         self.button_frame.pack(side="left")
@@ -90,6 +91,10 @@ class BactFrame(tk.Frame):
         molID = self.molList_listbox.curselection()[0]
         mol_desc = self.bactery_data["molecules list"][molID]
         self.mainApp.simule_pnet(mol_desc)
+
+    def open_synth_window(self):
+        self.mainApp.open_synth_window()
+
         
     def enable_frame(self, frame):
         for child in frame.winfo_children():
