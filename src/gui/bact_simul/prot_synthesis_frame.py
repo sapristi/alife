@@ -23,7 +23,18 @@ class ProtSynthFrame(tk.Frame):
         
         self.root.title("Proteine Synthesis")
 
+    def recv_msg(self, msg):
+        if msg["purpose"] == "mol desc":
+            self.mol_text.delete("1.0", tk.END)
+            self.mol_text.insert("1.0", msg["data"])
 
+        elif msg["purpose"] == "prot desc":
+            self.prot_text.delete("1.0", tk.END)
+            self.prot_text.insert("1.0", msg["data"])
+
+        else:
+            print(msg["purpose"])
+        
     def createWidgets(self):
         texts_frame = tk.Frame(self)
         texts_frame.grid(row=0, column = 0)
@@ -56,10 +67,22 @@ class ProtSynthFrame(tk.Frame):
         load_button.grid(column = 2)
         
     def prot_to_mol(self):
-        print("todo")
+        mol_desc = self.prot_text.get("1.0", tk.END)
+        self.host.nc.send_request(
+            json.dumps({"command" : "prot of mol",
+                        "return target" : self.instance_name,
+                        "data" : mol_desc}
+            ))
+
 
     def mol_to_prot(self):
-        print("todo")
+        prot_desc = self.mol_text.get("1.0", tk.END)
+        self.host.nc.send_request(
+            json.dumps({"command" : "mol of prot",
+                        "return target" : self.instance_name,
+                        "data" : prot_desc}
+            ))
+
 
     def add_mol(self):
         print("todo")

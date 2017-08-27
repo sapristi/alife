@@ -117,6 +117,51 @@ let make_bact_interface bact ic oc =
     flush oc;
     print_endline to_send;
     print_endline "data for mol simul sent";
+
+
+  and mol_of_prot json_command =
+    let data_json = Yojson.Safe.Util.member "data" json_command in
+    let prot_or_error = Proteine.of_yojson data_json in
+    match prot_or_error with
+    | Ok prot ->
+       let mol = Proteine.to_molecule prot in
+       let mol_json = `String (Molecule.to_string mol) in
+       let to_send_json =
+         `Assoc
+          ["target", Yojson.Safe.Util.member "return target" json_command;
+           "purpose", `String "mol desc";
+           "data", mol_json]
+         
+       in
+       let to_send = Yojson.Safe.to_string to_send_json in
+       output_string oc to_send;
+       flush oc;
+       print_endline to_send;
+       print_endline "data for mol of prot sent";
+    | Error s -> 
+       print_endline ("error : "^s)
+      
+  and prot_of_mol json_command =
+    let data_json = Yojson.Safe.Util.member "data" json_command in
+    let mol_str = Yojson.Safe.Util.to_string data_json in
+    let mol = Molecule.string_to_acid_list mol_str in
+
+    let prot = Proteine.from_mol mol in
+    let prot_json = Proteine.to_yojson prot in
+    
+    let to_send_json =
+      `Assoc
+       ["target", Yojson.Safe.Util.member "return target" json_command;
+        "purpose", `String "prot desc";
+        "data", prot_json]
+         
+    in
+    let to_send = Yojson.Safe.to_string to_send_json in
+    output_string oc to_send;
+    flush oc;
+    print_endline to_send;
+    print_endline "data for prot of mol sent";
+
   in
 
   let main_loop () = 
@@ -143,7 +188,14 @@ let make_bact_interface bact ic oc =
         
         else if command = "\"launch transition\""
         then launch_transition json_message
+
+        else if command = "\"prot of mol\""
+        then prot_of_mol json_message
         
+        else if command = "\"mol of prot\""
+        then mol_of_prot json_message
+
+        else Printf.printf "did not recognize command"
       )
     done
 (*  with _ -> Printf.printf "End of text\n" ; flush stdout ; exit 0 ;;*)
