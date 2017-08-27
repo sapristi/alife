@@ -104,8 +104,22 @@ Library "bact_simul_serveur"
   BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome
 
 
+Library "mol_simul_serveur"
+  Path: src/gui/mol_simul
+  Modules: Mol_simul_serveur
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome
+
+
 Executable "bact_test"
   Path : src/
   MainIs : bact_test.ml
   BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bact_simul_serveur
+  ByteOpt:  -g
+
+
+
+Executable "mol_test"
+  Path : src/
+  MainIs : mol_test.ml
+  BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, mol_simul_serveur
   ByteOpt:  -g

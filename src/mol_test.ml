@@ -1,20 +1,21 @@
+
 open Molecule.Molecule;;
-open Molecule.AcidTypes;;
-open Proteine;;
+open Acid_types.AcidTypes;;
+open Proteine.Proteine;;
 open Mol_simul_serveur;;
+open Petri_net
+  
+let prot2 = [
+    Node Regular_place; Extension Init_with_token_ext; TransitionInput ("a", Regular_ilink); Node Regular_place; TransitionOutput ("a", Regular_olink);
+    Node Regular_place; Extension Init_with_token_ext;];;
 
   
-let mol2 = [
-    Node Regular_place; Extension Init_with_token; TransitionInput ("a", Regular_ilink); Node Regular_place; TransitionOutput ("a", Regular_olink);
-    Node Regular_place; Extension Init_with_token;];;
-
-  
-let prot2 = Proteine.make mol2;;
+let pnet2 = PetriNet.make_from_prot prot2;;
 
 
-let mol3 = [
+let prot3 = [
     Node Regular_place;
-    Extension Init_with_token;
+    Extension Init_with_token_ext;
     TransitionInput ("a", Regular_ilink);
     TransitionInput ("b", Regular_ilink);
     
@@ -27,6 +28,8 @@ let mol3 = [
 
   ];;
 
-let prot3 = Proteine.make mol3;;
+let pnet3 = PetriNet.make_from_prot prot3;;
   
-go_prot_interface prot2;;
+go_prot_interface pnet2;;
+
+ 

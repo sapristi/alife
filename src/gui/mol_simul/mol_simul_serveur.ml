@@ -1,6 +1,7 @@
 open Proteine
 open Molecule
-  
+open Petri_net
+
 let get_my_addr () =
   (Unix.gethostbyname(Unix.gethostname())).Unix.h_addr_list.(0) ;;
 
@@ -26,8 +27,8 @@ let make_server server_fun port =
 
 
 
-let make_prot_interface (prot : Proteine.t) ic oc  =
-  let p = ref prot in 
+let make_prot_interface (pnet : PetriNet.t) ic oc  =
+  let p = ref pnet in 
   try while true do
       let s = input_line ic in
       let json_command = Yojson.Basic.from_string s in
@@ -38,7 +39,7 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	then
 	  (
 	    print_endline "asking for initdata; sending...";
-	    let json_data = `Assoc ["initdata", (Proteine.to_json !p)] in
+	    let json_data = `Assoc ["initdata", (PetriNet.to_json !p)] in
 	    let to_send = Yojson.Safe.to_string json_data in
 
             
@@ -53,7 +54,7 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	then
 	  (
 	    print_endline "asking for updatedata; sending...";
-	    let json_data = `Assoc ["updatedata", (Proteine.to_json_update !p)] in 
+	    let json_data = `Assoc ["updatedata", (PetriNet.to_json_update !p)] in 
 	    let to_send = Yojson.Safe.to_string json_data in
 
             print_endline "sending update data ...";
@@ -73,9 +74,9 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
             then
               begin
                 print_endline("launching transition "^(string_of_int tId)); 
-	        Proteine.launch_transition tId !p;
-	        Proteine.update_launchables !p;
-	        print_endline (Yojson.Safe.to_string (Proteine.to_json_update !p));
+	        PetriNet.launch_transition tId !p;
+	        PetriNet.update_launchables !p;
+	        print_endline (Yojson.Safe.to_string (PetriNet.to_json_update !p));
 	        
 	        let json_data = `Assoc ["transition_launch", `Bool true] in
 	        let to_send = Yojson.Safe.to_string json_data in
@@ -89,21 +90,21 @@ let make_prot_interface (prot : Proteine.t) ic oc  =
 	else if command = "new_mol"
 	then
 	  (
-	    print_endline "received new molecule, decoding..."; 
+	    print_endline "received new prot, decoding..."; 
 	    try 
-	      let new_mol_str = Bytes.to_string (json_command |> Yojson.Basic.Util.member "arg" |> Yojson.Basic.Util.to_string) in 
-	      print_endline new_mol_str;
-              let new_mol_json =  Yojson.Safe.from_string new_mol_str in
+	      let new_prot_str = Bytes.to_string (json_command |> Yojson.Basic.Util.member "arg" |> Yojson.Basic.Util.to_string) in 
+	      print_endline new_prot_str;
+              let new_mol_json =  Yojson.Safe.from_string new_prot_str in
 
               print_endline  (Yojson.Safe.to_string new_mol_json);
               
-	      let new_mol = Molecule.of_yojson new_mol_json in
-	      match new_mol with
-              | Ok mol ->
+	      let new_prot = Proteine.of_yojson new_mol_json in
+	      match new_prot with
+              | Ok prot ->
 	         (
-	           p := Proteine.make mol;
+	           p := PetriNet.make_from_prot prot;
 	           print_endline "new mol decoded, sending new initdata to client...";
-	           let json_data = `Assoc ["initdata", (Proteine.to_json !p)] in
+	           let json_data = `Assoc ["initdata", (PetriNet.to_json !p)] in
 	           let to_send = Yojson.Safe.to_string json_data in
 	           output_string oc to_send;
 	           flush oc;

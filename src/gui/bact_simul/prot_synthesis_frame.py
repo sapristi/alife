@@ -60,30 +60,35 @@ class ProtSynthFrame(tk.Frame):
 
         #buttons_frame
         add_mol_button = tk.Button(buttons_frame,  text = "Add mol to bactery", command = self.add_mol)
+        gen_graphs_button = tk.Button(buttons_frame,  text = "Gen graphs", command = self.gen_graphs)
         save_button = tk.Button(buttons_frame,  text = "Save", command = self.save)
         load_button = tk.Button(buttons_frame,  text = "Load", command = self.load)
         add_mol_button.grid(column = 0)
         save_button.grid(column = 1)
         load_button.grid(column = 2)
         
-    def prot_to_mol(self):
-        mol_desc = self.prot_text.get("1.0", tk.END)
+    def mol_to_prot(self):
+        mol_desc = self.mol_text.get("1.0", tk.END).replace("'",'"')
+        mol_desc_json = json.dumps(mol_desc)
         self.host.nc.send_request(
             json.dumps({"command" : "prot of mol",
                         "return target" : self.instance_name,
-                        "data" : mol_desc}
+                        "data" : mol_desc_json}
             ))
 
 
-    def mol_to_prot(self):
-        prot_desc = self.mol_text.get("1.0", tk.END)
+    def prot_to_mol(self):
+        prot_desc = self.prot_text.get("1.0", tk.END).replace("'",'"')
+        prot_desc_json = json.dumps(prot_desc)
         self.host.nc.send_request(
             json.dumps({"command" : "mol of prot",
                         "return target" : self.instance_name,
-                        "data" : prot_desc}
+                        "data" : prot_desc_json}
             ))
 
-
+    def gen_graphs(self):
+        print("todo")
+        
     def add_mol(self):
         print("todo")
     
