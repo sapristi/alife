@@ -683,8 +683,6 @@ Quelques idées :
 ** v0.0.1
 *** DONE reconstruire les types d'acides
 *** TODO définir et utiliser une convention de nommage qui sépare clairement les noms de types/noms de variables/noms de modules
-*** TODO documenter et implémenter ce qui découle de la nouvelle implémentation des acides
-*** TODO améliorer l'interface client (et donc la transformation en json)
-*** TODO réimplémenter les dictionnaires d'une protéine pour simuler des réactions
-
+*** TODO mettre le protocole de communication dans un fichier de configuration lu à la fois par le client et le serveur
+*** TODO améliorer le protocole pour unifier les fonctions qui génèrent des données
 

@@ -24,18 +24,16 @@ class ProtSynthFrame(tk.Frame):
         self.root.title("Proteine Synthesis")
 
     def recv_msg(self, msg):
-        if msg["purpose"] == "mol desc":
+        if msg["purpose"] == "from prot":
             self.mol_text.delete("1.0", tk.END)
-            self.mol_text.insert("1.0", msg["data"])
-
-        elif msg["purpose"] == "prot desc":
+            self.mol_text.insert("1.0", msg["data"]["mol"])
+            prot_desc = json.loads(self.prot_text.get("1.0", tk.END))
+            self.setup_graphs(prot_desc, msg["data"]["pnet"])
+        elif msg["purpose"] == "from mol":
             self.prot_text.delete("1.0", tk.END)
-            self.prot_text.insert("1.0", msg["data"])
-            
-        elif msg["purpose"] == "pnet desc":
-            mol_desc = json.loads(self.prot_text.get("1.0", tk.END))
-            self.setup_graphs(mol_desc, msg["data"])
-
+            self.prot_text.insert("1.0", msg["data"]["prot"])
+            self.setup_graphs(msg["data"]["prot"], msg["data"]["pnet"])
+        
         else:
             print(msg["purpose"])
         
@@ -49,14 +47,16 @@ class ProtSynthFrame(tk.Frame):
 
         # texts_frame
         self.mol_text = tk.Text(texts_frame, height = 5)
-        self.prot_text = tk.Text(texts_frame, height = 10)
-        self.mol_text.grid(row = 0, column = 0, columnspan=2)
-        self.prot_text.grid(row = 2, column = 0, columnspan=2)
+        from_mol_button = tk.Button(texts_frame, text = "→", command = self.from_mol)
 
-        prot_to_mol_button = tk.Button(texts_frame, text = "↑", command = self.prot_to_mol)
-        mol_to_prot_button = tk.Button(texts_frame, text = "↓", command = self.mol_to_prot)
-        prot_to_mol_button.grid(row = 1, column = 1)
-        mol_to_prot_button.grid(row = 1, column = 0)
+        self.prot_text = tk.Text(texts_frame, height = 10)
+        from_prot_button = tk.Button(texts_frame, text = "→", command = self.from_prot)
+
+        self.mol_text.grid(row = 0, column = 0)
+        from_mol_button.grid(row = 0, column = 1)
+        self.prot_text.grid(row = 1, column = 0)
+        from_prot_button.grid(row = 1, column = 1)
+        
 
         # images_frame                        
         self.petriImage_cv = tk.Canvas(images_frame)
@@ -74,20 +74,20 @@ class ProtSynthFrame(tk.Frame):
         save_button.grid(column = 2, row = 0)
         load_button.grid(column = 3, row = 0)
         
-    def mol_to_prot(self):
+    def from_mol(self):
         mol_desc = self.mol_text.get("1.0", tk.END).strip("\n")
         mol_desc_json = json.dumps(mol_desc)
         self.host.nc.send_request(
-            json.dumps({"command" : "prot of mol",
+            json.dumps({"command" : "gen from mol",
                         "return target" : self.instance_name,
                         "data" : mol_desc_json}
             ))
 
 
-    def prot_to_mol(self):
+    def from_prot(self):
         prot_desc = self.prot_text.get("1.0", tk.END).strip("\n")
         self.host.nc.send_request(
-            json.dumps({"command" : "mol of prot",
+            json.dumps({"command" : "gen from prot",
                         "return target" : self.instance_name,
                         "data" : prot_desc}
             ))
