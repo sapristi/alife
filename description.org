@@ -660,6 +660,14 @@ Quelques idées :
    interface permettant de simuler une membrane. On peut imaginer
    différentes interfaces, avec différents niveaux de « difficulté ».
 
+*** Énergie
+    Les tokens peuvent être un bon moyen de gérer les échanges énergétiques.
+    Le mieux serait sans-doute de faire comme en vrai, c'est à dire
+    qu'établir un liaison coûte de l'énergie, qui est libérée lorsque la 
+    liaison est rompue. Ça implique de modifier un peu le condition 
+    de grab et de catch/bind, mais ça devrait se faire pas trop difficilement.
+    On peut aussi penser à faire des transferts d'énergie entre une protéine
+    et la molécule grabée.
 *** Dans un futur lointain
 
     Pour que les bactéries puissent avoir un comportement efficace, il 
@@ -672,6 +680,8 @@ Quelques idées :
     par mourir ?
     (par exemple : problème de transition, problème lors du décalage
     d'une molécule à l'intérieur d'
+
+    
 * Stuff to do
   
 ** DONE v0.0.0
