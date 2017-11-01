@@ -207,6 +207,29 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
  + les transitions font partie de la structure du réseau de pétri, au contraire des autres extensions
  + ça permet de construire le réseau sans avoir à connaitre l'implémentation particulière des types
 
+**** Arguments pour le réseau de pétri
+
+Les réseaux de pétri forment donc le modèle de calcul utilisé par
+les bactéries pour fonctionner, interagir et se dupliquer.
+
+Nous allons ici développer quelques arguments pour soutenir 
+ce choix.
+ 
+ + Le réseau de pétri est formé de manière non linéaire à partir d'une 
+   liste d'acides. Cela devrait le rendre peu vulnérable à des 
+   modifications mineurs de la liste d'acides formant la protéine.
+
+   Reste cependant le fait que les protéines sont formées à partir 
+   d'une liste d'atomes, qui est elle sensible à des variations locales.
+
+ + Du fait de sa forme de graphe, le réseau de pétri peut être associé
+   à une certaine spatialité. Par exemple, une protéine connectée à
+   la membrane peut avoir une partie à l'intérieur, et une autre partie
+   à l'extérieur de la membrane.
+
+ + On peut sans trop de difficultés connecter des réseaux de pétri 
+   entre eux (bind/catch), permettant d'étendre leur fonctionnalités,
+   ainsi que de créer des *membranes*.
 
 *** Modèle pour le réseau de pétri
 
@@ -341,7 +364,7 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 
 
 		 
-**** Transitions du réseau de pétri
+**** Gestion des transitions des réseaux de pétri
 
      On peut organiser la répartition du temps de calcul (= nb de transitions
      lancées) entre les protéines de diverses manières
@@ -356,21 +379,51 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 
 ** Processus de reflexion sur comment faire avancer le schmilblick en cours
 
+*** Atomes et molécules
 
+    Les atomes sont les briques de base pour construire des molécules.
+    Il y a pour l'instant quatre types d'atomes, dont les séquences 
+    dans une molécule sont interprétées pour former les acides des
+    protéines.
+
+**** Utilisation actuelle
+
+     Pour l'instant, on lit une séquence d'atomes par groupes de 3.
+     Quand une séquence formant un acide est reconnue, on ajoute cet 
+     acide à la protéine, et on passe à la séquence de trois atomes 
+     suivants.
+
+     Si la séquence n'est pas reconnue, on décalle d'un atome 
+     (l'atome en plus est donc ignoré dans la formation de la protéine).
+
+***** Informations supplémentaires
+
+     Certains acides ont besoin d'information supplémentaire, qui est 
+     lue dans la suite d'atomes, jusqu'à atteindre une séquence d'arrêt 
+     (pour l'instant trois atomes D à la suite).
+
+     Ce type de séquence est aussi utilisé pour générer les 
+     expressions régulières des grabers, il faut donc avoir un 
+     système cohérent.
+     
 *** Interactions entre proteines
 
     Les protéines sont sensés pouvoir interagir entre elles, notemment
     en s'attrappant les une les autres. 
-    Le modèle de départ suppose qu'on peut attrapper une protéine dès lors
-    qu'une des places contient une extension « Handle » (avec une certaine clé)
+    Le modèle de départ suppose qu'on peut attrapper une protéine dès
+    lors qu'une des places contient une extension « Handle » (avec une 
+    certaine clé)
+    
     Problème : comment attrapper un simple acide ?
-    (oui c'est très problèmatique si on veut fabriquer de nouvelles molécules)
+    (oui c'est très problèmatique si on veut fabriquer de nouvelles 
+    molécules)
 
     Pour résoudre ça, on crée un niveau en dessous : une molécule est 
-    une liste d'atomes, qui vont être interprétés en acides puis en protéines.
+    une liste d'atomes, qui vont être interprétés en acides puis en 
+    protéines.
 
-    Une protéine pourra alors disposer d'un site qui attrappe une molécule,
-    en la reconnaissant avec une expression régulière.
+    Une protéine pourra alors disposer d'un site qui attrappe une 
+    molécule, en la reconnaissant avec une expression régulière.
 
 **** Conséquences de ce modèle
      Un problème est que cela ajoute un niveau d'interprétation dans 
@@ -381,8 +434,8 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
      d'acides qui se baladent dans la nature (sans parler de tous 
      les identifiants dont on a besoin).
      
-     Reste à savoir comment organiser pratiquement tout ça pour que ça reste 
-     cohérent, pratique et joli.
+     Reste à savoir comment organiser pratiquement tout ça pour que ça 
+     reste cohérent, pratique et joli.
      
 
 ***** Molécule linéaire
@@ -397,85 +450,39 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
       
 ***** Molécule sous forme de graphe
       
-     Ce qui serait joli, ce serait d'avoir des connecteurs (à deux ou trois 
-     branches), et des morceaux d'information, mais plus compliqué à 
-     manipuler; il pourrait être intéressant de comparer avec une 
-     structure linéaire pour les molécules.
-     
+     Ce qui serait joli, ce serait d'avoir des connecteurs (à deux ou 
+     trois branches), et des morceaux d'information, mais plus 
+     compliqué à manipuler; il pourrait être intéressant de comparer 
+     avec une structure linéaire pour les molécules.
 
 **** Un autre type de réaction
 
      On peut garder un système de poignées et de sites qui attrappent 
-     des poignées, mais avec un autre effet: au lieu d'avoir une protéine
-     qui capture et une molécule capturée, les deux protéines seront 
-     « liées », en joignant par exemple les deux réseaux de pétri.
+     des poignées, mais avec un autre effet: au lieu d'avoir une 
+     protéine qui capture et une molécule capturée, les deux protéines 
+     seront « liées », en joignant par exemple les deux réseaux de 
+     pétri.
 
 *** Membrane
 
     La membrane est une partie essentielle d'une bactérie, puisqu'elle 
     la définit en établissant une barrière avec le monde extérieur.
 
-    Pour l'implémentation d'une membrane, les fonctionnalités désirées sont :
-     + Permettre à la bactérie de réguler les entrées/sorties de molécules
+    Pour l'implémentation d'une membrane, les fonctionnalités désirées 
+    sont :
+     + Permettre à la bactérie de réguler les entrées/sorties de 
+     molécules
      + Établir une barrière /difficile/ à franchir pour les molécules
        extérieures non désirées.
-     + Avoir un taille nécéssaire en fonction de la quantité de molécules
-       présentes, sous risque d'effets néfastes.
+     + Avoir un taille nécéssaire en fonction de la quantité de 
+     molécules présentes, sous risque d'effets néfastes.
     
     Idée : Implémenter dans les cellules deux bornes qui doivent 
     être reliées par un certain nombre de protéines.
     (il faut que les protéines puissent se lier entre elles avec 
     des catch/bind)
 
-*** Dans le fichier petri_net.ml
-
-    On simule l'avancement d'un réseau de Petri.
-
-    Le réseau de Petri est étendu de manière à pouvoir générer les
-    comportements suivants :
-     + Attraper / relacher une molécule
-     + Découper une molécule
-     + Coller ensemble deux molécules
-     + Parcourir une molécule, pour :
-        - lire les données qu'elle contient
-        - se placer au bon endroit pour la découper
-     + Envoyer des messages
-     + Recevoir des messages (qui vont modifier le comportement)
-     + (Transmettre de l'information)
-
-
-    L'idée est de pouvoir associer une molécule M1 (et un emplacement 
-    de cette molécule) à un jeton (placé sur une autre molécule M2).
-    Une transition de M2 pourra alors découper cette molécule M1 à 
-    l'emplacement spécifié. Il faudra alors que deux arcs sortant 
-    associent une molécule à leur jeton pour garder les deux parties 
-    coupées M1' et M1''. Au contraire, si deux arcs entrants ont des 
-    jetons qui contiennent une molécule, on pourra les recoller 
-    ensemble.
-
-    On peut aussi essayer de faire la même chose avec des morceaux 
-    d'information associées aux jetons, je ne sais pas si c'est 
-    vraiment utile.
-    
-    Pour attraper une molécule ou recevoir un message, l'idée serait 
-    d'avoir une propriété sur les noeuds qui leur permettent de créer 
-    un jeton en attrapant une molécule ou en recevant un message.
-
-
-    Une autre propriété associée aux jetons serait une énergie, mais je 
-    ne sais pas encore bien quel rôle lui attribuer. En fait si, il 
-    faudrait que recoller deux molécules entre elles demande de 
-    l'énergie, et que les séparer en libère.
-
-
-    Pour l'instant, l'énergie sert à rien, et on la gère un peu 
-    n'importe comment. En fait on va la virer, ce sera un peu plus 
-    propre.
-
-    Par contre, il faudrait peut-être arriver à mettre un ordre un peu 
-    plus déterminé sur la façon dont les arcs des transitions se 
-    combinent.
-
+*** Fonctionnement des proteines : des réseaux de pétri
 *** Ribosome
 
     Un ribosome est une protéine qui lit un code génétique (ADN) et 
@@ -599,9 +606,9 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 **** Modèle 1
 
 *** Bacterie
-    Une bacterie contient des molécules. Pour chaque molecule, on connait
-    le nombre présent, et on simule une unique forme protéinée pour 
-    toutes les molécules du même type.
+    Une bacterie contient des molécules. Pour chaque molecule, on 
+    connait le nombre présent, et on simule une unique forme protéinée 
+    pour toutes les molécules du même type.
 ****** Note : on pourrait imaginer d'autres formes d'interprétation :
       + fonction (par ex log) du nombre de mols
        + ou autre.
@@ -624,28 +631,28 @@ Est-ce qu'on définit un unique type extension (qui contient les transitions) ou
 
 **** Résolution des catch/bind
 
-On calcule combien de bind sont effectués.
+     On calcule combien de bind sont effectués.
 
-Pour le déroulé du bind en lui même, on peut aussi avoir
-plusieurs choix :
- + Le bind crée un token
- + Le bind peut seulement se dérouler si un token vide
-   se trouve sur la place avec le catcher
- + Si un token occupé par une molécule se trouve sur la
- place, la molécule est remplacée, ou alors une des deux 
- au hasard.
+     Pour le déroulé du bind en lui même, on peut aussi avoir
+     plusieurs choix :
+       + Le bind crée un token
+       + Le bind peut seulement se dérouler si un token vide
+       se trouve sur la place avec le catcher
+       + Si un token occupé par une molécule se trouve sur la
+       place, la molécule est remplacée, ou alors une des deux 
+       au hasard.
 
 
 ****** Note : du coup pour le simulateur
-On calcule les catch/bind, puis
-on attribue à chaque molécule un certain
-nb de transitions. On peut alors soit
-observer les transitions de chaque molécule,
-soit tout exécuter, etc.
+       On calcule les catch/bind, puis
+       on attribue à chaque molécule un certain
+       nb de transitions. On peut alors soit
+       observer les transitions de chaque molécule,
+       soit tout exécuter, etc.
 
 *** Le monde
 
-Quelques idées : 
+    Quelques idées : 
  + les bactéries peuvent se duppliquer sans restriction physique.
    À chaque nouvelle bactérie créée on attribue une certaines
    distribution des différentes ressources (acides aminés ?)
@@ -661,13 +668,14 @@ Quelques idées :
    différentes interfaces, avec différents niveaux de « difficulté ».
 
 *** Énergie
-    Les tokens peuvent être un bon moyen de gérer les échanges énergétiques.
-    Le mieux serait sans-doute de faire comme en vrai, c'est à dire
-    qu'établir un liaison coûte de l'énergie, qui est libérée lorsque la 
-    liaison est rompue. Ça implique de modifier un peu le condition 
-    de grab et de catch/bind, mais ça devrait se faire pas trop difficilement.
-    On peut aussi penser à faire des transferts d'énergie entre une protéine
-    et la molécule grabée.
+    Les tokens peuvent être un bon moyen de gérer les échanges 
+    énergétiques. Le mieux serait sans-doute de faire comme en vrai, 
+    c'est à dire qu'établir un liaison coûte de l'énergie, qui est 
+    libérée lorsque la liaison est rompue. Ça implique de modifier un 
+    peu le condition de grab et de catch/bind, mais ça devrait se faire 
+    pas trop difficilement.
+    On peut aussi penser à faire des transferts d'énergie entre une 
+    protéine et la molécule grabée.
 *** Dans un futur lointain
 
     Pour que les bactéries puissent avoir un comportement efficace, il 

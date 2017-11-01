@@ -23,18 +23,34 @@ open Molecule
 module Graber =
   struct
 
-   
-(* we keep the atom listfrom which the graber was build to easily *)
+(* *** graber type *)
+(* we keep the atom list from which the graber was build to easily *)
 (* transform it back; this feature could be remove in future versions *)
-  type t =
-    { pattern : string;
-      id : Atome.t list}
-             [@@deriving show, yojson]
+type t =
+  { pattern : string;
+    id : Atome.t list}
+           [@@deriving show, yojson]
 
+(* *** grab type : represents the result of a grab tentative  *)
+(*  No_grab means the grab failed *)
+(*  Grab pos means a grab is possible at position pos *)
   type grab =
     | No_grab
     | Grab of int
-            
+
+
+(* *** build_from_atom_list *)
+(*     Transforms a list of atoms into a string representing a regular *)
+(*     expression. *)
+
+(*     Special expressions  *)
+(*      + an atome surrounded by two D atoms :  *)
+(*        the grabing point, that is the place at which the grabed *)
+(*        molecule will be split *)
+
+(*      + two D atoms : *)
+(*        any non-empty sequence of atoms *)
+
   let build_from_atom_list (l : Atome.t list) : t =
     let rec aux l = 
       match l with

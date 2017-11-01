@@ -43,7 +43,6 @@ type acid =
     type t = acid list
                   [@@deriving show, yojson]
                 
-                
 (* *** position type definition *)
 (*     Correspond à un pointeur vers un des acide de la molécule *)
                 
@@ -190,62 +189,73 @@ let build_transitions (prot : t) :
     in
     List.rev (aux prot [])
     
+(* *** build books  *)
+(* Functions used to build references to the handles, catchers and  *)
+(* grabers of a molecule *)
+
+let build_handles_book (prot : t) : (string, int) BatMultiPMap.t =
+  let rec aux prot n map =
+    match prot with
+    | Extension ext :: prot' ->
+       begin
+         match ext with
+         | AcidTypes.Handle_ext hid ->
+            aux prot' (n+1) (BatMultiPMap.add hid n map)
+         | _ -> aux  prot' (n+1) map
+       end
+    | _ :: prot' -> aux prot' (n+1) map
+    | [] -> map
+  in
+  aux prot 0 BatMultiPMap.empty
   
-  let build_handles_book (prot : t) : (string, int) BatMultiPMap.t =
-    let rec aux prot n map =
-      match prot with
-      | Extension ext :: prot' ->
+let build_catchers_book (prot : t) : (string, int) BatMultiPMap.t =
+  let rec aux  prot n map =
+    match prot with
+    | Node _ :: prot' -> aux prot' (n+1) map
+    | Extension ext :: prot' ->
+       if n >= 0
+       then
          begin
            match ext with
            | AcidTypes.Handle_ext hid ->
-              aux prot' (n+1) (BatMultiPMap.add hid n map)
-           | _ -> aux  prot' (n+1) map
+              aux prot' n (BatMultiPMap.add hid n map)
+           | _ -> aux  prot' n map
          end
-      | _ :: prot' -> aux prot' (n+1) map
-      | [] -> map
-    in
-    aux prot 0 BatMultiPMap.empty
-    
-  let build_catchers_book (prot : t) : (string, int) BatMultiPMap.t =
-    let rec aux  prot n map =
-      match prot with
-      | Node _ :: prot' -> aux prot' (n+1) map
-      | Extension ext :: prot' ->
-         if n >= 0
-         then
-           begin
-             match ext with
-             | AcidTypes.Handle_ext hid ->
-                aux prot' n (BatMultiPMap.add hid n map)
-             | _ -> aux  prot' n map
-           end
-         else
-           aux prot' n map
-      | _ :: prot' -> aux prot' n map
-      | [] -> map
-    in
-    aux prot (-1) BatMultiPMap.empty
+       else
+         aux prot' n map
+    | _ :: prot' -> aux prot' n map
+    | [] -> map
+  in
+  aux prot (-1) BatMultiPMap.empty
 
-  let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
-    let rec aux  prot n map =
-      match prot with
-      | Node _ :: prot' -> aux prot' (n+1) map
-      | Extension ext :: prot' ->
-         if n >= 0
-         then
-           begin
-             match ext with
-             | AcidTypes.Grab_ext g ->
-                aux prot' n (BatMultiPMap.add g n map)
-             | _ -> aux  prot' n map
-           end
-         else
-           aux prot' n map
-      | _ :: prot' -> aux prot' n map
-      | [] -> map
-    in
-    aux prot (-1) BatMultiPMap.empty
-(* Used as a descriptor for a molecule *)
+let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
+  let rec aux  prot n map =
+    match prot with
+    | Node _ :: prot' -> aux prot' (n+1) map
+    | Extension ext :: prot' ->
+       if n >= 0
+       then
+         begin
+           match ext with
+           | AcidTypes.Grab_ext g ->
+              aux prot' n (BatMultiPMap.add g n map)
+           | _ -> aux  prot' n map
+         end
+       else
+         aux prot' n map
+    | _ :: prot' -> aux prot' n map
+    | [] -> map
+  in
+  aux prot (-1) BatMultiPMap.empty
+
+
+
+(* *** from_mol *)
+
+(* reads a molecule (list of atoms) to build a proteine (list of acids) *)
+(* An acid is usually depicted using a sequence of  3 atoms, with  *)
+(* possible options encoded with a string following the sequence,  *)
+(* ended with a D atom. *)
 
   let rec from_mol (mol : Molecule.t) : t =
     match mol with
@@ -307,28 +317,31 @@ let build_transitions (prot : t) :
        
     | a :: mol' -> from_mol mol'
     | [] -> []
-  
+
+(* *** to_molecule *)
+(* inverse of the previous function *)          
+
   let rec to_molecule (prot : t) : Molecule.t =
     match prot with
     | Node Regular_place :: prot' ->
        Atome.A::A::A::(to_molecule prot')
     | TransitionInput (s,Regular_ilink) :: prot' ->
-       Atome.B::A::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+       Atome.B::A::A::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
     | TransitionInput (s,Split_ilink) :: prot' ->
-       Atome.B::B::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+       Atome.B::B::A::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
     | TransitionInput (s,(Filter_ilink f)) :: prot' ->
        let a = Atome.of_char (f.[0]) in
-       Atome.B::C::a::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+       Atome.B::C::a::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
     | TransitionOutput (s,Regular_olink) :: prot' ->
-         Atome.C::A::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+         Atome.C::A::A::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
     | TransitionOutput (s,Bind_olink) :: prot' ->
        C::B::A::(to_molecule prot')
     | TransitionOutput (s,Release_olink) :: prot' ->
        C::C::A::(to_molecule prot')
     | Extension (Handle_ext s) :: prot' ->
-       Atome.D::A::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+       Atome.D::A::A::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
     | Extension (Catch_ext s) :: prot' ->
-       Atome.D::B::A::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+       Atome.D::B::A::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
     | Extension Release_ext :: prot' ->
        D::D::A::(to_molecule prot')
     | Extension (Displace_mol_ext true) :: prot' ->
@@ -338,13 +351,14 @@ let build_transitions (prot : t) :
     | Extension Init_with_token_ext :: prot' ->
        D::C::B::(to_molecule prot')
     | Extension (Information_ext s) :: prot' ->
-       Atome.D::D::B::((Molecule.string_to_acid_list s)@[D])@(to_molecule prot')
+       Atome.D::D::B::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
     | Extension (Grab_ext g) :: prot' ->
       D::D::C::((g.id)@(to_molecule prot'))
       
     | [] -> []
           
-           
+(* *** to_string *)
+(* gives a string representation of a molecule *)           
   let rec to_string (prot : t) : string =
     match prot with
     | Node AcidTypes.Regular_place :: prot' -> "N"^(to_string prot')

@@ -1,5 +1,8 @@
-(* tezzre *)
+(* * atome *)
 
+(* Atom are the basic building blocks of the world. *)
+(* There are four types of atom. *)
+(* Atoms can be assembled in a list, to form a molecule. *)
 
 module Atome =
   struct
