@@ -326,22 +326,22 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
     | Node Regular_place :: prot' ->
        Atome.A::A::A::(to_molecule prot')
     | TransitionInput (s,Regular_ilink) :: prot' ->
-       Atome.B::A::A::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
+       Atome.B::A::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | TransitionInput (s,Split_ilink) :: prot' ->
-       Atome.B::B::A::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
+       Atome.B::B::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | TransitionInput (s,(Filter_ilink f)) :: prot' ->
        let a = Atome.of_char (f.[0]) in
-       Atome.B::C::a::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
+       Atome.B::C::a::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | TransitionOutput (s,Regular_olink) :: prot' ->
-         Atome.C::A::A::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
+         Atome.C::A::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | TransitionOutput (s,Bind_olink) :: prot' ->
        C::B::A::(to_molecule prot')
     | TransitionOutput (s,Release_olink) :: prot' ->
        C::C::A::(to_molecule prot')
     | Extension (Handle_ext s) :: prot' ->
-       Atome.D::A::A::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
+       Atome.D::A::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | Extension (Catch_ext s) :: prot' ->
-       Atome.D::B::A::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
+       Atome.D::B::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | Extension Release_ext :: prot' ->
        D::D::A::(to_molecule prot')
     | Extension (Displace_mol_ext true) :: prot' ->
@@ -351,7 +351,7 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
     | Extension Init_with_token_ext :: prot' ->
        D::C::B::(to_molecule prot')
     | Extension (Information_ext s) :: prot' ->
-       Atome.D::D::B::((Molecule.string_to_message_mol s)@[D])@(to_molecule prot')
+       Atome.D::D::B::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | Extension (Grab_ext g) :: prot' ->
       D::D::C::((g.id)@(to_molecule prot'))
       

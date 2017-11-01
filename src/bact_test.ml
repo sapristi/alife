@@ -8,7 +8,8 @@ open Acid_types.AcidTypes
   
 
 let prot2 = [
-    Node Regular_place; Extension Init_with_token_ext; TransitionInput ("A", Regular_ilink); Node Regular_place; TransitionOutput ("A", Regular_olink);
+    Node Regular_place; Extension Init_with_token_ext; TransitionInput ("A", Regular_ilink);
+    Node Regular_place; TransitionOutput ("A", Regular_olink);
     Node Regular_place; Extension Init_with_token_ext;];;
 
 
