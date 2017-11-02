@@ -50,7 +50,7 @@ class BactFrame(tk.Frame):
         self.stepSimul_frame = tk.Frame(self.button_frame)
         stepSimul_rbutton = tk.Radiobutton(self.button_frame, text="Step-simul", variable=self.rbut_v, value=2, command = self.select_stepSimul)
         
-        stepSimulEvalCatch_button = tk.Button(self.stepSimul_frame, text = "eval catch", command = self.todo)
+        stepSimulEvalCatch_button = tk.Button(self.stepSimul_frame, text = "eval catch", command = self.make_reactions)
         stepSimulSimulProts_button = tk.Button(self.stepSimul_frame, text = "simul prots", command = self.todo)
 
         stepSimulEvalCatch_button.grid(row = 1)
@@ -111,6 +111,9 @@ class BactFrame(tk.Frame):
     def select_autoSimul(self):
         self.enable_frame(self.autoSimul_frame)
         self.disable_frame(self.stepSimul_frame)
+
+    def make_reactions(self):
+        self.mainApp.make_reactions()
         
     def autoSimul_launch(self):
         self.todo()

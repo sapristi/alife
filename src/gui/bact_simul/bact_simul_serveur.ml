@@ -1,9 +1,12 @@
+(* * simulation server *)
+
+(* ** preamble*)
 open Proteine
 open Molecule
 open Bacterie
 open Petri_net
 
-
+(* ** barebone server *)
 let get_my_addr () =
   (Unix.gethostbyname(Unix.gethostname())).Unix.h_addr_list.(0) ;;
 
@@ -26,9 +29,14 @@ let make_server server_fun port =
   )
 ;;
 
+(* ** server interface *)
+  
 let make_bact_interface bact ic oc =
+
+(* *** gibinitdata *)
+(* sends the initial simulation data, hardcoded in the program *)
   let gibinitdata () =
-    
+  
     print_endline "asking for initdata; sending...";
     
     let json_data = `Assoc
@@ -37,15 +45,17 @@ let make_bact_interface bact ic oc =
                       "data", (Bacterie.to_json bact)] in
     
     let to_send = Yojson.Safe.to_string json_data in
-
+    
     
     output_string oc to_send;
     flush oc;
     print_endline to_send;
     print_endline "init data sent";
 
+(* *** give_data_for_mol_exam *)
+(* sends the proteine and pnet data associated to a given mol *)
   and give_data_for_mol_exam json_command =
-  
+    
     let data = Yojson.Safe.Util.member "data" json_command in
     let mol_str = Yojson.Safe.Util.to_string data in
     let mol = Molecule.string_to_acid_list mol_str in
@@ -69,7 +79,12 @@ let make_bact_interface bact ic oc =
     flush oc;
     print_endline to_send;
     print_endline "data for mol exam sent";
-    
+
+
+(* *** give_prot_desc_for_simul *)
+(* sends the pnet data associated to a given molThe pnet is created  *)
+(* outside of the bactery, to simulates its transitions outside of  *)
+(* the main simulation *)
   and give_prot_desc_for_simul json_command =
     let data = Yojson.Safe.Util.member "data" json_command in
     let mol_str = Yojson.Safe.Util.to_string data in
@@ -80,9 +95,9 @@ let make_bact_interface bact ic oc =
     
     let to_send_json =
       `Assoc
-       ["target", Yojson.Safe.Util.member "return target" json_command;
-        "purpose", `String "prot desc";
-        "data", pnet_json]
+     ["target", Yojson.Safe.Util.member "return target" json_command;
+      "purpose", `String "prot desc";
+      "data", pnet_json]
       
     in
     let to_send = Yojson.Safe.to_string to_send_json in
@@ -91,6 +106,10 @@ let make_bact_interface bact ic oc =
     print_endline to_send;
     print_endline "data for mol simul sent";
 
+
+    
+(* *** launch_transition *)
+(* launches a given transition of a pnet in the bacteria *)
   and launch_transition json_command =
     let data_json = Yojson.Safe.Util.member "data" json_command in
     let mol_json = Yojson.Safe.Util.member "mol" data_json
@@ -119,60 +138,70 @@ let make_bact_interface bact ic oc =
     print_endline "data for mol simul sent";
 
 
-  and gen_from_prot json_command =
-    let data_json = Yojson.Safe.Util.member "data" json_command in
-    let data_str = Yojson.Safe.Util.to_string data_json in
-    let prot_str = Bytes.to_string data_str in
-    let prot_json = Yojson.Safe.from_string prot_str in
-    let prot_or_error = Proteine.of_yojson prot_json in
-    match prot_or_error with
-    | Ok prot ->
-       let mol = Proteine.to_molecule prot in
-       let mol_json = `String (Molecule.to_string mol) in
-       let pnet = PetriNet.make_from_mol mol in
-       let pnet_json = PetriNet.to_json pnet in
-       let to_send_json =
-         `Assoc
-          ["target", Yojson.Safe.Util.member "return target" json_command;
-           "purpose", `String "from prot";
-           "data",
-           `Assoc ["mol", mol_json; "pnet", pnet_json]]
-         
-       in
-       let to_send = Yojson.Safe.to_string to_send_json in
-       output_string oc to_send;
-       flush oc;
-       print_endline to_send;
-       print_endline "data for mol of prot sent";
-    | Error s -> 
-       print_endline ("error : "^s)
-      
-  and gen_from_mol json_command =
-    let data_json = Yojson.Safe.Util.member "data" json_command in
-    let mol_str = Yojson.Safe.Util.to_string data_json in
-    let mol = Molecule.string_to_acid_list mol_str in
+(* *** gen_from_prot *)
+(* generates the molecule and the pnet associated with a proteine *)
+and gen_from_prot json_command =
+  let data_json = Yojson.Safe.Util.member "data" json_command in
+  let data_str = Yojson.Safe.Util.to_string data_json in
+  let prot_str = Bytes.to_string data_str in
+  let prot_json = Yojson.Safe.from_string prot_str in
+  let prot_or_error = Proteine.of_yojson prot_json in
+  match prot_or_error with
+  | Ok prot ->
+     let mol = Proteine.to_molecule prot in
+     let mol_json = `String (Molecule.to_string mol) in
+     let pnet = PetriNet.make_from_mol mol in
+     let pnet_json = PetriNet.to_json pnet in
+     let to_send_json =
+       `Assoc
+        ["target", Yojson.Safe.Util.member "return target" json_command;
+         "purpose", `String "from prot";
+         "data",
+         `Assoc ["mol", mol_json; "pnet", pnet_json]]
+       
+     in
+     let to_send = Yojson.Safe.to_string to_send_json in
+     output_string oc to_send;
+     flush oc;
+     print_endline to_send;
+     print_endline "data for mol of prot sent";
+  | Error s -> 
+     print_endline ("error : "^s)
+    
+(* *** gen_from_mol *)
+(* generates the proteine and the pnet associated with a molecule *)
+and gen_from_mol json_command =
+  let data_json = Yojson.Safe.Util.member "data" json_command in
+  let mol_str = Yojson.Safe.Util.to_string data_json in
+  let mol = Molecule.string_to_acid_list mol_str in
 
-    let prot = Proteine.from_mol mol in
-    let prot_json = Proteine.to_yojson prot in
-    let pnet = PetriNet.make_from_mol mol in
-    let pnet_json = PetriNet.to_json pnet in
-    let to_send_json =
-      `Assoc
-       ["target", Yojson.Safe.Util.member "return target" json_command;
-        "purpose", `String "from mol";
-        "data",
-        `Assoc ["prot", prot_json; "pnet",pnet_json]]
-         
-    in
-    let to_send = Yojson.Safe.to_string to_send_json in
-    output_string oc to_send;
-    flush oc;
-    print_endline to_send;
-    print_endline "data for prot of mol sent";
+  let prot = Proteine.from_mol mol in
+  let prot_json = Proteine.to_yojson prot in
+  let pnet = PetriNet.make_from_mol mol in
+  let pnet_json = PetriNet.to_json pnet in
+  let to_send_json =
+    `Assoc
+     ["target", Yojson.Safe.Util.member "return target" json_command;
+      "purpose", `String "from mol";
+      "data",
+      `Assoc ["prot", prot_json; "pnet",pnet_json]]
+       
+  in
+  let to_send = Yojson.Safe.to_string to_send_json in
+  output_string oc to_send;
+  flush oc;
+  print_endline to_send;
+  print_endline "data for prot of mol sent";
 
-
+(* *** make_reactions *)
+(* evaluates possibles reactions in the simulation *)
+and make_reactions json_command =
+  ()
+  
   in
 
+(* ** main loop *)
+(* receives and handles messages *)
   let main_loop () = 
     (* try *)
     while true do
@@ -204,12 +233,15 @@ let make_bact_interface bact ic oc =
           else if command = "gen from prot"
           then gen_from_prot json_message
           
+          else if command = "make reactions"
+          then make_reactions json_message
+          
           else Printf.printf "did not recognize command"
         with
         | _ -> Printf.printf "Error treating message"
       )
     done
-(*  with _ -> Printf.printf "End of text\n" ; flush stdout ; exit 0 ;;*)
+      (*  with _ -> Printf.printf "End of text\n" ; flush stdout ; exit 0 ;; *)
 
   in
   main_loop ()
@@ -218,4 +250,3 @@ let make_bact_interface bact ic oc =
           
 let go_bact_interface bact =
   Unix.handle_unix_error make_server (make_bact_interface bact) 1512;;
-  

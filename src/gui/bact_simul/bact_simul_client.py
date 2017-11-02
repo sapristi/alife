@@ -92,6 +92,10 @@ class MainApp(tk.Frame):
         self.nc.send_request(req)
 
 
+    def make_reactions(self):
+        req = json.dumps({"command" : "make reactions", "return target" : "main"})
+        self.nc.send_request(req)
+        
     def init_bactery(self, data):
         self.bactery_data = data
         self.bf.set_data(self.bactery_data)
@@ -110,7 +114,6 @@ class MainApp(tk.Frame):
     def open_synth_window(self):
         synthWindow = tk.Toplevel()
         self.components["synthWindow"] = ProtSynthFrame(synthWindow, self)
-        
     def createWidgets(self):
         tk.Button(self, text="Connect", command=self.connect).grid(row = 0, column = 0)
         tk.Button(self, text="Init", command=self.request_init_data).grid(row = 0, column = 1)
