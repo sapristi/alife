@@ -1,3 +1,4 @@
+
 Name: alife
 Version: 0.1
 Synopsis: Simulating life and stuff
@@ -12,13 +13,14 @@ OASISFormat: 0.4
 BuildTools: ocamlbuild
 Plugins: META (0.4), DevFiles (0.4)
 
+###################################################################
 
 Library "local_libs"
    Path: src/libs
    Modules : Misc_library, Maps
    BuildDepends : batteries
 
-
+####################################################################
 
 Library "atome"	
   FindLibName : atome
@@ -98,15 +100,27 @@ Library "bacterie_libs"
   Modules : Bacterie_libs
 
 
-Library "bact_simul_serveur"
+
+###################################################################
+
+Library "bact_servers"
+  FindlibName : bact_server
+  Path : src/gui/bact_simul
+  Modules : Bact_servers
+
+
+Library "tcp_server"
+  FindLibName : tcp_server
+  FindLibParent : bact_servers
   Path: src/gui/bact_simul
-  Modules: Bact_simul_serveur
+  Modules: Tcp_server
   BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome
 
-
-Library "mol_simul_serveur"
-  Path: src/gui/mol_simul
-  Modules: Mol_simul_serveur
+Library "web_server"
+  FindLibName : web_server
+  FindLibParent : bact_servers
+  Path: src/gui/bact_simul
+  Modules: Web_server
   BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome
 
 
@@ -115,22 +129,23 @@ Library "web_server"
   Modules: Web_server
   BuildDepends: nethttpd
 
-Executable "websrv"
+
+###################################################################
+
+
+Executable "bact_tcp_test"
+  Path : src/
+  MainIs : bact_test.ml
+  BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bact_servers.tcp_server
+  ByteOpt:  -g
+
+Executable "bact_tcp_test"
+  Path : src/
+  MainIs : bact_web_test.ml
+  BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bact_servers.web_server
+  ByteOpt:  -g
+
+Executable "websrv_test"
   Path: src/gui/server/
   MainIs : web_server.ml
   BuildDepends: nethttpd
-
-
-Executable "bact_test"
-  Path : src/
-  MainIs : bact_test.ml
-  BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bact_simul_serveur
-  ByteOpt:  -g
-
-
-
-Executable "mol_test"
-  Path : src/
-  MainIs : mol_test.ml
-  BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, mol_simul_serveur
-  ByteOpt:  -g
