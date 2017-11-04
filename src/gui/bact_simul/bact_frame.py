@@ -13,6 +13,10 @@ class BactFrame(tk.Frame):
         
     def set_data(self, data):
         print("received data, updating mol list")
+        #deletes old items
+        self.molList_listbox.delete(0,tk.END)
+
+        #puts new items
         self.bactery_data = data
         for mol in data["molecules list"]:
             item_name = mol["mol"][0:15]+"(" + str(mol["nb"]) + ")"

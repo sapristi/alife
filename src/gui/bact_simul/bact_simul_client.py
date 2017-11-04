@@ -73,6 +73,9 @@ class MainApp(tk.Frame):
                     if purpose == "bactery_init_desc":
                         print("received bactery initial description")  
                         self.init_bactery(data)
+                    elif purpose == "bactery_update_desc":
+                        print("received bactery updated description")  
+                        self.init_bactery(data)
                     else:
                         print("can't understand purpose of message")
 

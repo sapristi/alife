@@ -110,6 +110,17 @@ Library "mol_simul_serveur"
   BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome
 
 
+Library "web_server"
+  Path: src/gui/server/
+  Modules: Web_server
+  BuildDepends: nethttpd
+
+Executable "websrv"
+  Path: src/gui/server/
+  MainIs : web_server.ml
+  BuildDepends: nethttpd
+
+
 Executable "bact_test"
   Path : src/
   MainIs : bact_test.ml

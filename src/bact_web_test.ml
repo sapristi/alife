@@ -3,11 +3,12 @@ open Proteine;;
 open Proteine;;
 open Petri_net
 open Bacterie;;
-open Bact_simul_serveur;;
+open Web_server;;
 open Acid_types.AcidTypes;;
 open Graber;;
 open Atome.Atome;;
 
+ 
 let prot2 = [
     Node Regular_place; Extension Init_with_token_ext; TransitionInput ("A", Regular_ilink);
     Node Regular_place; TransitionOutput ("A", Regular_olink);
@@ -60,5 +61,9 @@ let print_prot prot =
       Bacterie.add_molecule mol5 bact;
       bact
     in
-    go_bact_interface (make_bact ())
+
+    start_srv handle_req 1512
+
          
+
+   

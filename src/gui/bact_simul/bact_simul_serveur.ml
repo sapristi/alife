@@ -196,8 +196,19 @@ and gen_from_mol json_command =
 (* *** make_reactions *)
 (* evaluates possibles reactions in the simulation *)
 and make_reactions json_command =
-  ()
-  
+  Bacterie.make_reactions bact;
+  let json_data = `Assoc
+                   ["target", `String "main";
+                    "purpose", `String "bactery_update_desc";
+                    "data", (Bacterie.to_json bact)] in
+    
+    let to_send = Yojson.Safe.to_string json_data in
+    
+    
+    output_string oc to_send;
+    flush oc;
+    print_endline to_send;
+    print_endline "update data sent";
   in
 
 (* ** main loop *)

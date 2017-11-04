@@ -1,0 +1,12 @@
+# OASIS_START
+# DO NOT EDIT (digest: f756155a4a4042e60ff41ff06e4e14c5)
+version = "0.1"
+description = "Simulating life and stuff"
+requires = "nethttpd"
+archive(byte) = "web_server.cma"
+archive(byte, plugin) = "web_server.cma"
+archive(native) = "web_server.cmxa"
+archive(native, plugin) = "web_server.cmxs"
+exists_if = "web_server.cma"
+# OASIS_STOP
+

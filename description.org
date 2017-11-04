@@ -704,3 +704,8 @@ ce choix.
 *** TODO mettre le protocole de communication dans un fichier de configuration lu à la fois par le client et le serveur
 *** TODO améliorer le protocole pour unifier les fonctions qui génèrent des données
 
+* In-progress
+
+** TODO fonction make_reactions de l'interface : 
+  + evaluer les reactions
+  + retourner les données pertinentes

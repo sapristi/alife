@@ -3,11 +3,20 @@
 S src
 S src/bacterie
 S src/gui
+S src/gui/server
+S src/gui/bact_simul
 S src/libs
 
 B _build/src
 B _build/src/bacterie
 B _build/src/gui
+B _build/src/gui/server
+B _build/src/gui/bact_simul
 B _build/src/libs
 
-PKG yojson batteries
+
+PKG yojson batteries nethttpd
+
+
+PKG ocamlnet
+CMT /home/sapristi/.opam/4.04.0/build/ocamlnet.4.1.4/_build
