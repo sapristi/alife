@@ -8,7 +8,8 @@ open Acid_types.AcidTypes;;
 open Graber;;
 open Atome.Atome;;
 
-open Bact_http_server;;
+open Bact_server;;
+
  
  
 let prot2 = [
@@ -63,9 +64,6 @@ let print_prot prot =
       Bacterie.add_molecule mol5 bact;
       bact
     in
-
+    
     start_srv (handle_req (make_bact ())) 1512 
-
-         
-
    

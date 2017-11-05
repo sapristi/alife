@@ -7,7 +7,7 @@ open Nethttpd_kernel
 open Nethttpd_services
 open Nethttpd_reactor
 
-(* ** barebone server *)
+
 let get_my_addr () =
   (Unix.gethostbyname(Unix.gethostname())).Unix.h_addr_list.(0) ;;
 
@@ -49,7 +49,7 @@ let start_srv req_processor port =
   done
 ;;
 
-
+(*
 let print_req env (cgi:Netcgi.cgi) =
   let rec print_arg_list (l : Netcgi.cgi_argument list) =
     match l with
@@ -63,5 +63,5 @@ let print_req env (cgi:Netcgi.cgi) =
   cgi # output # commit_work()
 ;;
 
-
+ *)
   (*  start_srv print_req 8765;; *)
