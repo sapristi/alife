@@ -166,6 +166,7 @@ and make_reactions () =
     
     else ("did not recognize command : "^command)
   in
+  print_endline response;
   cgi # out_channel # output_string response;
   cgi # out_channel # commit_work()
 ;;
