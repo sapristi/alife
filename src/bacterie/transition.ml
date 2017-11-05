@@ -145,12 +145,12 @@ let apply_transition (transition : t) : transition_effect list=
   let to_json (trans : t) : Yojson.Safe.json =
     `Assoc [
        "dep_places",
-       `Assoc (List.map
-                (fun (x,y) -> (string_of_int x, AcidTypes.transition_input_type_to_yojson y))
+       `List (List.map
+                (fun (x,y) -> `Assoc [("place", `Int x); ("type", AcidTypes.transition_input_type_to_yojson y)])
                 trans.input_links);
        "arr_places", 
-       `Assoc (List.map
-                (fun (x,y) -> (string_of_int x,AcidTypes.transition_output_type_to_yojson y))
+       `List (List.map
+                (fun (x,y) -> `Assoc [("place", `Int x); ("type", AcidTypes.transition_output_type_to_yojson y)])
                 trans.output_links);]
       
 end;;

@@ -1,0 +1,85 @@
+
+<!doctype html>
+<html>
+<head>
+<title>ToDo API Client Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<script
+  src="https://code.jquery.com/jquery-3.2.1.js"
+  integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+  crossorigin="anonymous"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.5/cytoscape.js"></script>
+</head>
+
+
+<style>
+  .cy {
+  width: 300px;
+  height: 300px;
+  position: relative;
+  margin: auto;
+  border: 1px solid #ddd;
+  overflow: auto !important;
+  border-radius: 0.25em;
+  resize:both
+  }
+</style>
+
+
+<body>
+  <table style="border-collapse:collapse;width:100%;">
+    <tbody>
+      <tr>
+	
+	<td>
+	  <a class="btn" data-bind="click: init" href="">Init data</a>
+	</td>
+	
+	<td>
+	  <table>
+	    <thead>
+              <tr><th>Molecule</th><th>Number</th><th></th></tr>
+	    </thead>
+	    
+	    <tbody data-bind="foreach: mols">
+              <tr>
+		<td data-bind="text:mol_name"></td>
+		<td data-bind="text: mol_number"></td>
+		<td >
+		  <button data-bind="click: $parent.examine" class="btn">
+		    Examine </button></td>
+              </tr>
+	    </tbody>
+	  </table>
+	</td>
+	  
+      </tr>
+    </tbody>
+  </table>
+
+  <div id="exam_graphs">
+    <table>
+      <tbody>
+	<tr>
+	  <td>
+	    <button data-toggle="collapse" data-target="#prot_cy">Collapsible</button>
+	  </td>
+	  <td>
+	    <button data-toggle="collapse" data-target="#pnet_cy">Collapsible</button>
+	  </td>
+	</tr>
+	<tr>
+	  <td><div id="prot_cy" class="cy"></div></td>
+	  <td><div id="pnet_cy" class="cy"></div></td>
+	</tr>
+    </table>
+<script src="client.js"> </script>
+</body>
+</html>

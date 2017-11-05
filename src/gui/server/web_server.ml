@@ -18,12 +18,12 @@ let make_srv req_processor port =
       uri_distributor
         [ "*", (options_service());
           "/", (dynamic_service
-                         { dyn_handler = req_processor;
-                           dyn_activation = std_activation `Std_activation_buffered;
-                           dyn_uri = Some "/service";
-                           dyn_translator = (fun _ -> "");
-                           dyn_accept_all_conditionals = false
-                           })
+                  { dyn_handler = req_processor;
+                    dyn_activation = std_activation `Std_activation_buffered;
+                    dyn_uri = Some "/";
+                    dyn_translator = (fun _ -> "");
+                    dyn_accept_all_conditionals = false
+               })
         ]
     ]
 
