@@ -67,19 +67,22 @@ class ProtSynthFrame(tk.Frame):
                "mol_desc" : mol_desc}
         r = requests.get(self.host.req_adress, params = req)
         data = r.json()["data"]
+        prot_str = json.dumps(data["prot"])
         self.prot_text.delete("1.0", tk.END)
-        self.prot_text.insert("1.0", data["prot"])
+        self.prot_text.insert("1.0", prot_str)
         self.setup_graphs(data["prot"], data["pnet"])
         
     def from_prot(self):
         prot_desc = self.prot_text.get("1.0", tk.END).strip("\n")
+        prot_desc_json = json.loads(self.prot_text.get("1.0", tk.END))
+
         req = {"command" : "gen from prot",
                "prot_desc" : prot_desc}
         r = requests.get(self.host.req_adress, params = req)
         data = r.json()["data"]
-        self.prot_text.delete("1.0", tk.END)
-        self.prot_text.insert("1.0", data["prot"])
-        self.setup_graphs(data["prot"], data["pnet"])
+        self.mol_text.delete("1.0", tk.END)
+        self.mol_text.insert("1.0", data["mol"])
+        self.setup_graphs(prot_desc_json, data["pnet"])
 
     def gen_graphs(self):
         mol_desc = self.mol_text.get("1.0", tk.END).strip("\n")
