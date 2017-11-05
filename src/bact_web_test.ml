@@ -8,6 +8,8 @@ open Acid_types.AcidTypes;;
 open Graber;;
 open Atome.Atome;;
 
+open Bact_http_server;;
+ 
  
 let prot2 = [
     Node Regular_place; Extension Init_with_token_ext; TransitionInput ("A", Regular_ilink);
@@ -62,7 +64,7 @@ let print_prot prot =
       bact
     in
 
-    start_srv handle_req 1512
+    start_srv (handle_req (make_bact ())) 1512 
 
          
 

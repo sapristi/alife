@@ -3,11 +3,12 @@ open Proteine;;
 open Proteine;;
 open Petri_net
 open Bacterie;;
-open Bact_simul_serveur;;
 open Acid_types.AcidTypes;;
 open Graber;;
 open Atome.Atome;;
 
+open Bact_tcp_server;;
+  
 let prot2 = [
     Node Regular_place; Extension Init_with_token_ext; TransitionInput ("A", Regular_ilink);
     Node Regular_place; TransitionOutput ("A", Regular_olink);

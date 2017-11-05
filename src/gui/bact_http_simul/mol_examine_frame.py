@@ -1,4 +1,4 @@
-
+import requests
 import json
 import tkinter as tk
 import os
@@ -17,26 +17,22 @@ class MolFrame(tk.Frame):
         
         if not os.path.exists(self.temp_dir):
             os.makedirs(self.temp_dir)
+
             
-        self.host.nc.send_request(
-            json.dumps({"command" : "give data for mol exam",
-                        "return target" : self.instance_name,
-                        "data" : mol_desc}
-            ))
-        
         self.createWidgets()
+        self.init_data()
         
         self.root.title("Mol Exam " + mol_desc)
 
-            
-    def recv_msg(self, json_msg):
-        purpose = json_msg["purpose"]
-        data = json_msg["data"]
-        if purpose == "prot desc":
-            print("received proteine description")
-            prot = data["prot"]
-            pnet = data["pnet"]
-            self.setup_graphs(prot,pnet,self.mol_desc)
+
+    def init_data(self):
+        req = {"command" : "give data for mol exam", "mol_desc" : self.mol_desc}
+        r = requests.get(self.host.req_adress, params = req)
+        print("received proteine description")
+        prot = r.json()["data"]["prot"]
+        pnet = r.json()["data"]["pnet"]
+        
+        self.setup_graphs(prot,pnet,self.mol_desc)
             
         
     def createWidgets(self):

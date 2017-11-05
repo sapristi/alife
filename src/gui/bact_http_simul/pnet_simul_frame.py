@@ -1,4 +1,4 @@
-
+import requests
 import json
 import tkinter as tk
 import os
@@ -20,32 +20,21 @@ class PNetFrame(tk.Frame):
             os.makedirs(self.temp_dir)
             
 
-        self.host.nc.send_request(
-            json.dumps({"command" : "give prot desc for simul",
-                        "return target" : self.name,
-                        "data" : self.mol_desc}
-            ))
-
         
         self.createWidgets()
         self.root.title("PNet simul " + self.mol_desc)
 
+        self.init_data()
         
-    def recv_msg(self, json_msg):
-        purpose = json_msg["purpose"]
-        data = json_msg["data"]
-        if purpose == "prot desc":
-            print("received proteine description")
-            self.pnet_data = data
-            self.setup_graphs(self.pnet_data,self.name)
+    def init_data(self):
+        req = {"command" : "give prot desc for simul",
+               "data" : self.mol_desc}
+        r = requests.get(self.host.req_adress, params = req)
+        self.pnet_data = r.json()["data"]
+        self.setup_graphs(self.pnet_data,self.name)
 
             
-        if purpose == "updatedata":
-            print("received update data, updating graph")
-            self.pnet_data["places"] = data["places"]
-            self.pnet_data["launchables"] = data["launchables"]
-            self.setup_graphs(self.pnet_data,self.name)
-
+            
            
     # trigger transition from server
     def launch_transition(self):
@@ -53,14 +42,14 @@ class PNetFrame(tk.Frame):
         if trans_id == "...":
             trans_id = "-1"
 
-        self.host.nc.send_request(
-            json.dumps({"command" : "launch transition",
-                        "return target" : self.name,
-                        "data" :
-                        { "mol" : self.mol_desc,
-                          "trans_id" : trans_id } }
-            ))
-
+        req = {"command" : "launch transition",
+               "mol_desc" : self.mol_desc,
+               "trans_id" : trans_id }
+        r = requests.get(self.host.req_adress, params = req)
+        data = r.json()["data"]
+        self.pnet_data["places"] = data["places"]
+        self.pnet_data["launchables"] = data["launchables"]
+        self.setup_graphs(self.pnet_data,self.name)
 
             
     def createWidgets(self):

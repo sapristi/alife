@@ -1,4 +1,4 @@
-
+import requests
 import json
 import tkinter as tk
 import os
@@ -23,19 +23,6 @@ class ProtSynthFrame(tk.Frame):
         
         self.root.title("Proteine Synthesis")
 
-    def recv_msg(self, msg):
-        if msg["purpose"] == "from prot":
-            self.mol_text.delete("1.0", tk.END)
-            self.mol_text.insert("1.0", msg["data"]["mol"])
-            prot_desc = json.loads(self.prot_text.get("1.0", tk.END))
-            self.setup_graphs(prot_desc, msg["data"]["pnet"])
-        elif msg["purpose"] == "from mol":
-            self.prot_text.delete("1.0", tk.END)
-            self.prot_text.insert("1.0", msg["data"]["prot"])
-            self.setup_graphs(msg["data"]["prot"], msg["data"]["pnet"])
-        
-        else:
-            print(msg["purpose"])
         
     def createWidgets(self):
         texts_frame = tk.Frame(self)
@@ -77,20 +64,24 @@ class ProtSynthFrame(tk.Frame):
     def from_mol(self):
         mol_desc = self.mol_text.get("1.0", tk.END).strip("\n")
         mol_desc_json = json.dumps(mol_desc)
-        self.host.nc.send_request(
-            json.dumps({"command" : "gen from mol",
-                        "return target" : self.instance_name,
-                        "data" : mol_desc_json}
-            ))
 
-
+        req = {"command" : "gen from mol",
+               "data" : mol_desc_json}
+        r = requests.get(self.host.req_adress, params = req)
+        data = r.json()["data"]
+        self.prot_text.delete("1.0", tk.END)
+        self.prot_text.insert("1.0", msg["data"]["prot"])
+        self.setup_graphs(data["prot"], data["pnet"])
+        
     def from_prot(self):
         prot_desc = self.prot_text.get("1.0", tk.END).strip("\n")
-        self.host.nc.send_request(
-            json.dumps({"command" : "gen from prot",
-                        "return target" : self.instance_name,
-                        "data" : prot_desc}
-            ))
+        req = {"command" : "gen from prot",
+               "data" : prot_desc}
+
+        data = r.json()["data"]
+        self.prot_text.delete("1.0", tk.END)
+        self.prot_text.insert("1.0", msg["data"]["prot"])
+        self.setup_graphs(msg["data"]["prot"], msg["data"]["pnet"])
 
     def gen_graphs(self):
         mol_desc = self.mol_text.get("1.0", tk.END).strip("\n")

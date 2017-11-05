@@ -1,7 +1,10 @@
-import socket
+import requests
 import sys
 import select
 import json
+
+import logging
+import http.client as http_client
 
 import tkinter as tk
 
@@ -13,33 +16,6 @@ from prot_synthesis_frame import ProtSynthFrame
 # * NetworkClient
 # Hooks between server communication and internal functions
 
-class NetworkClient:
-    
-    def __init__(self):
-        self.HOST = 'Sathobi'    # The remote host
-        self.PORT = 1512              # The same port as used by the serverk
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        
-    def connect(self):
-        self.s.connect((self.HOST, self.PORT))
-        self.s.setblocking(0)
-        print("connection to server established")
-
-    def send_request(self, req):
-        print("sending request :", req)
-        self.s.send((req + "\n").encode('utf-8'))
-        
-    def get_answer(self) :
-        ready = select.select([self.s], [], [], 0)
-        if ready[0]:
-            data = self.s.recv(4096)
-            print('Received', repr(data))
-            return data
-        return None
-        
-    def disconnect(self):
-        self.s.close()
-
 
 
 
@@ -48,61 +24,22 @@ class MainApp(tk.Frame):
         tk.Frame.__init__(self, master)
         self.root = master
         self.pack()
-        self.nc = nc
+        self.req_adress = "http://127.0.0.1:1512"
         self.createWidgets()
         self.bactery_data = None
         self.bf = BactFrame(self.root, self)
         self.components = {}
 
-        
-    def connect(self):
-        self.nc.connect()
-        self.recv_msg()
-
-    def recv_msg(self):
-        answer = self.nc.get_answer()
-        if not (answer == None):
-            if not answer.decode('utf-8') == '': 
-                json_msg = json.loads(answer.decode('utf-8'))
-                target = json_msg["target"]
-                purpose = json_msg["purpose"]
-                data = json_msg["data"]
-                
-                if target == "main":
-                    
-                    if purpose == "bactery_init_desc":
-                        print("received bactery initial description")  
-                        self.init_bactery(data)
-                    elif purpose == "bactery_update_desc":
-                        print("received bactery updated description")  
-                        self.init_bactery(data)
-                    else:
-                        print("can't understand purpose of message")
-
-                else:
-                    if target in self.components:
-                        self.components[target].recv_msg(json_msg)
-                    else:
-                        print("can't find target for message")
-                    
-            
-        # loop    
-        self.root.after(20, self.recv_msg)
-
 
     def request_init_data(self):
-        req = json.dumps({"command" : "gibinitdata", "return target" : "main"})
-        self.nc.send_request(req)
-
+        req = {"command" : "gibinitdata"}
+        r = requests.get(self.req_adress, params = req)
+        self.bf.set_data(r.json()["data"])
 
     def make_reactions(self):
-        req = json.dumps({"command" : "make reactions", "return target" : "main"})
-        self.nc.send_request(req)
-        
-    def init_bactery(self, data):
-        self.bactery_data = data
-        self.bf.set_data(self.bactery_data)
-        print(self.bactery_data)
+        req = {"command" : "make reactions"}
+        r = requests.get(self.req_adress, params = req)
+        self.bf.set_data(r.json()["data"])
 
     def examine_mol(self, mol_desc):
         molWindow = tk.Toplevel()
@@ -118,7 +55,6 @@ class MainApp(tk.Frame):
         synthWindow = tk.Toplevel()
         self.components["synthWindow"] = ProtSynthFrame(synthWindow, self)
     def createWidgets(self):
-        tk.Button(self, text="Connect", command=self.connect).grid(row = 0, column = 0)
         tk.Button(self, text="Init", command=self.request_init_data).grid(row = 0, column = 1)
         tk.Button(self, text="Quit", command=self.quit_program).grid(row = 0, column = 2)
 
@@ -127,9 +63,18 @@ class MainApp(tk.Frame):
 
 
 
-client = NetworkClient()
+
+debug = False
+if debug == True: 
+    http_client.HTTPConnection.debuglevel = 1
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
+    requests_log = logging.getLogger("requests.packages.urllib3")
+    requests_log.setLevel(logging.DEBUG)
+    requests_log.propagate = True
+
 root = tk.Tk()
-app = MainApp(root, client)
+app = MainApp(root)
 app.master.title("Main") 
 
 root.mainloop()

@@ -103,49 +103,48 @@ Library "bacterie_libs"
 
 ###################################################################
 
-Library "bact_servers"
-  FindlibName : bact_server
-  Path : src/gui/bact_simul
-  Modules : Bact_servers
-
-
-Library "tcp_server"
-  FindLibName : tcp_server
-  FindLibParent : bact_servers
-  Path: src/gui/bact_simul
-  Modules: Tcp_server
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome
-
-Library "web_server"
-  FindLibName : web_server
-  FindLibParent : bact_servers
-  Path: src/gui/bact_simul
-  Modules: Web_server
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome
-
 
 Library "web_server"
   Path: src/gui/server/
   Modules: Web_server
   BuildDepends: nethttpd
 
+Library "bact_tcp_server"
+  Path: src/gui/bact_simul
+  Modules: Bact_tcp_server
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome
+
+Library "bact_http_server"
+  Path: src/gui/bact_http_simul
+  Modules: Bact_http_server
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome, web_server
+
 
 ###################################################################
 
 
-Executable "bact_tcp_test"
+Executable "bact_test"
   Path : src/
   MainIs : bact_test.ml
-  BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bact_servers.tcp_server
+  BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bact_tcp_server
   ByteOpt:  -g
 
-Executable "bact_tcp_test"
+Executable "bact_web_test"
   Path : src/
   MainIs : bact_web_test.ml
-  BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries, bact_servers.web_server
+  BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries,  bact_http_server
   ByteOpt:  -g
 
 Executable "websrv_test"
   Path: src/gui/server/
   MainIs : web_server.ml
   BuildDepends: nethttpd
+
+
+###################################################################
+
+
+Executable "debug_server"
+  Path: src/gui/server/
+  MainIs : debug_server.ml
+  BuildDepends : unix

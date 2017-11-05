@@ -36,7 +36,7 @@ let start_srv req_processor port =
   Unix.setsockopt master_sock Unix.SO_REUSEADDR true;
   Unix.bind master_sock (Unix.ADDR_INET(Unix.inet_addr_any, port));
   Unix.listen master_sock 100;
-  Printf.printf "Listening on port 8765\n";
+  Printf.printf "Listening on port %i\n" port;
   flush stdout;
 
     while true do
@@ -64,4 +64,4 @@ let print_req env (cgi:Netcgi.cgi) =
 ;;
 
 
-  start_srv print_req 8765;; 
+  (*  start_srv print_req 8765;; *)
