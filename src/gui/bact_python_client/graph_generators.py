@@ -55,22 +55,24 @@ class PetriGraph(Digraph):
             tname = 't'+str(i)
             self.node(tname, color = color, shape = "rectangle")
             print(str(transition))
-            for node_id, trans_t in transition["dep_places"].items():
-                if trans_t[0] == "Regular_ilink":
-                    label = "reg"
-                elif trans_t[0] == "Split_ilink":
-                    label = "split"
-                elif trans_t[0] == "Filter_ilink":
-                    label = "filter " + trans_t[1]
-                
-                self.edge('p'+str(node_id), tname, color = color, label = label)
 
-            for node_id, trans_t in transition["arr_places"].items():
-                if trans_t[0] == "Regular_olink":
+            
+            for t in transition["dep_places"]:
+                if t["type"][0] == "Regular_ilink":
                     label = "reg"
-                elif trans_t[0] == "Bind_olink":
+                elif t["type"][0] == "Split_ilink":
+                    label = "split"
+                elif t["type"][0] == "Filter_ilink":
+                    label = "filter " + t["type"][1]
+                
+                self.edge('p'+str(t["place"]), tname, color = color, label = label)
+
+            for t in transition["arr_places"]:
+                if t["type"][0] == "Regular_olink":
+                    label = "reg"
+                elif t["type"][0] == "Bind_olink":
                     label = "bind"
-                elif trans_t[0] == "Release_olink":
-                    label = "release " + trans_t[1]
+                elif t["type"][0] == "Release_olink":
+                    label = "release " + t["type"][1]
                     
-                self.edge(tname, 'p'+str(node_id), color = color, label = label)
+                self.edge(tname, 'p'+str(t["place"]), color = color, label = label)

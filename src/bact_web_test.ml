@@ -9,7 +9,7 @@ open Graber;;
 open Atome.Atome;;
 open Sandbox;;
   
-open Bact_new_server;;
+open Bact_server;;
   
 
  
@@ -67,5 +67,5 @@ let print_prot prot =
       bact
     in
     
-    start_srv (handle_req (make_bact ()) SandBox.empty) 1512 
+    start_srv (handle_req (make_bact ())) 1512 
    
