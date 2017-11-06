@@ -54,6 +54,13 @@ struct
 (* Les fonctions suivantes servent à gérer les molécules (quantité) *)
 (* à l'intérieur d'une bactérie *)
 
+(* *** get_pnet_from_mol *)
+
+  let get_pnet_from_mol mol bact = 
+    let (_,pnet) = MolMap.find mol bact.molecules in
+    pnet
+
+    
 (* *** add_molecule *)
 (* adds a molecule inside a bactery *)
 let add_molecule (m : Molecule.t) (bact : t) : unit =

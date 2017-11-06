@@ -94,6 +94,15 @@ Library "bacterie"
   Modules: Bacterie
   BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.petri_net, batteries
 
+Library "sandbox"
+  FindLibName : sandbox
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Sandbox
+  BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.transition, bacterie_libs.petri_net, batteries
+
+
+
 Library "bacterie_libs"
   FindLibName : bacterie_libs
   Path : src/bacterie
@@ -123,6 +132,13 @@ Library "bact_server"
   Path: src/gui/server
   Modules: Bact_server
   BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome, servers.web_server
+
+Library "bact_new_server"
+  FindLibName : bact_new_server
+  FindLibParent : servers
+  Path: src/gui/server
+  Modules: Bact_new_server
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome, servers.web_server, bacterie.sandbox
 
 Library "servers"
   FindLibName : servers

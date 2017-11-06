@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 590be3becb36835a24efe5565165daef)
+# DO NOT EDIT (digest: 5014fd5da1e4ea8e095dd73486ec9352)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "bacterie_libs.cma"
@@ -29,6 +29,18 @@ package "token" (
  archive(native) = "token.cmxa"
  archive(native, plugin) = "token.cmxs"
  exists_if = "token.cma"
+)
+
+package "sandbox" (
+ version = "0.1"
+ description = "Simulating life and stuff"
+ requires =
+ "local_libs bacterie_libs.proteine bacterie_libs.transition bacterie_libs.petri_net batteries"
+ archive(byte) = "sandbox.cma"
+ archive(byte, plugin) = "sandbox.cma"
+ archive(native) = "sandbox.cmxa"
+ archive(native, plugin) = "sandbox.cmxs"
+ exists_if = "sandbox.cma"
 )
 
 package "proteine" (
