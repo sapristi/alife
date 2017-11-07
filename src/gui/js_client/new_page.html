@@ -1,0 +1,97 @@
+
+<!doctype html>
+<html>
+<head>
+<title>Bact Simul Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.css" rel="stylesheet">
+
+<script
+  src="https://code.jquery.com/jquery-3.2.1.js"
+  integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+  crossorigin="anonymous"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.js"></script>
+</head>
+
+<body>
+
+  
+  <div class="ui top attached tabular menu">
+    <a class="item active" data-tab="sim-tab">Simulation</a>
+    <a class="item" data-tab="sandbox-tab">Bac à sable</a>
+  </div>
+
+  
+  <div class="ui bottom attached tab segment active" data-tab="sim-tab">
+    <div class="ui grid">
+      <div class="row">
+        <div class="2 wide column">
+	  <button type="button" class="btn" data-bind="click : init_data">Get data</button>
+	</div>
+	<div class="ten wide column" style="max-height:300px;overflow-y:scroll">
+	  <table class="ui fixed table">
+	    <thead ><tr>
+		<th class="nine wide"> Molecule name</th>
+		<th class="two wide" style="width:20px;"> Num</th>
+		<th class="five wide" colspan="3" style="width:80px;text-align:center" > Actions</th>
+	    </tr></thead>
+	    <tbody style="">
+	      <!-- ko foreach: bact_mols -->
+	      <tr>
+		<td style="word-wrap:break-word" data-bind="text:mol_name"> </td>
+		<td data-bind="text:mol_number"></td>
+		<td><a href="#" class="badge badge-primary">View</a></td>
+		<td><a href="#" class="badge badge-primary">Simul</a></td>
+		<td><a href="#" class="badge badge-primary">To SB</a></td>
+	      </tr>
+	      <!-- /ko -->
+	  </tbody></table>
+	</div>
+      </div>
+    </div>
+  </div>
+
+
+  
+  <div class="ui bottom attached tab segment" data-tab="sandbox-tab">    
+    <div class="ui grid">
+      <div class="row">
+	<div class="2 wide column">
+	  <button type="button" class="btn" data-bind="click : init_data">Get data</button>
+	</div>
+	<div class="ten wide column" style="max-height:300px;overflow-y:scroll">
+	  <table class="ui fixed table">
+	    <thead ><tr>
+		<th class="nine wide"> Molecule name</th>
+		<th class="two wide" style="width:20px;"> Num</th>
+		<th class="five wide" colspan="3" style="width:80px;text-align:center" > Actions</th>
+	    </tr></thead>
+	    <tbody style="">
+	      <!-- ko foreach: sandbox_mols -->
+	      <tr>
+		<td style="word-wrap:break-word" data-bind="text:mol_name"> </td>
+		<td data-bind="text:mol_number"></td>
+		<td><a href="#" class="badge badge-primary">View</a></td>
+		<td><a href="#" class="badge badge-primary">Simul</a></td>
+		<td><a href="#" class="badge badge-primary">To SB</a></td>
+	      </tr>
+	      <!-- /ko -->
+	  </tbody></table>
+	</div>
+      </div>
+    </div>
+    
+  </div>
+  
+</body>
+
+
+<script src="client.js"> </script>
+</html>

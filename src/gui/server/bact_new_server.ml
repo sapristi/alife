@@ -57,7 +57,23 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
         "data",  `Assoc ["pnet", pnet_json]] 
     in
     Yojson.Safe.to_string to_send_json
+
+(* *** get_bact_elements *)
+
+  and get_bact_elements () =
+     let json_data = `Assoc
+                     ["purpose", `String "bact_elements";
+                      "data", (Bacterie.to_json bact)] in
     
+    Yojson.Safe.to_string json_data
+
+  and get_sandbox_elements () =
+     let json_data = `Assoc
+                     ["purpose", `String "bact_elements";
+                      "data", (SandBox.to_json sandbox)] in
+    
+    Yojson.Safe.to_string json_data
+
   in
 
   print_endline (cgi # environment # cgi_query_string); 
@@ -71,6 +87,12 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
     
     else if command = "pnet_from_mol"
     then pnet_from_mol cgi
+
+    else if command = "get_bact_elements"
+    then get_bact_elements ()
+
+    else if command = "get_sandbox_elements"
+    then get_sandbox_elements ()
     
     else ("did not recognize command : "^command)
   in

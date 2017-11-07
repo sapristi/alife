@@ -2,8 +2,9 @@
 function TasksViewModel() {
     var self = this;
     
-    self.connect_uri = 'http://localhost:1512'
-    self.mols = ko.observableArray();
+    self.connect_uri = 'http://localhost:1512';
+    self.bact_mols = ko.observableArray();
+    self.sandbox_mols = ko.observableArray();
     
     self.ajax = function(uri, method, data) {
 	var request = {
@@ -22,8 +23,6 @@ function TasksViewModel() {
     }
     
     
-    self.mols([]);
-
     self.examine = function(){
 
 	exam_mol = function(data) {
@@ -47,17 +46,17 @@ function TasksViewModel() {
 	     mol_desc:this.mol_name}
 	).done(exam_mol);
     }
-
     
-    self.init = function() {
+    
+    self.update_bact = function() {
 	
-	init_data = function(data) {
+	bact_data = function(data) {
 	    mols_data = data.data["molecules list"];
-	    console.log(mols_data[0])
 	    for (var i = 0; i < mols_data.length; i++) {
-		self.mols.push({
+		self.bact_mols.push({
 		    mol_name : mols_data[i]["mol"],
-		    mol_number : mols_data[i]["nb"]
+		    mol_number : mols_data[i]["nb"],
+		    class_select_status : "item"
 		});
 	    }
 	}
@@ -65,11 +64,35 @@ function TasksViewModel() {
 	self.ajax(
 	    self.connect_uri,
 	    'GET',
-	    {command:"gibinitdata"}
-	).done(init_data);
+	    {command:"get_bact_elements"}
+	).done(bact_data);
     }
 
     
+    self.update_sandbox = function() {
+	
+	sandbox_data = function(data) {
+	    mols_data = data.data["molecules list"];
+	    for (var i = 0; i < mols_data.length; i++) {
+		self.bact_mols.push({
+		    mol_name : mols_data[i]["mol"],
+		    mol_number : mols_data[i]["nb"],
+		    class_select_status : "item"
+		});
+	    }
+	}
+	
+	self.ajax(
+	    self.connect_uri,
+	    'GET',
+	    {command:"get_sandbox_elements"}
+	).done(sandbox_data);
+    }
+    
+    self.init_data = function() {
+	self.update_bact();
+	self.update_sandbox();
+    }
     
 }
 
@@ -169,3 +192,6 @@ make_pnet_graph = function(pnet_data, container) {
 }
 
 
+$('.menu .item')
+  .tab()
+;

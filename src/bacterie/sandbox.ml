@@ -47,15 +47,15 @@ module SandBox =
       
     let to_json sandbox =         
       
-    let mol_enum = MolMap.enum sandbox.molecules in
-    let mol_list = List.of_enum mol_enum in
-    
-    `Assoc [
-       "molecules list",
-       `List (List.map
-                (fun (mol, nb) ->
-                  `Assoc ["mol", `String (Molecule.to_string mol)])
-                mol_list)
+      let mol_enum = MolMap.enum sandbox.molecules in
+      let mol_list = List.of_enum mol_enum in
+      
+      `Assoc [
+         "molecules list",
+         `List (List.map
+                  (fun (mol, nb) ->
+                    `Assoc ["mol", `String (Molecule.to_string mol)])
+                  mol_list)
      ]
       
-end;;
+  end;;
