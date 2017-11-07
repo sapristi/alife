@@ -11,12 +11,16 @@ let get_pnet_from_container
       mol
       (bact : Bacterie.t)
       (sb : SandBox.t)
-      (cgi:Netcgi.cgi) =  
-  if cgi # argument_value "container" = "bacterie"
-  then Bacterie.get_pnet_from_mol mol bact
-  else if cgi # argument_value "container" = "sandbox"
-  then SandBox.get_pnet_from_mol mol sb
-  else failwith "bad request container spec"
+      (cgi:Netcgi.cgi) =
+
+  if cgi # argument_exists "container"
+  then 
+    if cgi # argument_value "container" = "bacterie"
+    then Bacterie.get_pnet_from_mol mol bact
+    else if cgi # argument_value "container" = "sandbox"
+    then SandBox.get_pnet_from_mol mol sb
+    else failwith "la requête ne contient pas de conteneur de molécule valide"
+  else failwith "la requête ne contient pas de conteneur de molécule" 
 ;;
 
   
@@ -33,9 +37,7 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
     let to_send_json =
       `Assoc
        ["purpose", `String "prot_from_mol";
-        "data",
-        `Assoc
-         ["prot", prot_json]] 
+        "data", `Assoc ["prot", prot_json]] 
     in
     Yojson.Safe.to_string to_send_json
 
@@ -43,6 +45,8 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
 
   and pnet_from_mol (cgi:Netcgi.cgi)  =
 
+    print_endline ("serving pnet_from_mol with mol :"
+                  ^(cgi # argument_value "mol_desc"));
     let mol_desc = cgi # argument_value "mol_desc" in
     let mol = Molecule.string_to_acid_list mol_desc in
     let pnet = get_pnet_from_container mol bact sandbox cgi
@@ -69,14 +73,14 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
 
   and get_sandbox_elements () =
      let json_data = `Assoc
-                     ["purpose", `String "bact_elements";
+                     ["purpose", `String "sandbox_elements";
                       "data", (SandBox.to_json sandbox)] in
     
     Yojson.Safe.to_string json_data
 
   in
 
-  print_endline (cgi # environment # cgi_query_string); 
+  print_endline (cgi # environment # cgi_query_string);
   
   let command = cgi # argument_value "command" in
 
@@ -96,7 +100,8 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
     
     else ("did not recognize command : "^command)
   in
-  print_endline response;
+  print_endline ("preparing to send response :" ^response);
   cgi # out_channel # output_string response;
-  cgi # out_channel # commit_work()
+  cgi # out_channel # commit_work();
+  print_endline ("response sent");
 ;;
