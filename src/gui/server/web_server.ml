@@ -1,4 +1,5 @@
 
+(* * web_server *)
 
 open Nethttp
 open Nethttp.Header
@@ -7,6 +8,20 @@ open Nethttpd_kernel
 open Nethttpd_services
 open Nethttpd_reactor;;
 
+
+let fs_spec =
+  { file_docroot = (Sys.getenv "HOME")^("/Documents/projets/alife/src/gui/js_client");
+    file_uri = "/";
+    file_suffix_types = [ "txt", "text/plain";
+			  "html", "text/html";
+                          "css", "text/css";
+                          "js", "text/js"];
+    file_default_type = "application/octet-stream";
+    file_options = [ `Enable_gzip;
+		     `Enable_listings (simple_listing ?hide:None);
+		     `Enable_index_file ["index.html"]
+		   ]
+  }
 
   
 let get_my_addr () =
@@ -18,7 +33,8 @@ let make_srv req_processor port =
     [ default_host ~pref_name:"localhost" ~pref_port:port (),
       uri_distributor
         [ "*", (options_service());
-          "/", (dynamic_service
+          "/", (file_service fs_spec);
+          "/sim_commands/", (dynamic_service
                   { dyn_handler = req_processor;
                     dyn_activation = std_activation `Std_activation_buffered;
                     dyn_uri = Some "/";

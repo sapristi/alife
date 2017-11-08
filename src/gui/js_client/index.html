@@ -1,0 +1,127 @@
+
+<!-- * preambule -->
+
+<!doctype html>
+<html>
+  <head>
+    <title>Bact Simul Demo</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    
+<!-- ** external libs -->
+	
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.css" rel="stylesheet">
+    
+    <script
+	src="https://code.jquery.com/jquery-3.2.1.js"
+	integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+	crossorigin="anonymous"></script>
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.5/cytoscape.js"></script>
+	
+<!-- ** personnal css -->
+	
+    <link href="./custom_styles.css" rel="stylesheet">
+	
+  </head>
+    
+<!-- * body -->
+    
+  <body>    
+
+<!-- ** tab switch -->
+    
+    <div class="ui top attached tabular menu">
+      <a class="item active" data-tab="sim-tab">Simulation</a>
+      <a class="item" data-tab="sandbox-tab">Bac à sable</a>
+    </div>
+    
+<!-- ** first tab : bactery view -->
+    
+    <div class="ui bottom attached tab segment active" data-tab="sim-tab">
+      <div class="ui grid">
+<!-- ** première ligne -->
+	<div class="row">
+
+<!-- *** 1ere colonne : bouton -->
+<!-- bouton d'initialisation/update des données de la bactérie -->
+	  <div class="2 wide column">
+	    <button type="button" class="btn" data-bind="click : init_data">Get data</button>
+	  </div>
+	  
+<!-- *** 2eme colonne : liste des molécules -->
+	  <div class="six wide column" style="max-height:300px;overflow-y:scroll">
+	    <table class="ui fixed selectable table">
+	      <thead ><tr>
+		<th class="fourteen wide"> Molecule name</th>
+		<th class="two wide" style="width:20px;"> Num</th>
+	      </tr></thead>
+	      <tbody style="">
+		<!-- ko foreach: mols -->
+		<tr data-bind="css:status(),click: $parent.mol_select.bind($data,$index())">
+		  <td style="word-wrap:break-word" data-bind="text:mol_name"> </td>
+		  <td data-bind="text:mol_number"></td>
+		</tr>
+		<!-- /ko -->
+	      </tbody></table>
+	  </div>
+
+<!-- *** 3eme colonne : boutons divers -->
+<!-- mol builder, envoi au bac à sable, ... -->    
+	  <div class="four wide column">
+	    <div id="prot_cy" class="cy-small"></div>
+	  </div>
+	  
+
+<!-- *** 4eme colonne : protéine -->
+<!-- vue cytoscape de la protéine associée à la molécule sélectionnée dans la liste ... -->    
+	  <div class="four wide column">
+	    <div id="pnet_cy" class="cy-small"></div>
+	  </div>
+	</div>
+      </div>
+    </div>
+    
+
+    
+<!-- ** second tab : sandbox view  -->
+
+    
+    <div class="ui bottom attached tab segment" data-tab="sandbox-tab">    
+      onglet en standby : do not expect things to work
+      <div class="ui grid">
+	<div class="row">
+          <div class="2 wide column">
+            <button type="button" class="btn" data-bind="click : init_data">Get data</button>
+          </div>
+          <div class="ten wide column" style="max-height:300px;overflow-y:scroll">
+            <table class="ui fixed table">
+              <thead ><tr>
+                <th class="nine wide"> Molecule name</th>
+		<th class="two wide" style="width:20px;"> Num</th>
+                <th class="five wide" colspan="3" style="width:80px;text-align:center" > Actions</th>
+              </tr></thead>
+              <tbody style="">
+              </tbody></table>
+          </div>
+	</div>
+      </div>
+      
+    </div>
+    
+  </body>
+  
+  
+<!-- ** scripts loading  -->
+  
+  <script src="cytoscape_functions.js"> </script>
+  <script src="bact_view.js"> </script>
+  <script src="client.js"> </script>
+</html>
