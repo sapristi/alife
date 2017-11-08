@@ -1,60 +1,70 @@
+
+
 // * taskviewmodel
 // Main taskview
 
-function BactViewModel() {
+function BactViewModel(nodeVM) {
     var self = this;
-    
+    self.nodeVM = nodeVM;
+
+
 // ** variables
     self.connect_uri = 'http://localhost:1512/sim_commands/';
     self.mols = ko.observableArray();
-    self.selected_mol = -1;
+    self.selected_mol = ko.observable(-1);
     
-// ** ajax request
-    self.ajax = function(uri, method, data) {
-        var request = {
-            url: uri,
-            dataType: 'json',
-            data: data,
-            crossDomain: true,
-            success : function(json) {
-                console.log(json);
-            },
-            error: function(jqXHR) {
-                console.log("ajax error " + jqXHR.status);
-            }
-        };
-        return $.ajax(request);
-    }
+    self.current_mol_name = ko.computed(
+	function() {
+	    if (self.selected_mol() >= 0
+		&& self.selected_mol() < self.mols().length)
+	    {return self.mols()[self.selected_mol()]["mol_name"]}
+	    else {return ""}
+	});
+    
     
 // ** examine a molecule
     self.examine = function(data){
 
-        exam_mol = function(data) {
+        display_prot_graph = function(data) {
             
-            // var prot_cy = make_prot_graph(
-            //     data["data"]["prot"],
-            //     document.getElementById('prot_cy'));
-            // prot_cy.layout({name:"circle"}).run()
-            
+            var prot_cy = make_prot_graph(
+                data["data"]["prot"],
+                document.getElementById('prot_cy'));
+            prot_cy.layout({name:"circle"}).run()
+        }
+        display_pnet_graph = function(data) {
             var pnet_cy = make_pnet_graph(
                 data["data"]["pnet"],
-                document.getElementById('pnet_cy'));
-            pnet_cy.layout({name:"breadthfirst"}).run()
-            
+                document.getElementById('pnet_cy'),
+		nodeVM);
+
+	    
+            pnet_cy.layout({name:"cose"}).run();
         }
         
-        self.ajax(
+        utils.ajax(
             self.connect_uri,
             'GET',
             {command:"pnet_from_mol",
              mol_desc:data.mol_name,
 	     container: "bacterie"}
-        ).done(exam_mol);
+        ).done(display_pnet_graph);
+
+	utils.ajax(
+            self.connect_uri,
+            'GET',
+            {command:"prot_from_mol",
+             mol_desc:data.mol_name,
+	     container: "bacterie"}
+        ).done(display_prot_graph);
+	    
+	$('#mol_name_display').accordion('refresh');
     }
     
 // ** update_bact
     self.update = function() {
-        
+	self.mols.removeAll();
+	
         bact_data = function(data) {
             mols_data = data.data["molecules list"];
             for (var i = 0; i < mols_data.length; i++) {
@@ -67,7 +77,7 @@ function BactViewModel() {
             }
         }
         
-        self.ajax(
+        utils.ajax(
             self.connect_uri,
             'GET',
             {command:"get_bact_elements"}
@@ -81,16 +91,15 @@ function BactViewModel() {
 
 // ** mol_select   
     self.mol_select = function(index) {
-	if (self.selected_mol != -1) {
-	    self.mols()[self.selected_mol]["status"]("")
+	if (self.selected_mol() != -1
+	    && self.selected_mol() < self.mols().length) {
+	    self.mols()[self.selected_mol()]["status"]("")
 	}
 	self.mols()[index]["status"]("active");
-	self.selected_mol = index;
+	self.selected_mol(index);
 	
 	self.examine(self.mols()[index])
     }
 }
-
-ko.applyBindings(new BactViewModel());
 
 
