@@ -172,8 +172,3 @@ Executable "bact_web_test"
 #   Path: src/gui/server/
 #   MainIs : debug_server.ml
 #   BuildDepends : unix
-
-Executable "file_server"
-  Path: src/gui/server/
-  MainIs : file_engine.ml
-  BuildDepends : nethttpd

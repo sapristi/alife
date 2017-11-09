@@ -31,8 +31,6 @@ var prot_style =
 make_prot_graph = function(prot_data, container) {
     var cy = cytoscape({container:container, style:prot_style});
     
-    console.log(prot_data);
-
     for (var i = 0;i < prot_data.length;i++){
 	
 	cy.add({
@@ -52,7 +50,6 @@ make_prot_graph = function(prot_data, container) {
     }
 
     cy.on('click', 'node', function(evt){
-	console.log(evt.target)
 	console.log(evt.target.data())
     });
     
@@ -109,10 +106,9 @@ var pnet_style= [
     }
 ];
 
-make_pnet_graph = function(pnet_data, container, nodeVM) {
+make_pnet_graph = function(pnet_data, container, eventHandler) {
     var cy = cytoscape({container:container, style:pnet_style});
-    console.log(pnet_data)
-
+        
     var selected = 0;
     
     for (var i = 0;i < pnet_data["places"].length;i++){
@@ -161,16 +157,14 @@ make_pnet_graph = function(pnet_data, container, nodeVM) {
         });
     }
 
-    // cy.on('click', function(evt){
-    // 	console.log(evt.target);
-    // 	if (selected != 0)
-    // 	{selected.removeClass("selected");}
-	
-    // 	evt.target.addClass("selected");
-    // 	selected = evt.target;
-    // 	nodeVM.update_data(evt.target.data());
-    // });
-	    
+    cy.on('select', 'node', function(evt){
+    	eventHandler.set_node_selected(evt.target.data());
+    });
+
+    
+    cy.on('unselect', 'node', function(evt){
+    	eventHandler.set_node_unselected();
+    });
     return cy;
 }
 

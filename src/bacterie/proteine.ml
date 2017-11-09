@@ -388,4 +388,29 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
          | AcidTypes.Grab_ext g -> "EG"^(to_string prot')
        end
     | [] -> ""
+
+(* *** to_json *)
+
+  let acid_to_json (a : acid) = 
+    match a with
+    | Node _ -> `Assoc [("atype", `String "Place")]
+    | TransitionInput (tid, tt) ->
+       `Assoc [("atype", `String "TransitionInput");
+               ("options",
+                `Assoc
+                 [("TransID", `String tid);
+                  ("titype", AcidTypes.transition_input_type_to_yojson tt)])]
+    | TransitionOutput (tid, tt) ->
+       `Assoc [("atype", `String "TransitionOutput");
+               ("options",
+                `Assoc
+                 [("TransID", `String tid);
+                  ("totype", AcidTypes.transition_output_type_to_yojson tt)])]
+    | Extension e ->
+       `Assoc [("atype", `String "Extension");
+               ("options", AcidTypes.extension_type_to_yojson e)]
+
+
+  let to_json (prot : t) =
+    `List (List.map (fun a -> acid_to_json a) prot)
 end;;

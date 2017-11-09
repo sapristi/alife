@@ -32,7 +32,7 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
     let mol_desc = cgi # argument_value "mol_desc" in
     let mol = Molecule.string_to_acid_list mol_desc in
     let prot = Proteine.from_mol mol in
-    let prot_json = Proteine.to_yojson prot
+    let prot_json = Proteine.to_json prot
     in
     let to_send_json =
       `Assoc

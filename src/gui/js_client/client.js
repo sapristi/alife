@@ -5,13 +5,20 @@ $('.menu .item').tab();
 // for the accordion
 $('#mol_name_display').accordion();
 
+// viewmodel
+var initVM = function() {
+    self.placeVM = new PlaceViewModel();
+    self.pnetVM = new PNetViewModel(placeVM);
+    self.bactVM = new BactViewModel(pnetVM);
+    masterVM =	{
+	placeVM : self.placeVM,
+	bactVM : self.bactVM,
+	pnetVM : self.pnetVM
+    }
 
-//pnet viewmodel
-self.nodeViewModel = new NodeViewModel();
+    ko.applyBindings(masterVM);
+    bactVM.init_data();
+};
 
-// bact viewmodel
-var bactViewModel = new BactViewModel(nodeViewModel);
-ko.applyBindings(bactViewModel);
-bactViewModel.init_data();
-
+initVM();
 

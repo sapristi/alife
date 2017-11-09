@@ -3,10 +3,8 @@
 // * taskviewmodel
 // Main taskview
 
-function BactViewModel(nodeVM) {
+function BactViewModel(pnetVM) {
     var self = this;
-    self.nodeVM = nodeVM;
-
 
 // ** variables
     self.connect_uri = 'http://localhost:1512/sim_commands/';
@@ -32,15 +30,6 @@ function BactViewModel(nodeVM) {
                 document.getElementById('prot_cy'));
             prot_cy.layout({name:"circle"}).run()
         }
-        display_pnet_graph = function(data) {
-            var pnet_cy = make_pnet_graph(
-                data["data"]["pnet"],
-                document.getElementById('pnet_cy'),
-		nodeVM);
-
-	    
-            pnet_cy.layout({name:"cose"}).run();
-        }
         
         utils.ajax(
             self.connect_uri,
@@ -48,7 +37,8 @@ function BactViewModel(nodeVM) {
             {command:"pnet_from_mol",
              mol_desc:data.mol_name,
 	     container: "bacterie"}
-        ).done(display_pnet_graph);
+        ).done(
+	    function (data) {pnetVM.set_data(data["data"]["pnet"])});
 
 	utils.ajax(
             self.connect_uri,

@@ -6,6 +6,8 @@ open Nethttp.Header
 open Nethttpd_types
 open Nethttpd_kernel
 open Nethttpd_services
+open Nethttpd_engine
+open Nethttpd_types
 open Nethttpd_reactor;;
 
 
@@ -28,7 +30,7 @@ let get_my_addr () =
   (Unix.gethostbyname(Unix.gethostname())).Unix.h_addr_list.(0) ;;
 
    
-let make_srv req_processor port =
+let make_srv req_processor (port : int) =
   host_distributor
     [ default_host ~pref_name:"localhost" ~pref_port:port (),
       uri_distributor
@@ -45,25 +47,62 @@ let make_srv req_processor port =
     ]
 
 
+let serve_connection ues fd req_processor (port:int)=
+  let config =
+    new Nethttpd_engine.modify_http_engine_config
+      ~config_input_flow_control:true
+      ~config_output_flow_control:true
+      Nethttpd_engine.default_http_engine_config in
+  let pconfig = 
+    new Nethttpd_engine.buffering_engine_processing_config in
+
+  Unix.set_nonblock fd;
+
+  ignore(Nethttpd_engine.process_connection
+           config
+           pconfig
+           fd
+           ues
+           (make_srv req_processor port))
+;;
+
+let rec accept req_processor (port:int) ues srv_sock_acc =
+  (* This function accepts the next connection using the [acc_engine]. After the   
+   * connection has been accepted, it is served by [serve_connection], and the
+   * next connection will be waited for (recursive call of [accept]). Because
+   * [server_connection] returns immediately (it only sets the callbacks needed
+   * for serving), the recursive call is also done immediately.
+   *)
+  let acc_engine = srv_sock_acc # accept() in
+  Uq_engines.when_state
+    ~is_done:(fun (fd,fd_spec) ->
+      if srv_sock_acc # multiple_connections then (
+        serve_connection ues fd req_processor port;
+        accept req_processor port ues srv_sock_acc
+      ) else
+        srv_sock_acc # shut_down())
+    ~is_error:(fun _ -> srv_sock_acc # shut_down())
+    acc_engine;
+;;
 
 
-let start_srv req_processor port =
-  let config = Nethttpd_reactor.default_http_reactor_config in
-  let master_sock = Unix.socket Unix.PF_INET Unix.SOCK_STREAM 0 in
-  Unix.setsockopt master_sock Unix.SO_REUSEADDR true;
-  Unix.bind master_sock (Unix.ADDR_INET(Unix.inet_addr_any, port));
-  Unix.listen master_sock 100;
+
+
+let start_srv req_processor (port:int) =
+  
+  let ues = Unixqueue.create_unix_event_system () in
+  let opts = { Uq_server.default_listen_options with
+               Uq_server.lstn_backlog = 20;
+               Uq_server.lstn_reuseaddr = true } in
+  let lstn_engine =
+    Uq_server.listener
+      (`Socket(`Sock_inet(Unix.SOCK_STREAM, Unix.inet_addr_any, port) ,opts)) ues in
+  Uq_engines.when_state ~is_done:(accept req_processor port ues) lstn_engine;
+  
   Printf.printf "Listening on port %i\n" port;
   flush stdout;
-
-    while true do
-    try
-      let conn_sock, _ = Unix.accept master_sock in
-      Unix.set_nonblock conn_sock;
-      process_connection config conn_sock (make_srv req_processor port);
-    with
-        Unix.Unix_error(Unix.EINTR,_,_) -> ()  (* ignore *)
-  done
+  
+  Unixqueue.run ues
 ;;
 
 (*
