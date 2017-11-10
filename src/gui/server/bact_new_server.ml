@@ -78,9 +78,16 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
     
     Yojson.Safe.to_string json_data
 
+  and make_reactions () =
+    Bacterie.make_reactions bact;
+    let json_data = `Assoc
+                     ["purpose", `String "bactery_update_desc";
+                      "data", (Bacterie.to_json bact)] in  
+    Yojson.Safe.to_string json_data
+    
   in
 
-  print_endline (cgi # environment # cgi_query_string);
+  print_endline ("serving_request :"^(cgi # environment # cgi_query_string));
   
   let command = cgi # argument_value "command" in
 
@@ -97,6 +104,9 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
 
     else if command = "get_sandbox_elements"
     then get_sandbox_elements ()
+
+    else if command = "make_reactions"
+    then make_reactions ()
     
     else ("did not recognize command : "^command)
   in

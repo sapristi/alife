@@ -91,14 +91,15 @@ module Token =
       
                       
     let to_json token =
-      let mol_desc =
-        if is_empty token
-        then "empty"
-        else "molecule"
-      and label_desc = get_label token
-      in
-      `Assoc ["id", `Int token.global_id;
-              "mol", `String mol_desc;
-             "label", `String label_desc]
+      if is_empty token
+      then 
+        `Assoc ["id", `Int token.global_id;
+                "is_empty", `Bool true]
+      else
+        let m1, m2 = token.linked_mol in
+        `Assoc ["id", `Int token.global_id;
+                "is_empty", `Bool false;
+                "mol_1", `String (Molecule.to_string m1);
+                "mol_2", `String (Molecule.to_string m2);]
                       
   end

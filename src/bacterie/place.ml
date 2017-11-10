@@ -125,5 +125,7 @@ module Place =
 (* ** to_json *)
     let to_json (p : t) =
       `Assoc
-       [("id", `Int p.global_id); ("token", token_holder_to_json p.tokenHolder)]
+       [("id", `Int p.global_id);
+        ("token", token_holder_to_json p.tokenHolder);
+        ("extensions"), `List (List.map AcidTypes.extension_type_to_yojson p.extensions)]
   end;;

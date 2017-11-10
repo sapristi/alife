@@ -94,7 +94,7 @@ var pnet_style= [
         selector: '.transition',
         style: {
             'shape' : 'rectangle',
-            'height' : '20px'
+            'height' : '20px',
         }
     },
     {
@@ -102,6 +102,12 @@ var pnet_style= [
         style: {
             'curve-style' : 'bezier',
             'target-arrow-shape': 'triangle'
+        }
+    },
+    {
+        selector : 'edge:selected',
+        style: {
+	    'label': 'data(label)'
         }
     }
 ];
@@ -111,8 +117,8 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
         
     var selected = 0;
     
-    for (var i = 0;i < pnet_data["places"].length;i++){
-	var mytoken = pnet_data["places"][i]["token"];
+    for (var i = 0;i < pnet_data.places.length;i++){
+	var mytoken = pnet_data.places[i].token;
 	if (mytoken == "no token")
 	{ var myclasses = "place";}
 	else {var myclasses = "place withToken";}
@@ -120,45 +126,54 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
         cy.add({
             group: "nodes",
             data: {id :"p"+i,
-		   token : mytoken},
+		   token : mytoken,
+		   type : "place",
+		   extensions : pnet_data.places[i].extensions},
             classes: myclasses});
     }
 
-    for (var i = 0; i < pnet_data["transitions"].length;i++){
-        var t = pnet_data["transitions"][i];
+    for (var i = 0; i < pnet_data.transitions.length;i++) {
+        var t = pnet_data.transitions[i];
         var tname = "t" + i;
 
         cy.add({
             group: "nodes",
-            data: { id:tname},
+            data: { id:tname,
+		    type : "transition"},
             classes : "transition"});
         
-        var dep_places = t["dep_places"];
-        var arr_places = t["arr_places"];
+        var input_arcs = t.input_arcs;
+        var output_arcs = t.output_arcs;
         
-        dep_places.forEach(function(dp) {
+        input_arcs.forEach(function(dp) {
             cy.add({
                 group: "edges",
                 data: {
-                    source : "p"+ dp["place"],
+                    source : "p"+ dp.place,
                     target : tname,
-                    directed : true}
+                    directed : true,
+		    label: dp.type[0]}
             });
         });
         
-        arr_places.forEach(function(dp) {
+        output_arcs.forEach(function(dp) {
             cy.add({
                 group: "edges",
                 data: {
                     source : tname,
-                    target : "p"+ dp["place"],
-                    directed : true}
+                    target : "p"+ dp.place,
+                    directed : true,
+		    label: dp.type[0]}
             });
         });
     }
 
     cy.on('select', 'node', function(evt){
     	eventHandler.set_node_selected(evt.target.data());
+	evt.target.incomers('edge')
+	    .forEach(function(edge){edge.select();});
+	evt.target.outgoers('edge')
+	    .forEach(function(edge){edge.select();});
     });
 
     

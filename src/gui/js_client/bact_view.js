@@ -3,13 +3,15 @@
 // * taskviewmodel
 // Main taskview
 
-function BactViewModel(pnetVM) {
+function BactViewModel(pnetVM, protVM) {
     var self = this;
 
 // ** variables
-    self.connect_uri = 'http://localhost:1512/sim_commands/';
     self.mols = ko.observableArray();
     self.selected_mol = ko.observable(-1);
+    self.pnet_show = ko.observable(true);
+    self.pnetVM = pnetVM;
+    self.protVM = protVM;
     
     self.current_mol_name = ko.computed(
 	function() {
@@ -21,63 +23,42 @@ function BactViewModel(pnetVM) {
     
     
 // ** examine a molecule
-    self.examine = function(data){
-
-        display_prot_graph = function(data) {
-            
-            var prot_cy = make_prot_graph(
-                data["data"]["prot"],
-                document.getElementById('prot_cy'));
-            prot_cy.layout({name:"circle"}).run()
-        }
-        
-        utils.ajax(
-            self.connect_uri,
-            'GET',
-            {command:"pnet_from_mol",
-             mol_desc:data.mol_name,
-	     container: "bacterie"}
-        ).done(
-	    function (data) {pnetVM.set_data(data["data"]["pnet"])});
-
-	utils.ajax(
-            self.connect_uri,
-            'GET',
-            {command:"prot_from_mol",
-             mol_desc:data.mol_name,
-	     container: "bacterie"}
-        ).done(display_prot_graph);
-	    
-	$('#mol_name_display').accordion('refresh');
+    self.examine_mol = function(mol_data){
+        self.pnetVM.set_data(mol_data.mol_name);
+	self.protVM.set_data(mol_data.mol_name);
     }
     
 // ** update_bact
-    self.update = function() {
+    self.set_bact_data = function(data){
 	self.mols.removeAll();
-	
-        bact_data = function(data) {
-            mols_data = data.data["molecules list"];
-            for (var i = 0; i < mols_data.length; i++) {
-                self.mols.push(
-                    {
-                        mol_name : mols_data[i]["mol"],
-                        mol_number : mols_data[i]["nb"],
-                        status : ko.observable("")
-                    });
-            }
+        mols_data = data.data["molecules list"];
+        for (var i = 0; i < mols_data.length; i++) {
+            self.mols.push(
+                {
+                    mol_name : mols_data[i]["mol"],
+                    mol_number : mols_data[i]["nb"],
+                    status : ko.observable("")
+                });
         }
-        
+    };
+    
+    self.update = function() {
         utils.ajax(
-            self.connect_uri,
-            'GET',
             {command:"get_bact_elements"}
-        ).done(bact_data);
-    }
+        ).done(self.set_bact_data);
+    };
 
+    
+    self.eval_reactions = function() {
+        utils.ajax(
+            {command:"make_reactions"}
+        ).done(self.set_bact_data);
+    };
+    
 // ** init_data
     self.init_data = function() {
         self.update();
-    }
+    };
 
 // ** mol_select   
     self.mol_select = function(index) {
@@ -88,8 +69,9 @@ function BactViewModel(pnetVM) {
 	self.mols()[index]["status"]("active");
 	self.selected_mol(index);
 	
-	self.examine(self.mols()[index])
-    }
+	self.examine_mol(self.mols()[index])
+    };
+
 }
 
 

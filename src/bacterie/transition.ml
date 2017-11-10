@@ -24,15 +24,15 @@ struct
   type t =
     {
       places : Place.t array;
-      input_links : (int * AcidTypes.transition_input_type) list;
-      output_links : (int * AcidTypes.transition_output_type) list;
+      input_arcs : (int * AcidTypes.transition_input_type) list;
+      output_arcs : (int * AcidTypes.transition_output_type) list;
     }
     
 (* ** launchable function *)
 (* Tells whether a given transition can be launched, *)
 (* i.e. checks whether *)
 (*  - departure places contain a token *)
-(*  - filtering input_links have a token with the right label *)
+(*  - filtering input_arcs have a token with the right label *)
 (*  - arrival places are token-free *)
 
 let launchable (transition : t) =
@@ -59,12 +59,12 @@ let launchable (transition : t) =
   List.fold_left
     (fun res (p_id, t_i) -> res && launchable_input_link t_i (transition.places.(p_id)))
     true
-    transition.input_links
+    transition.input_arcs
   &&
     List.fold_left
       (fun res (p_id, t_o) -> res && launchable_output_link t_o (transition.places.(p_id)))
       true
-      transition.output_links
+      transition.output_arcs
     
 
 (* ** make function       *)
@@ -72,10 +72,10 @@ let launchable (transition : t) =
 
     
   let make (places : Place.t array)
-           (input_links : (int * AcidTypes.transition_input_type) list)
-           (output_links : (int * AcidTypes.transition_output_type) list) =
+           (input_arcs : (int * AcidTypes.transition_input_type) list)
+           (output_arcs : (int * AcidTypes.transition_output_type) list) =
 
-    {places; input_links; output_links}
+    {places; input_arcs; output_arcs}
           
 (* ** apply_transition function *)
 (* Applique la fonction de transition d'une transition à une liste de tokens.  *)
@@ -133,10 +133,10 @@ let apply_transition (transition : t) : transition_effect list=
   in
   let i_arc_l = List.map
                   (fun (pid, t) -> transition.places.(pid),t)  
-                  transition.input_links
+                  transition.input_arcs
   and o_arc_l = List.map
                   (fun (pid, t) -> transition.places.(pid),t)  
-                  transition.output_links
+                  transition.output_arcs
   in apply_transition_outputs
        o_arc_l
        (apply_transition_inputs i_arc_l)
@@ -144,14 +144,14 @@ let apply_transition (transition : t) : transition_effect list=
 (* ** to_json function*)
   let to_json (trans : t) : Yojson.Safe.json =
     `Assoc [
-       "dep_places",
+       "input_arcs",
        `List (List.map
                 (fun (x,y) -> `Assoc [("place", `Int x); ("type", AcidTypes.transition_input_type_to_yojson y)])
-                trans.input_links);
-       "arr_places", 
+                trans.input_arcs);
+       "output_arcs", 
        `List (List.map
                 (fun (x,y) -> `Assoc [("place", `Int x); ("type", AcidTypes.transition_output_type_to_yojson y)])
-                trans.output_links);]
+                trans.output_arcs);]
       
 end;;
   
