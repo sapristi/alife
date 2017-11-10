@@ -1,13 +1,14 @@
-var connect_uri = 'http://localhost:1512/sim_commands/';
-    
+//var connect_uri = 'http://localhost:1512/sim_commands/';
+
 var utils = {
     
     ajax : function(req_data) {
+	var connect_uri = window.location.href + "sim_commands/";
 	var request = {
             url: connect_uri,
             dataType: 'json',
             data: req_data,
-            crossDomain: true,
+	    method:'GET',
             success : function(json) {
                 console.log(json);
             },

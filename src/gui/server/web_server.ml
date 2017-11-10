@@ -30,9 +30,10 @@ let get_my_addr () =
   (Unix.gethostbyname(Unix.gethostname())).Unix.h_addr_list.(0) ;;
 
    
-let make_srv req_processor (port : int) =
+let make_srv req_processor (conn_attr : (string * int)) =
+  let (host_name, port) = conn_attr in
   host_distributor
-    [ default_host ~pref_name:"localhost" ~pref_port:port (),
+    [ default_host ~pref_name:host_name ~pref_port:port (),
       uri_distributor
         [ "*", (options_service());
           "/", (file_service fs_spec);
@@ -47,7 +48,7 @@ let make_srv req_processor (port : int) =
     ]
 
 
-let serve_connection ues fd req_processor (port:int)=
+let serve_connection ues fd req_processor (conn_attr)=
   let config =
     new Nethttpd_engine.modify_http_engine_config
       ~config_input_flow_control:true
@@ -63,10 +64,10 @@ let serve_connection ues fd req_processor (port:int)=
            pconfig
            fd
            ues
-           (make_srv req_processor port))
+           (make_srv req_processor conn_attr))
 ;;
 
-let rec accept req_processor (port:int) ues srv_sock_acc =
+let rec accept req_processor (conn_attr) ues srv_sock_acc =
   (* This function accepts the next connection using the [acc_engine]. After the   
    * connection has been accepted, it is served by [serve_connection], and the
    * next connection will be waited for (recursive call of [accept]). Because
@@ -77,8 +78,8 @@ let rec accept req_processor (port:int) ues srv_sock_acc =
   Uq_engines.when_state
     ~is_done:(fun (fd,fd_spec) ->
       if srv_sock_acc # multiple_connections then (
-        serve_connection ues fd req_processor port;
-        accept req_processor port ues srv_sock_acc
+        serve_connection ues fd req_processor conn_attr;
+        accept req_processor conn_attr ues srv_sock_acc
       ) else
         srv_sock_acc # shut_down())
     ~is_error:(fun _ -> srv_sock_acc # shut_down())
@@ -88,7 +89,9 @@ let rec accept req_processor (port:int) ues srv_sock_acc =
 
 
 
-let start_srv req_processor (port:int) =
+let start_srv req_processor (conn_attr) =
+  
+  let (host_name, port) = conn_attr in
   
   let ues = Unixqueue.create_unix_event_system () in
   let opts = { Uq_server.default_listen_options with
@@ -97,9 +100,9 @@ let start_srv req_processor (port:int) =
   let lstn_engine =
     Uq_server.listener
       (`Socket(`Sock_inet(Unix.SOCK_STREAM, Unix.inet_addr_any, port) ,opts)) ues in
-  Uq_engines.when_state ~is_done:(accept req_processor port ues) lstn_engine;
+  Uq_engines.when_state ~is_done:(accept req_processor conn_attr ues) lstn_engine;
   
-  Printf.printf "Listening on port %i\n" port;
+  Printf.printf "Listening as %s on port %i\n" host_name port;
   flush stdout;
   
   Unixqueue.run ues

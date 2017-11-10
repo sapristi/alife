@@ -84,7 +84,15 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
                      ["purpose", `String "bactery_update_desc";
                       "data", (Bacterie.to_json bact)] in  
     Yojson.Safe.to_string json_data
-    
+
+  and list_acids () =
+    let json_data = `Assoc
+                     ["places", `List (List.map Proteine.acid_to_json AcidExamples.nodes);
+                      "transition_inputs", `List (List.map Proteine.acid_to_json AcidExamples.transition_inputs);
+                      "transition_outputs", `List (List.map Proteine.acid_to_json AcidExamples.transition_outputs);
+                      "extensions", `List (List.map Proteine.acid_to_json AcidExamples.extensions);] in
+    Yojson.Safe.to_string json_data
+                      
   in
 
   print_endline ("serving_request :"^(cgi # environment # cgi_query_string));
@@ -107,6 +115,9 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
 
     else if command = "make_reactions"
     then make_reactions ()
+
+    else if command = "list_acids"
+    then list_acids ()
     
     else ("did not recognize command : "^command)
   in

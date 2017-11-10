@@ -12,7 +12,16 @@ open Sandbox;;
 open Bact_new_server;;
   
 
- 
+let port = ref 1512;;
+let host = ref "localhost";;
+
+let speclist = [ ("-port", Arg.Int (fun x -> port := x), "connection port");
+                 ("-host", Arg.String (fun x -> host := x), "declared host; must match the adress provided to the client")]
+    in let usage_msg = "Bact simul serveur" 
+       in Arg.parse speclist print_endline usage_msg
+;;
+
+  
  
 let prot2 = [
     Node Regular_place; Extension Init_with_token_ext; TransitionInput ("A", Regular_ilink);
@@ -67,5 +76,5 @@ let print_prot prot =
       bact
     in
     
-    start_srv (handle_req (make_bact ()) SandBox.empty) 1512 
+    start_srv (handle_req (make_bact ()) SandBox.empty) (!host, !port) 
    

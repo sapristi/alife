@@ -16,7 +16,8 @@ open Acid_types
 open Molecule
 open Atome
 open Graber
-   
+
+(* * Proteine module *)
 module Proteine = 
   struct 
     
@@ -414,3 +415,26 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
   let to_json (prot : t) =
     `List (List.map (fun a -> acid_to_json a) prot)
 end;;
+
+(* * AcidExamples module *)
+  
+module AcidExamples = 
+  struct
+    
+    let nodes = [ Proteine.Node (AcidTypes.Regular_place);]
+    let transition_inputs = [
+        Proteine.TransitionInput ("A", AcidTypes.Regular_ilink);
+        Proteine.TransitionInput ("A", AcidTypes.Split_ilink);
+        Proteine.TransitionInput ("A", AcidTypes.Filter_ilink "A");]
+    let transition_outputs = [
+        Proteine.TransitionOutput ("A", AcidTypes.Regular_olink);
+        Proteine.TransitionOutput ("A", AcidTypes.Bind_olink);
+        Proteine.TransitionOutput ("A", AcidTypes.Release_olink);]
+    let extensions = [
+        Proteine.Extension (AcidTypes.Release_ext);
+        Proteine.Extension (AcidTypes.Displace_mol_ext true);
+        Proteine.Extension (AcidTypes.Init_with_token_ext);
+      ]
+
+  end;;
+        
