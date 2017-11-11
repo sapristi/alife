@@ -15,63 +15,57 @@ module Place =
   struct
 
 (* ** divers *)
-
-    type token_holder = EmptyHolder | OccupiedHolder of Token.t
-      [@@deriving show]
-
-    let token_holder_to_json (th : token_holder) : Yojson.Safe.json =
-      match th with
-      | EmptyHolder -> `String "no token"
-      | OccupiedHolder t -> Token.to_json t
-
+           
     type place_exts = AcidTypes.extension_type list;;
     type t =
-      {mutable tokenHolder : token_holder;
+      {mutable token : Token.t;
        placeType : AcidTypes.place_type;
        extensions : AcidTypes.extension_type list;
        global_id : int;
        grabers : Graber.t list;
       }
-        [@@deriving show]
+        [@@deriving show, yojson]
 (* **** make a place *)
 (* ***** DONE allow place extension to initialise the place with an empty token *)
 
     let make (place_with_exts : AcidTypes.place_type *  place_exts)
         : t =
       let placeType, extensions = place_with_exts in
-      let tokenHolder = 
+      
+      let token = 
         if List.mem AcidTypes.Init_with_token_ext extensions
         then
-          OccupiedHolder (Token.make_empty ())
+          Token.Token
         else
-          EmptyHolder
+          Token.No_token
+        
       and grabers =
         List.fold_left
           (fun l acide ->
             match acide with AcidTypes.Grab_ext g -> g::l | _ -> l)
           [] extensions
       in
-        {tokenHolder;
+        {token;
          placeType;
          extensions;
          global_id = idProvider#get_id ();
          grabers}
      
-    let pop_token_for_transition (p : t) : Token.t =
-      match p.tokenHolder with
-      | EmptyHolder -> failwith "asking for token from empty place"
-      | OccupiedHolder token ->
-         p.tokenHolder <- EmptyHolder; token
+    let pop_token (p : t) : Token.t =
+      match p.token with
+      | No_token -> failwith "place.ml : cannot pop No_token"
+      | _ as token ->
+         p.token <- No_token; token
          
          
     let is_empty (p : t) : bool =
-      p.tokenHolder = EmptyHolder
+      p.token = No_token
       
     let remove_token (p : t) : unit=
-      p.tokenHolder <- EmptyHolder
+      p.token <- No_token
       
     let set_token (token : Token.t) (p : t) : unit =
-      p.tokenHolder <- OccupiedHolder token
+      p.token <-  token
 
 
 (* ** Token reçu d'une transition. *)
@@ -97,14 +91,6 @@ module Place =
           true;)
       else
         false
-      
-(* ** remove the token from tokenHolder *)
-    let pop_token (p : t) : Token.t =
-      match p.tokenHolder with
-      | EmptyHolder -> failwith "cannot pop token from empty place"
-      | OccupiedHolder token ->
-         ( remove_token p;
-         token )
 
 (* returns a list containing all the possible grab
    of the molecule by the grabers associated with index of the place *)
@@ -123,9 +109,11 @@ module Place =
         []
       
 (* ** to_json *)
+(*
     let to_json (p : t) =
       `Assoc
        [("id", `Int p.global_id);
         ("token", token_holder_to_json p.tokenHolder);
         ("extensions"), `List (List.map AcidTypes.extension_type_to_yojson p.extensions)]
+ *)
   end;;

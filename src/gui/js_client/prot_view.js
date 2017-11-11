@@ -32,7 +32,7 @@ function ProtViewModel() {
     
     self.set_data = function(mol_desc) {
 	
-	utils.ajax(
+	utils.ajax_get(
             {command:"prot_from_mol",
              mol_desc:mol_desc,
 	     container: "bacterie"}

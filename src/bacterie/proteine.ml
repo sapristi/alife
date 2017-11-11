@@ -354,7 +354,7 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
     | Extension (Information_ext s) :: prot' ->
        Atome.D::D::B::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | Extension (Grab_ext g) :: prot' ->
-      D::D::C::((g.id)@[Atome.D;D;D]@(to_molecule prot'))
+      D::D::C::((g.pattern_as_mol)@[Atome.D;D;D]@(to_molecule prot'))
       
     | [] -> []
           

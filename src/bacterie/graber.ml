@@ -28,7 +28,7 @@ module Graber =
 (* transform it back; this feature could be remove in future versions *)
 type t =
   { pattern : string;
-    id : Atome.t list}
+    pattern_as_mol : Atome.t list}
            [@@deriving show, yojson]
 
 (* *** grab type : represents the result of a grab tentative  *)
@@ -63,7 +63,7 @@ type t =
       | [] -> ""
     in
     {pattern = aux l;
-     id = l}
+     pattern_as_mol = l}
 
   let build_from_string (s : string) : t =
     let atom_list = Molecule.string_to_acid_list s in
@@ -82,5 +82,6 @@ type t =
     else
       No_grab
       
-
+  let to_json (graber : t) =
+    `Assoc (["pattern", `String graber.pattern])
 end

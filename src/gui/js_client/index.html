@@ -168,12 +168,14 @@
 
 		  <!-- ******* place extensions display -->
 		  <h5 class="ui header">Place extensions</h5>
-		  <div class="ui bulleted list">
+		  <div class="ui bulleted list"
+		       data-bind="visible:place_extensions().length > 0">
 		    <!-- ko foreach: place_extensions -->
 		    <div class="item" data-bind="text:$data"></div>
 		    <!-- /ko -->
 		  </div>
-
+		  <div data-bind="visible:place_extensions().length == 0">No extensions</div>
+		  
 		  <!-- ******* token display -->
 		  <h5 class="ui header">Token</h5>
 		  <p data-bind="text:token_state"></p>
@@ -203,32 +205,32 @@
 		    <div class="inline fields">
 		      <div class="field">
 			<div class="ui radio checkbox">
-			  <input name="token_state" value="no_token" type="radio">
+			  <input name="token_edit_state" value="no token" type="radio">
 			  <label>No token</label>
 			</div>
 		      </div>
 		      <div class="field">
 			<div class="ui radio checkbox">
-			  <input name="token_state" value="empty_token" type="radio" data-bind="checked : token_state">
+			  <input name="token_edit_state" value="empty token" type="radio" data-bind="checked : token_state">
 			  <label>Empty token</label>
 			</div>
 		      </div>
 		      <div class="field">
 			<div class="ui radio checkbox">
-			  <input name="token_state" value="occupied_token" type="radio" data-bind="checked : token_state">
+			  <input name="token_edit_state" value="occupied token" type="radio" data-bind="checked : token_state">
 			  <label>Occupied token</label>
 			</div>
 		      </div>
 		    </div>
-		    <div data-bind="visible: is_occupied">
+		    <div data-bind="visible: token_edit_state() == 'occupied token'">
 		      <div class="field">
-			<textarea rows=2></textarea>
+			<textarea rows=2 data-bind="value:token_edit_m1"></textarea>
 		      </div>
 		      <div class="field">
-			<textarea rows=2></textarea>
+			<textarea rows=2 data-bind="value:token_edit_m2"></textarea>
 		      </div>
 		    </div>
-		    <button class="ui primary button">
+		    <button class="ui primary button" data-bind="click:commit_token_edit">
 		      Commit
 		    </button>
 				    <button class="ui button">

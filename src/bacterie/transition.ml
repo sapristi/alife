@@ -42,15 +42,13 @@ let launchable (transition : t) =
     match input_link with
     | AcidTypes.Filter_ilink s ->
        begin
-         match place.Place.tokenHolder with
-         | Place.EmptyHolder -> false
-         | Place.OccupiedHolder token ->
+         match place.Place.token with
+         | No_token -> false
+         | _ as token ->
             s = Token.get_label token
        end
     | _ ->
-       match place.Place.tokenHolder with
-       | Place.EmptyHolder -> false
-       | Place.OccupiedHolder token -> true
+       not (Place.is_empty place)
   and launchable_output_link  
         (output_link : AcidTypes.transition_output_type)
         (place : Place.t) =
@@ -99,7 +97,7 @@ let apply_transition (transition : t) : transition_effect list=
     match i_arc_l with
     | (place, transi) :: i_arc_l' ->
        begin
-         let token = Place.pop_token_for_transition place in
+         let token = Place.pop_token place in
          match transi with
          | AcidTypes.Split_ilink  -> 
             let token1, token2 = Token.cut_mol token in

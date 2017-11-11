@@ -38,21 +38,27 @@ let make_srv req_processor (conn_attr : (string * int)) =
         [ "*", (options_service());
           "/", (file_service fs_spec);
           "/sim_commands/", (dynamic_service
-                  { dyn_handler = req_processor;
-                    dyn_activation = std_activation `Std_activation_buffered;
-                    dyn_uri = Some "/";
-                    dyn_translator = (fun _ -> "");
-                    dyn_accept_all_conditionals = false
-               })
+                               { dyn_handler = req_processor;
+                                 dyn_activation = std_activation `Std_activation_buffered;
+                                 dyn_uri = None;
+                                 dyn_translator = (fun _ -> "");
+                                 dyn_accept_all_conditionals = false
+                            })
         ]
-    ]
+    ] 
 
 
 let serve_connection ues fd req_processor (conn_attr)=
+  (* cgi config to change if diffent input methods are needed *)
+  let custom_cgi_config =Netcgi.default_config  in
   let config =
     new Nethttpd_engine.modify_http_engine_config
       ~config_input_flow_control:true
       ~config_output_flow_control:true
+      ~modify_http_processor_config:
+      (new Nethttpd_reactor.modify_http_processor_config
+         ~config_cgi:custom_cgi_config)
+    
       Nethttpd_engine.default_http_engine_config in
   let pconfig = 
     new Nethttpd_engine.buffering_engine_processing_config in

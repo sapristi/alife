@@ -37,7 +37,8 @@ make_prot_graph = function(prot_data, container) {
             group: "nodes",
             data: {id:"n"+i,
 		   type : prot_data[i]["atype"],
-		   option : prot_data[i]["options"]},
+		   option : prot_data[i]["options"],
+		   raw_data: prot_data[i]},
             classes: prot_data[i]["atype"]
         });
         
@@ -118,17 +119,18 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
     var selected = 0;
     
     for (var i = 0;i < pnet_data.places.length;i++){
-	var mytoken = pnet_data.places[i].token;
-	if (mytoken == "no token")
+	var token = pnet_data.places[i].token;
+	if (token[0] == "No_token")
 	{ var myclasses = "place";}
 	else {var myclasses = "place withToken";}
 	  
         cy.add({
             group: "nodes",
             data: {id :"p"+i,
-		   token : mytoken,
+		   token : token,
 		   type : "place",
-		   extensions : pnet_data.places[i].extensions},
+		   extensions : pnet_data.places[i].extensions,
+		  },
             classes: myclasses});
     }
 
@@ -139,7 +141,8 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
         cy.add({
             group: "nodes",
             data: { id:tname,
-		    type : "transition"},
+		    type : "transition"
+		  },
             classes : "transition"});
         
         var input_arcs = t.input_arcs;

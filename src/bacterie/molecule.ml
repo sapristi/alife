@@ -48,5 +48,7 @@ molecule     *)
     let string_to_message_mol (s : string) : t =
       (string_to_acid_list s)@[D;D;D]
 
-
+    let to_yojson (mol :t) =
+      `String (String.concat "" ((List.map Atome.to_string) mol))
+      
   end

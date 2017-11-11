@@ -92,37 +92,48 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
                       "transition_outputs", `List (List.map Proteine.acid_to_json AcidExamples.transition_outputs);
                       "extensions", `List (List.map Proteine.acid_to_json AcidExamples.extensions);] in
     Yojson.Safe.to_string json_data
-                      
+
+  and commit_token_edit  (cgi : Netcgi.cgi) =
+    ""
+    
+    
   in
 
-  print_endline ("serving_request :"^(cgi # environment # cgi_query_string));
+  
+  print_endline ("serving GET request :"^(cgi # environment # cgi_query_string));
   
   let command = cgi # argument_value "command" in
-
-  let response = 
   
+  let response = 
+    
     if command = "prot_from_mol"
     then prot_from_mol cgi
     
     else if command = "pnet_from_mol"
     then pnet_from_mol cgi
-
+    
     else if command = "get_bact_elements"
     then get_bact_elements ()
-
+    
     else if command = "get_sandbox_elements"
     then get_sandbox_elements ()
-
+    
     else if command = "make_reactions"
     then make_reactions ()
-
+    
     else if command = "list_acids"
     then list_acids ()
     
+    else if command = "commit token edit"
+    then commit_token_edit cgi
+      
     else ("did not recognize command : "^command)
-  in
-  print_endline ("preparing to send response :" ^response);
-  cgi # out_channel # output_string response;
-  cgi # out_channel # commit_work();
-  print_endline ("response sent");
+    in
+    
+    
+    print_endline ("preparing to send response :" ^response);
+    cgi # out_channel # output_string response;
+    cgi # out_channel # commit_work();
+    print_endline ("response sent");
+
 ;;

@@ -2,7 +2,7 @@
 
 var utils = {
     
-    ajax : function(req_data) {
+    ajax_get : function(req_data) {
 	var connect_uri = window.location.href + "sim_commands/";
 	var request = {
             url: connect_uri,
@@ -19,6 +19,24 @@ var utils = {
         return $.ajax(request);
     },
 
+    ajax_post : function(req_data) {
+	var connect_uri = window.location.href + "sim_commands/";
+	var request = {
+            url: connect_uri,
+            dataType: 'json',
+            data: JSON.stringify(req_data),
+            contentType: "application/json; charset=utf-8",
+	    method:'post',
+            success : function(json) {
+                console.log(json);
+            },
+            error: function(jqXHR) {
+                console.log("ajax error " + jqXHR.status);
+            }
+        };
+        return $.ajax(request);
+    },
+    
     string_rev : function(s) {
 	var splitString = s.split("");
 	var reverseArray = splitString.reverse(); 

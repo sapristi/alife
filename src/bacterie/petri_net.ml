@@ -137,7 +137,7 @@ struct
   let to_json (p : t) =
     `Assoc [
       "places",
-      `List (Array.to_list (Array.map Place.to_json p.places));
+      `List (Array.to_list (Array.map Place.to_yojson p.places));
       "transitions",
       `List (Array.to_list (Array.map Transition.to_json p.transitions));
       "molecule",
@@ -148,7 +148,7 @@ struct
   let to_json_update (p:t) =
     `Assoc [
       "places",
-      `List (Array.to_list (Array.map Place.to_json p.places));
+      `List (Array.to_list (Array.map Place.to_yojson p.places));
       "launchables",
       `List (List.map (fun x -> `Int x) p.launchables);]      
 end;;

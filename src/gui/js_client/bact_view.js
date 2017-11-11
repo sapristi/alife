@@ -43,14 +43,14 @@ function BactViewModel(pnetVM, protVM) {
     };
     
     self.update = function() {
-        utils.ajax(
+        utils.ajax_get(
             {command:"get_bact_elements"}
         ).done(self.set_bact_data);
     };
 
     
     self.eval_reactions = function() {
-        utils.ajax(
+        utils.ajax_get(
             {command:"make_reactions"}
         ).done(self.set_bact_data);
     };
