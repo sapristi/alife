@@ -5,168 +5,140 @@ open Proteine
 open Molecule
 open Bacterie
 open Petri_net
+open Sandbox
 
-   
-let handle_req bact env (cgi:Netcgi.cgi)  =
+let get_pnet_from_container
+      mol
+      (bact : Bacterie.t)
+      (sb : SandBox.t)
+      (cgi:Netcgi.cgi) =
 
-(* *** gibinitdata *)
-(* sends the initial simulation data, hardcoded in the program *)
-  let gibinitdata () =
-    let json_data = `Assoc
-                     ["target", `String "main";
-                      "purpose", `String "bactery_init_desc";
+  if cgi # argument_exists "container"
+  then 
+    if cgi # argument_value "container" = "bacterie"
+    then Bacterie.get_pnet_from_mol mol bact
+    else if cgi # argument_value "container" = "sandbox"
+    then SandBox.get_pnet_from_mol mol sb
+    else failwith "la requête ne contient pas de conteneur de molécule valide"
+  else failwith "la requête ne contient pas de conteneur de molécule" 
+;;
+
+  
+let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
+
+(* *** prot_from_mol *)
+  let prot_from_mol (cgi:Netcgi.cgi)  =
+    
+    let mol_desc = cgi # argument_value "mol_desc" in
+    let mol = Molecule.string_to_acid_list mol_desc in
+    let prot = Proteine.from_mol mol in
+    let prot_json = Proteine.to_json prot
+    in
+    let to_send_json =
+      `Assoc
+       ["purpose", `String "prot_from_mol";
+        "data", `Assoc ["prot", prot_json]] 
+    in
+    Yojson.Safe.to_string to_send_json
+
+(* *** pnet_from_mol *) 
+
+  and pnet_from_mol (cgi:Netcgi.cgi)  =
+
+    print_endline ("serving pnet_from_mol with mol :"
+                  ^(cgi # argument_value "mol_desc"));
+    let mol_desc = cgi # argument_value "mol_desc" in
+    let mol = Molecule.string_to_acid_list mol_desc in
+    let pnet = get_pnet_from_container mol bact sandbox cgi
+      
+    in 
+    
+    let pnet_json = PetriNet.to_json pnet
+    in
+    let to_send_json =
+      `Assoc
+       ["purpose", `String "pnet_from_mol";
+        "data",  `Assoc ["pnet", pnet_json]] 
+    in
+    Yojson.Safe.to_string to_send_json
+
+(* *** get_bact_elements *)
+
+  and get_bact_elements () =
+     let json_data = `Assoc
+                     ["purpose", `String "bact_elements";
                       "data", (Bacterie.to_json bact)] in
     
     Yojson.Safe.to_string json_data
 
-(* *** give_data_for_mol_exam *)
-(* sends the proteine and pnet data associated to a given mol *)
-  and give_data_for_mol_exam (cgi:Netcgi.cgi)  =
-    let mol_desc = cgi # argument_value "mol_desc" in
-    let mol = Molecule.string_to_acid_list mol_desc in
-    let prot = Proteine.from_mol mol 
-    and pnet = PetriNet.make_from_mol mol in
-    let pnet_json = PetriNet.to_json pnet
-    and prot_json = Proteine.to_yojson prot
-    in
-    let to_send_json =
-      `Assoc
-       ["purpose", `String "prot desc";
-        "data",
-        `Assoc
-         ["prot", prot_json;
-          "pnet", pnet_json]
-         ] 
-    in
-    Yojson.Safe.to_string to_send_json
-      
-
-(* *** give_prot_desc_for_simul *)
-(* sends the pnet data associated to a given molThe pnet is created  *)
-(* outside of the bactery, to simulates its transitions outside of  *)
-(* the main simulation *)
-  and give_prot_desc_for_simul (cgi:Netcgi.cgi) =
-    let mol_str = cgi # argument_value "data" in
-    let mol = Molecule.string_to_acid_list mol_str in
-    let _,pnet = MolMap.find mol bact.Bacterie.molecules
-    in
-    let pnet_json = PetriNet.to_json pnet in
+  and get_sandbox_elements () =
+     let json_data = `Assoc
+                     ["purpose", `String "sandbox_elements";
+                      "data", (SandBox.to_json sandbox)] in
     
-    let to_send_json =
-      `Assoc
-     ["purpose", `String "prot desc";
-      "data", pnet_json]
-      
-    in
-    Yojson.Safe.to_string to_send_json
+    Yojson.Safe.to_string json_data
 
+  and make_reactions () =
+    Bacterie.make_reactions bact;
+    let json_data = `Assoc
+                     ["purpose", `String "bactery_update_desc";
+                      "data", (Bacterie.to_json bact)] in  
+    Yojson.Safe.to_string json_data
 
-(* *** launch_transition *)
-(* launches a given transition of a pnet in the bacteria *)
-  and launch_transition (cgi:Netcgi.cgi) =
-    let mol_desc = cgi # argument_value  "mol_desc" 
-    and trans_id_str = cgi # argument_value "trans_id" in
-    let trans_id = int_of_string trans_id_str in
-    
-    let mol = Molecule.string_to_acid_list mol_desc in
-    Bacterie.launch_transition trans_id mol bact;
-    let _,pnet = MolMap.find mol bact.Bacterie.molecules
-    in
-    let pnet_update_json = PetriNet.to_json_update pnet in
-    
-    let to_send_json =
-      `Assoc
-       ["purpose", `String "updatedata";
-        "data", pnet_update_json]
-      
-    in
-    Yojson.Safe.to_string to_send_json
+  and list_acids () =
+    let json_data = `Assoc
+                     ["places", `List (List.map Proteine.acid_to_json AcidExamples.nodes);
+                      "transition_inputs", `List (List.map Proteine.acid_to_json AcidExamples.transition_inputs);
+                      "transition_outputs", `List (List.map Proteine.acid_to_json AcidExamples.transition_outputs);
+                      "extensions", `List (List.map Proteine.acid_to_json AcidExamples.extensions);] in
+    Yojson.Safe.to_string json_data
 
-(* *** gen_from_prot *)
-(* generates the molecule and the pnet associated with a proteine *)
-  and gen_from_prot (cgi:Netcgi.cgi) =
-    let prot_desc = cgi # argument_value "prot_desc" in
-    let prot_json = Yojson.Safe.from_string prot_desc in
-    let prot_or_error = Proteine.of_yojson prot_json in
-    match prot_or_error with
-  | Ok prot ->
-     let mol = Proteine.to_molecule prot in
-     let mol_json = `String (Molecule.to_string mol) in
-     let pnet = PetriNet.make_from_mol mol in
-     let pnet_json = PetriNet.to_json pnet in
-     let to_send_json =
-       `Assoc
-        ["purpose", `String "from prot";
-         "data",
-         `Assoc ["mol", mol_json; "pnet", pnet_json]]
-       
-     in
-     Yojson.Safe.to_string to_send_json
-  | Error s -> 
-     "error : "^s
-
-(* *** gen_from_mol *)
-(* generates the proteine and the pnet associated with a molecule *)
-and gen_from_mol (cgi:Netcgi.cgi) =
-  let mol_str = cgi # argument_value "mol_desc" in
-  let mol = Molecule.string_to_acid_list mol_str in
-
-  let prot = Proteine.from_mol mol in
-  let prot_json = Proteine.to_yojson prot in
-  let pnet = PetriNet.make_from_mol mol in
-  let pnet_json = PetriNet.to_json pnet in
-  let to_send_json =
-    `Assoc
-     ["purpose", `String "from mol";
-      "data",
-      `Assoc ["prot", prot_json; "pnet",pnet_json]]
-       
-  in
-  Yojson.Safe.to_string to_send_json 
-
-(* *** make_reactions *)
-(* evaluates possibles reactions in the simulation *)
-and make_reactions () =
-  Bacterie.make_reactions bact;
-  let json_data = `Assoc
-                   ["purpose", `String "bactery_update_desc";
-                    "data", (Bacterie.to_json bact)] in  
-  Yojson.Safe.to_string json_data
-  
-(* *** main *)
+  and commit_token_edit  (cgi : Netcgi.cgi) =
+    let token_str = cgi # argument_value "token" in
+    let token_json = Yojson.Safe.from_string token_str in
+    match (Token.Token.of_yojson token_json) with
+    | Ok token -> print_endline (Token.Token.show token);
+                  ""
+    | Error s -> print_endline "error decoding token";
+                 s
   in
 
-  print_endline (cgi # environment # cgi_query_string); 
   
-  let command = cgi # argument_value "command" in
-
+  print_endline ("serving GET request :"^(cgi # environment # cgi_query_string));
+  
+  let command = cgi # argument_value "command"
+  and container = cgi# argument_value "container" in
+  
   let response = 
-  
-    if command = "gibinitdata"
-    then gibinitdata ()
     
-    else if command = "give data for mol exam"
-    then give_data_for_mol_exam cgi
+    if command = "prot_from_mol"
+    then prot_from_mol cgi
     
-    else if command = "give prot desc for simul"
-    then give_prot_desc_for_simul cgi
+    else if command = "pnet_from_mol"
+    then pnet_from_mol cgi
     
-    else if command = "launch transition"
-    then launch_transition cgi
+    else if command = "get_bact_elements"
+    then get_bact_elements ()
     
-    else if command = "gen from mol"
-    then gen_from_mol cgi
+    else if command = "get_sandbox_elements"
+    then get_sandbox_elements ()
     
-    else if command = "gen from prot"
-    then gen_from_prot cgi
-    
-    else if command = "make reactions"
+    else if command = "make_reactions"
     then make_reactions ()
-          
-  
+    
+    else if command = "list_acids"
+    then list_acids ()
+    
+    else if command = "commit token edit"
+    then commit_token_edit cgi
+      
     else ("did not recognize command : "^command)
-  in
-  print_endline response;
-  cgi # out_channel # output_string response;
-  cgi # out_channel # commit_work()
+    in
+    
+    
+    print_endline ("preparing to send response :" ^response);
+    cgi # out_channel # output_string response;
+    cgi # out_channel # commit_work();
+    print_endline ("response sent");
+
 ;;
