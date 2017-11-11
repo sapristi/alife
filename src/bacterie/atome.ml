@@ -6,7 +6,7 @@
 
 module Atome =
   struct
-    type t =  A | B | C | D
+    type t =  A | B | C | D | E | F
                             [@@deriving show, yojson]
 
     let to_string (a : t) : string =
@@ -15,6 +15,8 @@ module Atome =
       | B -> "B"
       | C -> "C"
       | D -> "D"
+      | E -> "E"
+      | F -> "F"
 
     let of_char (c : char) : t = 
       match c with
@@ -22,6 +24,8 @@ module Atome =
       | 'B' -> B
       | 'C' -> C
       | 'D' -> D
-      | _ -> failwith "cannot interpret this char as an atom"
+      | 'E' -> E
+      | 'F' -> F
+      | c -> failwith ("cannot interpret char "^(Char.escaped c)^" as an atom")
            
   end

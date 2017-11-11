@@ -52,7 +52,7 @@ type position = int
 
 (* *** transition structure type definition *)
 
-(*     Structure utilisée pour stoquer une transition. *)
+(*     Structure utilisée pour stocker une transition. *)
 (*     Triplet contenant : *)
 (*       - une string, l'identifiant de la transition *)
 (*       - une liste int*transInputType , dont chaque item contient *)

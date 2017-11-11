@@ -19,18 +19,20 @@ function PlaceViewModel() {
 
     // do not call from this file !!!
     // make the test directly with self.token_token()[0]
-    self.is_occupied = ko.computed(
+    self.is_token = ko.computed(
 	function ()
-	{ return (self.token_state() == "Mol_token");});
+	{ return (self.token_state() == "Token");});
     
     self.disable = function() {self.active(false);};
     
     self.token_mol_disp = ko.computed(function() {
-	if (self.token()[0] == "Mol_token")
+	if (self.token()[0] == "Token")
 	{
-	    return utils.string_rev(self.token()[1])
-		+ "<font style='color:red'>⮞</font>"
-		+ self.token()[2];
+	    if (self.token()[1] != "" && self.token()[2] != "") {
+		return utils.string_rev(self.token()[1])
+		    + "<font style='color:red'>⮞</font>"
+		    + self.token()[2];
+	    } else {return  "No molecule in token";}
 	}
 	else {return "";}
     });
@@ -43,15 +45,9 @@ function PlaceViewModel() {
 
     
 // ** data setup
-    self.enable = function(place_data) {
-	
-	self.data = place_data;
-	self.token(self.data.token);
-	self.token_state(self.data.token[0]);
-	self.place_extensions.removeAll();
-	self.place_extensions(self.data.extensions.map(extension_to_string)); 
+    self.set_token_edit_state = function() {
 	self.token_edit_state(self.token_state());
-	if (self.is_occupied())
+	if (self.is_token())
 	{
 	    self.token_edit_m1(utils.string_rev(self.token()[1]));
 	    self.token_edit_m2(self.token()[2]);
@@ -62,6 +58,16 @@ function PlaceViewModel() {
 	    self.token_edit_m2("");
 	}
 
+    }
+    
+    self.enable = function(place_data) {
+	
+	self.data = place_data;
+	self.token(self.data.token);
+	self.token_state(self.data.token[0]);
+	self.place_extensions.removeAll();
+	self.place_extensions(self.data.extensions.map(extension_to_string));
+	self.set_token_edit_state()
 	self.active(true);
     };
 
@@ -87,25 +93,20 @@ function PlaceViewModel() {
     
 // ** token edit commit
     self.commit_token_edit = function() {
+	var new_token;
+	if (self.token_edit_state() == "Token") {
+	    new_token =
+		[self.token_edit_state(),
+		 utils.string_rev(self.token_edit_m1()).toUpperCase(),
+		 self.token_edit_m2().toUpperCase()];
+	} else {
+	    new_token =	[self.token_edit_state()];}
 	
-	utils.ajax_post(
-            {command: "commit token edit",
-             token: self.token(),
-	     container: "bacterie"}
-        ).done(
-	    function (data)
-	    {
-		placeVM.disable();
-		self.pnet_data = data.data.pnet;
-		self.change(!self.change());
-		self.initialised(true);
-		self.display_cy_graph();
-	    });
-	    
 	
 	utils.ajax_get(
             {command: "commit token edit",
-             token: JSON.stringify(self.token()),
+	     place_id : self.data.global_id,
+             token: JSON.stringify(new_token),
 	     container: "bacterie"}
         ).done(
 	    function (data)
@@ -135,7 +136,7 @@ function TransitionViewModel() {
 
 // * PNet VM
 
-function PNetViewModel(placeVM, transitionVM) {
+function PNetViewModel() {
     
 // ** initialisation
     var self = this;
@@ -145,8 +146,9 @@ function PNetViewModel(placeVM, transitionVM) {
 	 launchables:[]
 	}
     var pnet_cy;
-
-
+    self.placeVM = new PlaceViewModel();
+    self.transitionVM = new TransitionViewModel();
+    
 // ** observables controlling display
     self.initialised = ko.observable(false);
     self.active = ko.observable(true);
@@ -156,7 +158,7 @@ function PNetViewModel(placeVM, transitionVM) {
 	self.active(true);self.display_cy_graph()};
     self.disable = function() {
 	self.active(false);
-	placeVM.disable();
+	self.placeVM.disable();
     };
 	
 // ** data observables
@@ -196,7 +198,7 @@ function PNetViewModel(placeVM, transitionVM) {
         ).done(
 	    function (data)
 	    {
-		placeVM.disable();
+		self.placeVM.disable();
 		self.pnet_data = data.data.pnet;
 		self.change(!self.change());
 		self.initialised(true);
@@ -209,16 +211,16 @@ function PNetViewModel(placeVM, transitionVM) {
 // ** functions called by the cy graph to display node data
     self.set_node_selected = function(node_data) {
 	if (node_data.type == "place") {
-	    placeVM.enable(node_data);
-	    transitionVM.disable();
+	    self.placeVM.enable(node_data);
+	    self.transitionVM.disable();
 	} else if (node_data.type = "transition") {
-	    transitionVM.enable();
-	    placeVM.disable();
+	    self.transitionVM.enable();
+	    self.placeVM.disable();
 	}
     };
     self.set_node_unselected = function() {
-	placeVM.disable();
-	transitionVM.disable();
+	self.placeVM.disable();
+	self.transitionVM.disable();
     };
 };
 

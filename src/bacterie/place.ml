@@ -35,7 +35,7 @@ module Place =
       let token = 
         if List.mem AcidTypes.Init_with_token_ext extensions
         then
-          Token.Token
+          Token.make_empty ()
         else
           Token.No_token
         

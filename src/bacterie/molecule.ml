@@ -1,5 +1,5 @@
 
-
+open Result
 open Atome
    
 (* * Molecule *)
@@ -12,7 +12,7 @@ module Molecule =
     
                           
     type t = Atome.t list
-                     [@@deriving show, yojson]
+                     [@@deriving show]
            
     let to_string (mol : t) : string =
       List.fold_right (fun a s -> (Atome.to_string a)^s) mol ""
@@ -48,7 +48,13 @@ molecule     *)
     let string_to_message_mol (s : string) : t =
       (string_to_acid_list s)@[D;D;D]
 
-    let to_yojson (mol :t) =
+    let to_yojson (mol :t) : Yojson.Safe.json =
       `String (String.concat "" ((List.map Atome.to_string) mol))
+
+    let of_yojson (json : Yojson.Safe.json) : ((t, string) result)  =
+      match json with
+      | `String mol_str ->
+         Ok (string_to_acid_list mol_str)
+      | _ -> Error "molecule.ml : bad json in from_json"
       
   end

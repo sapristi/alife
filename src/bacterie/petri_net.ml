@@ -41,13 +41,14 @@ open Token
 module PetriNet =
 struct
   type t =
-    {prot : Proteine.t;
-     transitions : Transition.t array;
-     places : Place.t  array;
-     mutable launchables : int list;
-     handles_book : (string, int) BatMultiPMap.t;
-     mol_catchers_book : (string, int) BatMultiPMap.t ;
-     mol_grabers_book : (Graber.t, int) BatMultiPMap.t;
+    {
+      mol : Molecule.t;
+      transitions : Transition.t array;
+      places : Place.t  array;
+      mutable launchables : int list;
+      handles_book : (string, int) BatMultiPMap.t;
+      mol_catchers_book : (string, int) BatMultiPMap.t ;
+      mol_grabers_book : (Graber.t, int) BatMultiPMap.t;
     }
       
     
@@ -59,7 +60,7 @@ struct
       else ()
     done; !t_l
     
-  let make_from_prot (prot : Proteine.t) : t =
+  let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t =
   (* liste des signatures des transitions *)
     let transitions_signatures_list = Proteine.build_transitions prot
   (* liste des signatures des places *)
@@ -89,7 +90,7 @@ struct
   and mol_grabers_book = Proteine.build_grabers_book prot
 
   in
-  {prot; transitions; places;
+  {mol; transitions; places;
    launchables = (get_launchables transitions);
    handles_book; mol_catchers_book;
    mol_grabers_book;
@@ -97,7 +98,7 @@ struct
 
   let make_from_mol (mol : Molecule.t) : t =
     let prot = Proteine.from_mol mol in
-    make_from_prot prot
+    make_from_prot prot mol
     
 (* mettre à jour les transitions qui peuvent être lancées. *)
 (* Il faut prendre en compte la transition qui vient d'être lancée,  *)
@@ -141,7 +142,7 @@ struct
       "transitions",
       `List (Array.to_list (Array.map Transition.to_json p.transitions));
       "molecule",
-      Proteine.to_yojson p.prot;
+      Molecule.to_yojson p.mol;
       "launchables",
       `List (List.map (fun x -> `Int x) p.launchables);]
 

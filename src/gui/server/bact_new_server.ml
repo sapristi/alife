@@ -94,15 +94,20 @@ let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
     Yojson.Safe.to_string json_data
 
   and commit_token_edit  (cgi : Netcgi.cgi) =
-    ""
-    
-    
+    let token_str = cgi # argument_value "token" in
+    let token_json = Yojson.Safe.from_string token_str in
+    match (Token.Token.of_yojson token_json) with
+    | Ok token -> print_endline (Token.Token.show token);
+                  ""
+    | Error s -> print_endline "error decoding token";
+                 s
   in
 
   
   print_endline ("serving GET request :"^(cgi # environment # cgi_query_string));
   
-  let command = cgi # argument_value "command" in
+  let command = cgi # argument_value "command"
+  and container = cgi# argument_value "container" in
   
   let response = 
     
