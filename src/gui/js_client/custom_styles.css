@@ -1,0 +1,12 @@
+
+.cy-small {
+    width: 250px;
+    height: 300px;
+    position: relative;
+    margin: auto;
+    border: 1px solid #ddd;
+    overflow: auto !important;
+    border-radius: 0.25em;
+    resize:both
+}
+
