@@ -602,7 +602,38 @@ ce choix.
     #+RESULTS:
     [[file:ribosome_detailed.png]]
 
-    
+Description d'un ribosome qui reconnait deux atomes : A et B
+(non terminé et non débuggé)
+#+BEGIN_SRC
+[["Node"],
+["InputArc","A",["Regular_iarc"]],
+["InputArc","B",["Regular_iarc"]],
+["OutputArc","E",["Regular_oarc"]],
+["Node"],
+["InputArc","A",["Filter_iarc","A"]],
+["InputArc","B",["Filter_iarc","B"]],
+["OutputArc","E",["Regular_oarc"]],
+["Node"],
+["OutputArc","A",["Regular_oarc"]],
+["InputArc","C",["Regular_iarc"]],
+["Node"],
+["OutputArc","B",["Regular_oarc"]],
+["InputArc","F",["Regular_iarc"]],
+["Node"],
+["InputArc","C",["Regular_iarc"]],
+["Node"],
+["InputArc","F",["Regular_iarc"]],
+["Node"],
+["OutputArc","A",["Regular_oarc"]],
+["OutputArc","B",["Regular_oarc"]],
+["InputArc","E",["Regular_iarc"]],
+["Node"],
+["OutputArc","C",["Bind_oarc"]],
+["OutputArc","F",["Bind_oarc"]],
+["InputArc","E",["Regular_iarc"]]
+]   
+#+END_SRC
+
 **** Modèle 1
 
 *** Bacterie

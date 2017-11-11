@@ -39,7 +39,7 @@
   <body>
 
     <!-- ** tab switch -->
-    <div class="ui container"  data-bind="with:mainVM">
+    <div class="ui container"  data-bind="with:masterVM">
       <div class="ui top attached tabular menu" id="tab_menu">
 	<a class="item active" data-tab="sim_tab" id="sim_tab">Simulation</a>
 	<a class="item" data-tab="sandbox_tab">Bac à sable</a>
@@ -48,7 +48,7 @@
 
       <!-- ** first tab : bactery view -->
 
-      <div class="ui bottom attached tab segment active" data-tab="sim_tab">
+      <div class="ui bottom attached tab segment active" data-tab="sim_tab" data-bind="with:simVM">
 	<div class="ui divided grid">
 	  <!-- *** première ligne -->
 	  <div class="row" id="bactVM" data-bind="with:bactVM">
@@ -89,14 +89,21 @@
 	      </h4>
 	      <table class="ui fixed selectable table">
 		<thead ><tr>
-		  <th class="fourteen wide"> Molecule name</th>
-		  <th class="two wide" style="width:20px;"> Num</th>
+		  <th class="ten wide"> Molecule name</th>
+		  <th class="two wide"> Num</th>
+		  <th colspan="2" class="four wide"> Actions</th>
 		</tr></thead>
 		<tbody style="">
 		  <!-- ko foreach: mols -->
-		  <tr data-bind="css:status(),click: $parent.mol_select.bind($data,$index())">
+		  <tr data-bind="css:status()">
 		    <td style="word-wrap:break-word" data-bind="text:mol_name"> </td>
-		    <td data-bind="text:mol_number"></td>
+		    <td data-bind="text:mol_number"></t>
+		      <td><button class="ui icon button" data-bind="click:$parent.mol_select.bind($data,$index())">
+			<i class="eyedropper icon"></i>
+		      </button></td>
+		      <td><button class="ui icon button" data-bind="click:$root.molbuilderVM.init_from_mol">
+		      <i class="external square icon"></i>
+		    </button></td>
 		  </tr>
 		  <!-- /ko -->
 		</tbody></table>
@@ -306,25 +313,62 @@
             </div>
 
       <!-- ** third tab : mol builder view -->
-      <div class="ui bottom attached tab segment" data-tab="molbuilder_tab" id="molbuilder_tab">
-	<div class="ui grid">
+      <div class="ui bottom attached tab segment" data-tab="molbuilder_tab"  data-bind="with:molbuilderVM">
+	<div class="ui grid" >
+	  
 	  <div class="row">
 	    <div class="four wide column">
 	      <h4 class="ui horizontal divider header">
 		Petri Net view
 	      </h4>
-	      <div id="builder_pnet_cy">
+	      
+	      <button class="ui labeled icon button" data-bind="click:reset_graph_view">
+		<i class="refresh icon"></i> Refresh graph
+	      </button>
+	      <div id="molbuilder_pnet_cy"  class="cy-small">
 	      </div>
+	      
 	    </div>
 	    <div class="six wide column">
 	      <h4 class="ui horizontal divider header">
 		Acids
 	      </h4>
+
+	      <div class="ui segments">
+		<!-- ko foreach :acid_examples -->
+		<div class="ui segment" data-bind="text:type"></div>
+		    
+		    <div class="ui vertical buttons">
+		      <!-- ko foreach :$data.acids -->
+		      <button class="ui button" data-bind="text:JSON.stringify($data), click:$parents[1].insert_acid_in_prot"></button>
+		      <!-- /ko -->
+		    </div>
+		  
+		<!-- /ko -->
+	      </div>
 	    </div>
 	    <div class="six wide column">
 	      <h4 class="ui horizontal divider header">
 		Proteine
 	      </h4>
+	      <div class="ui buttons">
+		<button class="ui button" data-bind="click:commit_prot">
+		  Commit prot
+		</button>
+		<button class="ui button" data-bind="">
+		  Restore prot
+		</button>
+		<button class="ui button" data-bind="click:send_to_bactery">
+		  Send to bactery
+		</button>
+	      </div>
+	      <div class="ui form">
+		<div class="field">
+		  <textarea rows="15"
+			    data-bind="textInput:prot_text"
+			    id="molbuilder_prot_text"></textarea>
+		</div>
+	      </div>
 	    </div>
 	  </div>
 	</div>
@@ -337,9 +381,10 @@
 
   <script src="utils.js"> </script>
   <script src="cytoscape_functions.js"> </script>
-  <script src="main_view.js"> </script>
+  <script src="sim_view.js"> </script>
   <script src="pnet_view.js"> </script>
   <script src="prot_view.js"> </script>
   <script src="bact_view.js"> </script>
+  <script src="molbuilder_view.js"> </script>
   <script src="client.js"> </script>
 </html>

@@ -1,5 +1,4 @@
 
-open Result
 open Atome
    
 (* * Molecule *)

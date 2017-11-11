@@ -45,17 +45,17 @@ module AcidTypes =
                           [@@deriving show, yojson]
     
 (* *** transition_input *)
-    type transition_input_type = 
-      | Regular_ilink
-      | Split_ilink
-      | Filter_ilink of string
+    type input_arc_type = 
+      | Regular_iarc
+      | Split_iarc
+      | Filter_iarc of string
                           [@@deriving show, yojson]
                       
 (* *** transition_output *)
-    type transition_output_type = 
-      | Regular_olink
-      | Bind_olink
-      | Release_olink
+    type output_arc_type = 
+      | Regular_oarc
+      | Bind_oarc
+      | Release_oarc
 [@@deriving show, yojson]
 
 

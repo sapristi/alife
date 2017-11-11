@@ -107,7 +107,7 @@ function PlaceViewModel() {
             {command: "commit token edit",
 	     place_id : self.data.global_id,
              token: JSON.stringify(new_token),
-	     container: "bacterie"}
+	     container: "bactery"}
         ).done(
 	    function (data)
 	    {
@@ -180,7 +180,7 @@ function PNetViewModel() {
     self.display_cy_graph = function() {
 	if (self.active() && self.initialised)
 	{
-	    pnet_cy = make_pnet_graph(
+	    pnet_cy = new make_pnet_graph(
 		self.pnet_data,
 		document.getElementById('pnet_cy'),
 		self);
@@ -194,7 +194,7 @@ function PNetViewModel() {
         utils.ajax_get(
             {command: "pnet_from_mol",
              mol_desc: mol_desc,
-	     container: "bacterie"}
+	     container: "bactery"}
         ).done(
 	    function (data)
 	    {

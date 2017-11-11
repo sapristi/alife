@@ -7,11 +7,12 @@ function BactViewModel(pnetVM, protVM) {
     var self = this;
 
 // ** variables
+    self.pnetVM = pnetVM;
+    self.protVM = protVM;
+    
     self.mols = ko.observableArray();
     self.selected_mol = ko.observable(-1);
     self.pnet_show = ko.observable(true);
-    self.pnetVM = pnetVM;
-    self.protVM = protVM;
     
     self.current_mol_name = ko.computed(
 	function() {
@@ -44,14 +45,16 @@ function BactViewModel(pnetVM, protVM) {
     
     self.update = function() {
         utils.ajax_get(
-            {command:"get_bact_elements"}
+            {command:"get_elements",
+	     container:"bactery"}
         ).done(self.set_bact_data);
     };
 
     
     self.eval_reactions = function() {
         utils.ajax_get(
-            {command:"make_reactions"}
+            {command:"make_reactions",
+	     container:"bactery"}
         ).done(self.set_bact_data);
     };
     

@@ -126,19 +126,21 @@ Library "web_server"
   Modules: Web_server
   BuildDepends: nethttpd
 
+
+Library "bact_req_handler"
+  FindLibName : bact_req_handler
+  FindLibParent : servers
+  Path: src/gui/server
+  Modules: Bact_req_handler
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule
+
 Library "bact_server"
   FindLibName : bact_server
   FindLibParent : servers
   Path: src/gui/server
   Modules: Bact_server
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome, servers.web_server
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome, servers.web_server, bacterie.sandbox, servers.bact_req_handler
 
-Library "bact_new_server"
-  FindLibName : bact_new_server
-  FindLibParent : servers
-  Path: src/gui/server
-  Modules: Bact_new_server
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome, servers.web_server, bacterie.sandbox
 
 Library "servers"
   FindLibName : servers

@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 07b02eb5d0169bc96d6ead77376dbadb)
+# DO NOT EDIT (digest: 766271e03b199a1a95cd9484d2b52de8)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "servers.cma"
@@ -22,7 +22,7 @@ package "bact_server" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule bacterie.libs.atome servers.web_server"
+ "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule bacterie.libs.atome servers.web_server bacterie.sandbox servers.bact_req_handler"
  archive(byte) = "bact_server.cma"
  archive(byte, plugin) = "bact_server.cma"
  archive(native) = "bact_server.cmxa"
@@ -30,16 +30,16 @@ package "bact_server" (
  exists_if = "bact_server.cma"
 )
 
-package "bact_new_server" (
+package "bact_req_handler" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule bacterie.libs.atome servers.web_server bacterie.sandbox"
- archive(byte) = "bact_new_server.cma"
- archive(byte, plugin) = "bact_new_server.cma"
- archive(native) = "bact_new_server.cmxa"
- archive(native, plugin) = "bact_new_server.cmxs"
- exists_if = "bact_new_server.cma"
+ "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule"
+ archive(byte) = "bact_req_handler.cma"
+ archive(byte, plugin) = "bact_req_handler.cma"
+ archive(native) = "bact_req_handler.cmxa"
+ archive(native, plugin) = "bact_req_handler.cmxs"
+ exists_if = "bact_req_handler.cma"
 )
 # OASIS_STOP
 

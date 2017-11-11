@@ -9,7 +9,7 @@ open Graber;;
 open Atome.Atome;;
 open Sandbox;;
   
-open Bact_new_server;;
+open Bact_server;;
   
 
 let port = ref 1512;;
@@ -24,23 +24,23 @@ let speclist = [ ("-port", Arg.Int (fun x -> port := x), "connection port");
   
  
 let prot2 = [
-    Node Regular_place; Extension Init_with_token_ext; TransitionInput ("A", Regular_ilink);
-    Node Regular_place; TransitionOutput ("A", Regular_olink);
-    Node Regular_place; Extension Init_with_token_ext;];;
+    Node; Extension Init_with_token_ext; InputArc ("A", Regular_iarc);
+    Node ; OutputArc ("A", Regular_oarc);
+    Node ; Extension Init_with_token_ext;];;
 
 
 let prot3 = [
-    Node Regular_place;
+    Node ;
     Extension Init_with_token_ext;
-    TransitionInput ("A", Regular_ilink);
-    TransitionInput ("B", Regular_ilink);
+    InputArc ("A", Regular_iarc);
+    InputArc ("B", Regular_iarc);
     
-    Node Regular_place;
-    TransitionOutput ("A", Regular_olink);
+    Node ;
+    OutputArc ("A", Regular_oarc);
 
     
-    Node Regular_place;
-    TransitionOutput ("B", Regular_olink);
+    Node ;
+    OutputArc ("B", Regular_oarc);
 
   ];;
 
@@ -50,7 +50,7 @@ let patt_mol = [A;A;A;A;D;A;D;A;A;A;A];;
 let graber = Graber.build_from_atom_list patt_mol;;
     
 let prot4 = [
-    Node Regular_place;
+    Node ;
     Extension (Grab_ext graber)];;
   
 let mol5 = [A;A;A;A;A;A;A;A;A;];;

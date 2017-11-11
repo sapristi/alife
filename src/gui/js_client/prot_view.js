@@ -35,7 +35,7 @@ function ProtViewModel() {
 	utils.ajax_get(
             {command:"prot_from_mol",
              mol_desc:mol_desc,
-	     container: "bacterie"}
+	     container: "general"}
         ).done(
 	    function(data)
 	    {self.prot_data = data.data.prot;

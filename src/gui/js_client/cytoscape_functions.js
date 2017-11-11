@@ -114,7 +114,7 @@ var pnet_style= [
 ];
 
 make_pnet_graph = function(pnet_data, container, eventHandler) {
-    var cy = cytoscape({container:container, style:pnet_style});
+    var cy = new cytoscape({container:container, style:pnet_style});
         
     var selected = 0;
     
@@ -170,7 +170,7 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
             });
         });
     }
-
+    
     cy.on('select', 'node', function(evt){
     	eventHandler.set_node_selected(evt.target.data());
 	evt.target.incomers('edge')
@@ -178,11 +178,12 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
 	evt.target.outgoers('edge')
 	    .forEach(function(edge){edge.select();});
     });
-
+    
     
     cy.on('unselect', 'node', function(evt){
     	eventHandler.set_node_unselected();
     });
+    
     return cy;
 }
 

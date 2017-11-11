@@ -46,5 +46,16 @@ var utils = {
 	    var joinArray = reverseArray.join("");
 	    return joinArray;
 	}
+    },
+
+    
+
+    insertAtCursor : function (field, mystring) {
+	var cursorPosStart = field.prop('selectionStart');
+        var cursorPosEnd = field.prop('selectionEnd');
+        var v = field.val();
+        var textBefore = v.substring(0,  cursorPosStart );
+        var textAfter  = v.substring( cursorPosEnd, v.length );
+	field.val( textBefore + mystring +textAfter );
     }
 }

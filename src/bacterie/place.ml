@@ -19,7 +19,6 @@ module Place =
     type place_exts = AcidTypes.extension_type list;;
     type t =
       {mutable token : Token.t;
-       placeType : AcidTypes.place_type;
        extensions : AcidTypes.extension_type list;
        global_id : int;
        grabers : Graber.t list;
@@ -28,9 +27,9 @@ module Place =
 (* **** make a place *)
 (* ***** DONE allow place extension to initialise the place with an empty token *)
 
-    let make (place_with_exts : AcidTypes.place_type *  place_exts)
+    let make (exts_list : place_exts)
         : t =
-      let placeType, extensions = place_with_exts in
+      let extensions = exts_list in
       
       let token = 
         if List.mem AcidTypes.Init_with_token_ext extensions
@@ -46,7 +45,6 @@ module Place =
           [] extensions
       in
         {token;
-         placeType;
          extensions;
          global_id = idProvider#get_id ();
          grabers}

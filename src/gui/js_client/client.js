@@ -7,19 +7,17 @@ $('.ui.dropdown').dropdown();
 
 // viewmodel
 var initVM = function() {
-    self.pnetVM = new PNetViewModel();
-    self.protVM = new ProtViewModel();
-    self.bactVM = new BactViewModel(pnetVM, protVM);
-    self.mainVM = new MainViewModel(bactVM);
+    
+    self.simVM = new SimViewModel();
+    self.molbuilderVM = new MolBuilderViewModel ();
+    self.molbuilderVM.init_setup();
+    
     masterVM =	{
-	bactVM : self.bactVM,
-	pnetVM : self.pnetVM,
-	mainVM : self.mainVM,
-	protVM : self.protVM
+	simVM : self.simVM,
+	molbuilderVM : self.molbuilderVM
     }
 
     ko.applyBindings(masterVM);
-    bactVM.init_data();
 };
 
 initVM();
