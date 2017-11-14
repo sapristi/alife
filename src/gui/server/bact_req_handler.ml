@@ -53,15 +53,19 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
         let (_,pnet) = MolMap.find mol bact.molecules in
         Array.iter (fun (place : Place.t) : unit ->
             if (string_of_int place.global_id) = place_global_id
-            then
-              (
-                Place.set_token token place;
-                print_endline ("successfuly replaced token in place" ^ place_global_id);
-              )
+            then Place.set_token token place;
           ) pnet.places;
+        PetriNet.update_launchables pnet;
+ 
+        let pnet_json = PetriNet.to_json pnet
+        in
+        let to_send_json =
+          `Assoc
+           ["purpose", `String "pnet_update";
+            "data",  `Assoc ["pnet", pnet_json]] in  
+        Yojson.Safe.to_string to_send_json
+          
         
-        print_endline (Token.Token.show token);
-                  ""
     | Error s -> print_endline "error decoding token";
                  s
    

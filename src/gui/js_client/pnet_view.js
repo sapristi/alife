@@ -228,11 +228,11 @@ function PNetViewModel() {
         ).done(
 	    function (data)
 	    {
-		// placeVM.disable();
-		// self.pnet_data = data.data.pnet;
-		// self.change(!self.change());
-		// self.initialised(true);
-		// self.display_cy_graph();
+		
+		self.pnet_data = data.data.pnet;
+		update_pnet_graph(pnet_cy, self.pnet_data);
+		self.change(!self.change());
+
 	    });
     }
     
