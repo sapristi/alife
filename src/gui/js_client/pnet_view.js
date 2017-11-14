@@ -23,7 +23,9 @@ function PlaceViewModel() {
 	function ()
 	{ return (self.token_state() == "Token");});
     
-    self.disable = function() {self.active(false);};
+    self.disable = function() {
+	self.data = {};
+	self.active(false);};
     
     self.token_mol_disp = ko.computed(function() {
 	if (self.token()[0] == "Token")
@@ -60,7 +62,7 @@ function PlaceViewModel() {
 
     }
     
-    self.enable = function(place_data) {
+    self.enable = function(index, place_data) {
 	
 	self.data = place_data;
 	self.token(self.data.token);
@@ -111,13 +113,19 @@ function PlaceViewModel() {
 
 function TransitionViewModel() {
     var self = this;
+    self.data = {};
+    
     self.active = ko.observable(false);
-    self.enable = function() {
+    self.enable = function(data) {
+	self.data = data;
 	self.active(true);
     };
     self.disable = function() {
+	self.data = {};
 	self.active(false);
     };
+
+    
 }
 
 // * PNet VM
@@ -201,10 +209,13 @@ function PNetViewModel() {
     self.set_node_selected = function(node_data) {
 	if (node_data.type == "place") {
 	    self.placeVM.enable(
+		node_data.index,
 		self.pnet_data.places[node_data.index]);
 	    self.transitionVM.disable();
 	} else if (node_data.type = "transition") {
-	    self.transitionVM.enable();
+	    self.transitionVM.enable(
+		node_data.index,
+		self.pnet_data.transition[node_data.index]);
 	    self.placeVM.disable();
 	}
     };
@@ -217,12 +228,12 @@ function PNetViewModel() {
     self.commit_token_edit = function() {
 
 	var token = self.placeVM.get_edited_token();
-	var placeID = self.placeVM.data.global_id;
-	console.log(placeID)
+	var pindex = self.placeVM.data.index;
+	
 	utils.ajax_get(
             {command: "commit token edit",
 	     molecule : self.pnet_data.molecule,
-	     place_global_id : placeID,
+	     place_index : pindex,
              token: JSON.stringify(token),
 	     container: "bactery"}
         ).done(
@@ -236,6 +247,26 @@ function PNetViewModel() {
 	    });
     }
     
+// ** transition_launch*
+    self.launch_transition = function() {
+	
+	var placeID = self.transitionVM.data.global_id;
+	console.log(placeID)
+	utils.ajax_get(
+            {command: "launch_transition",
+	     molecule : self.pnet_data.molecule,
+	     transition_id : placeID,
+             container: "bactery"}
+        ).done(
+	    function (data)
+	    {	
+		self.pnet_data = data.data.pnet;
+		update_pnet_graph(pnet_cy, self.pnet_data);
+		self.change(!self.change());
+
+	    });
+
+    }
 
 };
 

@@ -60,23 +60,26 @@ struct
     and places_signatures_list = Proteine.build_nodes_list_with_exts prot
   in
   (* on crée de nouvelles places à partir de la liste de types données dans la molécule *)
-  let places_list : Place.t list = 
-    List.map 
-      (fun x -> Place.make x)
-      places_signatures_list
-    
-  in 
-  let (places : Place.t array) = Array.of_list places_list
+  let places : Place.t array = 
+    let psigs = ref places_signatures_list in
+    Array.init
+      (List.length !psigs)
+      (fun index -> 
+        let p = List.hd !psigs in
+        psigs := List.tl !psigs;
+        Place.make p index)
+  
+
   in
-  let (transitions_list : Transition.t list) = 
-    List.map 
-      (fun x -> let id, ila, ola = x in
-                Transition.make id places ila ola)
-      transitions_signatures_list
-    
-  in 
   let (transitions : Transition.t array) = 
-    Array.of_list transitions_list
+    let tsigs = ref transitions_signatures_list in
+    Array.init
+      (List.length !tsigs)
+      (fun index -> 
+        let (id, ila, ola) = List.hd !tsigs in
+        tsigs := List.tl !tsigs;
+        Transition.make id places ila ola index)
+    
   in
   let handles_book = Proteine.build_handles_book prot
   and mol_catchers_book = Proteine.build_catchers_book prot

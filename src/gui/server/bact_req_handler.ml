@@ -48,13 +48,11 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
     | Ok token ->
         let mol_str = cgi # argument_value "molecule" in
         let mol = Molecule.string_to_acid_list mol_str in
-        let place_global_id = cgi # argument_value "place_global_id" in
+        let place_index_str = cgi # argument_value "place_index" in
+        let place_index = int_of_string place_index_str in
         
         let (_,pnet) = MolMap.find mol bact.molecules in
-        Array.iter (fun (place : Place.t) : unit ->
-            if (string_of_int place.global_id) = place_global_id
-            then Place.set_token token place;
-          ) pnet.places;
+        Place.set_token token pnet.places.(place_index);
         PetriNet.update_launchables pnet;
  
         let pnet_json = PetriNet.to_json pnet

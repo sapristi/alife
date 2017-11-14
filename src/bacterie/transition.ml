@@ -40,6 +40,7 @@ struct
       places : Place.t array;
       input_arcs :  input_arc list;
       output_arcs : output_arc list;
+      index : int;
     }
       [@@ deriving yojson]
     
@@ -88,7 +89,8 @@ let update_launchable t : unit =
 let make (id : string)
          (places : Place.t array)
          (input_arcs : (int * AcidTypes.input_arc_type) list)
-         (output_arcs : (int * AcidTypes.output_arc_type) list) =
+         (output_arcs : (int * AcidTypes.output_arc_type) list)
+         (index : int) =
   
   let t =
     {launchable=false; id; places;
@@ -97,6 +99,7 @@ let make (id : string)
      
      output_arcs = List.map( fun (pid, t) -> {dest_place = pid;
                                               oatype = t}) output_arcs;
+     index;
     } in
   update_launchable t;
   t;

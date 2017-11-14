@@ -20,14 +20,14 @@ module Place =
     type t =
       {mutable token : Token.t;
        extensions : AcidTypes.extension_type list;
-       global_id : int;
+       index : int;
        grabers : Graber.t list;
       }
-        [@@deriving show, yojson]
+        [@@deriving yojson]
 (* **** make a place *)
 (* ***** DONE allow place extension to initialise the place with an empty token *)
 
-    let make (exts_list : place_exts)
+    let make (exts_list : place_exts) (index : int)
         : t =
       let extensions = exts_list in
       
@@ -46,7 +46,7 @@ module Place =
       in
         {token;
          extensions;
-         global_id = idProvider#get_id ();
+         index;
          grabers}
      
     let pop_token (p : t) : Token.t =

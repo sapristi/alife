@@ -163,7 +163,8 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
             group: "nodes",
             data: { id:tname,
 		    label:t.id,
-		    type : "transition"
+		    type : "transition",
+		    index : i
 		  },
             classes : classes});
         
