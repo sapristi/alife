@@ -131,7 +131,6 @@ function PNetViewModel() {
 	    molecule : "",
 	    places : [],
 	    transitions: [],
-	    launchables:[]
 	}
     var pnet_cy;
     self.placeVM = new PlaceViewModel();
@@ -160,7 +159,9 @@ function PNetViewModel() {
     });
     self.launchable_transition_nb = ko.computed( function() {
 	self.change();
-	return "Number of launchable transitions : " + self.pnet_data.launchables.length;
+	var launchables_nb = self.pnet_data.transitions.filter(
+	    function (e) {e.launchable}).length;
+	return "Number of launchable transitions : " + launchables_nb;
     });
 
 

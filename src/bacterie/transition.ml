@@ -90,13 +90,16 @@ let make (id : string)
          (input_arcs : (int * AcidTypes.input_arc_type) list)
          (output_arcs : (int * AcidTypes.output_arc_type) list) =
   
-  {launchable=false; id; places;
-   input_arcs = List.map( fun (pid, t) -> {source_place = pid;
-                                           iatype = t}) input_arcs;
-   
-   output_arcs = List.map( fun (pid, t) -> {dest_place = pid;
-                                            oatype = t}) output_arcs;
-  }
+  let t =
+    {launchable=false; id; places;
+     input_arcs = List.map( fun (pid, t) -> {source_place = pid;
+                                             iatype = t}) input_arcs;
+     
+     output_arcs = List.map( fun (pid, t) -> {dest_place = pid;
+                                              oatype = t}) output_arcs;
+    } in
+  update_launchable t;
+  t;
           
 (* ** apply_transition function *)
 (* Applique la fonction de transition d'une transition à une liste de tokens.  *)

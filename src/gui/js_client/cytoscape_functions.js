@@ -158,9 +158,6 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
 // ***** transition nodes
 	
 	var classes  = "transition";
-	// if (pnet_data.launchables.includes(i))
-	// { classes = "transition launchable";}
-	// else {classes = "transition"}
 
 	cy.add({
             group: "nodes",
@@ -229,7 +226,7 @@ update_pnet_graph  = function(cy, pnet) {
 
     for (var i = 0; i < pnet.transitions.length;i++) {
 	
-	if (pnet.launchables.includes(i)) {
+	if (pnet.transitions[i].launchable) {
 	    cy.$("#t"+i).addClass("launchable");
 	}else {
 	    cy.$("#t"+i).removeClass("launchable");
