@@ -8,6 +8,12 @@ open Acid_types
    
 (* * the transition module *)
 (* Module to manage transitions :  *)
+(* ** TODO Réécrire le module ? *)
+(*    + soit mettre un pointeur vers le PNET *)
+(*    + soit faire pointer les arcs directement  *)
+(*      vers les places -> oui c'est bien, *)
+(*      après il suffit des prendre les id des places  *)
+(*      pour recréer la structure dans le client *)
 
 module Transition =
 struct
@@ -20,13 +26,22 @@ struct
 (*  - la liste des types de transition entrantes *)
 (*  - la liste des types de transitions sortantes *)
 
-
+  type input_arc = {source_place : int;
+                    iatype : AcidTypes.input_arc_type}
+                     [@@ deriving yojson]
+  type output_arc = {dest_place : int;
+                     oatype : AcidTypes.output_arc_type;}
+                      [@@ deriving yojson]
+                  
   type t =
     {
+      mutable launchable : bool;
+      id : string;
       places : Place.t array;
-      input_arcs : (int * AcidTypes.input_arc_type) list;
-      output_arcs : (int * AcidTypes.output_arc_type) list;
+      input_arcs :  input_arc list;
+      output_arcs : output_arc list;
     }
+      [@@ deriving yojson]
     
 (* ** launchable function *)
 (* Tells whether a given transition can be launched, *)
@@ -36,7 +51,7 @@ struct
 (*  - arrival places are token-free *)
 
 let launchable (transition : t) =
-  let launchable_input_arc  
+  let launchable_input_arc 
         (input_arc : AcidTypes.input_arc_type)
         (place : Place.t) =
     match input_arc with
@@ -55,25 +70,33 @@ let launchable (transition : t) =
     Place.is_empty place
   in
   List.fold_left
-    (fun res (p_id, t_i) -> res && launchable_input_arc t_i (transition.places.(p_id)))
+    (fun res ia -> res && launchable_input_arc ia.iatype (transition.places.(ia.source_place)))
     true
     transition.input_arcs
   &&
     List.fold_left
-      (fun res (p_id, t_o) -> res && launchable_output_arc t_o (transition.places.(p_id)))
+      (fun res oa -> res && launchable_output_arc oa.oatype (transition.places.(oa.dest_place)))
       true
       transition.output_arcs
     
-
+let update_launchable t : unit = 
+  t.launchable <- launchable t
 (* ** make function       *)
 (* Creates a transition structure *)
 
     
-  let make (places : Place.t array)
-           (input_arcs : (int * AcidTypes.input_arc_type) list)
-           (output_arcs : (int * AcidTypes.output_arc_type) list) =
-
-    {places; input_arcs; output_arcs}
+let make (id : string)
+         (places : Place.t array)
+         (input_arcs : (int * AcidTypes.input_arc_type) list)
+         (output_arcs : (int * AcidTypes.output_arc_type) list) =
+  
+  {launchable=false; id; places;
+   input_arcs = List.map( fun (pid, t) -> {source_place = pid;
+                                           iatype = t}) input_arcs;
+   
+   output_arcs = List.map( fun (pid, t) -> {dest_place = pid;
+                                            oatype = t}) output_arcs;
+  }
           
 (* ** apply_transition function *)
 (* Applique la fonction de transition d'une transition à une liste de tokens.  *)
@@ -130,26 +153,14 @@ let apply_transition (transition : t) : transition_effect list=
       | _ -> []
   in
   let i_arc_l = List.map
-                  (fun (pid, t) -> transition.places.(pid),t)  
+                  (fun ia -> transition.places.(ia.source_place),ia.iatype)  
                   transition.input_arcs
   and o_arc_l = List.map
-                  (fun (pid, t) -> transition.places.(pid),t)  
+                  (fun oa -> transition.places.(oa.dest_place),oa.oatype)  
                   transition.output_arcs
   in apply_output_arcs
        o_arc_l
        (apply_input_arcs i_arc_l)
 
-(* ** to_json function*)
-  let to_json (trans : t) : Yojson.Safe.json =
-    `Assoc [
-       "input_arcs",
-       `List (List.map
-                (fun (x,y) -> `Assoc [("place", `Int x); ("type", AcidTypes.input_arc_type_to_yojson y)])
-                trans.input_arcs);
-       "output_arcs", 
-       `List (List.map
-                (fun (x,y) -> `Assoc [("place", `Int x); ("type", AcidTypes.output_arc_type_to_yojson y)])
-                trans.output_arcs);]
-      
 end;;
   

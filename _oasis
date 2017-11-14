@@ -13,6 +13,10 @@ OASISFormat: 0.4
 BuildTools: ocamlbuild
 Plugins: META (0.4), DevFiles (0.4)
 
+Flag standalone
+     Description : "builds a standalone executable"
+
+
 ###################################################################
 
 Library "local_libs"
@@ -160,6 +164,7 @@ Executable "bact_web_test"
   MainIs : bact_web_test.ml
   BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries,  servers.bact_server
   ByteOpt:  -g
+#  Custom : true
 
 # Executable "websrv_test"
 #   Path: src/gui/server/

@@ -45,25 +45,18 @@ struct
       mol : Molecule.t;
       transitions : Transition.t array;
       places : Place.t  array;
-      mutable launchables : int list;
       handles_book : (string, int) BatMultiPMap.t;
       mol_catchers_book : (string, int) BatMultiPMap.t ;
       mol_grabers_book : (Graber.t, int) BatMultiPMap.t;
-    }
-      
+    } 
     
-  let get_launchables (ts : Transition.t array) =
-    let t_l = ref [] in 
-    for i = 0 to Array.length ts -1 do
-      if Transition.launchable ts.(i)
-      then t_l := i :: !t_l
-      else ()
-    done; !t_l
+  let update_launchables (pnet :t) : unit =
+    Array.iter (fun t -> Transition.update_launchable t) pnet.transitions
     
   let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t =
   (* liste des signatures des transitions *)
     let transitions_signatures_list = Proteine.build_transitions prot
-  (* liste des signatures des places *)
+    (* liste des signatures des places *)
     and places_signatures_list = Proteine.build_nodes_list_with_exts prot
   in
   (* on crée de nouvelles places à partir de la liste de types données dans la molécule *)
@@ -77,25 +70,24 @@ struct
   in
   let (transitions_list : Transition.t list) = 
     List.map 
-      (fun x -> let s, ila, ola = x in
-                Transition.make places ila ola)
+      (fun x -> let id, ila, ola = x in
+                Transition.make id places ila ola)
       transitions_signatures_list
     
   in 
   let (transitions : Transition.t array) = 
-    Array.of_list transitions_list    
+    Array.of_list transitions_list
   in
   let handles_book = Proteine.build_handles_book prot
   and mol_catchers_book = Proteine.build_catchers_book prot
   and mol_grabers_book = Proteine.build_grabers_book prot
-
+                       
   in
   {mol; transitions; places;
-   launchables = (get_launchables transitions);
    handles_book; mol_catchers_book;
-   mol_grabers_book;
-  }
-
+   mol_grabers_book}
+  
+    
   let make_from_mol (mol : Molecule.t) : t =
     let prot = Proteine.from_mol mol in
     make_from_prot prot mol
@@ -108,18 +100,18 @@ struct
 (* on peut faire beaucoup plus efficace, mais pour l'instant  *)
 (* on fait au plus simple *)
 
-  let update_launchables (p : t) : unit =
-    p.launchables <- get_launchables p.transitions
 
-
-  let launch_transition (tId : int) p = 
+  let launch_transition_by_id (tId : int) p =
     Transition.apply_transition p.transitions.(tId)
     
-  let launch_random_transition p  =
-    if not (p.launchables = [])
+  let launch_random_transition (p : t)
+      : Transition.transition_effect list =
+
+    let launchables = Array.filter (fun (t:Transition.t) -> t.launchable) p.transitions in
+    if Array.length launchables > 0
     then 
-      let t = random_pick_from_list p.launchables in
-      launch_transition t p
+      let t = random_pick_from_array launchables in
+      Transition.apply_transition t
     else []
     
 (* returns a list of all the possible grabs of a molecule *)
@@ -140,18 +132,10 @@ struct
       "places",
       `List (Array.to_list (Array.map Place.to_yojson p.places));
       "transitions",
-      `List (Array.to_list (Array.map Transition.to_json p.transitions));
+      `List (Array.to_list (Array.map Transition.to_yojson p.transitions));
       "molecule",
-      Molecule.to_yojson p.mol;
-      "launchables",
-      `List (List.map (fun x -> `Int x) p.launchables);]
-
-  let to_json_update (p:t) =
-    `Assoc [
-      "places",
-      `List (Array.to_list (Array.map Place.to_yojson p.places));
-      "launchables",
-      `List (List.map (fun x -> `Int x) p.launchables);]      
+      Molecule.to_yojson p.mol]
+     
 end;;
 
 

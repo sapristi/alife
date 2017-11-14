@@ -326,9 +326,9 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
     | OutputArc (s,Regular_oarc) :: prot' ->
          Atome.C::A::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | OutputArc (s,Bind_oarc) :: prot' ->
-       C::B::A::(to_molecule prot')
+       Atome.C::B::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | OutputArc (s,Release_oarc) :: prot' ->
-       C::C::A::(to_molecule prot')
+       Atome.C::C::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | Extension (Handle_ext s) :: prot' ->
        Atome.D::A::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | Extension (Catch_ext s) :: prot' ->
@@ -344,7 +344,7 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
     | Extension (Information_ext s) :: prot' ->
        Atome.D::D::B::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | Extension (Grab_ext g) :: prot' ->
-      D::D::C::((g.pattern_as_mol)@[Atome.D;D;D]@(to_molecule prot'))
+      D::D::C::((g.pattern_as_mol)@[Atome.F;F;F]@(to_molecule prot'))
       
     | [] -> []
           

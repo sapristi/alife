@@ -46,7 +46,7 @@ let prot3 = [
 
 
 
-let patt_mol = [A;A;A;A;D;A;D;A;A;A;A];;
+let patt_mol = [A;A;A;A;F;A;F;A;A;A;A];;
 let graber = Graber.build_from_atom_list patt_mol;;
     
 let prot4 = [

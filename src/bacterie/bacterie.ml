@@ -172,7 +172,7 @@ let rec execute_actions (actions : Transition.transition_effect list) (bact : t)
 (* *** launch_transition *)
   let launch_transition tid mol bact : unit =
     let _,pnet = MolMap.find mol bact.molecules in
-    let actions = PetriNet.launch_transition tid pnet in
+    let actions = PetriNet.launch_transition_by_id tid pnet in
     PetriNet.update_launchables pnet;
     execute_actions actions bact
 
@@ -206,5 +206,5 @@ let rec execute_actions (actions : Transition.transition_effect list) (bact : t)
                           "nb", `Int nb])
                 trimmed_mol_list)
      ]
-      
+    
 end;;

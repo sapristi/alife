@@ -131,11 +131,11 @@
 	  <div class="row" data-bind="visible: pnetVM.active() && pnetVM.initialised(), with:pnetVM">
 	    
 	    <!-- **** 1ere colonne : pnet view -->
-	    <div class="four wide column">
+	    <div class="eight wide column">
 	      <h4 class="ui horizontal divider header">
 		Petri Net view
 	      </h4>
-	      <div id="pnet_cy" class="cy-small" style="width=250px;height=300px"></div>
+	      <div id="pnet_cy" class="cy-small"></div>
 	    </div>
 
 	    <!-- **** 2eme colonne : pnet informations -->
@@ -198,51 +198,46 @@
 		    <input type="checkbox" data-bind="checked : token_edit_checkbox">
 		    <label>Token edition</label>
 		  </div>
-		</div>
-	      </div>
-	    </div>
-	    <!-- ****** 4eme colonne : selon selection -->
-	    <div class="four wide column">
-	      <div data-bind="with:placeVM">
-		<div data-bind="if: token_edit_view">
-		  <h4 class="ui horizontal divider header">
-		    Token edition
-		  </h4>
-		  <div class="ui form">
-		    <div class="inline fields">
-		      <div class="field">
-			<div class="ui radio checkbox">
-			  <input value="No_token" type="radio" data-bind="checked : token_edit_state">
-			  <label>No token</label>
+		  
+		  <div data-bind="if: token_edit_view">
+		    <h4 class="ui horizontal divider header">
+		      Token edition
+		    </h4>
+		    <div class="ui form">
+		      <div class="inline fields">
+			<div class="field">
+			  <div class="ui radio checkbox">
+			    <input value="No_token" type="radio" data-bind="checked : token_edit_state">
+			    <label>No token</label>
+			  </div>
+			</div>
+			<div class="field">
+			  <div class="ui radio checkbox">
+			    <input value="Token" type="radio" data-bind="checked : token_edit_state">
+			    <label>Token</label>
+			  </div>
 			</div>
 		      </div>
-		      <div class="field">
-			<div class="ui radio checkbox">
-			  <input value="Token" type="radio" data-bind="checked : token_edit_state">
-			  <label>Token</label>
+		      <div data-bind="visible: token_edit_state() == 'Token'">
+			<div class="field">
+			  <textarea rows=2 data-bind="value:token_edit_m1"></textarea>
+			</div>
+			<div class="field">
+			  <textarea rows=2 data-bind="value:token_edit_m2"></textarea>
 			</div>
 		      </div>
+		      <button class="ui primary button" data-bind="click:$parent.commit_token_edit">
+			Commit
+		      </button>
+		      <button class="ui button">
+			Discard
+		      </button>
 		    </div>
-		    <div data-bind="visible: token_edit_state() == 'Token'">
-		      <div class="field">
-			<textarea rows=2 data-bind="value:token_edit_m1"></textarea>
-		      </div>
-		      <div class="field">
-			<textarea rows=2 data-bind="value:token_edit_m2"></textarea>
-		      </div>
-		    </div>
-		    <button class="ui primary button" data-bind="click:commit_token_edit">
-		      Commit
-		    </button>
-		    <button class="ui button">
-		      Discard
-		    </button>
 		  </div>
 		</div>
 	      </div>
-
-			    </div>
-			  </div>
+	    </div>
+	  </div>
 	  <h2 class="ui horizontal divider header">
 	    Proteine manipulation
 	  </h2>

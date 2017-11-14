@@ -20,3 +20,9 @@ PKG yojson batteries nethttpd
 
 PKG ocamlnet
 CMT /home/sapristi/.opam/4.04.0/build/ocamlnet.4.1.4/_build
+
+PKG yojson
+CMT /home/sapristi/.opam/4.04.0/build/yojson.1.4.0/_build
+
+PKG ppx_deriving_yojson
+CMT /home/sapristi/.opam/4.04.0/build/ppx_deriving_yojson.3.0

@@ -92,31 +92,17 @@ function PlaceViewModel() {
 
     
 // ** token edit commit
-    self.commit_token_edit = function() {
-	var new_token;
+    self.get_edited_token = function () {
+	
+	var edited_token;
 	if (self.token_edit_state() == "Token") {
-	    new_token =
+	    edited_token =
 		[self.token_edit_state(),
 		 utils.string_rev(self.token_edit_m1()).toUpperCase(),
 		 self.token_edit_m2().toUpperCase()];
 	} else {
-	    new_token =	[self.token_edit_state()];}
-	
-	
-	utils.ajax_get(
-            {command: "commit token edit",
-	     place_id : self.data.global_id,
-             token: JSON.stringify(new_token),
-	     container: "bactery"}
-        ).done(
-	    function (data)
-	    {
-		placeVM.disable();
-		self.pnet_data = data.data.pnet;
-		self.change(!self.change());
-		self.initialised(true);
-		self.display_cy_graph();
-	    });
+	    edited_token = [self.token_edit_state()];}
+	return edited_token;
     }
     
 };
@@ -141,9 +127,11 @@ function PNetViewModel() {
 // ** initialisation
     var self = this;
     self.pnet_data =
-	{places : [],
-	 transitions: [],
-	 launchables:[]
+	{
+	    molecule : "",
+	    places : [],
+	    transitions: [],
+	    launchables:[]
 	}
     var pnet_cy;
     self.placeVM = new PlaceViewModel();
@@ -184,7 +172,7 @@ function PNetViewModel() {
 		self.pnet_data,
 		document.getElementById('pnet_cy'),
 		self);
-	    
+	    update_pnet_graph(pnet_cy, self.pnet_data);
             pnet_cy.layout({name:"cose"}).run();
 	}
     };
@@ -211,7 +199,8 @@ function PNetViewModel() {
 // ** functions called by the cy graph to display node data
     self.set_node_selected = function(node_data) {
 	if (node_data.type == "place") {
-	    self.placeVM.enable(node_data);
+	    self.placeVM.enable(
+		self.pnet_data.places[node_data.index]);
 	    self.transitionVM.disable();
 	} else if (node_data.type = "transition") {
 	    self.transitionVM.enable();
@@ -222,6 +211,31 @@ function PNetViewModel() {
 	self.placeVM.disable();
 	self.transitionVM.disable();
     };
+
+// ** token edit commit
+    self.commit_token_edit = function() {
+
+	var token = self.placeVM.get_edited_token();
+	var placeID = self.placeVM.data.global_id;
+	console.log(placeID)
+	utils.ajax_get(
+            {command: "commit token edit",
+	     molecule : self.pnet_data.molecule,
+	     place_global_id : placeID,
+             token: JSON.stringify(token),
+	     container: "bactery"}
+        ).done(
+	    function (data)
+	    {
+		// placeVM.disable();
+		// self.pnet_data = data.data.pnet;
+		// self.change(!self.change());
+		// self.initialised(true);
+		// self.display_cy_graph();
+	    });
+    }
+    
+
 };
 
 

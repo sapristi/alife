@@ -26,7 +26,7 @@ molecule     *)
 
     let rec extract_message_from_mol (mol : t) : (string*t) =
       match mol with
-      | D::D::D::mol' ->  "",  mol'
+      | F::F::F::mol' ->  "",  mol'
       | a::mol' ->
          let (s, mol'') = extract_message_from_mol mol' in
          (Atome.to_string a)^s,mol'' 
@@ -45,7 +45,7 @@ molecule     *)
          
 
     let string_to_message_mol (s : string) : t =
-      (string_to_acid_list s)@[D;D;D]
+      (string_to_acid_list s)@[F;F;F]
 
     let to_yojson (mol :t) : Yojson.Safe.json =
       `String (String.concat "" ((List.map Atome.to_string) mol))

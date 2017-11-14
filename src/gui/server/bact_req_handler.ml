@@ -2,7 +2,7 @@ open Bacterie
 open Molecule
 open Proteine
 open Petri_net
-
+open Place
 
 (* *** pnet_from_mol *) 
 
@@ -40,14 +40,32 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
                       "data", (Bacterie.to_json bact)] in  
     Yojson.Safe.to_string json_data
     
-  and commit_token_edit bact (cgi : Netcgi.cgi) =
+  and commit_token_edit (bact : Bacterie.t) (cgi : Netcgi.cgi) =
     let token_str = cgi # argument_value "token" in
     let token_json = Yojson.Safe.from_string token_str in
+
     match (Token.Token.of_yojson token_json) with
-    | Ok token -> print_endline (Token.Token.show token);
+    | Ok token ->
+        let mol_str = cgi # argument_value "molecule" in
+        let mol = Molecule.string_to_acid_list mol_str in
+        let place_global_id = cgi # argument_value "place_global_id" in
+        
+        let (_,pnet) = MolMap.find mol bact.molecules in
+        Array.iter (fun (place : Place.t) : unit ->
+            if (string_of_int place.global_id) = place_global_id
+            then
+              (
+                Place.set_token token place;
+                print_endline ("successfuly replaced token in place" ^ place_global_id);
+              )
+          ) pnet.places;
+        
+        print_endline (Token.Token.show token);
                   ""
     | Error s -> print_endline "error decoding token";
                  s
+   
+    
 
   and add_mol bact (cgi : Netcgi.cgi) = 
     let mol_desc = cgi # argument_value "mol_desc" in

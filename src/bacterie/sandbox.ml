@@ -41,7 +41,7 @@ module SandBox =
 (* *** launch_transition *)
     let launch_transition tid mol sandbox : unit =
       let pnet = MolMap.find mol sandbox.molecules in
-      PetriNet.launch_transition tid pnet;
+      PetriNet.launch_transition_by_id tid pnet;
       PetriNet.update_launchables pnet;;
       
       

@@ -54,9 +54,9 @@ type t =
   let build_from_atom_list (l : Atome.t list) : t =
     let rec aux l = 
       match l with
-      | Atome.D::a::Atome.D::l' ->
+      | Atome.F::a::Atome.F::l' ->
          "\\("^ (Atome.to_string a) ^"\\)"^(aux l')
-      | Atome.D::Atome.D :: l' ->
+      | Atome.F::Atome.F :: l' ->
          ".+"^(aux l')
       | a :: l' ->
          (Atome.to_string a)^(aux l')
