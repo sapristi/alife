@@ -26,12 +26,6 @@ Library "local_libs"
 
 ####################################################################
 
-Library "atome"	
-  FindLibName : atome
-  FindLibParent : bacterie_libs
-  Path: src/bacterie
-  Modules: Atome
-
 Library "graber"	
   FindLibName : graber
   FindLibParent : bacterie_libs
@@ -53,7 +47,7 @@ Library "molecule"
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Molecule
-  BuildDepends: local_libs, yojson, ppx_deriving_yojson, bacterie_libs.atome, bacterie_libs.acid_types
+  BuildDepends: local_libs, yojson, ppx_deriving_yojson, bacterie_libs.acid_types
 
 
 Library "proteine"	
