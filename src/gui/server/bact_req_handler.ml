@@ -68,6 +68,26 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
                  s
    
     
+  and launch_transition (bact : Bacterie.t) (cgi : Netcgi.cgi) =
+    let mol_str = cgi # argument_value "molecule" in
+    let mol = Molecule.string_to_acid_list mol_str in
+    let trans_index_str = cgi # argument_value "transition_index" in
+    let trans_index = int_of_string trans_index_str in
+    
+    let (_,pnet) = MolMap.find mol bact.molecules in
+    PetriNet.launch_transition_by_id trans_index pnet;
+    PetriNet.update_launchables pnet;
+    
+    let pnet_json = PetriNet.to_json pnet
+    in
+    let to_send_json =
+      `Assoc
+       ["purpose", `String "pnet_update";
+        "data",  `Assoc ["pnet", pnet_json]] in  
+    Yojson.Safe.to_string to_send_json
+    
+    
+
 
   and add_mol bact (cgi : Netcgi.cgi) = 
     let mol_desc = cgi # argument_value "mol_desc" in
@@ -96,6 +116,9 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
   
   else if command = "commit token edit"
   then commit_token_edit bact cgi
+  
+  else if command = "launch_transition"
+  then launch_transition bact cgi
 
   else if command = "add_mol"
   then add_mol bact cgi

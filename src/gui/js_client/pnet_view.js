@@ -62,7 +62,7 @@ function PlaceViewModel() {
 
     }
     
-    self.enable = function(index, place_data) {
+    self.enable = function(place_data) {
 	
 	self.data = place_data;
 	self.token(self.data.token);
@@ -114,14 +114,12 @@ function PlaceViewModel() {
 function TransitionViewModel() {
     var self = this;
     self.data = {};
-    
     self.active = ko.observable(false);
     self.enable = function(data) {
 	self.data = data;
 	self.active(true);
     };
     self.disable = function() {
-	self.data = {};
 	self.active(false);
     };
 
@@ -209,13 +207,13 @@ function PNetViewModel() {
     self.set_node_selected = function(node_data) {
 	if (node_data.type == "place") {
 	    self.placeVM.enable(
-		node_data.index,
 		self.pnet_data.places[node_data.index]);
 	    self.transitionVM.disable();
 	} else if (node_data.type = "transition") {
+	    console.log(self.pnet_data.transitions);
+	    console.log(node_data);
 	    self.transitionVM.enable(
-		node_data.index,
-		self.pnet_data.transition[node_data.index]);
+		self.pnet_data.transitions[node_data.index]);
 	    self.placeVM.disable();
 	}
     };
@@ -238,8 +236,7 @@ function PNetViewModel() {
 	     container: "bactery"}
         ).done(
 	    function (data)
-	    {
-		
+	    {	
 		self.pnet_data = data.data.pnet;
 		update_pnet_graph(pnet_cy, self.pnet_data);
 		self.change(!self.change());
@@ -249,13 +246,12 @@ function PNetViewModel() {
     
 // ** transition_launch*
     self.launch_transition = function() {
-	
-	var placeID = self.transitionVM.data.global_id;
-	console.log(placeID)
+	console.log(self.transitionVM.data)
+	var tindex = self.transitionVM.data.index;
 	utils.ajax_get(
             {command: "launch_transition",
 	     molecule : self.pnet_data.molecule,
-	     transition_id : placeID,
+	     transition_index : tindex,
              container: "bactery"}
         ).done(
 	    function (data)
