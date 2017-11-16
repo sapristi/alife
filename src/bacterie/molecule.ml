@@ -7,15 +7,16 @@
 (* * preamble : load libraries *)
 
 
-open Acid_types.AcidTypes
 open Graber
 open Proteine
-
+open AcidTypes
+   
 module Molecule =
   struct
     
     type t = string
-      
+           [@@deriving yojson] 
+          
     let atoms = "[A-E]"
 
     let place_pt = "AAA"
@@ -32,15 +33,15 @@ module Molecule =
     and msg_end_pt = "DDD"
               
     let place_re = Str.regexp place_pt
-    and ia_reg_re = Str.regexp (ia_reg_pt^"\(.*\)"^msg_end_pt)
-    and ia_split_re = Str.regexp (ia_split_pt^"\(.*\)"^msg_end_pt)
+    and ia_reg_re = Str.regexp (ia_reg_pt^"\\(.*\\)"^msg_end_pt)
+    and ia_split_re = Str.regexp (ia_split_pt^"\\(.*\\)"^msg_end_pt)
     and ia_filter_re = Str.regexp
-                     (ia_filter_pt^"\("^atoms^"\)"^msg_end_pt)
-    and oa_reg_re = Str.regexp (oa_reg_pt^"\(.*\)"^msg_end_pt)
-    and oa_bind_re = Str.regexp (oa_bind_pt^"\(.*\)"^msg_end_pt)
-    and oa_move_fw_re = Str.regexp (oa_move_fw_pt^"\(.*\)"^msg_end_pt)
-    and oa_move_bw_re = Str.regexp (oa_move_bw_pt^"\(.*\)"^msg_end_pt)
-    and ext_grab_re = Str.regexp (ext_grab_pt^"\(.*\)"^msg_end_pt)
+                     (ia_filter_pt^"\\("^atoms^"\\)"^msg_end_pt)
+    and oa_reg_re = Str.regexp (oa_reg_pt^"\\(.*\\)"^msg_end_pt)
+    and oa_bind_re = Str.regexp (oa_bind_pt^"\\(.*\\)"^msg_end_pt)
+    and oa_move_fw_re = Str.regexp (oa_move_fw_pt^"\\(.*\\)"^msg_end_pt)
+    and oa_move_bw_re = Str.regexp (oa_move_bw_pt^"\\(.*\\)"^msg_end_pt)
+    and ext_grab_re = Str.regexp (ext_grab_pt^"\\(.*\\)"^msg_end_pt)
     and ext_rel_re = Str.regexp ext_rel_pt
     and ext_tinit_re = Str.regexp ext_tinit_pt
                      
@@ -50,7 +51,7 @@ module Molecule =
       else
         if Str.string_match place_re s 0
         then
-          Node :: (mol_parser (Str.string_after s (Str.match_end ())))
+          Place :: (mol_parser (Str.string_after s (Str.match_end ())))
       
         else if Str.string_match ia_reg_re s 0
         then
@@ -117,7 +118,7 @@ module Molecule =
       
       
     let rec of_proteine (p : Proteine.t) : t =
-      let acid_to_mol (a : Proteine.acid) : t = 
+      let acid_to_mol (a : acid) : t = 
         match a with
         | Place  ->
            place_pt 

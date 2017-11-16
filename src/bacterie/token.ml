@@ -1,7 +1,6 @@
 open Misc_library
 open Molecule
 open Proteine
-open Atome
 (* * the token module *)
    
 (* Molecules are transformed into proteines by compiling them into a petri net. We define here the tokens used in the petri nets. Tokens go through transitions. *)
@@ -18,29 +17,28 @@ module Token =
   struct
     type t =
       | No_token
-      | Token of Molecule.t * Molecule.t
-                                    [@@deriving show, yojson]
+      | Token of int * Molecule.t
+                                    [@@deriving yojson]
     let is_no_token (token :t) =
       token = No_token
       
     let is_empty (token : t) =
       match token with
       | No_token -> failwith "token.ml : cannot test empty on No_token"
-      | Token (m1,m2)-> (m1 = [] && m2 = [])
+      | Token (i,m)-> (m = "")
       
 
     let make_empty () : t =
-      Token ([], [])
+      Token (0,"")
       
     let make_at_mol_start (mol : Molecule.t) : t =
-      Token ([], mol)
+      Token (0, mol)
       
     let make_at_mol_cut (mol1 : Molecule.t) (mol2 : Molecule.t) : t =
-      Token (mol1, mol2)
+      Token (String.length mol1, mol1 ^ mol2)
 
     let make (mol : Molecule.t) (pos : int) : t =
-      let mol1, mol2 = cut_list mol pos in
-      make_at_mol_cut mol1 mol2
+      Token (pos, mol)
 
       (* if token is empty : fail ?
          for now it returns empty mol *)
@@ -48,35 +46,32 @@ module Token =
     let get_mol (token : t) : Molecule.t =
       match token with
       | No_token -> failwith "token.ml : cannot get_mol from empty_token"
-      | Token (m1,m2) ->
-         let rec aux m1 m2 = 
-           match m1,m2 with
-           |[], m2 -> m2
-           | a :: m1', m2 -> aux m1' (a::m2)
-         in aux m1 m2
+      | Token (i,m) -> m
       
     let move_mol_forward (token : t) : t =
       match token with
       | No_token -> failwith "token.ml : cannot move_mol from empty_token"
-      | Token (m1,m2) -> 
-         match m1,m2 with
-         | m1, a :: m2 -> Token (a :: m1, m2)
-         | _, [] -> token
+      | Token (i,m) -> 
+         if i < String.length m
+         then Token(i+1,m)
+         else Token(i,m)
 
     let move_mol_backward (token : t) : t =
       match token with
       | No_token -> failwith "token.ml : cannot move_mol from empty_token"
-      | Token (m1,m2) -> 
-           match m1,m2 with
-           | a :: m2, m1 -> Token (m2, a :: m1)
-           | [], _ -> token
-
+      | Token (i,m) -> 
+         if i>0
+         then Token(i-1,m)
+         else Token(i,m)
+        
     let cut_mol (token : t) : t*t =
       match token with
       | No_token -> failwith "token.ml : cannot cut_mol from empty_token"
-      | Token (m1,m2) ->
-         (Token (m1, []),
-          Token ([], m2))
+      | Token (i,m) ->
+         let m1 = Str.string_before m i
+         and m2 = Str.string_after m i in
+         (Token (i, m1),
+          Token (0, m2))
         
         
 
@@ -86,54 +81,18 @@ module Token =
     let insert (source_tok : t) (dest_tok : t) : t =
       match source_tok with
       | No_token -> failwith "token.ml : cannot insert No_token"
-      | Token (s1, s2) ->
+      | Token (is, ms) ->
          match dest_tok with
          | No_token -> failwith "token.ml : cannot insert into No_token"
-         | Token (d1, d2) -> 
-            Token (s1 @ d1, s2 @ d2)
+         | Token (id, md) -> 
+            Token (is + id, Str.string_before md id ^ md ^Str.string_after md id)
                
     let get_label (token : t) =
       match token with
       | No_token -> failwith "token.ml : cannot get_label from No_token"
-      | Token  (m1,m2) -> 
-         match m1,m2 with
-         | _, a :: m2 -> Atome.to_string a
-         | _ -> ""
+      | Token  (i,s) -> 
+         if i = String.length s
+         then ""
+         else Char.escaped (s.[i]) 
            
-
-    let to_string (token : t) : string =
-      let mol_desc =
-        if is_empty token
-        then "empty"
-        else "molecule"
-      and label_desc = get_label token
-      in
-      "token ("^mol_desc^") ("^label_desc^")"
-      
-
-  (*
-    let to_json token =
-      if is_empty token
-      then 
-        `Assoc ["id", `Int token.global_id;
-                "state", `String "empty token";
-                "is_empty", `Bool true]
-      else
-        let m1, m2 = token.linked_mol in
-        `Assoc ["id", `Int token.global_id;
-                "state", `String "occupied token";
-                "is_empty", `Bool false;
-                "mol_1", `String (Molecule.to_string m1);
-                "mol_2", `String (Molecule.to_string m2);]
-
-    let from_json (token_json :Yojson.Basic.json) =
-      match token_json with
-      | `Assoc l ->
-         let _, id = List.find (fun (x,_) -> x = "id") l
-         and _, state = List.find (fun (x,_) -> x = "state") l in
-         if state = "no"
-
-      | _ -> failwith "token.ml from_json : bad json encoding"
-                                             *)
-      
   end

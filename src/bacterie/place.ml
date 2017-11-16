@@ -1,9 +1,7 @@
 open Misc_library
 open Molecule
-open Proteine.Proteine
 open Proteine
 open Token
-open Acid_types
 open Graber
    
 (* * the place module *)

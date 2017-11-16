@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 5014fd5da1e4ea8e095dd73486ec9352)
+# DO NOT EDIT (digest: ebff1dfd299773e28452eb63c9e33fbb)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "bacterie_libs.cma"
@@ -11,7 +11,7 @@ package "transition" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "local_libs bacterie_libs.proteine bacterie_libs.token bacterie_libs.place yojson ppx_deriving_yojson ppx_deriving.show"
+ "local_libs bacterie_libs.proteine bacterie_libs.token bacterie_libs.place yojson ppx_deriving_yojson"
  archive(byte) = "transition.cma"
  archive(byte, plugin) = "transition.cma"
  archive(native) = "transition.cmxa"
@@ -23,7 +23,7 @@ package "token" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "local_libs bacterie_libs.atome bacterie_libs.molecule bacterie_libs.proteine yojson ppx_deriving_yojson ppx_deriving.show"
+ "local_libs bacterie_libs.molecule bacterie_libs.proteine yojson ppx_deriving_yojson"
  archive(byte) = "token.cma"
  archive(byte, plugin) = "token.cma"
  archive(native) = "token.cmxa"
@@ -46,8 +46,7 @@ package "sandbox" (
 package "proteine" (
  version = "0.1"
  description = "Simulating life and stuff"
- requires =
- "local_libs yojson ppx_deriving_yojson bacterie_libs.acid_types bacterie_libs.molecule"
+ requires = "local_libs yojson ppx_deriving_yojson bacterie_libs.molecule"
  archive(byte) = "proteine.cma"
  archive(byte, plugin) = "proteine.cma"
  archive(native) = "proteine.cmxa"
@@ -59,7 +58,7 @@ package "place" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "local_libs bacterie_libs.proteine bacterie_libs.token yojson ppx_deriving_yojson ppx_deriving.show"
+ "local_libs bacterie_libs.proteine bacterie_libs.token yojson ppx_deriving_yojson"
  archive(byte) = "place.cma"
  archive(byte, plugin) = "place.cma"
  archive(native) = "place.cmxa"
@@ -82,8 +81,7 @@ package "petri_net" (
 package "molecule" (
  version = "0.1"
  description = "Simulating life and stuff"
- requires =
- "local_libs yojson ppx_deriving_yojson bacterie_libs.atome bacterie_libs.acid_types"
+ requires = "local_libs yojson ppx_deriving_yojson"
  archive(byte) = "molecule.cma"
  archive(byte, plugin) = "molecule.cma"
  archive(native) = "molecule.cmxa"
@@ -94,7 +92,6 @@ package "molecule" (
 package "graber" (
  version = "0.1"
  description = "Simulating life and stuff"
- requires = "bacterie_libs.atome"
  archive(byte) = "graber.cma"
  archive(byte, plugin) = "graber.cma"
  archive(native) = "graber.cmxa"
@@ -112,27 +109,6 @@ package "bacterie" (
  archive(native) = "bacterie.cmxa"
  archive(native, plugin) = "bacterie.cmxs"
  exists_if = "bacterie.cma"
-)
-
-package "atome" (
- version = "0.1"
- description = "Simulating life and stuff"
- archive(byte) = "atome.cma"
- archive(byte, plugin) = "atome.cma"
- archive(native) = "atome.cmxa"
- archive(native, plugin) = "atome.cmxs"
- exists_if = "atome.cma"
-)
-
-package "acid_types" (
- version = "0.1"
- description = "Simulating life and stuff"
- requires = "bacterie_libs.graber"
- archive(byte) = "acid_types.cma"
- archive(byte, plugin) = "acid_types.cma"
- archive(native) = "acid_types.cmxa"
- archive(native, plugin) = "acid_types.cmxs"
- exists_if = "acid_types.cma"
 )
 # OASIS_STOP
 

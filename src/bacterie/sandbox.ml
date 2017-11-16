@@ -54,7 +54,7 @@ module SandBox =
          "molecules list",
          `List (List.map
                   (fun (mol, nb) ->
-                    `Assoc ["mol", `String (Molecule.to_string mol)])
+                    `Assoc ["mol", `String mol])
                   mol_list)
      ]
       

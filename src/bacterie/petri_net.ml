@@ -31,7 +31,6 @@ open Proteine
 open Maps
 open Place
 open Transition
-open Acid_types
 open Graber
 open Random
 open Token  
@@ -45,8 +44,6 @@ struct
       mol : Molecule.t;
       transitions : Transition.t array;
       places : Place.t  array;
-      handles_book : (string, int) BatMultiPMap.t;
-      mol_catchers_book : (string, int) BatMultiPMap.t ;
       mol_grabers_book : (Graber.t, int) BatMultiPMap.t;
     } 
     
@@ -80,19 +77,15 @@ struct
         tsigs := List.tl !tsigs;
         Transition.make id places ila ola index)
     
-  in
-  let handles_book = Proteine.build_handles_book prot
-  and mol_catchers_book = Proteine.build_catchers_book prot
   and mol_grabers_book = Proteine.build_grabers_book prot
                        
   in
   {mol; transitions; places;
-   handles_book; mol_catchers_book;
    mol_grabers_book}
   
     
   let make_from_mol (mol : Molecule.t) : t =
-    let prot = Proteine.from_mol mol in
+    let prot = Molecule.to_proteine mol in
     make_from_prot prot mol
     
 (* mettre à jour les transitions qui peuvent être lancées. *)

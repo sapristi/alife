@@ -31,15 +31,7 @@ Library "graber"
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Graber
-  BuildDepends: bacterie_libs.atome
-
-
-Library "acid_types"	
-  FindLibName : acid_types
-  FindLibParent : bacterie_libs
-  Path: src/bacterie
-  Modules: Acid_types
-  BuildDepends: bacterie_libs.graber
+  BuildDepends: 
 
 
 Library "molecule"	
@@ -47,7 +39,7 @@ Library "molecule"
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Molecule
-  BuildDepends: local_libs, yojson, ppx_deriving_yojson, bacterie_libs.acid_types
+  BuildDepends: local_libs, yojson, ppx_deriving_yojson
 
 
 Library "proteine"	
@@ -55,28 +47,28 @@ Library "proteine"
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Proteine
-  BuildDepends: local_libs, yojson, ppx_deriving_yojson, bacterie_libs.acid_types, bacterie_libs.molecule
+  BuildDepends: local_libs, yojson, ppx_deriving_yojson,  bacterie_libs.molecule
 
 Library "token"
   FindLibName : token
   FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Token
-  BuildDepends : local_libs, bacterie_libs.atome, bacterie_libs.molecule, bacterie_libs.proteine, yojson, ppx_deriving_yojson, ppx_deriving.show
+  BuildDepends : local_libs,  bacterie_libs.molecule, bacterie_libs.proteine, yojson, ppx_deriving_yojson
 
 Library "place"
   FindLibName : place
   FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Place
-  BuildDepends : local_libs, bacterie_libs.proteine, bacterie_libs.token, yojson, ppx_deriving_yojson, ppx_deriving.show
+  BuildDepends : local_libs, bacterie_libs.proteine, bacterie_libs.token, yojson, ppx_deriving_yojson
 
 Library "transition"
   FindLibName : transition
   FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Transition
-  BuildDepends : local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, yojson, ppx_deriving_yojson, ppx_deriving.show
+  BuildDepends : local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, yojson, ppx_deriving_yojson
 
 Library "petri_net"
   FindLibName : petri_net
@@ -114,7 +106,7 @@ Library "bacterie_libs"
 # Library "bact_tcp_server"
 #   Path: src/gui/bact_simul
 #   Modules: Bact_tcp_server
-#   BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome
+#   BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule
 
 
 Library "web_server"
@@ -137,7 +129,7 @@ Library "bact_server"
   FindLibParent : servers
   Path: src/gui/server
   Modules: Bact_server
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, bacterie.libs.atome, servers.web_server, bacterie.sandbox, servers.bact_req_handler
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule,  servers.web_server, bacterie.sandbox, servers.bact_req_handler
 
 
 Library "servers"

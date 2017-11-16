@@ -17,16 +17,19 @@
 (*  + soit on insère aussi un marqueur pour les atomes (à la *)
 (*    manière du symbole d'échappement \ pour les caractères *)
 (*    spéciaux) *)
-
+open Atome
+open Molecule
+   
 module Graber =
   struct
 
 (* *** graber type *)
 (* we keep the atom list from which the graber was build to easily *)
 (* transform it back; this feature could be remove in future versions *)
-    type t = string
-     
-        [@@deriving yojson]
+type t =
+  { pattern : string;
+    pattern_as_mol : Atome.t list}
+           [@@deriving show, yojson]
 
 (* *** grab type : represents the result of a grab tentative  *)
 (*  No_grab means the grab failed *)
@@ -41,36 +44,36 @@ module Graber =
 (*     expression. *)
 
 (*     Special expressions  *)
-(*      + an atome surrounded by two F atoms :  *)
+(*      + an atome surrounded by two D atoms :  *)
 (*        the grabing point, that is the place at which the grabed *)
 (*        molecule will be split *)
 
-(*      + two F atoms : *)
+(*      + two D atoms : *)
 (*        any non-empty sequence of atoms *)
 
-  let grab_location_re = Str.regexp "F\\(.)\\F"
-  and wildcard_re = Str.regexp "FF"
-            
-  let rec build_re (m : t) : string =
-    if m = ""
-    then ""
-    else
-      if Str.string_match grab_location_re m 0 
-      then 
-        let a = Str.matched_group 1 m in
-        let m' = (Str.string_after m (Str.match_end ())) in
-        "\\("^a^"\\)"^(build_re m')
-      else if Str.string_match wildcard_re m 0
-      then 
-        let m' = (Str.string_after m (Str.match_end ())) in
-        ".*"^(build_re m')
-      else
-        (Str.string_before m 1) ^ (build_re (Str.string_after m 1))
+  let build_from_atom_list (l : Atome.t list) : t =
+    let rec aux l = 
+      match l with
+      | Atome.F::a::Atome.F::l' ->
+         "\\("^ (Atome.to_string a) ^"\\)"^(aux l')
+      | Atome.F::Atome.F :: l' ->
+         ".+"^(aux l')
+      | a :: l' ->
+         (Atome.to_string a)^(aux l')
+      | [] -> ""
+    in
+    {pattern = aux l;
+     pattern_as_mol = l}
+
+  let build_from_string (s : string) : t =
+    let atom_list = Molecule.string_to_acid_list s in
+    build_from_atom_list atom_list
 
     
-  let get_match_pos (mol : string) (graber : t) : grab =
-    let rex = Str.regexp (build_re graber) in
-    if Str.string_match rex mol 0
+  let get_match_pos (mol : Molecule.t) (graber : t) : grab =
+    let s = Molecule.to_string mol in
+    let rex = Str.regexp graber.pattern in
+    if Str.string_match rex s 0
     then
       try
         Grab (Str.group_beginning 1)
@@ -79,4 +82,6 @@ module Graber =
     else
       No_grab
       
+  let to_json (graber : t) =
+    `Assoc (["pattern", `String graber.pattern])
 end

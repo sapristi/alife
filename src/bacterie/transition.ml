@@ -4,7 +4,6 @@ open Proteine
 open Place
 open Token
 open Misc_library
-open Acid_types
    
 (* * the transition module *)
 (* Module to manage transitions :  *)
@@ -26,6 +25,7 @@ struct
 (*  - la liste des types de transition entrantes *)
 (*  - la liste des types de transitions sortantes *)
 
+  
   type input_arc = {source_place : int;
                     iatype : AcidTypes.input_arc_type}
                      [@@ deriving yojson]
@@ -140,18 +140,22 @@ let apply_transition (transition : t) : transition_effect list=
              (Place.t * AcidTypes.output_arc_type) list)
           (tokens : Token.t list) :
           transition_effect list =
-
+(* TODO : permettre au bind de ne prendre qu'un token 
+(et donc de ne pas avoir d'effet ?) *)
       match o_arc_l, tokens with
       | (place, AcidTypes.Bind_oarc) :: o_arc_l',
         t1 :: t2 :: tokens' ->
          Place.add_token_from_transition (Token.insert t1 t2) place;
          apply_output_arcs o_arc_l' tokens'
-      | (place, AcidTypes.Release_oarc) :: o_arc_l',
+      | (place, AcidTypes.Move_oarc move_dir) :: o_arc_l',
         token :: tokens' ->
-         if Token.is_empty token
-         then apply_output_arcs o_arc_l' tokens'
-         else Release_effect (Token.get_mol token) ::
-                (apply_output_arcs o_arc_l' tokens')
+         let new_token = 
+           if move_dir
+           then Token.move_mol_forward token
+           else Token.move_mol_backward token
+         in
+         Place.add_token_from_transition new_token place;
+         apply_output_arcs o_arc_l' tokens'
       | (place, AcidTypes.Regular_oarc) :: o_arc_l',
         token :: tokens' ->
          Place.add_token_from_transition token place;
