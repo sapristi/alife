@@ -17,7 +17,7 @@ module Token =
   struct
     type t =
       | No_token
-      | Token of (Molecule.t * Molecule.t)
+      | Token of int * Molecule.t
                                     [@@deriving yojson]
     let is_no_token (token :t) =
       token = No_token
@@ -25,22 +25,20 @@ module Token =
     let is_empty (token : t) =
       match token with
       | No_token -> failwith "token.ml : cannot test empty on No_token"
-      | Token (m1,m2)-> (m1 = [] && m2 = [])
+      | Token (i,m)-> (m = "")
       
 
     let make_empty () : t =
-      Token ([],[])
+      Token (0,"")
       
     let make_at_mol_start (mol : Molecule.t) : t =
-      Token ([], mol)
+      Token (0, mol)
       
     let make_at_mol_cut (mol1 : Molecule.t) (mol2 : Molecule.t) : t =
-      Token (List.rev mol1, mol2)
+      Token (String.length mol1, mol1 ^ mol2)
 
     let make (mol : Molecule.t) (pos : int) : t =
-      let m1, m2 = cut_list mol pos in
-      make_at_mol_cut m1 m2
-
+      Token (pos, mol)
 
       (* if token is empty : fail ?
          for now it returns empty mol *)
@@ -48,30 +46,32 @@ module Token =
     let get_mol (token : t) : Molecule.t =
       match token with
       | No_token -> failwith "token.ml : cannot get_mol from empty_token"
-      | Token (m1,m2) -> (List.rev m1)@(m2)
+      | Token (i,m) -> m
       
     let move_mol_forward (token : t) : t =
       match token with
       | No_token -> failwith "token.ml : cannot move_mol from empty_token"
-      | Token (m1,m2) -> 
-         match m2 with
-         | [] -> Token (m1, m2)
-         | a :: m2' -> Token (a :: m1, m2')
-         
+      | Token (i,m) -> 
+         if i < String.length m
+         then Token(i+1,m)
+         else Token(i,m)
+
     let move_mol_backward (token : t) : t =
       match token with
       | No_token -> failwith "token.ml : cannot move_mol from empty_token"
-      | Token (m1,m2) ->
-         match m1 with
-         | [] -> Token (m1, m2)
-         | a :: m1' -> Token (m1', a:: m2)
+      | Token (i,m) -> 
+         if i>0
+         then Token(i-1,m)
+         else Token(i,m)
         
     let cut_mol (token : t) : t*t =
       match token with
       | No_token -> failwith "token.ml : cannot cut_mol from empty_token"
-      | Token (m1,m2) ->
-         (Token (m1, []),
-          Token ([], m2))
+      | Token (i,m) ->
+         let m1 = Str.string_before m i
+         and m2 = Str.string_after m i in
+         (Token (i, m1),
+          Token (0, m2))
         
         
 
@@ -81,15 +81,18 @@ module Token =
     let insert (source_tok : t) (dest_tok : t) : t =
       match source_tok with
       | No_token -> failwith "token.ml : cannot insert No_token"
-      | Token (s1, s2) ->
+      | Token (is, ms) ->
          match dest_tok with
          | No_token -> failwith "token.ml : cannot insert into No_token"
-         | Token (d1, d2) -> 
-            Token (s1 @ d1, s2 @ d2)
+         | Token (id, md) -> 
+            Token (is + id, Str.string_before md id ^ md ^Str.string_after md id)
                
     let get_label (token : t) =
       match token with
       | No_token -> failwith "token.ml : cannot get_label from No_token"
-      | Token  (_,[]) -> ""
-      | Token  (_,a::_) -> Atome.to_string a
+      | Token  (i,s) -> 
+         if i = String.length s
+         then ""
+         else Char.escaped (s.[i]) 
+           
   end

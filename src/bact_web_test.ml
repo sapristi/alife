@@ -1,9 +1,10 @@
 open Molecule;;
 open Proteine;;
-open AcidTypes;;
+open Proteine;;
 open Petri_net
 open Bacterie;;
 open Web_server;;
+open AcidTypes;;
 open Graber;;
 open Sandbox;;
   
@@ -51,15 +52,15 @@ let prot3 = [
     
 let prot4 = [
     Place;
-    Extension (Grab_ext (Graber.make [A;A;A;A;F;A;F;A;A;A;A]))
+    Extension (Grab_ext "AAAAFAFAAAA")
   ];;
 
-let mol5 = [Atome.A;A;A;A;A;A;A;A;A];;
+let mol5 = "AAAAAAAAA";;
 
 
       let print_prot prot = 
-        let mol = Proteine.to_molecule prot in
-        print_endline (Molecule.to_string mol);
+        let mol = Molecule.of_proteine prot in
+        print_endline mol;
   
     in
     

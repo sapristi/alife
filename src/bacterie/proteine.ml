@@ -12,88 +12,15 @@
 
 open Misc_library
 open Batteries
+open Acid_types
 open Molecule
+open Atome
 open Graber
 
-
-
-(* * defining types for acids *)
-(* ** description générale :in_progress: *)
-(*    Implémentation des types différents acides. Voilà en gros l'organisation : *)
-(*   + place : aucune fonctionalité *)
-(*   + transition : agit sur la molécule contenue dans un token *)
-(*     - regular : rien de particulier *)
-(*     - split : coupe une molécule en 2 (seulement transition_input) *)
-(*     - bind : insère une molécule dans une autre (seulement transition_output) *)
-(*     - release : supprime le token, et relache l'éventuelle molécule *)
-(*       contenue dans celui-ci *)
-(*   + extension : autres ? *)
-(*     - handle : poignée pour attraper cette molécule *)
-(*       problème : il faudrait pouvoir attrapper la molécule à n'importe quel acide ? ou alors on attrappe la poignée directement et pas la place associée *)
-(*     - catch : permet d'attraper une molécule. *)
-(*       Est ce qu'il y a une condition d'activation, par exemple un token vide (qui contiendrait ensuite la molécule) ? *)
-(*     - release : lache la molécule attachée -> plutot dans les transitions *)
-(*     - move : déplace le point de contact de la molécule *)
-(*     - send : envoie un message *)
-(*     - receive : receives a message *)
-
-(*   Questions : est-ce qu'on met l'action move sur les liens ou en *)
-(*   extension ? dans les liens c'est plus cohérent, mais dans les *)
-(*   extensions ça permet d'en mettre plusiers à la suite. Par contre, à *)
-(*   quel moment est-ce qu'on déclenche l'effet de bord ? En recevant le *)
-(*   token d'une transition.  Mais du coup pour l'action release, il *)
-(*   faudrait aussi la mettre sur les places, puisqu'on agit aussi à *)
-(*   l'extérieur du token. Du coup pour l'instant on va mettre à la fois *)
-(*   move et release dans les extensions, avec un système pour appliquer *)
-(*   les effets des extensions quand on reçoit un token. *)
-
-(*   L'autre question est, comment appliquer les effets de bord qui *)
-(*   affectent la bactérie ? *)
-(*   Le plus simple est de mettre les actions ayant de tels effets de bord *)
-(*   sur les transitions, donc send_message et release_mol seront sur *)
-(*   les olink *)
-  
-(* ** implémentation *)
-              
-module AcidTypes =
-  struct
-(* *** place *)
-    type place_type = Regular_place
-                          [@@deriving yojson]
+(* * Proteine module *)
+module Proteine = 
+  struct 
     
-(* *** transition_input *)
-    type input_arc_type = 
-      | Regular_iarc
-      | Split_iarc
-      | Filter_iarc of string
-                          [@@deriving yojson]
-                      
-(* *** transition_output *)
-    type output_arc_type = 
-      | Regular_oarc
-      | Bind_oarc
-      | Move_oarc of bool
-[@@deriving yojson]
-
-
-
-(* *** extension *)
-(* Types used by the extensions. Usefull to use custom types for easier potential changes later on.  *)
-
-                    
-    type extension_type =
-      | Grab_ext of Graber.t
-      | Release_ext
-      | Init_with_token_ext
-[@@deriving yojson]
-      
-      
-(*
-      | Displace_mol_ext of bool
-      | Handle_ext of handle_id
-      | Catch_ext of bind_pattern
-      | Information_ext of string
- *)                         
 (* ** type definitions *)
 (* *** acid type definition *)
 (*     We define how the abstract types get combined to form functional  *)
@@ -104,32 +31,25 @@ module AcidTypes =
 (*       + a transition output : an outgoing edge into a transition of the  *)
 (*       petri net *)
 (*       + a piece of information : ???? *)
-
-      
-    type acid = 
-      | Place
-      | InputArc of string * input_arc_type
-      | OutputArc of string * output_arc_type
-      | Extension of extension_type
-                       [@@deriving yojson]
-                   
-                         
-  end;;
-
-
-
-
-   
-(* * Proteine module *)
-module Proteine = 
-  struct 
-    
-    open AcidTypes
+  
+type acid = 
+  | Node
+  | InputArc of string * AcidTypes.input_arc_type
+  | OutputArc of string * AcidTypes.output_arc_type
+  | Extension of AcidTypes.extension_type
+                   [@@deriving show, yojson]
+                 
 
 (* * A proteine *)                   
     type t = acid list
-                  [@@deriving yojson]
+                  [@@deriving show, yojson]
                 
+(* *** position type definition *)
+(*     Correspond à un pointeur vers un des acide de la molécule *)
+                
+type position = int
+                  [@@deriving show]
+
 (* *** transition structure type definition *)
 
 (*     Structure utilisée pour stocker une transition. *)
@@ -144,6 +64,7 @@ type transition_structure =
   string * 
     (int * AcidTypes.input_arc_type ) list * 
       (int * AcidTypes.output_arc_type) list
+                                             [@@deriving show]
 
 (* *** place extensions definition *)
 
@@ -222,7 +143,7 @@ let build_transitions (prot : t) :
             transition_structure list = 
     
     match prot with
-    | Place :: prot' -> aux prot' (nodeN + 1) transL
+    | Node :: prot' -> aux prot' (nodeN + 1) transL
     | InputArc (s,d) :: prot' ->
        aux prot' nodeN (insert_new_input nodeN s d transL)
 
@@ -242,11 +163,11 @@ let build_transitions (prot : t) :
 (*     inversé dans la protéine. *)
 
   let build_nodes_list_with_exts (prot : t) :
-        ((extension_type list)) list =
+        ((AcidTypes.extension_type list)) list =
     
     let rec aux prot res = 
       match prot with
-      | Place :: prot' -> aux prot' (([]) :: res)
+      | Node :: prot' -> aux prot' (([]) :: res)
       | Extension e :: prot' ->
          begin
            match res with
@@ -263,11 +184,45 @@ let build_transitions (prot : t) :
 (* Functions used to build references to the handles, catchers and  *)
 (* grabers of a molecule *)
 
+let build_handles_book (prot : t) : (string, int) BatMultiPMap.t =
+  let rec aux prot n map =
+    match prot with
+    | Extension ext :: prot' ->
+       begin
+         match ext with
+         | AcidTypes.Handle_ext hid ->
+            aux prot' (n+1) (BatMultiPMap.add hid n map)
+         | _ -> aux  prot' (n+1) map
+       end
+    | _ :: prot' -> aux prot' (n+1) map
+    | [] -> map
+  in
+  aux prot 0 BatMultiPMap.empty
+  
+let build_catchers_book (prot : t) : (string, int) BatMultiPMap.t =
+  let rec aux  prot n map =
+    match prot with
+    | Node _ :: prot' -> aux prot' (n+1) map
+    | Extension ext :: prot' ->
+       if n >= 0
+       then
+         begin
+           match ext with
+           | AcidTypes.Handle_ext hid ->
+              aux prot' n (BatMultiPMap.add hid n map)
+           | _ -> aux  prot' n map
+         end
+       else
+         aux prot' n map
+    | _ :: prot' -> aux prot' n map
+    | [] -> map
+  in
+  aux prot (-1) BatMultiPMap.empty
 
 let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
   let rec aux  prot n map =
     match prot with
-    | Place _ :: prot' -> aux prot' (n+1) map
+    | Node _ :: prot' -> aux prot' (n+1) map
     | Extension ext :: prot' ->
        if n >= 0
        then
@@ -293,50 +248,65 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
 (* possible options encoded with a string following the sequence,  *)
 (* ended with a D atom. *)
 
-  let rec of_molecule (mol : Molecule.t) : t =
+  let rec from_mol (mol : Molecule.t) : t =
     match mol with
       
-    | A::A::A::mol' -> (Place) :: of_molecule mol'
+    | A::A::A::mol' -> (Node) :: from_mol mol'
                      
     | B::A::A::mol' ->
-       let s,mol'' = Molecule.extract_message mol' in
-       (InputArc (s,Regular_iarc)) :: (of_molecule mol'')
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (InputArc (s,Regular_iarc)) :: (from_mol mol'')
        
     | B::B::A::mol' ->
-       let s,mol'' = Molecule.extract_message mol' in
-       (InputArc (s,Split_iarc)) :: (of_molecule mol'')
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (InputArc (s,Split_iarc)) :: (from_mol mol'')
        
     | B::C::a::mol' ->
-       let s,mol'' = Molecule.extract_message mol' in
-       (InputArc (s,Filter_iarc (Atome.to_string a))) :: of_molecule mol''
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (InputArc (s,Filter_iarc (Atome.to_string a))) :: from_mol mol''
        
     | C::A::A::mol'->
-       let s,mol'' = Molecule.extract_message mol' in
-       (OutputArc (s,Regular_oarc)) :: of_molecule mol''
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (OutputArc (s,Regular_oarc)) :: from_mol mol''
        
     | C::B::A::mol'->
-       let s,mol'' = Molecule.extract_message mol' in
-       (OutputArc (s,Bind_oarc)) :: of_molecule mol''
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (OutputArc (s,Bind_oarc)) :: from_mol mol''
        
     | C::C::A::mol'->
-       let s,mol'' = Molecule.extract_message mol' in
-       (OutputArc (s,Move_oarc true)) :: of_molecule mol''
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (OutputArc (s,Release_oarc)) :: from_mol mol''
        
-    | C::C::B::mol'->
-       let s,mol'' = Molecule.extract_message mol' in
-       (OutputArc (s,Move_oarc false)) :: of_molecule mol''
+    | D::A::A::mol'->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (Extension (Handle_ext s)) :: from_mol mol''
+       
+    | D::B::A::mol'->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (Extension (Catch_ext s)) :: from_mol mol''
        
     | D::D::A::mol'->
-       (Extension Release_ext) :: of_molecule mol'
+       (Extension Release_ext) :: from_mol mol'
+      
+    | D::B::B::mol'->
+       (Extension (Displace_mol_ext true)) :: from_mol mol'
+      
+    | D::B::C::mol'->
+       (Extension (Displace_mol_ext false)) :: from_mol mol'
       
     | D::C::B::mol'->
-       (Extension Init_with_token_ext) :: of_molecule mol'
+       (Extension Init_with_token_ext) :: from_mol mol'
       
-    | D::D::C::mol' ->
-       let s,mol'' = Molecule.extract_message_as_mol mol' in
-       (Extension (Grab_ext (Graber.make  s))) :: of_molecule mol''
+    | D::D::B::mol' ->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       (Extension (Information_ext s)) :: from_mol mol''
        
-    | a :: mol' -> of_molecule mol'
+    | D::D::C::mol' ->
+       let s,mol'' = Molecule.extract_message_from_mol mol' in
+       let g = Graber.build_from_string s in
+       (Extension (Grab_ext g)) :: from_mol mol''
+       
+    | a :: mol' -> from_mol mol'
     | [] -> []
 
 (* *** to_molecule *)
@@ -344,7 +314,7 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
 
   let rec to_molecule (prot : t) : Molecule.t =
     match prot with
-    | Place :: prot' ->
+    | Node :: prot' ->
        Atome.A::A::A::(to_molecule prot')
     | InputArc (s,Regular_iarc) :: prot' ->
        Atome.B::A::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
@@ -357,16 +327,24 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
          Atome.C::A::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | OutputArc (s,Bind_oarc) :: prot' ->
        Atome.C::B::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
-    | OutputArc (s,Move_oarc true) :: prot' ->
+    | OutputArc (s,Release_oarc) :: prot' ->
        Atome.C::C::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
-    | OutputArc (s,Move_oarc false) :: prot' ->
-       Atome.C::C::B::(Molecule.string_to_message_mol s)@(to_molecule prot')
+    | Extension (Handle_ext s) :: prot' ->
+       Atome.D::A::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
+    | Extension (Catch_ext s) :: prot' ->
+       Atome.D::B::A::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | Extension Release_ext :: prot' ->
        D::D::A::(to_molecule prot')
+    | Extension (Displace_mol_ext true) :: prot' ->
+       D::B::B::(to_molecule prot')
+    | Extension (Displace_mol_ext false) :: prot' ->
+       D::B::C::(to_molecule prot')
     | Extension Init_with_token_ext :: prot' ->
        D::C::B::(to_molecule prot')
+    | Extension (Information_ext s) :: prot' ->
+       Atome.D::D::B::(Molecule.string_to_message_mol s)@(to_molecule prot')
     | Extension (Grab_ext g) :: prot' ->
-      D::D::C::((g.raw)@[Atome.F;F;F]@(to_molecule prot'))
+      D::D::C::((g.pattern_as_mol)@[Atome.F;F;F]@(to_molecule prot'))
       
     | [] -> []
           
@@ -377,21 +355,20 @@ end;;
   
 module AcidExamples = 
   struct
-    open AcidTypes
     
-    let nodes = [ Place;]
+    let nodes = [ Proteine.Node;]
     let input_arcs = [
-        InputArc ("A", Regular_iarc);
-        InputArc ("A", Split_iarc);
-        InputArc ("A", Filter_iarc "A");]
+        Proteine.InputArc ("A", AcidTypes.Regular_iarc);
+        Proteine.InputArc ("A", AcidTypes.Split_iarc);
+        Proteine.InputArc ("A", AcidTypes.Filter_iarc "A");]
     let output_arcs = [
-        OutputArc ("A", Regular_oarc);
-        OutputArc ("A", Bind_oarc);
-        OutputArc ("A", Move_oarc true);]
+        Proteine.OutputArc ("A", AcidTypes.Regular_oarc);
+        Proteine.OutputArc ("A", AcidTypes.Bind_oarc);
+        Proteine.OutputArc ("A", AcidTypes.Release_oarc);]
     let extensions = [
-        Extension (Release_ext);
-        Extension (Grab_ext (Graber.make [A;A;F;A;F;B;A]));
-        Extension (Init_with_token_ext);
+        Proteine.Extension (AcidTypes.Release_ext);
+        Proteine.Extension (AcidTypes.Displace_mol_ext true);
+        Proteine.Extension (AcidTypes.Init_with_token_ext);
       ]
 
   end;;

@@ -89,7 +89,7 @@ let add_to_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
      **** SHOULD NOT BE USED
      *)
 let add_proteine (prot : Proteine.t) (bact : t) : unit =
-  let mol = Proteine.to_molecule prot in
+  let mol = Molecule.of_proteine prot in
   add_molecule mol bact
 
 
@@ -193,7 +193,7 @@ let rec execute_actions (actions : Transition.transition_effect list) (bact : t)
 
 
 (* ** to_json *)
-  let to_json (bact : t) : Yojson.Safe.json=
+  let to_json (bact : t) =
     let mol_enum = MolMap.enum bact.molecules in
     let trimmed_mol_enum = Enum.map (fun (a,(b,c)) -> a,b) mol_enum in
     let trimmed_mol_list = List.of_enum trimmed_mol_enum in
@@ -202,7 +202,7 @@ let rec execute_actions (actions : Transition.transition_effect list) (bact : t)
        "molecules list",
        `List (List.map
                 (fun (mol, nb) ->
-                  `Assoc ["mol", Molecule.to_yojson mol;
+                  `Assoc ["mol", `String mol;
                           "nb", `Int nb])
                 trimmed_mol_list)
      ]

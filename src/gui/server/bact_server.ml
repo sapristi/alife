@@ -13,9 +13,8 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
 (* *** prot_from_mol *)
   let prot_from_mol (cgi:Netcgi.cgi) : string =
     
-    let mol_str = cgi # argument_value "mol_desc" in
-    let mol = Molecule.of_string mol_str in
-    let prot = Proteine.of_molecule mol in
+    let mol = cgi # argument_value "mol_desc" in
+    let prot = Molecule.to_proteine mol in
     let prot_json = Proteine.to_yojson prot
     in
     let to_send_json =
@@ -26,9 +25,8 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
     Yojson.Safe.to_string to_send_json
     
   and build_all_from_mol (cgi : Netcgi.cgi) : string =
-    let mol_str = cgi # argument_value "mol_desc" in
-    let mol = Molecule.of_string mol_str in
-    let prot = Proteine.of_molecule mol in
+    let mol = cgi # argument_value "mol_desc" in
+    let prot = Molecule.to_proteine mol in
     let pnet = PetriNet.make_from_mol mol
     in
     let  prot_json = Proteine.to_yojson prot
@@ -50,8 +48,8 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
     let prot_or_error = Proteine.of_yojson prot_json in
     match prot_or_error with
     | Ok prot ->
-       let mol = Proteine.to_molecule prot in
-       let mol_json = Molecule.to_yojson mol in
+       let mol = Molecule.of_proteine prot in
+       let mol_json = `String mol in
        let pnet = PetriNet.make_from_mol mol in
        let pnet_json = PetriNet.to_json pnet in
        let to_send_json =
