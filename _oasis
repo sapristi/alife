@@ -39,7 +39,7 @@ Library "molecule"
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Molecule
-  BuildDepends: local_libs, yojson, ppx_deriving_yojson
+  BuildDepends: local_libs, yojson, ppx_deriving_yojson, re, re.perl
 
 
 Library "proteine"	

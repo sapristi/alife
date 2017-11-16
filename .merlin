@@ -25,4 +25,7 @@ PKG yojson
 CMT /home/sapristi/.opam/4.04.0/build/yojson.1.4.0/_build
 
 PKG ppx_deriving_yojson
-CMT /home/sapristi/.opam/4.04.0/build/ppx_deriving_yojson.3.0
+CMT /home/sapristi/.opam/4.04.0/build/ppx_deriving_yojson.3.0/_build
+
+PKG re
+CMR /home/sapristi/.opam/4.04.0/build/re.1.7.1/_build

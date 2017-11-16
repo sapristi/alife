@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: ebff1dfd299773e28452eb63c9e33fbb)
+# DO NOT EDIT (digest: b6c90ba49d8d8aa332a4479e6a1da85d)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "bacterie_libs.cma"
@@ -81,7 +81,7 @@ package "petri_net" (
 package "molecule" (
  version = "0.1"
  description = "Simulating life and stuff"
- requires = "local_libs yojson ppx_deriving_yojson"
+ requires = "local_libs yojson ppx_deriving_yojson re re.perl"
  archive(byte) = "molecule.cma"
  archive(byte, plugin) = "molecule.cma"
  archive(native) = "molecule.cmxa"

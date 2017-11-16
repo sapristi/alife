@@ -10,6 +10,7 @@
 open Graber
 open Proteine
 open AcidTypes
+
    
 module Molecule =
   struct
@@ -19,97 +20,123 @@ module Molecule =
           
     let atoms = "[A-E]"
 
-    let place_pt = "AAA"
-    and ia_reg_pt = "BAA"
-    and ia_split_pt = "BBA"
-    and ia_filter_pt = "BC"
-    and oa_reg_pt = "CAA"
-    and oa_bind_pt = "CBA"
-    and oa_move_fw_pt = "CCA"
-    and oa_move_bw_pt = "CCB"
-    and ext_grab_pt = "ABA"
-    and ext_rel_pt = "ABB"
-    and ext_tinit_pt = "ABC"
-    and msg_end_pt = "DDD"
-    and msg_body_pt = "\\([^DDD]*\\)"
-              
-    let place_re = Str.regexp place_pt
-    and ia_reg_re = Str.regexp (ia_reg_pt^"\\(.*\\)"^msg_end_pt)
-    and ia_split_re = Str.regexp (ia_split_pt^"\\(.*\\)"^msg_end_pt)
-    and ia_filter_re = Str.regexp
-                     (ia_filter_pt^"\\("^atoms^"\\)"^msg_end_pt)
-    and oa_reg_re = Str.regexp (oa_reg_pt^"\\(.*\\)"^msg_end_pt)
-    and oa_bind_re = Str.regexp (oa_bind_pt^"\\(.*\\)"^msg_end_pt)
-    and oa_move_fw_re = Str.regexp (oa_move_fw_pt^"\\(.*\\)"^msg_end_pt)
-    and oa_move_bw_re = Str.regexp (oa_move_bw_pt^"\\(.*\\)"^msg_end_pt)
-    and ext_grab_re = Str.regexp (ext_grab_pt^"\\(.*\\)"^msg_end_pt)
-    and ext_rel_re = Str.regexp ext_rel_pt
-    and ext_tinit_re = Str.regexp ext_tinit_pt
+    let place_id = "AAA"
+    and ia_reg_id = "BAA"
+    and ia_split_id = "BBA"
+    and ia_filter_id = "BC"
+    and oa_reg_id = "CAA"
+    and oa_bind_id = "CBA"
+    and oa_move_fw_id = "CCA"
+    and oa_move_bw_id = "CCB"
+    and ext_grab_id = "ABA"
+    and ext_rel_id = "ABB"
+    and ext_tinit_id = "ABC"
+    and msg_end_id = "DDD"
+        
+    let place_re = "^"^place_id^"(.*)"
+    and ia_reg_re = "^"^ia_reg_id^"(.*?)"^msg_end_id^"(.*)"
+    and ia_split_re = "^"^ia_split_id^"(.*?)"^msg_end_id^"(.*)"
+    and ia_filter_re = "^"^ia_filter_id^"("^atoms^")"^msg_end_id^"(.*)"
+    and oa_reg_re = "^"^oa_reg_id^"(.*?)"^msg_end_id^"(.*)"
+    and oa_bind_re = "^"^oa_bind_id^"(.*?)"^msg_end_id^"(.*)"
+    and oa_move_fw_re = "^"^oa_move_fw_id^"(.*?)"^msg_end_id^"(.*)"
+    and oa_move_bw_re = "^"^oa_move_bw_id^"(.*?)"^msg_end_id^"(.*)"
+    and ext_grab_re = "^"^ext_grab_id^"(.*?)"^msg_end_id^"(.*)"
+    and ext_rel_re =  "^"^ext_rel_id^"(.*)"
+    and ext_tinit_re =  "^"^ext_tinit_id^"(.*)"
+                      
+
+                   
+    let place_cre = Re.compile (Re_perl.re place_re)
+    and ia_reg_cre = Re.compile (Re_perl.re ia_reg_re)
+    and ia_split_cre = Re.compile (Re_perl.re ia_split_re)
+    and ia_filter_cre = Re.compile (Re_perl.re ia_filter_re)
+    and oa_reg_cre = Re.compile (Re_perl.re oa_reg_re)
+    and oa_bind_cre = Re.compile (Re_perl.re oa_bind_re)
+    and oa_move_fw_cre = Re.compile (Re_perl.re oa_move_fw_re)
+    and oa_move_bw_cre = Re.compile (Re_perl.re oa_move_bw_re)
+    and ext_grab_cre = Re.compile (Re_perl.re ext_grab_re)
+    and ext_rel_cre = Re.compile (Re_perl.re ext_rel_re)
+    and ext_tinit_cre = Re.compile (Re_perl.re ext_tinit_re)
                      
     let rec mol_parser (s : t) : Proteine.t =
       if s = ""
       then []
       else
-        if Str.string_match place_re s 0
+        if Re.execp place_cre s
         then
-          Place :: (mol_parser (Str.string_after s (Str.match_end ())))
+          let groups  = Re.exec place_cre s in
+          let s' = Re.Group.get groups 1 in
+          Place :: (mol_parser s')
       
-        else if Str.string_match ia_reg_re s 0
+        else if Re.execp ia_reg_cre s
         then
-          let tid = Str.matched_group 1 s in
-          let s' = (Str.string_after s (Str.match_end ())) in
+          let groups  = Re.exec ia_reg_cre s in
+          let tid  = Re.Group.get groups 1
+          and s' = Re.Group.get groups 2 in
           (InputArc (tid , Regular_iarc)) :: (mol_parser s')
           
-        else if Str.string_match ia_split_re s 0
+        else if Re.execp ia_split_cre s
         then
-          let tid = Str.matched_group 1 s in
-          let s' = (Str.string_after s (Str.match_end ())) in
+          let groups  = Re.exec ia_split_cre s in
+          let tid  = Re.Group.get groups 1
+          and s' = Re.Group.get groups 2 in
           (InputArc (tid , Split_iarc)) :: (mol_parser s')
           
-        else if Str.string_match ia_filter_re s 0
+        else if Re.execp ia_filter_cre s
         then
-          let f = Str.matched_group 1 s
-          and tid = Str.matched_group 2 s in
-          let s' = (Str.string_after s (Str.match_end ())) in
+          let groups  = Re.exec ia_filter_cre s in
+          let f = Re.Group.get groups 1
+          and tid  = Re.Group.get groups 2
+          and s' = Re.Group.get groups 3 in
           (InputArc (tid , Filter_iarc f)) :: (mol_parser s')
           
-        else if Str.string_match oa_reg_re s 0
+        else if Re.execp oa_reg_cre s
         then 
-          let tid = Str.matched_group 1 s in
-          let s' = (Str.string_after s (Str.match_end ())) in
+          let groups  = Re.exec oa_reg_cre s in
+          let tid  = Re.Group.get groups 1
+          and s' = Re.Group.get groups 2 in
           (OutputArc (tid , Regular_oarc)) :: (mol_parser s')
           
-        else if Str.string_match oa_bind_re s 0
+        else if Re.execp oa_bind_cre s
         then 
-          let tid = Str.matched_group 1 s in
-          let s' = (Str.string_after s (Str.match_end ())) in
+          let groups  = Re.exec oa_bind_cre s in
+          let tid  = Re.Group.get groups 1
+          and s' = Re.Group.get groups 2 in
           (OutputArc (tid , Bind_oarc)) :: (mol_parser s')
           
-        else if Str.string_match oa_move_fw_re s 0
+        else if Re.execp oa_move_fw_cre s
         then
-          let tid = Str.matched_group 2 s in
-          let s' = (Str.string_after s (Str.match_end ())) in
+          let groups  = Re.exec oa_move_fw_cre s in
+          let tid  = Re.Group.get groups 1
+          and s' = Re.Group.get groups 2 in
           (OutputArc (tid , Move_oarc true)) :: (mol_parser s')
           
-        else if Str.string_match oa_move_bw_re s 0
+        else if Re.execp oa_move_bw_cre s
         then
-          let tid = Str.matched_group 2 s in
-          let s' = (Str.string_after s (Str.match_end ())) in
+          let groups  = Re.exec oa_move_bw_cre s in
+          let tid  = Re.Group.get groups 1
+          and s' = Re.Group.get groups 2 in
           (OutputArc (tid , Move_oarc false)) :: (mol_parser s')
           
-        else if Str.string_match ext_grab_re s 0
+        else if Re.execp ext_grab_cre s
         then
-          let g = Str.matched_group 1 s in
-          let s' = (Str.string_after s (Str.match_end ())) in
+          let groups  = Re.exec ext_grab_cre s in
+          let g  = Re.Group.get groups 1
+          and s' = Re.Group.get groups 2 in
           (Extension (Grab_ext g)) :: (mol_parser s')
           
-        else if Str.string_match ext_rel_re s 0
+        else if Re.execp ext_rel_cre s
         then
-          Extension Release_ext :: (mol_parser (Str.string_after s (Str.match_end ())))
+          let groups  = Re.exec ext_rel_cre s in
+          let s' = Re.Group.get groups 1 in
+          Extension Release_ext :: (mol_parser s')
       
-        else if Str.string_match ext_tinit_re s 0
+        else if Re.execp ext_tinit_cre s
         then
-          Extension Init_with_token_ext :: (mol_parser (Str.string_after s (Str.match_end ())))
+          let groups  = Re.exec ext_tinit_cre s in
+          let s' = Re.Group.get groups 1 in
+          Extension Init_with_token_ext :: (mol_parser s')
       
         else 
           mol_parser (Str.string_after s 1)
@@ -122,27 +149,27 @@ module Molecule =
       let acid_to_mol (a : acid) : t = 
         match a with
         | Place  ->
-           place_pt 
+           place_id 
         | InputArc (s,Regular_iarc)  ->
-           ia_reg_pt ^ s ^ msg_end_pt
+           ia_reg_id ^ s ^ msg_end_id
         | InputArc (s,Split_iarc) ->
-           ia_split_pt ^ s ^ msg_end_pt 
+           ia_split_id ^ s ^ msg_end_id 
         | InputArc (s,(Filter_iarc f))  ->
-           ia_filter_pt ^ f ^ s ^msg_end_pt
+           ia_filter_id ^ f ^ s ^msg_end_id
         | OutputArc (s,Regular_oarc) ->
-           oa_reg_pt ^ s ^ msg_end_pt
+           oa_reg_id ^ s ^ msg_end_id
         | OutputArc (s,Bind_oarc)  ->
-           oa_bind_pt ^ s ^ msg_end_pt
+           oa_bind_id ^ s ^ msg_end_id
         | OutputArc (s,Move_oarc true) ->
-           oa_move_fw_pt ^ s^ msg_end_pt
+           oa_move_fw_id ^ s^ msg_end_id
         | OutputArc (s,Move_oarc false)  ->
-           oa_move_bw_pt ^ s^ msg_end_pt
+           oa_move_bw_id ^ s^ msg_end_id
         | Extension Release_ext  ->
-           ext_rel_pt 
+           ext_rel_id 
         | Extension Init_with_token_ext  ->
-           ext_tinit_pt 
+           ext_tinit_id 
         | Extension (Grab_ext g) ->
-           ext_grab_pt ^ g ^msg_end_pt
+           ext_grab_id ^ g ^msg_end_id
       in 
       match p with
       | a :: p' ->
