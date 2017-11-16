@@ -219,8 +219,6 @@ function PNetViewModel() {
 		self.pnet_data.places[node_data.index]);
 	    self.transitionVM.disable();
 	} else if (node_data.type = "transition") {
-	    console.log(self.pnet_data.transitions);
-	    console.log(node_data);
 	    self.transitionVM.enable(
 		self.pnet_data.transitions[node_data.index]);
 	    self.placeVM.disable();
@@ -255,7 +253,6 @@ function PNetViewModel() {
     
 // ** transition_launch*
     self.launch_transition = function() {
-	console.log(self.transitionVM.data)
 	var tindex = self.transitionVM.data.index;
 	utils.ajax_get(
             {command: "launch_transition",
@@ -271,6 +268,20 @@ function PNetViewModel() {
 
 	    });
 
+    }
+
+    self.global_sim_update = function() {
+	utils.ajax_get(
+            {command: "pnet_from_mol",
+             mol_desc: self.pnet_data.molecule,
+	     container: "bactery"}
+        ).done(
+	    function (data)
+	    {	
+		self.pnet_data = data.data.pnet;
+		update_pnet_graph(pnet_cy, self.pnet_data);
+		self.change(!self.change());
+	    });
     }
 
 };

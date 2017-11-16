@@ -43,6 +43,7 @@ function BactViewModel(pnetVM, protVM) {
                     status : ko.observable("")
                 });
         }
+	self.pnetVM.global_sim_update();
     };
     
     self.update = function() {
@@ -60,6 +61,12 @@ function BactViewModel(pnetVM, protVM) {
         ).done(self.set_bact_data);
     };
     
+    self.eval_transitions = function() {
+        utils.ajax_get(
+            {command:"make_transitions",
+	     container:"bactery"}
+        ).done(self.set_bact_data);
+    };
 // ** init_data
     self.init_data = function() {
         self.update();

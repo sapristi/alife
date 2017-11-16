@@ -63,40 +63,38 @@ struct
     
 (* *** add_molecule *)
 (* adds a molecule inside a bactery *)
-let add_molecule (m : Molecule.t) (bact : t) : unit =
+  let add_molecule (m : Molecule.t) (bact : t) : unit =
+    
+    if MolMap.mem m bact.molecules
+    then 
+      bact.molecules <- MolMap.modify m (fun x -> let y,z = x in (y+1,z)) bact.molecules
+    else
+      let p = PetriNet.make_from_mol m in
+      bact.molecules <- MolMap.add m (1,p) bact.molecules
       
-  if MolMap.mem m bact.molecules
-  then 
-    bact.molecules <- MolMap.modify m (fun x -> let y,z = x in (y+1,z)) bact.molecules
-  else
-    let p = PetriNet.make_from_mol m in
-    bact.molecules <- MolMap.add m (1,p) bact.molecules
-
 (* *** remove_molecule *)
 (* totally removes a molecule from a bactery *)
-let remove_molecule (m : Molecule.t) (bact : t) : unit =
-      
-  bact.molecules <- MolMap.remove m bact.molecules
+  let remove_molecule (m : Molecule.t) (bact : t) : unit =
+    bact.molecules <- MolMap.remove m bact.molecules
 
 (* *** add_to_mol_quantity *)
 (* changes the number of items of a particular molecule *)
-let add_to_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
+  let add_to_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
     
-  if MolMap.mem mol bact.molecules
-  then 
-    bact.molecules <- MolMap.modify mol (fun x -> let y,z = x in (y+n,z)) bact.molecules
-  else
-    failwith "cannot update absent molecule"
-
+    if MolMap.mem mol bact.molecules
+    then 
+      bact.molecules <- MolMap.modify mol (fun x -> let y,z = x in (y+n,z)) bact.molecules
+    else
+      failwith "cannot update absent molecule"
+    
 (* *** set_mol_quantity *)
 (* changes the number of items of a particular molecule *)
-let set_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
-    
-  if MolMap.mem mol bact.molecules
-  then 
-    bact.molecules <- MolMap.modify mol (fun x -> let y,z = x in (n,z)) bact.molecules
-  else
-    failwith "bacterie.ml : cannot change quantity :  target molecule is not present"
+  let set_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
+    if MolMap.mem mol bact.molecules
+    then 
+      bact.molecules <- MolMap.modify mol (fun x -> let y,z = x in (n,z)) bact.molecules
+    else
+      failwith "bacterie.ml : cannot change quantity :  target molecule is not present"
 
   
 (* *** add_proteine *)
@@ -105,10 +103,10 @@ let set_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
      process is not very natural.
      **** SHOULD NOT BE USED
      *)
-let add_proteine (prot : Proteine.t) (bact : t) : unit =
-  let mol = Molecule.of_proteine prot in
-  add_molecule mol bact
-
+  let add_proteine (prot : Proteine.t) (bact : t) : unit =
+    let mol = Molecule.of_proteine prot in
+    add_molecule mol bact
+    
 
 (* ** Interactions *)  
 
@@ -117,15 +115,15 @@ let add_proteine (prot : Proteine.t) (bact : t) : unit =
 (* auxilary function used by try_grabs *)
 (* Try the grab of a molecule by a pnet *)
 
-let asymetric_grab mol pnet = 
+  let asymetric_grab mol pnet = 
     let grabs = PetriNet.get_possible_mol_grabs mol pnet
     in
     if not (grabs = [])
     then
       let grab,pid = random_pick_from_list grabs in
-        match grab with
-        | Graber.No_grab -> false
-        | Graber.Grab pos -> PetriNet.grab mol pos pid pnet
+      match grab with
+      | Graber.No_grab -> false
+      | Graber.Grab pos -> PetriNet.grab mol pos pid pnet
     else
       false
 
@@ -135,20 +133,32 @@ let asymetric_grab mol pnet =
 (* We could also decide that if a mol can't grab, *)
 (* then the other will try *)
 
-let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
-    : unit =
-  let _,pnet1 = MolMap.find mol1 bact.molecules
-  and _,pnet2 = MolMap.find mol1 bact.molecules in
-  if Random.bool ()
-  then
-    (
-      if asymetric_grab mol2 pnet1
-      then add_to_mol_quantity mol2 (-1) bact
-    )
-  else 
-    if  asymetric_grab mol1 pnet2
-    then add_to_mol_quantity mol1 (-1) bact
-
+  let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
+      : unit =
+    let _,pnet1 = MolMap.find mol1 bact.molecules
+    and _,pnet2 = MolMap.find mol2 bact.molecules in
+    if Random.bool ()
+    then
+      (
+        if asymetric_grab mol2 pnet1
+        then
+          (
+            add_to_mol_quantity mol2 (-1) bact;
+            PetriNet.update_launchables pnet1
+          )
+        else ()
+      )
+    else
+      (
+        if  asymetric_grab mol1 pnet2
+        then
+          (
+            add_to_mol_quantity mol1 (-1) bact;
+            PetriNet.update_launchables pnet2
+          )
+        else ()
+      )
+    
 (* *** make_reactions *)
 (* Reactions between molecules : *)
 (* we have to simulate molecules collision, *)
@@ -166,7 +176,6 @@ let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
       (MolMap.keys bact.molecules)
     
 
-
 (* ** simulation *) 
 (* *** execute_actions *)
 (* after a transition from a proteine has occured,   *)
@@ -175,18 +184,18 @@ let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
 (*   todo later : ??? *)
 (*   il faudrait peut-être mettre dans une file les molécules à ajouter *)
 
-let rec execute_actions (actions : Transition.transition_effect list) (bact : t) : unit =
-  match actions with
-  | Transition.Release_effect mol :: actions' ->
-     add_molecule mol bact;
-     execute_actions actions' bact
-  | Transition.Message_effect m :: actions' ->
-     (* bact.message_queue <- m :: bact.message_queue; *)
-     execute_actions actions' bact
-  | [] -> ()
+    let rec execute_actions (actions : Transition.transition_effect list) (bact : t) : unit =
+      match actions with
+      | Transition.Release_effect mol :: actions' ->
+         add_molecule mol bact;
+         execute_actions actions' bact
+      | Transition.Message_effect m :: actions' ->
+         (* bact.message_queue <- m :: bact.message_queue; *)
+         execute_actions actions' bact
+      | [] -> ()
+            
 
-
-(* *** launch_transition *)
+(* *** launch_transition a specific transition in a specific pnet*)
   let launch_transition tid mol bact : unit =
     let _,pnet = MolMap.find mol bact.molecules in
     let actions = PetriNet.launch_transition_by_id tid pnet in
@@ -194,6 +203,8 @@ let rec execute_actions (actions : Transition.transition_effect list) (bact : t)
     execute_actions actions bact
 
 (* *** step_simulate *)
+(* the more the quantity of a molecule, the more actions it can
+do in one round *)    
   let step_simulate (bact : t) : unit = 
     MolMap.iter
       (fun k x ->
@@ -206,16 +217,15 @@ let rec execute_actions (actions : Transition.transition_effect list) (bact : t)
       bact.molecules;
     make_reactions bact
     
-    (*    pop_all_messages bact *)
+  (*    pop_all_messages bact *)
 
-
+(* ** json serialisation *)
   type bact_elem = {nb : int;mol: Molecule.t} 
                 [@@ deriving yojson]
   type bact_sig = bact_elem list
                 [@@ deriving yojson]
     
     
-(* ** to_json *)
   let to_json (bact : t) : Yojson.Safe.json =
     let mol_enum = MolMap.enum bact.molecules in
     let trimmed_mol_enum = Enum.map (fun (a,(b,c)) -> {mol=a; nb=b}) mol_enum in

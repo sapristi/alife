@@ -93,6 +93,6 @@ module Token =
       | Token  (i,s) -> 
          if i = String.length s
          then ""
-         else Char.escaped (s.[i]) 
+         else Char.escaped (s.[i])
            
   end
