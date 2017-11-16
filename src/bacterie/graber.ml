@@ -48,7 +48,7 @@ module Graber =
 (*      + two F atoms : *)
 (*        any non-empty sequence of atoms *)
 
-  let grab_location_re = Str.regexp "F\\(.)\\F"
+  let grab_location_re = Str.regexp "F\\(.\\)F"
   and wildcard_re = Str.regexp "FF"
             
   let rec build_re (m : t) : string =

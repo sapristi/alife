@@ -31,6 +31,7 @@ module Molecule =
     and ext_rel_pt = "ABB"
     and ext_tinit_pt = "ABC"
     and msg_end_pt = "DDD"
+    and msg_body_pt = "\\([^DDD]*\\)"
               
     let place_re = Str.regexp place_pt
     and ia_reg_re = Str.regexp (ia_reg_pt^"\\(.*\\)"^msg_end_pt)
@@ -63,7 +64,7 @@ module Molecule =
         then
           let tid = Str.matched_group 1 s in
           let s' = (Str.string_after s (Str.match_end ())) in
-          (InputArc (tid , Regular_iarc)) :: (mol_parser s')
+          (InputArc (tid , Split_iarc)) :: (mol_parser s')
           
         else if Str.string_match ia_filter_re s 0
         then
