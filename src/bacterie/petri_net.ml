@@ -85,7 +85,7 @@ struct
   
     
   let make_from_mol (mol : Molecule.t) : t =
-    let prot = Molecule.to_proteine mol in
+    let prot = Proteine.of_molecule mol in
     make_from_prot prot mol
     
 (* mettre à jour les transitions qui peuvent être lancées. *)
