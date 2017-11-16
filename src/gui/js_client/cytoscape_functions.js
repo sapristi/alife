@@ -170,25 +170,31 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
         
 // ***** transition input_arcs
         t.input_arcs.forEach(function(dp) {
+	    var label = dp.iatype.reduce(
+		function(a,b) {  return a + " " + String(b);},
+		"");
             cy.add({
                 group: "edges",
                 data: {
                     source : "p"+ dp.source_place,
                     target : tname,
                     directed : true,
-		    label: dp.iatype[0]}
+		    label: label}
             });
         });
 	
 // ***** transition output_arcs
         t.output_arcs.forEach(function(dp) {
+	    var label = dp.oatype.reduce(
+		function(a,b) {  return a + " " + String(b);},
+		"");
             cy.add({
                 group: "edges",
                 data: {
                     source : tname,
                     target : "p"+ dp.dest_place,
                     directed : true,
-		    label: dp.oatype[0]}
+		    label: label}
             });
         });
 

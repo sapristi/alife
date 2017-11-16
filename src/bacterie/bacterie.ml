@@ -45,9 +45,9 @@ module Bacterie =
 struct
   type t =
     {mutable molecules : (int * PetriNet.t) MolMap.t}
-    
+
   (* an empty bactery *)
-  let empty : t = 
+  let make_empty () : t = 
     {molecules =  MolMap.empty;}
     
 (* ** Molecules handling *)
@@ -72,6 +72,12 @@ let add_molecule (m : Molecule.t) (bact : t) : unit =
     let p = PetriNet.make_from_mol m in
     bact.molecules <- MolMap.add m (1,p) bact.molecules
 
+(* *** remove_molecule *)
+(* totally removes a molecule from a bactery *)
+let remove_molecule (m : Molecule.t) (bact : t) : unit =
+      
+  bact.molecules <- MolMap.remove m bact.molecules
+
 (* *** add_to_mol_quantity *)
 (* changes the number of items of a particular molecule *)
 let add_to_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
@@ -82,6 +88,17 @@ let add_to_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
   else
     failwith "cannot update absent molecule"
 
+(* *** set_mol_quantity *)
+(* changes the number of items of a particular molecule *)
+let set_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
+    
+  if MolMap.mem mol bact.molecules
+  then 
+    bact.molecules <- MolMap.modify mol (fun x -> let y,z = x in (n,z)) bact.molecules
+  else
+    failwith "bacterie.ml : cannot change quantity :  target molecule is not present"
+
+  
 (* *** add_proteine *)
 (* adds the molecule corresponding to a proteine to a bactery 
      first transforms it back to a molecule, so the 
@@ -192,19 +209,28 @@ let rec execute_actions (actions : Transition.transition_effect list) (bact : t)
     (*    pop_all_messages bact *)
 
 
+  type bact_elem = {nb : int;mol: Molecule.t} 
+                [@@ deriving yojson]
+  type bact_sig = bact_elem list
+                [@@ deriving yojson]
+    
+    
 (* ** to_json *)
-  let to_json (bact : t) =
+  let to_json (bact : t) : Yojson.Safe.json =
     let mol_enum = MolMap.enum bact.molecules in
-    let trimmed_mol_enum = Enum.map (fun (a,(b,c)) -> a,b) mol_enum in
+    let trimmed_mol_enum = Enum.map (fun (a,(b,c)) -> {mol=a; nb=b}) mol_enum in
     let trimmed_mol_list = List.of_enum trimmed_mol_enum in
+    bact_sig_to_yojson trimmed_mol_list
     
-    `Assoc [
-       "molecules list",
-       `List (List.map
-                (fun (mol, nb) ->
-                  `Assoc ["mol", `String mol;
-                          "nb", `Int nb])
-                trimmed_mol_list)
-     ]
     
+  let json_reset (json : Yojson.Safe.json) (bact:t): unit  =
+    match  bact_sig_of_yojson json with
+    |Ok bact_sig -> 
+      bact.molecules <- MolMap.empty;
+      List.iter
+        (fun {mol = m;nb = n} ->
+          add_molecule m bact;
+          set_mol_quantity m n bact;) bact_sig;
+    | Error s -> failwith s
+                     
 end;;

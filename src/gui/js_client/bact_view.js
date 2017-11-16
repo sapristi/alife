@@ -13,6 +13,8 @@ function BactViewModel(pnetVM, protVM) {
     self.mols = ko.observableArray();
     self.selected_mol = ko.observable(-1);
     self.pnet_show = ko.observable(true);
+
+    self.mol_quantity_input = ko.observable(0);
     
     self.current_mol_name = ko.computed(
 	function() {
@@ -32,7 +34,7 @@ function BactViewModel(pnetVM, protVM) {
 // ** update_bact
     self.set_bact_data = function(data){
 	self.mols.removeAll();
-        mols_data = data.data["molecules list"];
+        mols_data = data.data;
         for (var i = 0; i < mols_data.length; i++) {
             self.mols.push(
                 {
@@ -75,6 +77,39 @@ function BactViewModel(pnetVM, protVM) {
 	self.examine_mol(self.mols()[index])
     };
 
+    self.remove_mol = function() {
+        utils.ajax_get(
+            {command:"remove_mol",
+	     container:"bactery",
+	     mol_desc:self.current_mol_name()}
+        ).done(self.set_bact_data);
+	
+    }
+
+    self.set_mol_quantity = function() {
+        utils.ajax_get(
+            {command:"set_mol_quantity",
+	     container:"bactery",
+	     mol_desc:self.current_mol_name(),
+	     mol_quantity : self.mol_quantity_input}
+        ).done(self.set_bact_data);
+	
+    }
+    
+    self.save_bactery = function() {
+        utils.ajax_get(
+            {command:"save_bactery",
+	     container:"bactery"}
+        ).done();
+    }
+    self.load_bactery = function () {
+        utils.ajax_get(
+            {command:"load_bactery",
+	     container:"bactery"}
+        ).done(self.set_bact_data);
+
+    }
+    
 }
 
 

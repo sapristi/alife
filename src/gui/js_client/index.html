@@ -59,29 +59,29 @@
 	    <div class="two wide column">
 	      <!-- bouton d'initialisation/update des données de la bactérie -->
 	      <div class="ui  segments">
-	      <div class="ui center aligned  segment">
-		<div class="ui small grey ribbon label">Update Bactery</div>
-		<button class="ui icon button" data-bind="click : init_data"><i class="refresh icon"></i></button>
-	      </div>
-	      <!-- activation de la ligne pnet -->
-	      <div class="ui center aligned  segment">
-		<div class="ui small grey ribbon label">Show Petri Net</div>
-		<div class="ui slider checkbox">
-		  <input name="tt" type="checkbox" data-bind="checked:$parent.pnet_show">
-		  <label></label>
+		<div class="ui center aligned  segment">
+		  <div class="ui small grey ribbon label">Update Bactery</div>
+		  <button class="ui icon button" data-bind="click : init_data"><i class="refresh icon"></i></button>
 		</div>
-	      </div>
-	      <!-- activation de la ligne mol -->
-	      <div class="ui center aligned  segment">
-		<div class="ui small grey ribbon label">Show Proteine</div>
-		<div class="ui slider checkbox">
-		<input name="tt" type="checkbox" data-bind="checked:$parent.mol_show">
-		<label></label>
+		<!-- activation de la ligne pnet -->
+		<div class="ui center aligned  segment">
+		  <div class="ui small grey ribbon label">Show Petri Net</div>
+		  <div class="ui slider checkbox">
+		    <input name="tt" type="checkbox" data-bind="checked:$parent.pnet_show">
+		    <label></label>
+		  </div>
 		</div>
-	      </div>
+		<!-- activation de la ligne mol -->
+		<div class="ui center aligned  segment">
+		  <div class="ui small grey ribbon label">Show Proteine</div>
+		  <div class="ui slider checkbox">
+		    <input name="tt" type="checkbox" data-bind="checked:$parent.mol_show">
+		    <label></label>
+		  </div>
+		</div>
 	      </div>
 	    </div>
-
+	    
 	    <!-- **** 2eme colonne : liste des molécules -->
 	    <div class="eight wide column" style="max-height:320px;overflow-y:scroll">
 	      <h4 class="ui horizontal divider header">
@@ -102,138 +102,160 @@
 			<i class="eyedropper icon"></i>
 		      </button></td>
 		      <td><button class="ui icon button" data-bind="click:$root.molbuilderVM.init_from_mol">
-		      <i class="external square icon"></i>
-		    </button></td>
+			<i class="external square icon"></i>
+		      </button></td>
 		  </tr>
 		  <!-- /ko -->
 		</tbody></table>
 	    </div>
-
+	    
 	    <!-- **** 3eme colonne : boutons divers -->
 	    <!-- mol builder, envoi au bac à sable, ... -->
 	    <div class="four wide column">
 	      <h4 class="ui horizontal divider header">
-		Actions
+		Bactery
 	      </h4>
-	      <div class="ui vertical buttons">
+	      <div class="ui buttons">
+		<button class="ui button" data-bind="click:save_bactery">Save</button>
+		<button class="ui button" data-bind="click:load_bactery">Load</button>
+	      </div>
+	      <h4 class="ui horizontal divider header">
+		Sim Actions
+	      </h4>
+	      <div class="ui buttons">
 		<button class="ui button" data-bind="click:eval_reactions">Eval Reactions</button>
 		<button class="ui button">Eval Transitions</button>
+	      </div>
+	      <h4 class="ui horizontal divider header">
+		Mol Actions
+	      </h4>
+		<div data-bind="text:current_mol_name"></div>
+		<button class="ui button"
+			data-bind="click:remove_mol">Remove mol</button>
+		
+		<div class="ui action input">
+		  <input placeholder="quantity" type="text"
+			 data-bind="value:mol_quantity_input"/>
+		  <button class="ui button"
+			  data-bind="click:set_mol_quantity">
+		    Set quantity</button>
+		  
 	      </div>
 	    </div>
 
 
 	  </div>
-	  
-	  <!-- *** deuxième ligne -->
-	  <h2 class="ui horizontal divider header">
-	    Petri Net manipulation
+		
+		<!-- *** deuxième ligne -->
+		<h2 class="ui horizontal divider header">
+		Petri Net manipulation
 	  </h2>
-	  <div class="row" data-bind="visible: pnetVM.active() && pnetVM.initialised(), with:pnetVM">
-	    
-	    <!-- **** 1ere colonne : pnet view -->
-	    <div class="eight wide column">
-	      <h4 class="ui horizontal divider header">
-		Petri Net view
+		<div class="row" data-bind="visible: pnetVM.active() && pnetVM.initialised(), with:pnetVM">
+		
+		<!-- **** 1ere colonne : pnet view -->
+		<div class="eight wide column">
+		<h4 class="ui horizontal divider header">
+			Petri Net view
 	      </h4>
-	      <div id="pnet_cy" class="cy-small"></div>
+		<div id="pnet_cy" class="cy-small"></div>
 	    </div>
 
-	    <!-- **** 2eme colonne : pnet informations -->
-	    <div class="four wide column">
-	      <h4 class="ui horizontal divider header">
-		Petri Net description
+		<!-- **** 2eme colonne : pnet informations -->
+		<div class="four wide column">
+		<h4 class="ui horizontal divider header">
+			Petri Net description
 	      </h4>
-	      <div id="longribbon" class="ui orange ribbon mini label" style="min-width:0px">
-		Select a place or a transition in the graph to display more  information</div>
-	      <div class="ui bulleted list">
-		<div class="item" data-bind="text:place_nb"></div>
-		<div class="item" data-bind="text:transition_nb"></div>
-		<div class="item" data-bind="text:launchable_transition_nb"></div>
+		<div id="longribbon" class="ui orange ribbon mini label" style="min-width:0px">
+			Select a place or a transition in the graph to display more  information</div>
+		<div class="ui bulleted list">
+			<div class="item" data-bind="text:place_nb"></div>
+			<div class="item" data-bind="text:transition_nb"></div>
+			<div class="item" data-bind="text:launchable_transition_nb"></div>
 	      </div>
-	      <div class="ui divider"></div>
+		<div class="ui divider"></div>
 	    </div>
 
-	    
-	    <!-- **** 3eme colonne : selon selection -->
-	    <div class="four wide column">
-	      <!-- ***** transition -->
-	      <div data-bind="with:transitionVM">
-		<div data-bind="if:active">
-		  <h4 class="ui horizontal divider header">
-		    Transition description
+		
+		<!-- **** 3eme colonne : selon selection -->
+		<div class="four wide column">
+		<!-- ***** transition -->
+		<div data-bind="with:transitionVM">
+			<div data-bind="if:active">
+			<h4 class="ui horizontal divider header">
+			Transition description
 		  </h4>
-		  <button
-		      class="ui button"
-		      data-bind="click:$parent.launch_transition">
-		    Launch transition</button>
+			<button
+		          class="ui button"
+		          data-bind="click:$parent.launch_transition">
+			Launch transition</button>
 		</div>
 	      </div>
 
-	      <!-- ***** place -->
-	      <div data-bind="with:placeVM">
-		<div data-bind="if: active">
-		  <!-- ****** place description-->
-		  <h4 class="ui horizontal divider header">
-		    Place description
+		<!-- ***** place -->
+		<div data-bind="with:placeVM">
+			<div data-bind="if: active">
+			<!-- ****** place description-->
+			<h4 class="ui horizontal divider header">
+			Place description
 		  </h4>
 
-		  <!-- ******* place extensions display -->
-		  <h5 class="ui header">Place extensions</h5>
-		  <div class="ui bulleted list"
+			<!-- ******* place extensions display -->
+			<h5 class="ui header">Place extensions</h5>
+			<div class="ui bulleted list"
 		       data-bind="visible:place_extensions().length > 0">
-		    <!-- ko foreach: place_extensions -->
-		    <div class="item" data-bind="text:$data"></div>
-		    <!-- /ko -->
+			<!-- ko foreach: place_extensions -->
+			<div class="item" data-bind="text:$data"></div>
+			<!-- /ko -->
 		  </div>
-		  <div data-bind="visible:place_extensions().length == 0">No extensions</div>
-		  
-		  <!-- ******* token display -->
-		  <h5 class="ui header" data-bind="text:token_state"></h5>
-		  <div class="ui segment"
+			<div data-bind="visible:place_extensions().length == 0">No extensions</div>
+			
+			<!-- ******* token display -->
+			<h5 class="ui header" data-bind="text:token_state"></h5>
+			<div class="ui segment"
 		       data-bind="visible: is_token, html:token_mol_disp">
 		  </div>
-		    
-		    
-		  <!-- ******* token edit button -->
+			
+			
+			<!-- ******* token edit button -->
 
-		  <div class="ui divider"></div>
-		  <div class="ui toggle checkbox">
-		    <input type="checkbox" data-bind="checked : token_edit_checkbox">
-		    <label>Token edition</label>
+			<div class="ui divider"></div>
+			<div class="ui toggle checkbox">
+			<input type="checkbox" data-bind="checked : token_edit_checkbox">
+			<label>Token edition</label>
 		  </div>
-		  
-		  <div data-bind="if: token_edit_view">
-		    <h4 class="ui horizontal divider header">
-		      Token edition
+			
+			<div data-bind="if: token_edit_view">
+			<h4 class="ui horizontal divider header">
+			Token edition
 		    </h4>
-		    <div class="ui form">
-		      <div class="inline fields">
-			<div class="field">
-			  <div class="ui radio checkbox">
-			    <input value="No_token" type="radio" data-bind="checked : token_edit_state">
-			    <label>No token</label>
+			<div class="ui form">
+			<div class="inline fields">
+				<div class="field">
+				<div class="ui radio checkbox">
+				<input value="No_token" type="radio" data-bind="checked : token_edit_state">
+				<label>No token</label>
 			  </div>
 			</div>
-			<div class="field">
-			  <div class="ui radio checkbox">
-			    <input value="Token" type="radio" data-bind="checked : token_edit_state">
-			    <label>Token</label>
+				<div class="field">
+				<div class="ui radio checkbox">
+				<input value="Token" type="radio" data-bind="checked : token_edit_state">
+				<label>Token</label>
 			  </div>
 			</div>
 		      </div>
-		      <div data-bind="visible: token_edit_state() == 'Token'">
-			<div class="field">
-			  <textarea rows=2 data-bind="value:token_edit_m1"></textarea>
+			<div data-bind="visible: token_edit_state() == 'Token'">
+				<div class="field">
+				<textarea rows=2 data-bind="value:token_edit_m1"></textarea>
 			</div>
-			<div class="field">
-			  <textarea rows=2 data-bind="value:token_edit_m2"></textarea>
+				<div class="field">
+				<textarea rows=2 data-bind="value:token_edit_m2"></textarea>
 			</div>
 		      </div>
-		      <button class="ui primary button" data-bind="click:$parent.commit_token_edit">
-			Commit
+			<button class="ui primary button" data-bind="click:$parent.commit_token_edit">
+				Commit
 		      </button>
-		      <button class="ui button">
-			Discard
+			<button class="ui button">
+				Discard
 		      </button>
 		    </div>
 		  </div>
@@ -241,136 +263,169 @@
 	      </div>
 	    </div>
 	  </div>
-	  <h2 class="ui horizontal divider header">
-	    Proteine manipulation
+		<h2 class="ui horizontal divider header">
+		Proteine manipulation
 	  </h2>
-	  <div class="row" data-bind="visible : protVM.active() && protVM.initialised(), with:protVM">
-	    
-	    <!-- **** 1ere colonne : protéine view -->
-	    <!-- vue cytoscape de la protéine associée à la molécule sélectionnée dans la liste ... -->
-	    <div class="four wide column">
-	      <h4 class="ui horizontal divider header">
-		Proteine view
+		<div class="row" data-bind="visible : protVM.active() && protVM.initialised(), with:protVM">
+		
+		<!-- **** 1ere colonne : protéine view -->
+		<!-- vue cytoscape de la protéine associée à la molécule sélectionnée dans la liste ... -->
+		<div class="four wide column">
+		<h4 class="ui horizontal divider header">
+			Proteine view
 	      </h4>
-	      <div id="prot_cy" class="cy-small"></div>
+		<div id="prot_cy" class="cy-small"></div>
 	    </div>
-	    
-	    <!-- **** 2eme colonne : boutons divers -->
-	    <!-- mol builder, envoi au bac à sable, ... -->
-	    <div class="four wide column">
-	      <h4 class="ui horizontal divider header">
-		Actions
+		
+		<!-- **** 2eme colonne : boutons divers -->
+		<!-- mol builder, envoi au bac à sable, ... -->
+		<div class="four wide column">
+		<h4 class="ui horizontal divider header">
+			Actions
 	      </h4>
-	      <button class="ui disabled button">
-		Send to mol builder
+		<button class="ui disabled button">
+			Send to mol builder
 	      </button>
-	      <button class="ui disabled button">
-		Send to mol Sandbox
+		<button class="ui disabled button">
+			Send to mol Sandbox
 	      </button>
 
-	      <div class="ui styled fluid accordion" id="mol_name_display">
-		<div class="title">
-		  <i class="dropdown icon"></i>
-		  Molecule string
+		<div class="ui styled fluid accordion" id="mol_name_display">
+			<div class="title">
+			<i class="dropdown icon"></i>
+			Molecule string
 		</div>
-		<div class="content">
+			<div class="content">
 
-		  <!-- <p data-bind="text:self.mols()[self.selected_mol]['mol_name']"></p> -->
-		  <p data-bind="text:mol_name"
+			<!-- <p data-bind="text:self.mols()[self.selected_mol]['mol_name']"></p> -->
+			<p data-bind="text:mol_name"
 		     style="word-wrap:break-word"></p>
 		</div>
 	      </div>
 	    </div>
 	  </div>
 	</div>
-      </div>
-
-      <!-- ** second tab : sandbox view  -->
-
-
-      <div class="ui bottom attached tab segment" data-tab="sandbox_tab">
-	onglet en standby : do not expect things to work
-	<div class="ui grid">
-	  <div class="row">
-            <div class="2 wide column">
-	      <button type="button" class="btn" >Get data</button>
             </div>
-            <div class="ten wide column" style="max-height:300px;overflow-y:scroll">
-	      <table class="ui fixed table">
-		<thead ><tr>
-                  <th class="nine wide"> Molecule name</th>
-		  <th class="two wide" style="width:20px;"> Num</th>
-                  <th class="five wide" colspan="3" style="width:80px;text-align:center" > Actions</th>
+
+	<!-- ** second tab : sandbox view  -->
+
+
+	<div class="ui bottom attached tab segment" data-tab="sandbox_tab">
+		  onglet en standby : do not expect things to work
+		  <div class="ui grid">
+		  <div class="row">
+	  <div class="2 wide column">
+		  <button type="button" class="btn" >Get data</button>
+            </div>
+	  <div class="ten wide column" style="max-height:300px;overflow-y:scroll">
+		  <table class="ui fixed table">
+			  <thead ><tr>
+	  <th class="nine wide"> Molecule name</th>
+			  <th class="two wide" style="width:20px;"> Num</th>
+	  <th class="five wide" colspan="3" style="width:80px;text-align:center" > Actions</th>
 		</tr></thead>
-		<tbody style="">
+			  <tbody style="">
 		</tbody></table>
             </div>
 	  </div>
 	</div>
 
-            </div>
+	</div>
 
-      <!-- ** third tab : mol builder view -->
-      <div class="ui bottom attached tab segment" data-tab="molbuilder_tab"  data-bind="with:molbuilderVM">
-	<div class="ui grid" >
-	  
-	  <div class="row">
-	    <div class="four wide column">
-	      <h4 class="ui horizontal divider header">
-		Petri Net view
-	      </h4>
-	      
-	      <button class="ui labeled icon button" data-bind="click:reset_graph_view">
-		<i class="refresh icon"></i> Refresh graph
-	      </button>
-	      <div id="molbuilder_pnet_cy"  class="cy-small">
+	<!-- ** third tab : mol builder view -->
+	<div class="ui bottom attached tab segment" data-tab="molbuilder_tab"  data-bind="with:molbuilderVM">
+	  <div class="ui grid" >
+	    
+	    <div class="row">
+	      <div class="six wide column">
+		<h4 class="ui horizontal divider header">
+		  Petri Net view
+		</h4>
+		
+		<button class="ui labeled icon button" data-bind="click:reset_graph_view">
+		  <i class="refresh icon"></i> Refresh graph
+		</button>
+		<div id="molbuilder_pnet_cy"  class="cy-small">
+		</div>
+		
 	      </div>
-	      
-	    </div>
-	    <div class="six wide column">
-	      <h4 class="ui horizontal divider header">
-		Acids
-	      </h4>
+	      <div class="four wide column">
+		<h4 class="ui horizontal divider header">
+		  Acids
+		</h4>
 
-	      <div class="ui segments">
-		<!-- ko foreach :acid_examples -->
-		<div class="ui segment" data-bind="text:type"></div>
-		    
-		    <div class="ui vertical buttons">
-		      <!-- ko foreach :$data.acids -->
-		      <button class="ui button" data-bind="text:JSON.stringify($data), click:$parents[1].insert_acid_in_prot"></button>
-		      <!-- /ko -->
-		    </div>
+		<div class="ui segments">
+		  <!-- ko foreach :acid_examples -->
+		  <div class="ui segment" data-bind="text:type"></div>
 		  
-		<!-- /ko -->
+		  <div class="ui vertical buttons">
+		    <!-- ko foreach :$data.acids -->
+		    <button class="ui button" data-bind="text:JSON.stringify($data), click:$parents[1].insert_acid_in_prot"></button>
+		    <!-- /ko -->
+		  </div>
+		  
+		  <!-- /ko -->
+		</div>
+	      </div>
+	      <div class="four wide column">
+		<h4 class="ui horizontal divider header">
+		  Proteine
+		</h4>
+		<div class="ui buttons">
+		  <button class="ui button" data-bind="click:commit_prot">
+		    Commit prot
+		  </button>
+		  <button class="ui button" data-bind="">
+		    Restore prot
+		  </button>
+		  <button class="ui button" data-bind="click:send_to_bactery">
+		    Send to bactery
+		  </button>
+		</div>
+		<div class="ui form">
+		  <div class="field">
+		    <textarea style="resize : both"
+			      rows="15"
+			      data-bind="textInput:prot_text"
+			      id="molbuilder_prot_text"></textarea>
+		  </div>
+		</div>
 	      </div>
 	    </div>
-	    <div class="six wide column">
-	      <h4 class="ui horizontal divider header">
-		Proteine
-	      </h4>
-	      <div class="ui buttons">
-		<button class="ui button" data-bind="click:commit_prot">
-		  Commit prot
-		</button>
-		<button class="ui button" data-bind="">
-		  Restore prot
-		</button>
-		<button class="ui button" data-bind="click:send_to_bactery">
+	    <div class="row">
+	      
+	      <div class="eight wide column">
+		<h4 class="ui horizontal divider header">
+		  Molecule
+		</h4>
+		<div class="ui buttons">
+		  <button class="ui button" data-bind="click:commit_mol">
+		    Commit mol
+		  </button>
+		  <button class="ui button" data-bind="">
+		    Restore mol
+		  </button>
+		<button class="ui button" data-bind="click:send_mol_to_bactery">
 		  Send to bactery
 		</button>
 	      </div>
 	      <div class="ui form">
 		<div class="field">
-		  <textarea rows="15"
-			    data-bind="textInput:prot_text"
+		  <textarea style="resize : both"
+			    rows="15"
+			    data-bind="textInput:mol_text"
 			    id="molbuilder_prot_text"></textarea>
 		</div>
 	      </div>
 	    </div>
+
+
+		    
 	  </div>
 	</div>
-      </div>
+	</div>
+
+
     </div>
   </body>
 

@@ -42,7 +42,6 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
     
   and build_all_from_prot (cgi : Netcgi.cgi) : string =
     let prot_desc = cgi # argument_value "prot_desc" in
-    print_endline prot_desc;
     let prot_json = Yojson.Safe.from_string prot_desc in
     print_endline (Yojson.Safe.pretty_to_string prot_json);
     let prot_or_error = Proteine.of_yojson prot_json in
@@ -61,7 +60,7 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
        in
        Yojson.Safe.to_string to_send_json
     | Error s -> 
-       "error : "^s
+       "error decoding proteine from json : "^s
       
   and list_acids () : string =
     let json_data =

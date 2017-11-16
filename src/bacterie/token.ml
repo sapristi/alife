@@ -85,7 +85,7 @@ module Token =
          match dest_tok with
          | No_token -> failwith "token.ml : cannot insert into No_token"
          | Token (id, md) -> 
-            Token (is + id, Str.string_before md id ^ md ^Str.string_after md id)
+            Token (is + id, Str.string_before md id ^ ms ^Str.string_after md id)
                
     let get_label (token : t) =
       match token with

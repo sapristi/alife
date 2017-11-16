@@ -1,4 +1,4 @@
-//var connect_uri = 'http://localhost:1512/sim_commands/';
+
 
 var utils = {
     

@@ -67,7 +67,7 @@ let mol5 = "AAAAAAAAA";;
     
     let make_bact () =
       
-      let bact =Bacterie.empty in
+      let bact = Bacterie.make_empty () in
       print_prot prot2;
       Bacterie.add_proteine prot2 bact;
       print_prot prot3;

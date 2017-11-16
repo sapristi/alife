@@ -32,7 +32,8 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
     Yojson.Safe.to_string json_data
     
     
-  and make_reactions bact =
+  in
+  let make_reactions bact =
     Bacterie.make_reactions bact;
     let json_data = `Assoc
                      ["purpose", `String "bactery_update_desc";
@@ -83,19 +84,34 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
         "data",  `Assoc ["pnet", pnet_json]] in  
     Yojson.Safe.to_string to_send_json
     
-    
-
 
   and add_mol bact (cgi : Netcgi.cgi) = 
     let mol = cgi # argument_value "mol_desc" in
     Bacterie.add_molecule mol bact;
-    "mol added"
+    get_bact_elements bact;
 
+  and remove_mol bact (cgi : Netcgi.cgi) = 
+    let mol = cgi # argument_value "mol_desc" in
+    Bacterie.remove_molecule mol bact;
+    get_bact_elements bact;
+
+  and set_mol_quantity bact (cgi : Netcgi.cgi) = 
+    let mol = cgi # argument_value "mol_desc"
+    and n = cgi # argument_value "mol_quantity" in
+    Bacterie.set_mol_quantity mol (int_of_string n) bact;
+    get_bact_elements bact;
+    
   and save_state bact =
+    let data_json = Bacterie.to_json bact in
+    Yojson.Safe.to_file "bact.save" data_json;
     "state saved"
+    
 
   and load_state bact =
-    "state loaded"
+    let data_json =  Yojson.Safe.from_file "bact.save" in
+    Bacterie.json_reset data_json bact;
+    get_bact_elements bact;
+    
   in
   
   
@@ -118,11 +134,17 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
 
   else if command = "add_mol"
   then add_mol bact cgi
+  
+  else  if command = "remove_mol"
+  then remove_mol bact cgi
 
-  else if command = "save_state"
+  else if command = "set_mol_quantity"
+  then set_mol_quantity bact cgi
+  
+  else if command = "save_bactery"
   then  save_state bact
 
-  else if command = "load_state"
+  else if command = "load_bactery"
   then load_state bact
   
   else ("did not recognize command : "^command)
