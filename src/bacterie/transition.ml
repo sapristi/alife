@@ -68,7 +68,9 @@ let launchable (transition : t) =
   and launchable_output_arc  
         (output_arc : AcidTypes.output_arc_type)
         (place : Place.t) =
-    Place.is_empty place
+    (Place.is_empty place) ||
+      (* we test if the place is in the source places, to allow cycle transitions *)
+      (List.exists (fun {source_place = sp; iatype = _} -> place.index=sp) transition.input_arcs )
   in
   List.fold_left
     (fun res ia -> res && launchable_input_arc ia.iatype (transition.places.(ia.source_place)))

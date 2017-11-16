@@ -605,17 +605,29 @@ ce choix.
 Description d'un ribosome qui reconnait deux atomes : A et B
 (non terminé et non débuggé)
 #+BEGIN_SRC
-[["Place"],
+[
+["Place"],
+["Extension",["Init_with_token_ext"]],
+["InputArc","CCC",["Split_iarc"]],
+["OutputArc","CCC",["Regular_oarc"]],
+["Place"],
+["OutputArc","CCC",["Regular_oarc"]],
+["InputArc","CC",["Regular_iarc"]],
+["Place"],
+["OutputArc","CC",["Regular_oarc"]],
+["Extension",["Release_ext"]],
+["Place"],
 ["InputArc","AA",["Regular_iarc"]],
 ["InputArc","AB",["Regular_iarc"]],
 ["OutputArc","BA",["Bind_oarc"]],
 ["OutputArc","BB",["Bind_oarc"]],
-["Extension",["Init_with_token_ext"]],
+["OutputArc","CC",["Regular_oarc"]],
 ["Place"],
 ["InputArc","AA",["Filter_iarc","A"]],
 ["InputArc","AB",["Filter_iarc","B"]],
 ["OutputArc","C",["Move_oarc",true]],
-["Extension",["Grab_ext","DDFAFFF"]]
+["InputArc","CC",["Filter_iarc",""]],
+["OutputArc","CC",["Regular_oarc"]],
 ["Place"],
 ["OutputArc","AA",["Regular_oarc"]],
 ["InputArc","BA",["Regular_iarc"]],
@@ -631,7 +643,10 @@ Description d'un ribosome qui reconnait deux atomes : A et B
 ["InputArc","BA",["Regular_iarc"]],
 ["Place"],
 ["Extension",["Grab_ext","FBF"]],
-["InputArc","BB",["Regular_iarc"]]
+["InputArc","BB",["Regular_iarc"]],
+["Place"],
+["Extension",["Grab_ext","DDFAFFF"]],
+["InputArc","CC",["Regular_iarc"]],
 ]   
 #+END_SRC
 
