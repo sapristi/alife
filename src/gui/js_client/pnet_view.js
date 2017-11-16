@@ -30,7 +30,7 @@ function PlaceViewModel() {
     self.token_mol_disp = ko.computed(function() {
 	if (self.token()[0] == "Token")
 	{
-	    if (self.token()[1] != "" || self.token()[2] != "") {
+	    if (self.token()[1] != "" && self.token()[2] != "") {
 		return utils.string_rev(self.token()[1])
 		    + "<font style='color:red'>⮞</font>"
 		    + self.token()[2];

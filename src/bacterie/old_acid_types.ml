@@ -42,44 +42,42 @@ module AcidTypes =
   struct
 (* *** place *)
     type place_type = Regular_place
-                          [@@deriving yojson]
+                          [@@deriving show, yojson]
     
 (* *** transition_input *)
     type input_arc_type = 
       | Regular_iarc
       | Split_iarc
       | Filter_iarc of string
-                          [@@deriving yojson]
+                          [@@deriving show, yojson]
                       
 (* *** transition_output *)
     type output_arc_type = 
       | Regular_oarc
       | Bind_oarc
-      | Move_oarc of bool
-[@@deriving  yojson]
+      | Release_oarc
+[@@deriving show, yojson]
 
 
 
 (* *** extension *)
 (* Types used by the extensions. Usefull to use custom types for easier potential changes later on.  *)
     type handle_id = string
-                       [@@deriving  yojson]
+                       [@@deriving show, yojson]
     type bind_pattern = string
-                           [@@deriving  yojson]
+                           [@@deriving show, yojson]
     type receive_pattern = string
-                             [@@deriving  yojson]
+                             [@@deriving show, yojson]
     type msg_format = string
-                        [@@deriving  yojson]
+                        [@@deriving show, yojson]
                     
     type extension_type =
+      | Handle_ext of handle_id
+      | Catch_ext of bind_pattern
       | Grab_ext of Graber.t
       | Release_ext
-      | Init_with_token_ext
-                         
-(*      
-      | Information_ext of string  
       | Displace_mol_ext of bool
-      | Handle_ext of handle_id   
-      | Catch_ext of bind_pattern *)
-                         [@@deriving  yojson]
+      | Init_with_token_ext
+      | Information_ext of string
+                         [@@deriving show, yojson]
   end;;
