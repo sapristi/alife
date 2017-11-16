@@ -30,10 +30,14 @@ function PlaceViewModel() {
     self.token_mol_disp = ko.computed(function() {
 	if (self.token()[0] == "Token")
 	{
-	    if (self.token()[1] != "" || self.token()[2] != "") {
-		return utils.string_rev(self.token()[1])
+	    var mol = self.token()[2];
+	    var index = self.token()[1];
+	    if (mol != "") {
+		var mol1 = mol.substring(0, index);
+		var mol2 = mol.substring(index);
+		return mol1
 		    + "<font style='color:red'>⮞</font>"
-		    + self.token()[2];
+		    + mol2;
 	    } else {return  "No molecule in token";}
 	}
 	else {return "";}
@@ -51,8 +55,12 @@ function PlaceViewModel() {
 	self.token_edit_state(self.token_state());
 	if (self.is_token())
 	{
-	    self.token_edit_m1(utils.string_rev(self.token()[1]));
-	    self.token_edit_m2(self.token()[2]);
+	    var mol = self.token()[2];
+	    var index = self.token()[1];
+	    var mol1 = mol.substring(0, index);
+	    var mol2 = mol.substring(index);
+	    self.token_edit_m1(mol1);
+	    self.token_edit_m2(mol2);
 	}
 	else
 	{
@@ -85,7 +93,7 @@ function PlaceViewModel() {
 		else {ext_str = ext_str + " backward";}
 	    }
 	    else if (ext_str == "Grab") {
-		var grab_patt = ext[1]["pattern"].replace(/\\/g,"");
+		var grab_patt = ext[1];
 		ext_str = ext_str + "; pattern :\n" + grab_patt;
 	    }
 	}
@@ -100,7 +108,8 @@ function PlaceViewModel() {
 	if (self.token_edit_state() == "Token") {
 	    edited_token =
 		[self.token_edit_state(),
-		 utils.string_rev(self.token_edit_m1()).toUpperCase(),
+		 self.token_edit_m1().length,
+		 self.token_edit_m1().toUpperCase() +
 		 self.token_edit_m2().toUpperCase()];
 	} else {
 	    edited_token = [self.token_edit_state()];}
