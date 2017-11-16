@@ -53,7 +53,7 @@ module Graber =
             
   let rec build_re (m : t) : string =
     if m = ""
-    then ""
+    then "$"
     else
       if Str.string_match grab_location_re m 0 
       then 

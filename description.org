@@ -610,10 +610,12 @@ Description d'un ribosome qui reconnait deux atomes : A et B
 ["InputArc","AB",["Regular_iarc"]],
 ["OutputArc","BA",["Bind_oarc"]],
 ["OutputArc","BB",["Bind_oarc"]],
+["Extension",["Init_with_token_ext"]],
 ["Place"],
 ["InputArc","AA",["Filter_iarc","A"]],
 ["InputArc","AB",["Filter_iarc","B"]],
 ["OutputArc","C",["Move_oarc",true]],
+["Extension",["Grab_ext","DDFAFFF"]]
 ["Place"],
 ["OutputArc","AA",["Regular_oarc"]],
 ["InputArc","BA",["Regular_iarc"]],
