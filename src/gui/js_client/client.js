@@ -4,7 +4,6 @@ $('#tab_menu .item').tab();
 $('#mol_name_display').accordion();
 $('.ui.dropdown').dropdown();
 
-
 // viewmodel
 var initVM = function() {
     

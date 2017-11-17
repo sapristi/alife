@@ -106,16 +106,22 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
     and n = cgi # argument_value "mol_quantity" in
     Bacterie.set_mol_quantity mol (int_of_string n) bact;
     get_bact_elements bact;
-    
+
+    (*
   and save_state bact =
     let data_json = Bacterie.to_json bact in
     Yojson.Safe.to_file "bact.save" data_json;
     "state saved"
-    
-
-  and load_state bact =
+     *)
+  and reset_state bact =
     let data_json =  Yojson.Safe.from_file "bact.save" in
     Bacterie.json_reset data_json bact;
+    get_bact_elements bact;
+
+  and set_state bact (cgi : Netcgi.cgi) =
+    let bact_desc = cgi # argument_value "bact_desc" in
+    let bact_desc_json = Yojson.Safe.from_string bact_desc in
+    Bacterie.json_reset bact_desc_json bact;
     get_bact_elements bact;
     
   in
@@ -149,12 +155,12 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
 
   else if command = "set_mol_quantity"
   then set_mol_quantity bact cgi
-  
-  else if command = "save_bactery"
-  then  save_state bact
 
-  else if command = "load_bactery"
-  then load_state bact
+  else if command = "reset_bactery"
+  then reset_state bact
+  
+  else if command = "set_bactery"
+  then set_state bact cgi
   
   else ("did not recognize command : "^command)
 ;;

@@ -102,21 +102,66 @@ function BactViewModel(pnetVM, protVM) {
         ).done(self.set_bact_data);
 	
     }
+
     
-    self.save_bactery = function() {
+    self.reset_bactery = function () {
         utils.ajax_get(
-            {command:"save_bactery",
-	     container:"bactery"}
-        ).done();
-    }
-    self.load_bactery = function () {
-        utils.ajax_get(
-            {command:"load_bactery",
+            {command:"reset_bactery",
 	     container:"bactery"}
         ).done(self.set_bact_data);
 
     }
     
+    
+    self.save_bactery_local = ko.computed (function() {
+	var data = [];
+	var textFile;
+        for (var i = 0; i < self.mols().length; i++) {
+	    data.push(
+                {
+		    mol : self.mols()[i]["mol_name"],
+		    nb : self.mols()[i]["mol_number"]
+                });
+        }
+	console.log(data);
+	var str_data = JSON.stringify(data);
+	var raw_data = new Blob([str_data], {type: 'text/plain'});
+	if (textFile !== null) {
+	    window.URL.revokeObjectURL(textFile);
+	}
+	
+	textFile = window.URL.createObjectURL(raw_data);
+	return textFile;
+    });
+
+    
+    self.bact_load_file = ko.observable();
+    self.load_bact_bis = ko.computed(
+	function(){
+	    
+	    var e = document.getElementById('bact_load');
+	    console.log(e);
+	    console.log(e.files);
+	    self.bact_load_file();
+	});
+    
+    self.load_bact_file = function(evt) {
+	var file = evt.target.files[0];
+	var reader = new FileReader();
+	console.log("loading");
+        reader.onload = function(e) {
+	    console.log("sending");
+	    utils.ajax_get(
+            {command:"set_bactery",
+	     container:"bactery",
+	     bact_desc : reader.result}
+        ).done(self.set_bact_data);
+        }
+	
+	reader.readAsText(file);
+	
+    }
+    document.getElementById('bact_load').addEventListener('change', self.load_bact_file, false);
 }
 
 

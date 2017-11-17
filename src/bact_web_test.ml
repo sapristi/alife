@@ -23,61 +23,17 @@ let host = ref "localhost";;
   ;;
     
  
-    let prot2 = [
-        Place; Extension Init_with_token_ext;
-        InputArc ("A", Regular_iarc);
-        Place;
-        OutputArc ("A", Regular_oarc);
-        Place;
-        Extension Init_with_token_ext;];;
-    
-let prot3 = [
-    Place;
-    Extension Init_with_token_ext;
-    InputArc ("A", Regular_iarc);
-    InputArc ("B", Regular_iarc);
-    
-    Place;
-    OutputArc ("A", Regular_oarc);
 
     
-    Place;
-    OutputArc ("B", Regular_oarc);
-
-  ];;
-
-
-
-      print_endline ("abc");;
-    
-let prot4 = [
-    Place;
-    Extension (Grab_ext "AAAAFAFAAAA")
-  ];;
-
-let mol5 = "AAAAAAAAA";;
-
-
-      let print_prot prot = 
-        let mol = Molecule.of_proteine prot in
-        print_endline mol;
-  
-    in
-    
-    
-    let make_bact () =
+    let make_bact () : Bacterie.t =
       
       let bact = Bacterie.make_empty () in
-      print_prot prot2;
-      Bacterie.add_proteine prot2 bact;
-      print_prot prot3;
-      Bacterie.add_proteine prot3 bact;
-      print_prot prot4;
-      Bacterie.add_proteine prot4 bact;
-      Bacterie.add_molecule mol5 bact;
+      
+      let data_json =  Yojson.Safe.from_file "bact.save" in
+      Bacterie.json_reset data_json bact;
       bact
-    in
-    
-    print_endline ("abc");
-    start_srv (handle_req (make_bact ()) SandBox.empty) (!host, !port) 
+               
+      in
+      
+       start_srv (handle_req (make_bact ()) SandBox.empty) (!host, !port) 
    

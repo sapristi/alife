@@ -19,8 +19,6 @@
 	 crossorigin="anonymous"></script> -->
 
     <script src="js-libs/jquery-3.2.1.min.js"></script>
-      
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
 
@@ -47,7 +45,6 @@
       </div>
 
       <!-- ** first tab : bactery view -->
-
       <div class="ui bottom attached tab segment active" data-tab="sim_tab" data-bind="with:simVM">
 	<div class="ui divided grid">
 	  <!-- *** première ligne -->
@@ -111,13 +108,32 @@
 	    
 	    <!-- **** 3eme colonne : boutons divers -->
 	    <!-- mol builder, envoi au bac à sable, ... -->
-	    <div class="four wide column">
+
+	    
+	    <div class="six wide column">
 	      <h4 class="ui horizontal divider header">
 		Bactery
 	      </h4>
 	      <div class="ui buttons">
-		<button class="ui button" data-bind="click:save_bactery">Save</button>
-		<button class="ui button" data-bind="click:load_bactery">Load</button>
+		<label class="ui button"
+		       data-bind="click:reset_bactery">
+		  Reset
+		</label>
+		<div>
+		  <label for="bact_load" class="ui button"
+			 id="load_bact_button">
+		    Load from file</label>
+		  <input type="file"
+			 id="bact_load"
+			 style="display:none"/>
+		</div>
+		<div>
+		  <a id="bact_save" download="bact.save" data-bind="attr:{href:save_bactery_local}">
+		    <label for="bact_save" class="ui button" id="load_bact_button">
+		      Save to file
+		      
+		    </label></a>
+		</div>
 	      </div>
 	      <h4 class="ui horizontal divider header">
 		Sim Actions
