@@ -101,8 +101,7 @@ struct
     Transition.apply_transition p.transitions.(tId)
     
   let launch_random_transition (p : t)
-      : Transition.transition_effect list =
-
+      : Place.transition_effect list =
     let launchables = Array.filter (fun (t:Transition.t) -> t.launchable) p.transitions in
     if Array.length launchables > 0
     then 

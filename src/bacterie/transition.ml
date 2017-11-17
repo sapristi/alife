@@ -92,7 +92,7 @@ let make (id : string)
          (places : Place.t array)
          (input_arcs : (int * AcidTypes.input_arc_type) list)
          (output_arcs : (int * AcidTypes.output_arc_type) list)
-         (index : int) =
+         (index : int) : t=
   
   let t =
     {launchable=false; id; places;
@@ -104,7 +104,7 @@ let make (id : string)
      index;
     } in
   update_launchable t;
-  t;
+  t
           
 (* ** apply_transition function *)
 (* Applique la fonction de transition d'une transition à une liste de tokens.  *)
@@ -116,11 +116,8 @@ let make (id : string)
 (* ou certains token peuvent être perdus. On va dire pour l'instant que *)
 (* ce n'est pas grave, et que c'est au bactéries de gérer tout ça. *)
 
-  type transition_effect =
-    | Message_effect of string
-    | Release_effect of Molecule.t
                       
-let apply_transition (transition : t) : transition_effect list=
+let apply_transition (transition : t) : Place.transition_effect list=
   let rec apply_input_arcs
             (i_arc_l :
                (Place.t * AcidTypes.input_arc_type) list)
@@ -137,32 +134,37 @@ let apply_transition (transition : t) : transition_effect list=
          | _ -> token :: apply_input_arcs i_arc_l'
        end
     | [] -> []
-    and apply_output_arcs 
-          (o_arc_l :
-             (Place.t * AcidTypes.output_arc_type) list)
-          (tokens : Token.t list) :
-          transition_effect list =
-(* TODO : permettre au bind de ne prendre qu'un token 
-(et donc de ne pas avoir d'effet ?) *)
-      match o_arc_l, tokens with
-      | (place, AcidTypes.Bind_oarc) :: o_arc_l',
-        t1 :: t2 :: tokens' ->
-         Place.add_token_from_transition (Token.insert t1 t2) place;
-         apply_output_arcs o_arc_l' tokens'
-      | (place, AcidTypes.Move_oarc move_dir) :: o_arc_l',
-        token :: tokens' ->
-         let new_token = 
-           if move_dir
-           then Token.move_mol_forward token
-           else Token.move_mol_backward token
-         in
-         Place.add_token_from_transition new_token place;
-         apply_output_arcs o_arc_l' tokens'
-      | (place, AcidTypes.Regular_oarc) :: o_arc_l',
-        token :: tokens' ->
-         Place.add_token_from_transition token place;
-         apply_output_arcs o_arc_l' tokens'
-      | _ -> []
+  and apply_output_arcs 
+        (o_arc_l :
+           (Place.t * AcidTypes.output_arc_type) list)
+        (tokens : Token.t list) :
+        Place.transition_effect list =
+    (* TODO : permettre au bind de ne prendre qu'un token 
+(et donc de   ne pas avoir d'effet ?) *)
+    match o_arc_l, tokens with
+    | (place, AcidTypes.Bind_oarc) :: o_arc_l',
+      t1 :: t2 :: tokens' ->
+       let effects = 
+         Place.add_token_from_transition
+           (Token.insert t1 t2) place in
+       effects @ (apply_output_arcs o_arc_l' tokens')
+    | (place, AcidTypes.Move_oarc move_dir) :: o_arc_l',
+      token :: tokens' ->
+       let new_token = 
+         if move_dir
+         then Token.move_mol_forward token
+         else Token.move_mol_backward token
+       in
+       let effects = 
+         Place.add_token_from_transition new_token place in
+       effects @ (apply_output_arcs o_arc_l' tokens')
+    | (place, AcidTypes.Regular_oarc) :: o_arc_l',
+      token :: tokens' ->
+       let effects = 
+         Place.add_token_from_transition token place in
+       effects @ (apply_output_arcs o_arc_l' tokens')
+    (* TODO : ajouter des release effect aux tokens restants *)
+    | _ -> []
   in
   let i_arc_l = List.map
                   (fun ia -> transition.places.(ia.source_place),ia.iatype)  
@@ -173,6 +175,6 @@ let apply_transition (transition : t) : transition_effect list=
   in apply_output_arcs
        o_arc_l
        (apply_input_arcs i_arc_l)
-
+   
 end;;
   

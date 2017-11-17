@@ -29,6 +29,7 @@ open Maps
 open Petri_net
 open Batteries
 open Graber
+open Place
    
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
@@ -184,12 +185,12 @@ struct
 (*   todo later : ??? *)
 (*   il faudrait peut-être mettre dans une file les molécules à ajouter *)
 
-    let rec execute_actions (actions : Transition.transition_effect list) (bact : t) : unit =
+    let rec execute_actions (actions : Place.transition_effect list) (bact : t) : unit =
       match actions with
-      | Transition.Release_effect mol :: actions' ->
+      | Place.Release_effect mol :: actions' ->
          add_molecule mol bact;
          execute_actions actions' bact
-      | Transition.Message_effect m :: actions' ->
+      | Place.Message_effect m :: actions' ->
          (* bact.message_queue <- m :: bact.message_queue; *)
          execute_actions actions' bact
       | [] -> ()

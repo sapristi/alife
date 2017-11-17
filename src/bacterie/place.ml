@@ -64,11 +64,21 @@ module Place =
       p.token <-  token
 
 
+  type transition_effect =
+    | Message_effect of string
+    | Release_effect of Molecule.t
 (* ** Token reçu d'une transition. *)
 (* **** TODO ajouter les effets de bords générés par les extensions *)
     let add_token_from_transition (inputToken : Token.t) (place : t) =
-      set_token inputToken place;;
-
+      if List.mem AcidTypes.Release_ext place.extensions 
+      then
+        [Release_effect (Token.get_mol inputToken)]
+      else
+        (
+          set_token inputToken place;
+          []
+        )
+      
       
 (* ** Token ajouté par un broadcast de message. *)
 (*    Il faudrait peut-être bien vérifier que la place reçoit des messages, que le message correspond, tout ça tout ça *)

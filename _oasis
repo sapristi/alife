@@ -150,7 +150,7 @@ Executable "bact_web_test"
   MainIs : bact_web_test.ml
   BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries,  servers.bact_server
   ByteOpt:  -g
-#  Custom : true
+  Custom : true
 
 # Executable "websrv_test"
 #   Path: src/gui/server/

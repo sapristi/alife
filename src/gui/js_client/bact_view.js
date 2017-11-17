@@ -61,9 +61,9 @@ function BactViewModel(pnetVM, protVM) {
         ).done(self.set_bact_data);
     };
     
-    self.eval_transitions = function() {
+    self.make_sim_round = function() {
         utils.ajax_get(
-            {command:"make_transitions",
+            {command:"make_sim_round",
 	     container:"bactery"}
         ).done(self.set_bact_data);
     };
