@@ -45,7 +45,27 @@
       </div>
 
       <!-- ** first tab : bactery view -->
-      <div class="ui bottom attached tab segment active" data-tab="sim_tab" data-bind="with:simVM">
+      <div class="ui bottom attached tab segment active" data-tab="sim_tab" data-bind="with:simVM" id="sim_tab">
+	<div class="ui left rail" style="width:180px">
+	  <div class="ui fixed top sticky" style="width:150px, margin-top:50px" id="left_sim_sticky">
+	    <div class="ui segment">
+	      <h4 class="ui horizontal divider header">
+		Simulation
+	      </h4>
+	      <div class="ui vertical buttons">
+		<button class="ui button tooltip"
+			       data-bind="click:bactVM.eval_reactions">
+		  Eval Reactions
+		  <span class="tooltiptext">Evaluates reactions between molecules</span>
+		</button>
+		<button class="ui button tooltip"
+			data-bind="click:bactVM.make_sim_round">
+		  Simulation round
+		  <span class="tooltiptext">Evaluates reactions and launches transitions of the petri nets</span>
+		</button>
+	      </div>
+	    </div></div>
+	</div>
 	<div class="ui divided grid">
 	  <!-- *** première ligne -->
 	  <div class="row" id="bactVM" data-bind="with:bactVM">
@@ -80,27 +100,33 @@
 	    </div>
 	    
 	    <!-- **** 2eme colonne : liste des molécules -->
-	    <div class="eight wide column" style="max-height:320px;overflow-y:scroll">
+	    <div class="nine wide column" style="max-height:320px;overflow-y:scroll">
 	      <h4 class="ui horizontal divider header">
 		Molecules list
 	      </h4>
 	      <table class="ui fixed selectable table">
 		<thead ><tr>
 		  <th class="ten wide"> Molecule name</th>
-		  <th class="two wide"> Num</th>
-		  <th colspan="2" class="four wide"> Actions</th>
+		  <th class="three wide"> Quantity</th>
+		  <th class="three wide"> Actions</th>
 		</tr></thead>
 		<tbody style="">
 		  <!-- ko foreach: mols -->
 		  <tr data-bind="css:status()">
 		    <td style="word-wrap:break-word" data-bind="text:mol_name"> </td>
 		    <td data-bind="text:mol_number"></t>
-		      <td><button class="ui icon button" data-bind="click:$parent.mol_select.bind($data,$index())">
+		      <td>
+			<div class="ui buttons">
+			<button class="ui icon button tooltip" data-bind="click:$parent.mol_select.bind($data,$index())">
+			<span class="tooltiptext">Examine associated petri net</span>
 			<i class="eyedropper icon"></i>
-		      </button></td>
-		      <td><button class="ui icon button" data-bind="click:$root.molbuilderVM.init_from_mol">
-			<i class="external square icon"></i>
-		      </button></td>
+			</button>
+			<button class="ui icon button tooltip" data-bind="click:$root.molbuilderVM.init_from_mol">
+			  <i class="external square icon"></i>
+			  <span class="tooltiptext">Send to Mol Builder</span>
+			</button>
+			</div>
+		      </td>
 		  </tr>
 		  <!-- /ko -->
 		</tbody></table>
@@ -110,7 +136,7 @@
 	    <!-- mol builder, envoi au bac à sable, ... -->
 
 	    
-	    <div class="six wide column">
+	    <div class="five wide column">
 	      <h4 class="ui horizontal divider header">
 		Bactery
 	      </h4>
@@ -134,17 +160,6 @@
 		      
 		    </label></a>
 		</div>
-	      </div>
-	      <h4 class="ui horizontal divider header">
-		Sim Actions
-	      </h4>
-	      <div class="ui buttons">
-		<button class="ui button"
-			data-bind="click:eval_reactions">
-		  Eval Reactions</button>
-		<button class="ui button"
-			data-bind="click:make_sim_round">
-		  Simulation round</button>
 	      </div>
 	      <h4 class="ui horizontal divider header">
 		Mol Actions
