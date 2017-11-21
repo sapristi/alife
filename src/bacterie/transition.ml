@@ -63,6 +63,13 @@ let launchable (transition : t) =
          | _ as token ->
             s = Token.get_label token
        end
+    | AcidTypes.Filter_empty_iarc ->
+       begin
+         match place.Place.token with
+         | No_token -> false
+         | _ as token ->
+            Token.get_label token = ""
+       end
     | _ ->
        not (Place.is_empty place)
   and launchable_output_arc  

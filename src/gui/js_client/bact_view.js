@@ -135,16 +135,6 @@ function BactViewModel(pnetVM, protVM) {
     });
 
     
-    self.bact_load_file = ko.observable();
-    self.load_bact_bis = ko.computed(
-	function(){
-	    
-	    var e = document.getElementById('bact_load');
-	    console.log(e);
-	    console.log(e.files);
-	    self.bact_load_file();
-	});
-    
     self.load_bact_file = function(evt) {
 	var file = evt.target.files[0];
 	var reader = new FileReader();

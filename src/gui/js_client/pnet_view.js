@@ -71,7 +71,9 @@ function PlaceViewModel() {
     }
     
     self.enable = function(place_data) {
+
 	
+	$('#left_sim_sticky').sticky('refresh');
 	self.data = place_data;
 	self.token(self.data.token);
 	self.token_state(self.data.token[0]);
@@ -253,19 +255,20 @@ function PNetViewModel() {
     
 // ** transition_launch*
     self.launch_transition = function() {
+	
 	var tindex = self.transitionVM.data.index;
 	utils.ajax_get(
-            {command: "launch_transition",
+	    {command: "launch_transition",
 	     molecule : self.pnet_data.molecule,
 	     transition_index : tindex,
-             container: "bactery"}
+	     container: "bactery"}
         ).done(
 	    function (data)
 	    {	
 		self.pnet_data = data.data.pnet;
 		update_pnet_graph(pnet_cy, self.pnet_data);
 		self.change(!self.change());
-
+		
 	    });
 
     }

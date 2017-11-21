@@ -3,7 +3,8 @@
 var utils = {
     
     ajax_get : function(req_data) {
-	var connect_uri = window.location.href + "sim_commands/";
+
+	var connect_uri = window.location.origin + "/sim_commands/";
 	var request = {
             url: connect_uri,
             dataType: 'json',

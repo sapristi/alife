@@ -64,6 +64,7 @@ module AcidTypes =
       | Regular_iarc
       | Split_iarc
       | Filter_iarc of string
+      | Filter_empty_iarc
                          [@@deriving yojson]
                      
 (* *** transition_output *)
@@ -330,7 +331,8 @@ module AcidExamples =
     let input_arcs = [
         InputArc ("A", AcidTypes.Regular_iarc);
         InputArc ("A", AcidTypes.Split_iarc);
-        InputArc ("A", AcidTypes.Filter_iarc "A");]
+        InputArc ("A", AcidTypes.Filter_iarc "A");
+        InputArc ("A", AcidTypes.Filter_empty_iarc);]
     let output_arcs = [
         OutputArc ("A", AcidTypes.Regular_oarc);
         OutputArc ("A", AcidTypes.Bind_oarc);

@@ -18,12 +18,13 @@ module Molecule =
     type t = string
            [@@deriving yojson] 
           
-    let atoms = "[A-E]"
+    let atoms = "[A-F]"
 
     let place_id = "AAA"
     and ia_reg_id = "BAA"
     and ia_split_id = "BBA"
     and ia_filter_id = "BC"
+    and ia_filter_empty_id = "BAB"
     and oa_reg_id = "CAA"
     and oa_bind_id = "CBA"
     and oa_move_fw_id = "CCA"
@@ -31,12 +32,13 @@ module Molecule =
     and ext_grab_id = "ABA"
     and ext_rel_id = "ABB"
     and ext_tinit_id = "ABC"
-    and msg_end_id = "DDD"
+    and msg_end_id = "DDF"
         
     let place_re = "^"^place_id^"(.*)"
     and ia_reg_re = "^"^ia_reg_id^"(.*?)"^msg_end_id^"(.*)"
     and ia_split_re = "^"^ia_split_id^"(.*?)"^msg_end_id^"(.*)"
     and ia_filter_re = "^"^ia_filter_id^"("^atoms^")(.*?)"^msg_end_id^"(.*)"
+    and ia_filter_empty_re = "^"^ia_filter_empty_id^"(.*?)"^msg_end_id^"(.*)"
     and oa_reg_re = "^"^oa_reg_id^"(.*?)"^msg_end_id^"(.*)"
     and oa_bind_re = "^"^oa_bind_id^"(.*?)"^msg_end_id^"(.*)"
     and oa_move_fw_re = "^"^oa_move_fw_id^"(.*?)"^msg_end_id^"(.*)"
@@ -51,6 +53,7 @@ module Molecule =
     and ia_reg_cre = Re.compile (Re_perl.re ia_reg_re)
     and ia_split_cre = Re.compile (Re_perl.re ia_split_re)
     and ia_filter_cre = Re.compile (Re_perl.re ia_filter_re)
+    and ia_filter_empty_cre = Re.compile (Re_perl.re ia_filter_empty_re)
     and oa_reg_cre = Re.compile (Re_perl.re oa_reg_re)
     and oa_bind_cre = Re.compile (Re_perl.re oa_bind_re)
     and oa_move_fw_cre = Re.compile (Re_perl.re oa_move_fw_re)
@@ -90,6 +93,13 @@ module Molecule =
           and tid  = Re.Group.get groups 2
           and s' = Re.Group.get groups 3 in
           (InputArc (tid , Filter_iarc f)) :: (mol_parser s')
+
+        else if Re.execp ia_filter_empty_cre s
+        then
+          let groups  = Re.exec ia_filter_empty_cre s in
+          let tid  = Re.Group.get groups 1
+          and s' = Re.Group.get groups 2 in
+          (InputArc (tid , Filter_empty_iarc)) :: (mol_parser s')
           
         else if Re.execp oa_reg_cre s
         then 
@@ -156,6 +166,8 @@ module Molecule =
            ia_split_id ^ s ^ msg_end_id 
         | InputArc (s,(Filter_iarc f))  ->
            ia_filter_id ^ f ^ s ^msg_end_id
+        | InputArc (s, Filter_empty_iarc) ->
+           ia_filter_empty_id ^ s ^ msg_end_id
         | OutputArc (s,Regular_oarc) ->
            oa_reg_id ^ s ^ msg_end_id
         | OutputArc (s,Bind_oarc)  ->

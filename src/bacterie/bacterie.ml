@@ -188,7 +188,8 @@ struct
     let rec execute_actions (actions : Place.transition_effect list) (bact : t) : unit =
       match actions with
       | Place.Release_effect mol :: actions' ->
-         add_molecule mol bact;
+         if mol != ""
+         then add_molecule mol bact;
          execute_actions actions' bact
       | Place.Message_effect m :: actions' ->
          (* bact.message_queue <- m :: bact.message_queue; *)

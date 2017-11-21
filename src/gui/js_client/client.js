@@ -3,6 +3,8 @@
 $('#tab_menu .item').tab();
 $('#mol_name_display').accordion();
 $('.ui.dropdown').dropdown();
+$('#left_sim_sticky').sticky({offset:50});
+
 
 // viewmodel
 var initVM = function() {
