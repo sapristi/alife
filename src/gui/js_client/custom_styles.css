@@ -9,7 +9,9 @@
     width : 100%;
     height:600px;
 }
-
+.special-text {
+    font-weight: bold;
+}
 .tooltip {
     position: relative;
     }

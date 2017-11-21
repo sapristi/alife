@@ -61,12 +61,12 @@
 	      </h4>
 	      <div class="ui vertical buttons">
 		<button class="ui button tooltip"
-			       data-bind="click:bactVM.eval_reactions">
+			data-bind="click:bactVM.eval_reactions">
 		  Eval Reactions
 		  <span class="tooltiptext">Evaluates reactions between molecules</span>
 		</button>
 		<button class="ui button tooltip"
-			data-bind="click:bactVM.make_sim_round">
+			       data-bind="click:bactVM.make_sim_round">
 		  Simulation round
 		  <span class="tooltiptext">Evaluates reactions and launches transitions of the petri nets</span>
 		</button>
@@ -109,33 +109,26 @@
 	    </div>
 
 	    <!-- **** 2eme colonne : liste des molécules -->
-	    <div class="nine wide column" style="max-height:320px;overflow-y:scroll">
+	    <div class="nine wide column tooltip" style="max-height:320px;overflow-y:scroll">
+	      <span class="tooltiptext">Click on a molecule for more </span>
 	      <h4 class="ui horizontal divider header">
 		Molecules list
 	      </h4>
 	      <table class="ui fixed selectable table">
 		<thead ><tr>
-		  <th class="ten wide"> Molecule name</th>
+		  <th class="thirteen wide"> Molecule name</th>
 		  <th class="three wide"> Quantity</th>
-		  <th class="three wide"> Actions</th>
 		</tr></thead>
-		<tbody style="">
+		<tbody>
 		  <!-- ko foreach: mols -->
 		  <tr data-bind="css:status(), click:$parent.mol_select.bind($data,$index())">
-		    <td style="word-wrap:break-word" data-bind="text:mol_name"> </td>
-		    <td data-bind="text:mol_number"></t>
-		      <td>
-			<div class="ui buttons">
-			  <button class="ui icon button tooltip" data-bind="click:$parent.mol_select.bind($data,$index())">
-			    <span class="tooltiptext">Examine associated petri net</span>
-			    <i class="eyedropper icon"></i>
-			  </button>
-			  <button class="ui icon button tooltip" data-bind="click:$root.molbuilderVM.init_from_mol">
-			    <i class="external square icon"></i>
-			    <span class="tooltiptext">Send to Mol Builder</span>
-			  </button>
-			</div>
-		      </td>
+		    <td style="word-wrap:break-word"
+			data-bind="text:mol_name"></td>
+		    <td data-bind="text:mol_number"></td>
+		    <td>
+		      <div class="ui buttons">
+		      </div>
+		    </td>
 		  </tr>
 		  <!-- /ko -->
 		</tbody></table>
@@ -146,55 +139,65 @@
 
 
 	    <div class="five wide column">
-	      <h4 class="ui horizontal divider header">
-		Bactery
-	      </h4>
-	      <div class="ui buttons">
-		<label class="ui button tooltip"
-		       data-bind="click:reset_bactery">
-		  Reset
-		  <span class="tooltiptext">Reset bactery to initial state</span>
-		</label>
-		<div>
-		  <label for="bact_load" class="ui button tooltip"
-			 id="load_bact_button">
-		    Load from file
-		    <span class="tooltiptext">Load bactery from a local text file</span>
+	      <div class="ui top attached segment">
+		<h4 class="ui horizontal divider header">
+		  Bactery
+		</h4>
+		<div class="ui buttons">
+		  <label class="ui button tooltip"
+			 data-bind="click:reset_bactery">
+		    Reset
+		    <span class="tooltiptext">Reset bactery to initial state</span>
 		  </label>
-		  <input type="file"
-			 id="bact_load"
-			 style="display:none"/>
-		</div>
-		<div>
-		  <a id="bact_save" download="bact.save" data-bind="attr:{href:save_bactery_local}">
-		    <label for="bact_save" class="ui button tooltip" id="load_bact_button">
-		      Save to file
-		      <span class="tooltiptext">Save bactery to a local text file</span>
-		    </label></a>
+		  <div>
+		    <label for="bact_load" class="ui button tooltip"
+			   id="load_bact_button">
+		      Load from file
+		      <span class="tooltiptext">Load bactery from a local text file</span>
+		    </label>
+		    <input type="file"
+			   id="bact_load"
+			   style="display:none"/>
+		  </div>
+		  <div>
+		    <a id="bact_save" download="bact.save" data-bind="attr:{href:save_bactery_local}">
+		      <label for="bact_save" class="ui button tooltip" id="load_bact_button">
+			Save to file
+			<span class="tooltiptext">Save bactery to a local text file</span>
+		      </label></a>
+		  </div>
 		</div>
 	      </div>
-	      <h4 class="ui horizontal divider header">
-		Selected Molecule
-	      </h4>
-	      <div data-bind="text:current_mol_name"></div>
-	      <button class="ui button tooltip"
-		      data-bind="click:remove_mol">Remove molecule
-		
-		<span class="tooltiptext">Definitely removes the molecule from the bactery</span>
-	      </button>
-
-	      <div class="ui action input">
-		<input placeholder="quantity" type="text"
-		       data-bind="value:mol_quantity_input"/>
+	      <div class="ui bottom attached segment">
+		<h4 class="ui horizontal divider header">
+		  Selected Molecule
+		</h4>
+		<div data-bind="text:current_mol_name"></div>
 		<button class="ui button tooltip"
-			data-bind="click:set_mol_quantity">
-		  Set quantity
-		  <span class="big tooltiptext">Set the quantity of molecules in the bactery. <br> Note that molecules can have negative quantity (ugh), but if the quantity is less than 0 then no transition will be launched in a simulation round </span>
+			data-bind="click:remove_mol">Remove molecule
+
+		  <span class="tooltiptext">Definitely removes the molecule from the bactery</span>
 		</button>
 
+		<div class="ui action input">
+		  <button class="ui button tooltip"
+				 data-bind="click:set_mol_quantity">
+		    Set quantity
+		    <span class="big tooltiptext">Set the quantity of molecules in the bactery. <br> Note that molecules can have negative quantity (ugh), but if the quantity is less than 0 then no transition will be launched in a simulation round </span>
+		  </button>
+
+		  <input placeholder="quantity"
+			 type="text"
+			 size="4"
+			 data-bind="value:mol_quantity_input"/>
+		</div>
+
+		<button class="ui icon button tooltip" data-bind="click:$root.molbuilderVM.init_from_mol">
+		  Send to Mol Builder
+		  <span class="big tooltiptext">Initiate the Mol Builder with the selected molecule.<br> Use this to see how a particular Petri net is designed</span>
+		</button>
 	      </div>
 	    </div>
-
 
 	  </div>
 
@@ -224,8 +227,6 @@
 		<div class="item" data-bind="text:transition_nb"></div>
 		<div class="item" data-bind="text:launchable_transition_nb"></div>
 	      </div>
-	      <div class="ui divider"></div>
-
 
 	      <!-- **** selon selection -->
 	      <!-- ***** transition -->
@@ -235,9 +236,15 @@
 		    Transition description
 		  </h4>
 		  <button
-		      class="ui button"
+		      class="ui button tooltip"
 		      data-bind="click:$parent.launch_transition">
-		    Launch transition</button>
+		    Launch transition
+		    <span class="big tooltiptext">
+		      Launches the selected transition.<br>
+		      <span class="special-text">Be carefull :</span><br>
+		      Only  yellow (or red if selected) transitions should be launched.
+		    </span>
+		  </button>
 		</div>
 	      </div>
 
@@ -274,7 +281,14 @@
 		    <label>Token edition</label>
 		  </div>
 
-		  <div data-bind="if: token_edit_view">
+		  <div data-bind="if: token_edit_view" class="tooltip">
+		    <span class="big tooltiptext">
+		      Use this to set a new token in the selected place.<br>
+		      <span class="special-text">No token</span> will remove any token.<br>
+		      <span class="special-text">Token</span> will add a token<br>
+		      Text inputs are used to set the molecule present in the token.
+		      
+		    </span>
 		    <h4 class="ui horizontal divider header">
 		      Token edition
 		    </h4>
@@ -282,7 +296,9 @@
 		      <div class="inline fields">
 			<div class="field">
 			  <div class="ui radio checkbox">
-			    <input value="No_token" type="radio" data-bind="checked : token_edit_state">
+			    <input value="No_token"
+				   type="radio"
+				   data-bind="checked : token_edit_state">
 			    <label>No token</label>
 			  </div>
 			</div>
@@ -295,7 +311,12 @@
 		      </div>
 		      <div data-bind="visible: token_edit_state() == 'Token'">
 			<div class="field">
-			  <textarea rows=2 data-bind="value:token_edit_m1"></textarea>
+			  <textarea rows=2
+				    data-bind="value:token_edit_m1"
+				    class="tooltip">
+			    <span class="tooltiptext">test</span>
+
+			  </textarea>
 			</div>
 			<div class="field">
 			  <textarea rows=2 data-bind="value:token_edit_m2"></textarea>
@@ -405,14 +426,14 @@
 	      <span class="big tooltiptext">
 		Select an acid to add it to the proteine.<br>
 		The text should form a comma separated list, for example : <br>
-		<div>
-		[ <br>
-		["Node"], <br>
-		["InputArc","A",["Regular_iarc"]], <br>
-		["Node"], <br>
-		["OutputArc","A",["Regular_oarc"]] <br>
-		]<br>
-		</div>
+		<span class="special-text">
+		  [ <br>
+		  ["Node"], <br>
+		  ["InputArc","A",["Regular_iarc"]], <br>
+		  ["Node"], <br>
+		  ["OutputArc","A",["Regular_oarc"]] <br>
+		  ]<br>
+		</span>
 		(linebreaks don't matter)
 	      </span>
 	      <h4 class="ui horizontal divider header">
@@ -484,7 +505,7 @@
 		<div class="field">
 		  <textarea style="resize : both"
 			    rows="15"
-			    data-bind="textInput:mol_text"
+			    data-bind="value:mol_text"
 			    id="molbuilder_prot_text"></textarea>
 		</div>
 	      </div>
