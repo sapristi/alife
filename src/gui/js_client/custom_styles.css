@@ -1,13 +1,13 @@
-
-.cy-small {
-    width: 500px;
-    height: 600px;
+.cy {
     position: relative;
+    z-index:999;
     margin: auto;
     border: 1px solid #ddd;
     overflow: auto !important;
     border-radius: 0.25em;
-    resize:both
+    resize:both;
+    width : 100%;
+    height:600px;
 }
 
 .tooltip {
@@ -15,16 +15,21 @@
     }
 .tooltip .tooltiptext {
     visibility: hidden;
-    width: 200px;
-    background-color: black;
+    width: 180px;
+    background-color: brown;
     color: #fff;
     text-align: center;
-    padding: 5px 0;
+    padding: 10px 5px;
     border-radius: 6px;
- 
+    bottom: 5px;
+    left: 5px;
     /* Position the tooltip text - see examples below! */
     position: fixed;
     z-index: 1000 !important;
+}
+.tooltiptext.big {
+    text-align: left;
+    width : 250px;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
