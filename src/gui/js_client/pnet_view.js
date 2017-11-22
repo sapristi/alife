@@ -73,7 +73,7 @@ function PlaceViewModel() {
     self.enable = function(place_data) {
 
 	
-	$('#left_sim_sticky').sticky('refresh');
+//	$('#left_sim_sticky').sticky('refresh');
 	self.data = place_data;
 	self.token(self.data.token);
 	self.token_state(self.data.token[0]);

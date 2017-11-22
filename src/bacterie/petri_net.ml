@@ -51,38 +51,41 @@ struct
     Array.iter (fun t -> Transition.update_launchable t) pnet.transitions
     
   let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t =
-  (* liste des signatures des transitions *)
-    let transitions_signatures_list = Proteine.build_transitions prot
-    (* liste des signatures des places *)
-    and places_signatures_list = Proteine.build_nodes_list_with_exts prot
-  in
-  (* on crée de nouvelles places à partir de la liste de types données dans la molécule *)
-  let places : Place.t array = 
-    let psigs = ref places_signatures_list in
-    Array.init
-      (List.length !psigs)
-      (fun index -> 
+    try
+      (* liste des signatures des transitions *)
+      let transitions_signatures_list = Proteine.build_transitions prot
+      (* liste des signatures des places *)
+      and places_signatures_list = Proteine.build_nodes_list_with_exts prot
+      in
+      (* on crée de nouvelles places à partir de la liste de types données dans la molécule *)
+      let places : Place.t array = 
+        let psigs = ref places_signatures_list in
+        Array.init
+          (List.length !psigs)
+          (fun index -> 
         let p = List.hd !psigs in
         psigs := List.tl !psigs;
         Place.make p index)
-  
-
-  in
-  let (transitions : Transition.t array) = 
-    let tsigs = ref transitions_signatures_list in
-    Array.init
-      (List.length !tsigs)
-      (fun index -> 
-        let (id, ila, ola) = List.hd !tsigs in
-        tsigs := List.tl !tsigs;
-        Transition.make id places ila ola index)
-    
-  and mol_grabers_book = Proteine.build_grabers_book prot
+        
+      in
+      let (transitions : Transition.t array) = 
+        let tsigs = ref transitions_signatures_list in
+        Array.init
+          (List.length !tsigs)
+          (fun index -> 
+            let (id, ila, ola) = List.hd !tsigs in
+            tsigs := List.tl !tsigs;
+            Transition.make id places ila ola index)
+        
+      and mol_grabers_book = Proteine.build_grabers_book prot
                        
-  in
-  {mol; transitions; places;
-   mol_grabers_book}
-  
+      in
+      {mol; transitions; places;
+       mol_grabers_book}
+    with
+    | _ ->
+       print_endline "cannot build pnet";
+       {mol=""; transitions=[||]; places=[||];mol_grabers_book= BatMultiPMap.empty}
     
   let make_from_mol (mol : Molecule.t) : t =
     let prot = Molecule.to_proteine mol in

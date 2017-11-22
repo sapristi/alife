@@ -53,20 +53,25 @@
 
       <!-- ** first tab : bactery view -->
       <div class="ui bottom attached tab segment active" data-tab="sim_tab" data-bind="with:simVM" id="sim_tab">
-	<div class="ui left rail" style="width:180px">
-	  <div class="ui fixed top sticky" style="width:150px, margin-top:50px" id="left_sim_sticky">
-	    <div class="ui segment">
+	<div class="ui left rail"
+	     style="max-width:100px;padding-right:5px;margin-right:5px">
+	  <div class="ui fixed top sticky"
+	       style="max-width:100px;position:fixed;top:100px" id="left_sim_sticky">
+	    <div class="ui segment"
+		 style="max-width:100px; padding-left:0; padding-right:0">
 	      <h4 class="ui horizontal divider header">
 		Simulation
 	      </h4>
 	      <div class="ui vertical buttons">
 		<button class="ui button tooltip"
-			data-bind="click:bactVM.eval_reactions">
+			data-bind="click:bactVM.eval_reactions"
+			style="padding-left:5px;padding-right:5px">
 		  Eval Reactions
 		  <span class="tooltiptext">Evaluates reactions between molecules</span>
 		</button>
-		<button class="ui button tooltip"
-			       data-bind="click:bactVM.make_sim_round">
+		<button class="ui primary button tooltip"
+			data-bind="click:bactVM.make_sim_round"
+			style="padding-left:5px;padding-right:5px">
 		  Simulation round
 		  <span class="tooltiptext">Evaluates reactions and launches transitions of the petri nets</span>
 		</button>
@@ -269,7 +274,9 @@
 		  <!-- ******* token display -->
 		  <h5 class="ui header" data-bind="text:token_state"></h5>
 		  <div class="ui segment"
-		       data-bind="visible: is_token, html:token_mol_disp">
+
+		       data-bind="visible: is_token, html:token_mol_disp"
+		       style="word-wrap:break-word">
 		  </div>
 
 

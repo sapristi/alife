@@ -66,91 +66,94 @@ module Molecule =
       if s = ""
       then []
       else
-        if Re.execp place_cre s
-        then
-          let groups  = Re.exec place_cre s in
-          let s' = Re.Group.get groups 1 in
-          Place :: (mol_parser s')
-      
-        else if Re.execp ia_reg_cre s
-        then
-          let groups  = Re.exec ia_reg_cre s in
-          let tid  = Re.Group.get groups 1
-          and s' = Re.Group.get groups 2 in
-          (InputArc (tid , Regular_iarc)) :: (mol_parser s')
-          
-        else if Re.execp ia_split_cre s
-        then
-          let groups  = Re.exec ia_split_cre s in
-          let tid  = Re.Group.get groups 1
-          and s' = Re.Group.get groups 2 in
-          (InputArc (tid , Split_iarc)) :: (mol_parser s')
-          
-        else if Re.execp ia_filter_cre s
-        then
-          let groups  = Re.exec ia_filter_cre s in
-          let f = Re.Group.get groups 1
-          and tid  = Re.Group.get groups 2
-          and s' = Re.Group.get groups 3 in
-          (InputArc (tid , Filter_iarc f)) :: (mol_parser s')
-
-        else if Re.execp ia_filter_empty_cre s
-        then
-          let groups  = Re.exec ia_filter_empty_cre s in
-          let tid  = Re.Group.get groups 1
-          and s' = Re.Group.get groups 2 in
-          (InputArc (tid , Filter_empty_iarc)) :: (mol_parser s')
-          
-        else if Re.execp oa_reg_cre s
-        then 
-          let groups  = Re.exec oa_reg_cre s in
-          let tid  = Re.Group.get groups 1
-          and s' = Re.Group.get groups 2 in
-          (OutputArc (tid , Regular_oarc)) :: (mol_parser s')
-          
-        else if Re.execp oa_bind_cre s
-        then 
-          let groups  = Re.exec oa_bind_cre s in
-          let tid  = Re.Group.get groups 1
-          and s' = Re.Group.get groups 2 in
-          (OutputArc (tid , Bind_oarc)) :: (mol_parser s')
-          
-        else if Re.execp oa_move_fw_cre s
-        then
-          let groups  = Re.exec oa_move_fw_cre s in
-          let tid  = Re.Group.get groups 1
-          and s' = Re.Group.get groups 2 in
-          (OutputArc (tid , Move_oarc true)) :: (mol_parser s')
-          
-        else if Re.execp oa_move_bw_cre s
-        then
-          let groups  = Re.exec oa_move_bw_cre s in
-          let tid  = Re.Group.get groups 1
-          and s' = Re.Group.get groups 2 in
-          (OutputArc (tid , Move_oarc false)) :: (mol_parser s')
-          
-        else if Re.execp ext_grab_cre s
-        then
-          let groups  = Re.exec ext_grab_cre s in
-          let g  = Re.Group.get groups 1
-          and s' = Re.Group.get groups 2 in
-          (Extension (Grab_ext g)) :: (mol_parser s')
-          
-        else if Re.execp ext_rel_cre s
-        then
-          let groups  = Re.exec ext_rel_cre s in
-          let s' = Re.Group.get groups 1 in
-          Extension Release_ext :: (mol_parser s')
-      
-        else if Re.execp ext_tinit_cre s
-        then
-          let groups  = Re.exec ext_tinit_cre s in
-          let s' = Re.Group.get groups 1 in
-          Extension Init_with_token_ext :: (mol_parser s')
-      
-        else 
-          mol_parser (Str.string_after s 1)
-      
+        try 
+          if Re.execp place_cre s
+          then
+            let groups  = Re.exec place_cre s in
+            let s' = Re.Group.get groups 1 in
+            Place :: (mol_parser s')
+            
+          else if Re.execp ia_reg_cre s
+          then
+            let groups  = Re.exec ia_reg_cre s in
+            let tid  = Re.Group.get groups 1
+            and s' = Re.Group.get groups 2 in
+            (InputArc (tid , Regular_iarc)) :: (mol_parser s')
+            
+          else if Re.execp ia_split_cre s
+          then
+            let groups  = Re.exec ia_split_cre s in
+            let tid  = Re.Group.get groups 1
+            and s' = Re.Group.get groups 2 in
+            (InputArc (tid , Split_iarc)) :: (mol_parser s')
+            
+          else if Re.execp ia_filter_cre s
+          then
+            let groups  = Re.exec ia_filter_cre s in
+            let f = Re.Group.get groups 1
+            and tid  = Re.Group.get groups 2
+            and s' = Re.Group.get groups 3 in
+            (InputArc (tid , Filter_iarc f)) :: (mol_parser s')
+            
+          else if Re.execp ia_filter_empty_cre s
+          then
+            let groups  = Re.exec ia_filter_empty_cre s in
+            let tid  = Re.Group.get groups 1
+            and s' = Re.Group.get groups 2 in
+            (InputArc (tid , Filter_empty_iarc)) :: (mol_parser s')
+            
+          else if Re.execp oa_reg_cre s
+          then 
+            let groups  = Re.exec oa_reg_cre s in
+            let tid  = Re.Group.get groups 1
+            and s' = Re.Group.get groups 2 in
+            (OutputArc (tid , Regular_oarc)) :: (mol_parser s')
+            
+          else if Re.execp oa_bind_cre s
+          then 
+            let groups  = Re.exec oa_bind_cre s in
+            let tid  = Re.Group.get groups 1
+            and s' = Re.Group.get groups 2 in
+            (OutputArc (tid , Bind_oarc)) :: (mol_parser s')
+            
+          else if Re.execp oa_move_fw_cre s
+          then
+            let groups  = Re.exec oa_move_fw_cre s in
+            let tid  = Re.Group.get groups 1
+            and s' = Re.Group.get groups 2 in
+            (OutputArc (tid , Move_oarc true)) :: (mol_parser s')
+            
+          else if Re.execp oa_move_bw_cre s
+          then
+            let groups  = Re.exec oa_move_bw_cre s in
+            let tid  = Re.Group.get groups 1
+            and s' = Re.Group.get groups 2 in
+            (OutputArc (tid , Move_oarc false)) :: (mol_parser s')
+            
+          else if Re.execp ext_grab_cre s
+          then
+            let groups  = Re.exec ext_grab_cre s in
+            let g  = Re.Group.get groups 1
+            and s' = Re.Group.get groups 2 in
+            (Extension (Grab_ext g)) :: (mol_parser s')
+            
+          else if Re.execp ext_rel_cre s
+          then
+            let groups  = Re.exec ext_rel_cre s in
+            let s' = Re.Group.get groups 1 in
+            Extension Release_ext :: (mol_parser s')
+            
+          else if Re.execp ext_tinit_cre s
+          then
+            let groups  = Re.exec ext_tinit_cre s in
+            let s' = Re.Group.get groups 1 in
+            Extension Init_with_token_ext :: (mol_parser s')
+            
+          else 
+            mol_parser (Str.string_after s 1)
+                       (* if a group did not match, catch exception and continue parsing *) 
+        with _ -> mol_parser (Str.string_after s 1)
+        
     let to_proteine (m : t) : Proteine.t = 
       mol_parser m
       

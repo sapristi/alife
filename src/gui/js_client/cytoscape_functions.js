@@ -135,7 +135,11 @@ var pnet_style= [
 
 // *** pnet graph
 make_pnet_graph = function(pnet_data, container, eventHandler) {
-    var cy = new cytoscape({container:container, style:pnet_style});
+    var cy = new cytoscape(
+	{container:container,
+	 style:pnet_style,
+	 userZoomingEnabled:false
+	});
         
     var selected = 0;
     
