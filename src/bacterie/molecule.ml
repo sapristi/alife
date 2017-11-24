@@ -78,14 +78,14 @@ module Molecule =
             let groups  = Re.exec ia_reg_cre s in
             let tid  = Re.Group.get groups 1
             and s' = Re.Group.get groups 2 in
-            (InputArc (tid , Regular_iarc)) :: (mol_parser s')
+            (InputArc (tid , Regular)) :: (mol_parser s')
             
           else if Re.execp ia_split_cre s
           then
             let groups  = Re.exec ia_split_cre s in
             let tid  = Re.Group.get groups 1
             and s' = Re.Group.get groups 2 in
-            (InputArc (tid , Split_iarc)) :: (mol_parser s')
+            (InputArc (tid , Split)) :: (mol_parser s')
             
           else if Re.execp ia_filter_cre s
           then
@@ -93,61 +93,61 @@ module Molecule =
             let f = Re.Group.get groups 1
             and tid  = Re.Group.get groups 2
             and s' = Re.Group.get groups 3 in
-            (InputArc (tid , Filter_iarc f)) :: (mol_parser s')
+            (InputArc (tid , Filter f)) :: (mol_parser s')
             
           else if Re.execp ia_filter_empty_cre s
           then
             let groups  = Re.exec ia_filter_empty_cre s in
             let tid  = Re.Group.get groups 1
             and s' = Re.Group.get groups 2 in
-            (InputArc (tid , Filter_empty_iarc)) :: (mol_parser s')
+            (InputArc (tid , Filter_empty)) :: (mol_parser s')
             
           else if Re.execp oa_reg_cre s
           then 
             let groups  = Re.exec oa_reg_cre s in
             let tid  = Re.Group.get groups 1
             and s' = Re.Group.get groups 2 in
-            (OutputArc (tid , Regular_oarc)) :: (mol_parser s')
+            (OutputArc (tid , Regular)) :: (mol_parser s')
             
           else if Re.execp oa_bind_cre s
           then 
             let groups  = Re.exec oa_bind_cre s in
             let tid  = Re.Group.get groups 1
             and s' = Re.Group.get groups 2 in
-            (OutputArc (tid , Bind_oarc)) :: (mol_parser s')
+            (OutputArc (tid , Bind)) :: (mol_parser s')
             
           else if Re.execp oa_move_fw_cre s
           then
             let groups  = Re.exec oa_move_fw_cre s in
             let tid  = Re.Group.get groups 1
             and s' = Re.Group.get groups 2 in
-            (OutputArc (tid , Move_oarc true)) :: (mol_parser s')
+            (OutputArc (tid , Move true)) :: (mol_parser s')
             
           else if Re.execp oa_move_bw_cre s
           then
             let groups  = Re.exec oa_move_bw_cre s in
             let tid  = Re.Group.get groups 1
             and s' = Re.Group.get groups 2 in
-            (OutputArc (tid , Move_oarc false)) :: (mol_parser s')
+            (OutputArc (tid , Move false)) :: (mol_parser s')
             
           else if Re.execp ext_grab_cre s
           then
             let groups  = Re.exec ext_grab_cre s in
             let g  = Re.Group.get groups 1
             and s' = Re.Group.get groups 2 in
-            (Extension (Grab_ext g)) :: (mol_parser s')
+            (Extension (Grab g)) :: (mol_parser s')
             
           else if Re.execp ext_rel_cre s
           then
             let groups  = Re.exec ext_rel_cre s in
             let s' = Re.Group.get groups 1 in
-            Extension Release_ext :: (mol_parser s')
+            Extension Release :: (mol_parser s')
             
           else if Re.execp ext_tinit_cre s
           then
             let groups  = Re.exec ext_tinit_cre s in
             let s' = Re.Group.get groups 1 in
-            Extension Init_with_token_ext :: (mol_parser s')
+            Extension Init_with_token :: (mol_parser s')
             
           else 
             mol_parser (Str.string_after s 1)
@@ -163,27 +163,27 @@ module Molecule =
         match a with
         | Place  ->
            place_id 
-        | InputArc (s,Regular_iarc)  ->
+        | InputArc (s,Regular)  ->
            ia_reg_id ^ s ^ msg_end_id
-        | InputArc (s,Split_iarc) ->
+        | InputArc (s,Split) ->
            ia_split_id ^ s ^ msg_end_id 
-        | InputArc (s,(Filter_iarc f))  ->
+        | InputArc (s,(Filter f))  ->
            ia_filter_id ^ f ^ s ^msg_end_id
-        | InputArc (s, Filter_empty_iarc) ->
+        | InputArc (s, Filter_empty) ->
            ia_filter_empty_id ^ s ^ msg_end_id
-        | OutputArc (s,Regular_oarc) ->
+        | OutputArc (s,Regular) ->
            oa_reg_id ^ s ^ msg_end_id
-        | OutputArc (s,Bind_oarc)  ->
+        | OutputArc (s,Bind)  ->
            oa_bind_id ^ s ^ msg_end_id
-        | OutputArc (s,Move_oarc true) ->
+        | OutputArc (s,Move true) ->
            oa_move_fw_id ^ s^ msg_end_id
-        | OutputArc (s,Move_oarc false)  ->
+        | OutputArc (s,Move false)  ->
            oa_move_bw_id ^ s^ msg_end_id
-        | Extension Release_ext  ->
+        | Extension Release  ->
            ext_rel_id 
-        | Extension Init_with_token_ext  ->
+        | Extension Init_with_token  ->
            ext_tinit_id 
-        | Extension (Grab_ext g) ->
+        | Extension (Grab g) ->
            ext_grab_id ^ g ^msg_end_id
       in 
       match p with

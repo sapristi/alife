@@ -27,10 +27,10 @@ struct
 
   
   type input_arc = {source_place : int;
-                    iatype : AcidTypes.input_arc_type}
+                    iatype : AcidTypes.input_arc}
                      [@@ deriving yojson]
   type output_arc = {dest_place : int;
-                     oatype : AcidTypes.output_arc_type;}
+                     oatype : AcidTypes.output_arc;}
                       [@@ deriving yojson]
                   
   type t =
@@ -53,27 +53,27 @@ struct
 
 let launchable (transition : t) =
   let launchable_input_arc 
-        (input_arc : AcidTypes.input_arc_type)
+        (input_arc : AcidTypes.input_arc)
         (place : Place.t) =
     match input_arc with
-    | AcidTypes.Filter_iarc s ->
+    | AcidTypes.Filter s ->
        begin
          match place.Place.token with
-         | No_token -> false
-         | _ as token ->
+         | None -> false
+         | Some token ->
             s = Token.get_label token
        end
-    | AcidTypes.Filter_empty_iarc ->
+    | AcidTypes.Filter_empty ->
        begin
          match place.Place.token with
-         | No_token -> false
-         | _ as token ->
+         | None -> false
+         | Some token ->
             Token.get_label token = ""
        end
     | _ ->
        not (Place.is_empty place)
   and launchable_output_arc  
-        (output_arc : AcidTypes.output_arc_type)
+        (output_arc : AcidTypes.output_arc)
         (place : Place.t) =
     (Place.is_empty place) ||
       (* we test if the place is in the source places, to allow cycle transitions *)
@@ -97,8 +97,8 @@ let update_launchable t : unit =
     
 let make (id : string)
          (places : Place.t array)
-         (input_arcs : (int * AcidTypes.input_arc_type) list)
-         (output_arcs : (int * AcidTypes.output_arc_type) list)
+         (input_arcs : (int * AcidTypes.input_arc) list)
+         (output_arcs : (int * AcidTypes.output_arc) list)
          (index : int) : t=
   
   let t =
@@ -127,14 +127,14 @@ let make (id : string)
 let apply_transition (transition : t) : Place.transition_effect list=
   let rec apply_input_arcs
             (i_arc_l :
-               (Place.t * AcidTypes.input_arc_type) list)
+               (Place.t * AcidTypes.input_arc) list)
           : Token.t list =
     match i_arc_l with
     | (place, transi) :: i_arc_l' ->
        begin
          let token = Place.pop_token place in
          match transi with
-         | AcidTypes.Split_iarc  -> 
+         | AcidTypes.Split  -> 
             let token1, token2 = Token.cut_mol token in
             token1 :: token2 ::
               apply_input_arcs i_arc_l' 
@@ -143,19 +143,19 @@ let apply_transition (transition : t) : Place.transition_effect list=
     | [] -> []
   and apply_output_arcs 
         (o_arc_l :
-           (Place.t * AcidTypes.output_arc_type) list)
+           (Place.t * AcidTypes.output_arc) list)
         (tokens : Token.t list) :
         Place.transition_effect list =
     (* TODO : permettre au bind de ne prendre qu'un token 
 (et donc de   ne pas avoir d'effet ?) *)
     match o_arc_l, tokens with
-    | (place, AcidTypes.Bind_oarc) :: o_arc_l',
+    | (place, AcidTypes.Bind) :: o_arc_l',
       t1 :: t2 :: tokens' ->
        let effects = 
          Place.add_token_from_transition
            (Token.insert t1 t2) place in
        effects @ (apply_output_arcs o_arc_l' tokens')
-    | (place, AcidTypes.Move_oarc move_dir) :: o_arc_l',
+    | (place, AcidTypes.Move move_dir) :: o_arc_l',
       token :: tokens' ->
        let new_token = 
          if move_dir
@@ -165,7 +165,7 @@ let apply_transition (transition : t) : Place.transition_effect list=
        let effects = 
          Place.add_token_from_transition new_token place in
        effects @ (apply_output_arcs o_arc_l' tokens')
-    | (place, AcidTypes.Regular_oarc) :: o_arc_l',
+    | (place, AcidTypes.Regular) :: o_arc_l',
       token :: tokens' ->
        let effects = 
          Place.add_token_from_transition token place in

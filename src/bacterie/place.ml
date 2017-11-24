@@ -14,10 +14,10 @@ module Place =
 
 (* ** divers *)
            
-    type place_exts = AcidTypes.extension_type list;;
+    type place_exts = AcidTypes.extension list;;
     type t =
-      {mutable token : Token.t;
-       extensions : AcidTypes.extension_type list;
+      {mutable token : Token.t option;
+       extensions : AcidTypes.extension list;
        index : int;
        grabers : Graber.t list;
       }
@@ -30,16 +30,16 @@ module Place =
       let extensions = exts_list in
       
       let token = 
-        if List.mem AcidTypes.Init_with_token_ext extensions
+        if List.mem AcidTypes.Init_with_token extensions
         then
-          Token.make_empty ()
+          Some (Token.make_empty ())
         else
-          Token.No_token
+          None
         
       and grabers =
         List.fold_left
           (fun l acide ->
-            match acide with AcidTypes.Grab_ext g -> g::l | _ -> l)
+            match acide with AcidTypes.Grab g -> g::l | _ -> l)
           [] extensions
       in
         {token;
@@ -49,19 +49,19 @@ module Place =
      
     let pop_token (p : t) : Token.t =
       match p.token with
-      | No_token -> failwith "place.ml : cannot pop No_token"
-      | _ as token ->
-         p.token <- No_token; token
+      | None -> failwith "place.ml : cannot pop No_token"
+      | Some token ->
+         p.token <- None; token
          
          
     let is_empty (p : t) : bool =
-      p.token = No_token
+      p.token = None
       
     let remove_token (p : t) : unit=
-      p.token <- No_token
+      p.token <- None
       
     let set_token (token : Token.t) (p : t) : unit =
-      p.token <-  token
+      p.token <-  Some token
 
 
   type transition_effect =
@@ -70,7 +70,7 @@ module Place =
 (* ** Token reçu d'une transition. *)
 (* **** TODO ajouter les effets de bords générés par les extensions *)
     let add_token_from_transition (inputToken : Token.t) (place : t) =
-      if List.mem AcidTypes.Release_ext place.extensions 
+      if List.mem AcidTypes.Release place.extensions 
       then
         [Release_effect (Token.get_mol inputToken)]
       else
@@ -120,6 +120,6 @@ module Place =
       `Assoc
        [("id", `Int p.global_id);
         ("token", token_holder_to_json p.tokenHolder);
-        ("extensions"), `List (List.map AcidTypes.extension_type_to_yojson p.extensions)]
+        ("extensions"), `List (List.map AcidTypes.extension_to_yojson p.extensions)]
  *)
   end;;

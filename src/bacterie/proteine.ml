@@ -60,18 +60,18 @@ module AcidTypes =
                         [@@deriving yojson]
     
 (* *** transition_input *)
-    type input_arc_type = 
-      | Regular_iarc
-      | Split_iarc
-      | Filter_iarc of string
-      | Filter_empty_iarc
+    type input_arc = 
+      | Regular
+      | Split
+      | Filter of string
+      | Filter_empty
                          [@@deriving yojson]
                      
 (* *** transition_output *)
-    type output_arc_type = 
-      | Regular_oarc
-      | Bind_oarc
-      | Move_oarc of bool
+    type output_arc = 
+      | Regular
+      | Bind
+      | Move of bool
                        [@@deriving  yojson]
 
 
@@ -87,17 +87,17 @@ module AcidTypes =
     type msg_format = string
                         [@@deriving  yojson]
                     
-    type extension_type =
-      | Grab_ext of Graber.t
-      | Release_ext
-      | Init_with_token_ext
+    type extension =
+      | Grab of Graber.t
+      | Release
+      | Init_with_token
 [@@deriving  yojson]
       
 (*      
-      | Information_ext of string  
-      | Displace_mol_ext of bool
-      | Handle_ext of handle_id   
-      | Catch_ext of bind_pattern *)
+      | Information of string  
+      | Displace_mol of bool
+      | Handle of handle_id   
+      | Catch of bind_pattern *)
 
 
       
@@ -114,9 +114,9 @@ module AcidTypes =
     
     type acid = 
       | Place
-      | InputArc of string * input_arc_type
-      | OutputArc of string * output_arc_type
-      | Extension of extension_type
+      | InputArc of string * input_arc
+      | OutputArc of string * output_arc
+      | Extension of extension
                        [@@deriving yojson]
   end;;
    
@@ -144,13 +144,13 @@ module Proteine =
                 
     type transition_structure = 
       string * 
-        (int * input_arc_type ) list * 
-          (int * output_arc_type) list
+        (int * input_arc ) list * 
+          (int * output_arc) list
       
 (* *** place extensions definition *)
 
     type place_extensions =
-      extension_type list
+      extension list
     
 (* ** functions definitions *)
 (* *** build_transitions function *)
@@ -183,7 +183,7 @@ let build_transitions (prot : t) :
   let rec insert_new_input 
             (nodeN :   int) 
             (transID : string) 
-            (data :    input_arc_type) 
+            (data :    input_arc) 
             (transL :  transition_structure list) : 
             
             transition_structure list =
@@ -202,7 +202,7 @@ let build_transitions (prot : t) :
   and insert_new_output 
         (nodeN :   int) 
         (transID : string)
-        (data :    output_arc_type) 
+        (data :    output_arc) 
         (transL :  transition_structure list) :
         
       transition_structure list =  
@@ -244,7 +244,7 @@ let build_transitions (prot : t) :
 (*     inversé dans la protéine. *)
 
   let build_nodes_list_with_exts (prot : t) :
-        ((AcidTypes.extension_type list)) list =
+        ((AcidTypes.extension list)) list =
     
     let rec aux prot res = 
       match prot with
@@ -309,7 +309,7 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
        then
          begin
            match ext with
-           | AcidTypes.Grab_ext g ->
+           | AcidTypes.Grab g ->
               aux prot' n (BatMultiPMap.add g n map)
            | _ -> aux  prot' n map
          end
@@ -329,18 +329,18 @@ module AcidExamples =
     open AcidTypes
     let nodes = [ Place;]
     let input_arcs = [
-        InputArc ("A", AcidTypes.Regular_iarc);
-        InputArc ("A", AcidTypes.Split_iarc);
-        InputArc ("A", AcidTypes.Filter_iarc "A");
-        InputArc ("A", AcidTypes.Filter_empty_iarc);]
+        InputArc ("A", AcidTypes.Regular);
+        InputArc ("A", AcidTypes.Split);
+        InputArc ("A", AcidTypes.Filter "A");
+        InputArc ("A", AcidTypes.Filter_empty);]
     let output_arcs = [
-        OutputArc ("A", AcidTypes.Regular_oarc);
-        OutputArc ("A", AcidTypes.Bind_oarc);
-        OutputArc ("A", AcidTypes.Move_oarc true);]
+        OutputArc ("A", AcidTypes.Regular);
+        OutputArc ("A", AcidTypes.Bind);
+        OutputArc ("A", AcidTypes.Move true);]
     let extensions = [
-        Extension (AcidTypes.Release_ext);
-        Extension (AcidTypes.Init_with_token_ext);
-        Extension (AcidTypes.Grab_ext "AAFBFAAFF");
+        Extension (AcidTypes.Release);
+        Extension (AcidTypes.Init_with_token);
+        Extension (AcidTypes.Grab "AAFBFAAFF");
       ]
 
   end;;
