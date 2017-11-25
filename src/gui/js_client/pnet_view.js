@@ -15,7 +15,7 @@ function PlaceViewModel() {
     self.token_edit_m2 = ko.observable("");
 
     self.token_edit_checkbox = ko.observable(false);
-    self.token = ko.observableArray()
+    self.token = null;
 
     // do not call from this file !!!
     // make the test directly with self.token_token()[0]
@@ -28,10 +28,11 @@ function PlaceViewModel() {
 	self.active(false);};
     
     self.token_mol_disp = ko.computed(function() {
-	if (self.token()[0] == "Token")
-	{
-	    var mol = self.token()[2];
-	    var index = self.token()[1];
+	if (self.token == null) {return "";}
+	else {
+	    console.log(self.token);
+	    var mol = self.token[1];
+	    var index = self.token[0];
 	    if (mol != "") {
 		var mol1 = mol.substring(0, index);
 		var mol2 = mol.substring(index);
@@ -40,7 +41,6 @@ function PlaceViewModel() {
 		    + mol2;
 	    } else {return  "No molecule in token";}
 	}
-	else {return "";}
     });
     
 // ** observable controling display    
@@ -55,8 +55,8 @@ function PlaceViewModel() {
 	self.token_edit_state(self.token_state());
 	if (self.is_token())
 	{
-	    var mol = self.token()[2];
-	    var index = self.token()[1];
+	    var mol = self.token[1];
+	    var index = self.token[0];
 	    var mol1 = mol.substring(0, index);
 	    var mol2 = mol.substring(index);
 	    self.token_edit_m1(mol1);
@@ -75,8 +75,8 @@ function PlaceViewModel() {
 	
 //	$('#left_sim_sticky').sticky('refresh');
 	self.data = place_data;
-	self.token(self.data.token);
-	self.token_state(self.data.token[0]);
+	self.token = self.data.token;
+	self.token_state(self.data.token != null);
 	self.place_extensions.removeAll();
 	self.place_extensions(self.data.extensions.map(extension_to_string));
 	self.set_token_edit_state()

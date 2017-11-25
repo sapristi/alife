@@ -676,8 +676,69 @@ Description d'un ribosome qui reconnait deux atomes : A et B
 
 #+END_SRC
 
-**** Modèle 1
+A more compact universal ribosome, working in reverse.
+#+BEGIN_SRC
+[["Place"],
+["InputArc","AA",["Regular"]],
+["OutputArc","AA",["Bind"]],
+["InputArc","AB",["Regular"]],
+["OutputArc","AB",["Bind"]],
+["InputArc","AC",["Regular"]],
+["OutputArc","AC",["Bind"]],
+["InputArc","AD",["Regular"]],
+["OutputArc","AD",["Bind"]],
+["InputArc","AF",["Regular"]],
+["OutputArc","AF",["Bind"]],
+["InputArc","AAA",["Regular"]],
+["OutputArc","BBB",["Regular"]],
+["Place"],
+["InputArc","AA",["Regular"]],
+["Extension",["Grab","FAF"]],
+["Place"],
+["InputArc","AB",["Regular"]],
+["Extension",["Grab","FBF"]],
+["Place"],
+["InputArc","AC",["Regular"]],
+["Extension",["Grab","FCF"]],
+["Place"],
+["InputArc","AD",["Regular"]],
+["Extension",["Grab","FDF"]],
+["Place"],
+["InputArc","AF",["Regular"]],
+["Extension",["Grab","FFF"]],
+["Place"],
+["InputArc","AA",["Filter","A"]],
+["OutputArc","AA",["Move",true]],
+["InputArc","AB",["Filter","B"]],
+["OutputArc","AB",["Move",true]],
+["InputArc","AC",["Filter","C"]],
+["OutputArc","AC",["Move",true]],
+["InputArc","AD",["Filter","D"]],
+["OutputArc","AD",["Move",true]],
+["InputArc","AF",["Filter","F"]],
+["OutputArc","AF",["Move",true]],
+["InputArc","AAA",["Filter_empty"]],
+["OutputArc","BBB",["Regular"]],
+["Place"],
+["OutputArc","AAA",["Regular"]],
+["Extension",["Release"]],
+["Place"],
+["OutputArc","AAA",["Regular"]],
+["Extension",["Release"]],
+["Place"],
+["InputArc","BBB",["Regular"]],
+["OutputArc","CCC",["Regular"]],
+["Place"],
+["InputArc","BBB",["Regular"]],
+["Extension",["Grab","DFDFFF"]],
+["Place"],
+["InputArc","CCC",["Split"]],
+["OutputArc","CCC",["Regular"]],
+["Extension",["Init_with_token"]]]
+#+END_SRC
 
+**** Modèle 1
+     
 *** Bacterie
     Une bacterie contient des molécules. Pour chaque molecule, on 
     connait le nombre présent, et on simule une unique forme protéinée 

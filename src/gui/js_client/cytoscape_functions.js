@@ -228,13 +228,13 @@ update_pnet_graph  = function(cy, pnet) {
     
     for (var i = 0;i < pnet.places.length;i++){
 	
-	if (pnet.places[i].token[0] == "No_token") {
+	if (pnet.places[i].token == null) {
 	    cy.$("#p"+i).removeClass("withToken");
 	} else {
 	    cy.$("#p"+i).addClass("withToken");
 	}
     }
-
+    
     for (var i = 0; i < pnet.transitions.length;i++) {
 	
 	if (pnet.transitions[i].launchable) {
