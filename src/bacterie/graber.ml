@@ -40,31 +40,34 @@ module Graber =
 (*      + two F atoms : *)
 (*        any non-empty sequence of atoms *)
 
-    let grab_location_re = ".*?F(.)F"
+    let grab_location_re = "(.*?)F(.)F"
     and wildcard_re = "FF"
                     
     let grab_location_cre = Re.compile (Re_perl.re grab_location_re)
     and wildcard_cre = Re.compile (Re_perl.re wildcard_re)
         
     let make (m : string)  =
-      if Re.execp grab_location_cre m
-      then
-        let rep_loc (g : Re.Group.t) : string =
-          "(" ^ Re.Group.get g 1 ^ ")"
-        in
-        let m1 = Re.replace ~all:false
-                            grab_location_cre
+      try 
+        if Re.execp grab_location_cre m
+        then
+          let rep_loc (g : Re.Group.t) : string =
+            Re.Group.get g 1 ^ "(" ^ Re.Group.get g 2 ^ ")"
+          in
+          let m1 = Re.replace ~all:false
+                              grab_location_cre
                             ~f:rep_loc m in
-        let m2 = Re.replace_string wildcard_cre
-                                   ~by:".*?" m1
-        in
-        let m3 = "^"^m2^"$" in
-        Some {mol_repr=m;
-              str_repr=m2;
-              re = Re.compile (Re_perl.re m3)}
-      else
-        None
-      
+          let m2 = Re.replace_string wildcard_cre
+                                     ~by:".*?" m1
+          in
+          let m3 = "^"^m2^"$" in
+          Some {mol_repr=m;
+                str_repr=m2;
+                re = Re.compile (Re_perl.re m3)}
+        else
+          None
+      with
+      | _ -> None
+           
     let get_match_pos (graber : t)  (mol : string) : int option =
       if Re.execp graber.re mol
       then 

@@ -11,10 +11,12 @@ var utils = {
             data: req_data,
 	    method:'GET',
             success : function(json) {
+		console.log("received :"); 
                 console.log(json);
             },
             error: function(jqXHR) {
-                console.log("ajax error " + jqXHR.status);
+                console.log("ajax error " + jqXHR.status + " from sending :");
+		console.log(req_data);
             }
         };
         return $.ajax(request);

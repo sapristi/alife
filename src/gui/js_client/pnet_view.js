@@ -1,45 +1,46 @@
 // * place VM
 
-function PlaceViewModel() {
+function PlaceViewModel(pnetVM) {
 
 // ** data initialisation
     var self = this;
-    self.data={};
-
+    self.data = null;
+    self.index = null;
+    self.pnetVM = pnetVM;
+    
 // ** data observables
     self.place_extensions = ko.observableArray([]);
-    self.token_state = ko.observable();
+    self.token = ko.observable();
     
     self.token_edit_state = ko.observable();
     self.token_edit_m1 = ko.observable("");
     self.token_edit_m2 = ko.observable("");
 
     self.token_edit_checkbox = ko.observable(false);
-    self.token = null;
 
-    // do not call from this file !!!
-    // make the test directly with self.token_token()[0]
-    self.is_token = ko.computed(
-	function ()
-	{ return (self.token_state() == "Token");});
+    self.enable = function(index, data) {
+	self.set_data(index, data);
+	self.active(true);
+    }
     
     self.disable = function() {
-	self.data = {};
+	self.data = null;
+	self.index = null;
 	self.active(false);};
     
-    self.token_mol_disp = ko.computed(function() {
-	if (self.token == null) {return "";}
+    self.token_disp = ko.computed(function() {
+	
+	if (self.token() == null) {return "No token";}
 	else {
-	    console.log(self.token);
-	    var mol = self.token[1];
-	    var index = self.token[0];
+	    var mol = self.token()[1];
+	    var index = self.token()[0];
 	    if (mol != "") {
 		var mol1 = mol.substring(0, index);
 		var mol2 = mol.substring(index);
 		return mol1
 		    + "<font style='color:red'>⮞</font>"
 		    + mol2;
-	    } else {return  "No molecule in token";}
+	    } else {return  "Token without molecule";}
 	}
     });
     
@@ -52,11 +53,11 @@ function PlaceViewModel() {
     
 // ** data setup
     self.set_token_edit_state = function() {
-	self.token_edit_state(self.token_state());
-	if (self.is_token())
+	if (self.token())
 	{
-	    var mol = self.token[1];
-	    var index = self.token[0];
+	    self.token_edit_state("Token");
+	    var mol = self.token()[1];
+	    var index = self.token()[0];
 	    var mol1 = mol.substring(0, index);
 	    var mol2 = mol.substring(index);
 	    self.token_edit_m1(mol1);
@@ -64,29 +65,33 @@ function PlaceViewModel() {
 	}
 	else
 	{
+	    self.token_edit_state("No_token");
 	    self.token_edit_m1("");
 	    self.token_edit_m2("");
 	}
 
     }
-    
-    self.enable = function(place_data) {
-
-	
-//	$('#left_sim_sticky').sticky('refresh');
+    self.set_data = function(index, place_data) {
+	self.index = index;
 	self.data = place_data;
-	self.token = self.data.token;
-	self.token_state(self.data.token != null);
+	self.token(self.data.token);
 	self.place_extensions.removeAll();
 	self.place_extensions(self.data.extensions.map(extension_to_string));
 	self.set_token_edit_state()
 	self.active(true);
-    };
+    }
 
+    self.update = function() {
+	if (self.index) {
+	    self.set_data(self.index,
+			  self.pnetVM.data().places[self.index]);
+	}
+
+    }
 // ** place extensions display
    
     var extension_to_string = function(ext) {
-	var ext_str = ext[0].slice(0, ext[0].length -4).replace(/_/g," ");
+	var ext_str = ext[0].replace(/_/g," ");
 	if (ext.length > 1)
 	{
 	    if (ext_str == "Displace mol") {
@@ -107,14 +112,13 @@ function PlaceViewModel() {
     self.get_edited_token = function () {
 	
 	var edited_token;
-	if (self.token_edit_state() == "Token") {
+	if (self.token_edit_state()) {
 	    edited_token =
-		[self.token_edit_state(),
-		 self.token_edit_m1().length,
-		 self.token_edit_m1().toUpperCase() +
-		 self.token_edit_m2().toUpperCase()];
+		[ self.token_edit_m1().length,
+		  self.token_edit_m1().toUpperCase() +
+		  self.token_edit_m2().toUpperCase()];
 	} else {
-	    edited_token = [self.token_edit_state()];}
+	    edited_token = null;}
 	return edited_token;
     }
     
@@ -122,18 +126,33 @@ function PlaceViewModel() {
 
 // * transition VM
 
-function TransitionViewModel() {
+function TransitionViewModel(pnetVM) {
     var self = this;
-    self.data = {};
+    self.data = null;
+    self.index = null;
+    self.pnetVM = pnetVM;
     self.active = ko.observable(false);
-    self.enable = function(data) {
-	self.data = data;
-	self.active(true);
+    self.launchable = ko.observable(false);
+    self.enable = function(index, data) {
+	self.set_data(index, data);
     };
     self.disable = function() {
+	self.index = null;
+	self.data = null;
 	self.active(false);
     };
-
+    self.update = function() {
+	if (self.index) {
+	    self.set_data(self.index,
+			  self.pnetVM.data().transitions[self.index]);
+	}
+    }
+    self.set_data = function(index, data) {
+	self.index = index;
+	self.data = data;
+	self.active(true);
+	self.launchable(self.data.launchable)
+    };
     
 }
 
@@ -143,87 +162,85 @@ function PNetViewModel() {
     
 // ** initialisation
     var self = this;
-    self.pnet_data =
-	{
-	    molecule : "",
-	    places : [],
-	    transitions: [],
-	}
     var pnet_cy;
-    self.placeVM = new PlaceViewModel();
-    self.transitionVM = new TransitionViewModel();
+    self.placeVM = new PlaceViewModel(self);
+    self.transitionVM = new TransitionViewModel(self);
     
 // ** observables controlling display
-    self.initialised = ko.observable(false);
-    self.active = ko.observable(true);
-    self.change = ko.observable(false);
-    
-    self.enable = function () {
-	self.active(true);self.display_cy_graph()};
-    self.disable = function() {
-	self.active(false);
-	self.placeVM.disable();
-    };
+    self.data = ko.observable();
 	
 // ** data observables
     self.place_nb = ko.computed( function() {
-	self.change();
-	return "Number of places : " + self.pnet_data.places.length;
+	if (self.data()) {
+	    return "Number of places : " + self.data().places.length;
+	} else {return "";}
     });
     self.transition_nb = ko.computed( function() {
-	self.change();
-	return "Number of transitions : " + self.pnet_data.transitions.length;
+	if (self.data()) {
+	    return "Number of transitions : " + self.data().transitions.length;
+	} else {return "";}
     });
     self.launchable_transition_nb = ko.computed( function() {
-	self.change();
-	var launchables_nb = self.pnet_data.transitions.filter(
-	    function (e) {e.launchable}).length;
-	return "Number of launchable transitions : " + launchables_nb;
+	if (self.data()) {
+	    var launchables_nb = self.data().transitions.filter(
+		t => t.launchable).length;
+	    return "Number of launchable transitions : " + launchables_nb;
+	} else {return "";}
     });
 
 
 // ** cy graph
     self.display_cy_graph = function() {
-	if (self.active() && self.initialised)
+	if (self.data())
 	{
 	    pnet_cy = new make_pnet_graph(
-		self.pnet_data,
+		self.data(),
 		document.getElementById('pnet_cy'),
 		self);
-	    update_pnet_graph(pnet_cy, self.pnet_data);
+	    update_pnet_graph(pnet_cy, self.data());
             pnet_cy.layout({name:"cose"}).run();
 	}
     };
 
 // ** data setup
-    self.set_data = function(mol_desc) {
+
+    
+    self.request_data = function (mol_desc, data_fun) {
         utils.ajax_get(
             {command: "pnet_from_mol",
              mol_desc: mol_desc,
 	     container: "bactery"}
-        ).done(
-	    function (data)
-	    {
-		self.placeVM.disable();
-		self.pnet_data = data.data.pnet;
-		self.change(!self.change());
-		self.initialised(true);
-		self.display_cy_graph();
-	    });
+        ).done(data_fun);
     }
 
+    self.initialise = function(mol_desc) {
+	self.request_data(
+	    mol_desc,
+	    function(data) {
+		self.placeVM.disable();
+		self.transitionVM.disable();
+		self.data(data.data.pnet);
+		self.display_cy_graph();
+	    }
+	);
+
+    }
+    self.disable = function() {self.data(null);}
     
     
 // ** functions called by the cy graph to display node data
     self.set_node_selected = function(node_data) {
 	if (node_data.type == "place") {
 	    self.placeVM.enable(
-		self.pnet_data.places[node_data.index]);
+		node_data.index,
+		self.data().places[node_data.index]);
 	    self.transitionVM.disable();
 	} else if (node_data.type = "transition") {
 	    self.transitionVM.enable(
-		self.pnet_data.transitions[node_data.index]);
+		node_data.index,
+		self.data().transitions[node_data.index]);
 	    self.placeVM.disable();
+	    console.log(self.data().transitions[node_data.index]);
 	}
     };
     self.set_node_unselected = function() {
@@ -239,17 +256,16 @@ function PNetViewModel() {
 	
 	utils.ajax_get(
             {command: "commit token edit",
-	     molecule : self.pnet_data.molecule,
+	     molecule : self.data().molecule,
 	     place_index : pindex,
              token: JSON.stringify(token),
 	     container: "bactery"}
         ).done(
 	    function (data)
 	    {	
-		self.pnet_data = data.data.pnet;
-		update_pnet_graph(pnet_cy, self.pnet_data);
-		self.change(!self.change());
-
+		self.data(data.data.pnet);
+		self.placeVM.update();
+		update_pnet_graph(pnet_cy, self.data());
 	    });
     }
     
@@ -259,32 +275,32 @@ function PNetViewModel() {
 	var tindex = self.transitionVM.data.index;
 	utils.ajax_get(
 	    {command: "launch_transition",
-	     molecule : self.pnet_data.molecule,
+	     molecule : self.data().molecule,
 	     transition_index : tindex,
 	     container: "bactery"}
         ).done(
 	    function (data)
 	    {	
-		self.pnet_data = data.data.pnet;
-		update_pnet_graph(pnet_cy, self.pnet_data);
-		self.change(!self.change());
-		
+		self.data(data.data.pnet);
+		self.transitionVM.update();
+		update_pnet_graph(pnet_cy, self.data());
 	    });
 
     }
+    
 
     self.global_sim_update = function() {
-	utils.ajax_get(
-            {command: "pnet_from_mol",
-             mol_desc: self.pnet_data.molecule,
-	     container: "bactery"}
-        ).done(
-	    function (data)
-	    {	
-		self.pnet_data = data.data.pnet;
-		update_pnet_graph(pnet_cy, self.pnet_data);
-		self.change(!self.change());
-	    });
+	if (self.data()) {
+	    self.request_data(
+		self.data().molecule,
+		function(data) {
+		    self.data(data.data.pnet);
+		    self.placeVM.update();
+		    self.transitionVM.update();
+		    update_pnet_graph(pnet_cy, self.data());
+		});
+
+	}
     }
 
 };

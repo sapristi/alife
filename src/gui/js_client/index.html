@@ -4,33 +4,33 @@
 <!doctype html>
 <html>
   <head>
-    <title>Bact Simul Demo</title>
+        <title>Bact Simul Demo</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
 
-    <!-- ** external libs -->
+        <!-- ** external libs -->
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.css" rel="stylesheet">
-    <!--
-	 <script
-	 src="https://code.jquery.com/jquery-3.2.1.js"
-	 integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
-	 crossorigin="anonymous"></script> -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.css" rel="stylesheet">
+        <!--
+	      <script
+	      src="https://code.jquery.com/jquery-3.2.1.js"
+	      integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+	      crossorigin="anonymous"></script> -->
 
-    <script src="js-libs/jquery-3.2.1.min.js"></script>
+        <script src="js-libs/jquery-3.2.1.min.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.5/cytoscape.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.5/cytoscape.js"></script>
 
-    <!-- ** personnal css -->
+        <!-- ** personnal css -->
 
-    <link href="./custom_styles.css" rel="stylesheet">
+        <link href="./custom_styles.css" rel="stylesheet">
 
-  </head>
+    </head>
 
   <!-- * body -->
 
@@ -39,178 +39,151 @@
     <!-- ** tab switch -->
     <div class="ui container"  data-bind="with:masterVM">
       <div class="ui top attached tabular menu" id="tab_menu">
-	<a class="item active tooltip" data-tab="sim_tab" id="sim_tab">
-	  Simulation
-	  <span class="tooltiptext">Simulate reactions inside the bactery</span>
+		<a class="item active tooltip" data-tab="sim_tab" id="sim_tab">
+		Simulation
+		<span class="tooltiptext">Simulate reactions inside the bactery</span>
 	</a>
-	<a class="item tooltip" data-tab="sandbox_tab">
-	  <span class="tooltiptext">Don't go there</span>
-	  Bac à sable</a>
-	<a class="item tooltip" data-tab="molbuilder_tab" id="molbuider_tab">
-	  <span class="tooltiptext">Design new molecules</span>
-	  Mol builder</a>
-      </div>
+		<a class="item tooltip" data-tab="molbuilder_tab" id="molbuider_tab">
+		<span class="tooltiptext">Design new molecules</span>
+		Mol builder</a>
+            </div>
 
       <!-- ** first tab : bactery view -->
       <div class="ui bottom attached tab segment active" data-tab="sim_tab" data-bind="with:simVM" id="sim_tab">
 	<div class="ui left rail"
 	     style="max-width:100px;padding-right:5px;margin-right:5px">
-	  <div class="ui fixed top sticky"
+		  <div class="ui fixed top sticky"
 	       style="max-width:100px;position:fixed;top:100px" id="left_sim_sticky">
-	    <div class="ui segment"
+		  <div class="ui segment"
 		 style="max-width:100px; padding-left:0; padding-right:0">
-	      <h4 class="ui horizontal divider header">
-		Simulation
+		  <h4 class="ui horizontal divider header">
+			  Simulation
 	      </h4>
-	      <div class="ui vertical buttons">
-		<button class="ui button tooltip"
+		  <div class="ui vertical buttons">
+			  <button class="ui button tooltip"
 			data-bind="click:bactVM.eval_reactions"
 			style="padding-left:5px;padding-right:5px">
-		  Eval Reactions
-		  <span class="tooltiptext">Evaluates reactions between molecules</span>
+			  Eval Reactions
+			  <span class="tooltiptext">Evaluates reactions between molecules</span>
 		</button>
-		<button class="ui primary button tooltip"
+			  <button class="ui primary button tooltip"
 			data-bind="click:bactVM.make_sim_round"
 			style="padding-left:5px;padding-right:5px">
-		  Simulation round
-		  <span class="tooltiptext">Evaluates reactions and launches transitions of the petri nets</span>
+			  Simulation round
+			  <span class="tooltiptext">Evaluates reactions and launches transitions of the petri nets</span>
 		</button>
 	      </div>
 	    </div></div>
-	</div>
+		</div>
 	<div class="ui divided grid">
 	  <!-- *** première ligne -->
 	  <div class="row" id="bactVM" data-bind="with:bactVM">
-	    <h2 class="ui horizontal divider header">
-	      Bactery view
+		    <h2 class="ui horizontal divider header">
+		    Bactery view
 	    </h2>
-	    <!-- **** 1ere colonne : boutons -->
-	    <div class="two wide column">
-	      <!-- bouton d'initialisation/update des données de la bactérie -->
-	      <div class="ui  segments">
-		<div class="ui center aligned  segment">
-		  <div class="ui small grey ribbon label">Update Bactery</div>
-		  <button class="ui icon button tooltip" data-bind="click : init_data"><i class="refresh icon"></i>
-		    <span class="tooltiptext">Use this button after adding a molecule from the MolBuilder</span>
-		  </button>
-		</div>
-		<!-- activation de la ligne pnet -->
-		<div class="ui center aligned  segment">
-		  <div class="ui small grey ribbon label">Show Petri Net</div>
-		  <div class="ui slider checkbox">
-		    <input name="tt" type="checkbox" data-bind="checked:$parent.pnet_show">
-		    <label></label>
-		  </div>
-		</div>
-		<!-- activation de la ligne mol -->
-		<div class="ui center aligned  segment">
-		  <div class="ui small grey ribbon label">Show Proteine</div>
-		  <div class="ui slider checkbox">
-		    <input name="tt" type="checkbox" data-bind="checked:$parent.mol_show">
-		    <label></label>
-		  </div>
-		</div>
-	      </div>
-	    </div>
 
-	    <!-- **** 2eme colonne : liste des molécules -->
-	    <div class="nine wide column tooltip" style="max-height:320px;overflow-y:scroll">
-	      <span class="tooltiptext">Click on a molecule for more </span>
-	      <h4 class="ui horizontal divider header">
-		Molecules list
+		    <!-- **** 2eme colonne : liste des molécules -->
+		    <div class="nine wide column tooltip" style="max-height:320px;overflow-y:scroll">
+		    <span class="tooltiptext">Click on a molecule for more </span>
+		    <h4 class="ui horizontal divider header">
+			    Molecules list
 	      </h4>
-	      <table class="ui fixed selectable table">
-		<thead ><tr>
-		  <th class="thirteen wide"> Molecule name</th>
-		  <th class="three wide"> Quantity</th>
+		    <table class="ui fixed selectable table">
+			    <thead ><tr>
+			    <th class="thirteen wide"> Molecule name</th>
+			    <th class="three wide"> Quantity</th>
 		</tr></thead>
-		<tbody>
-		  <!-- ko foreach: mols -->
-		  <tr data-bind="css:status(), click:$parent.mol_select.bind($data,$index())">
-		    <td style="word-wrap:break-word"
-			data-bind="text:mol_name"></td>
-		    <td data-bind="text:mol_number"></td>
-		    <td>
-		      <div class="ui buttons">
+			    <tbody>
+			    <!-- ko foreach: mols -->
+			    <tr data-bind="css:status(), click:$parent.mol_select.bind($data,$index())">
+			    <td style="word-wrap:break-word"
+			       data-bind="text:mol_name"></td>
+			    <td data-bind="text:mol_number"></td>
+			    <td>
+			    <div class="ui buttons">
 		      </div>
 		    </td>
 		  </tr>
-		  <!-- /ko -->
+			    <!-- /ko -->
 		</tbody></table>
 	    </div>
 
-	    <!-- **** 3eme colonne : boutons divers -->
-	    <!-- mol builder, envoi au bac à sable, ... -->
+		    <!-- **** 3eme colonne : boutons divers -->
+		    <!-- mol builder, envoi au bac à sable, ... -->
 
 
-	    <div class="five wide column">
-	      <div class="ui top attached segment">
-		<h4 class="ui horizontal divider header">
-		  Bactery
+		    <div class="five wide column">
+		    <div class="ui top attached segment">
+			    <h4 class="ui horizontal divider header">
+			    Bactery
 		</h4>
-		<div class="ui buttons">
-		  <label class="ui button tooltip"
+			    <div class="ui buttons">
+			    <button class="ui icon button tooltip" data-bind="click : init_data"><i class="refresh icon"></i>
+			    <span class="tooltiptext">Use this button after adding a molecule from the MolBuilder</span>
+		  </button>
+			    <label class="ui button tooltip"
 			 data-bind="click:reset_bactery">
-		    Reset
-		    <span class="tooltiptext">Reset bactery to initial state</span>
+			    Reset
+			    <span class="tooltiptext">Reset bactery to initial state</span>
 		  </label>
-		  <div>
-		    <label for="bact_load" class="ui button tooltip"
+			    <div>
+			    <label for="bact_load" class="ui button tooltip"
 			   id="load_bact_button">
-		      Load from file
-		      <span class="tooltiptext">Load bactery from a local text file</span>
+			    Load from file
+			    <span class="tooltiptext">Load bactery from a local text file</span>
 		    </label>
-		    <input type="file"
+			    <input type="file"
 			   id="bact_load"
 			   style="display:none"/>
 		  </div>
-		  <div>
-		    <a id="bact_save" download="bact.save" data-bind="attr:{href:save_bactery_local}">
-		      <label for="bact_save" class="ui button tooltip" id="load_bact_button">
-			Save to file
-			<span class="tooltiptext">Save bactery to a local text file</span>
+			    <div>
+			    <a id="bact_save" download="bact.save" data-bind="attr:{href:href_for_save_bactery_local}">
+			    <label for="bact_save" class="ui button tooltip" id="load_bact_button">
+				    Save to file
+				    <span class="tooltiptext">Save bactery to a local text file</span>
 		      </label></a>
 		  </div>
 		</div>
 	      </div>
-	      <div class="ui bottom attached segment">
-		<h4 class="ui horizontal divider header">
-		  Selected Molecule
+		    <div class="ui bottom attached segment">
+			    <h4 class="ui horizontal divider header">
+			    Selected Molecule
 		</h4>
-		<div data-bind="text:current_mol_name"></div>
-		<button class="ui button tooltip"
+			    <div data-bind="text:current_mol_name"></div>
+			    <button class="ui button tooltip"
 			data-bind="click:remove_mol">Remove molecule
 
-		  <span class="tooltiptext">Definitely removes the molecule from the bactery</span>
+			    <span class="tooltiptext">Definitely removes the molecule from the bactery</span>
 		</button>
 
-		<div class="ui action input">
-		  <button class="ui button tooltip"
+			    <div class="ui action input">
+			    <button class="ui button tooltip"
 				 data-bind="click:set_mol_quantity">
-		    Set quantity
-		    <span class="big tooltiptext">Set the quantity of molecules in the bactery. <br> Note that molecules can have negative quantity (ugh), but if the quantity is less than 0 then no transition will be launched in a simulation round </span>
+			    Set quantity
+			    <span class="big tooltiptext">Set the quantity of molecules in the bactery. <br> Note that molecules can have negative quantity (ugh), but if the quantity is less than 0 then no transition will be launched in a simulation round </span>
 		  </button>
 
-		  <input placeholder="quantity"
+			    <input placeholder="quantity"
 			 type="text"
 			 size="4"
 			 data-bind="value:mol_quantity_input"/>
 		</div>
 
-		<button class="ui icon button tooltip" data-bind="click:$root.molbuilderVM.init_from_mol">
-		  Send to Mol Builder
-		  <span class="big tooltiptext">Initiate the Mol Builder with the selected molecule.<br> Use this to see how a particular Petri net is designed</span>
+			    <button class="ui icon button tooltip" data-bind="click:$root.molbuilderVM.init_from_mol">
+			    Send to Mol Builder
+			    <span class="big tooltiptext">Initiate the Mol Builder with the selected molecule.<br> Use this to see how a particular Petri net is designed</span>
 		</button>
 	      </div>
 	    </div>
 
-	  </div>
+		  </div>
 
 	  <!-- *** deuxième ligne -->
 	  <h2 class="ui horizontal divider header">
 	    Petri Net manipulation
 	  </h2>
-	  <div class="row" data-bind="visible: pnetVM.active() && pnetVM.initialised(), with:pnetVM">
+	  <!-- ko if : pnetVM.data() -->
+	  <div class="row" data-bind="with:pnetVM">
 
 	    <!-- **** 1ere colonne : pnet view -->
 	    <div class="twelve wide column">
@@ -242,7 +215,8 @@
 		  </h4>
 		  <button
 		      class="ui button tooltip"
-		      data-bind="click:$parent.launch_transition">
+		      data-bind="click:$parent.launch_transition,
+			     css:{primary:launchable()}">
 		    Launch transition
 		    <span class="big tooltiptext">
 		      Launches the selected transition.<br>
@@ -272,10 +246,9 @@
 		  <div data-bind="visible:place_extensions().length == 0">No extensions</div>
 
 		  <!-- ******* token display -->
-		  <h5 class="ui header" data-bind="text:token_state"></h5>
+		  <h5 class="ui header">Token</h5>
 		  <div class="ui segment"
-
-		       data-bind="visible: is_token, html:token_mol_disp"
+		       data-bind="html:token_disp"
 		       style="word-wrap:break-word">
 		  </div>
 
@@ -294,7 +267,7 @@
 		      <span class="special-text">No token</span> will remove any token.<br>
 		      <span class="special-text">Token</span> will add a token<br>
 		      Text inputs are used to set the molecule present in the token.
-		      
+
 		    </span>
 		    <h4 class="ui horizontal divider header">
 		      Token edition
@@ -305,7 +278,7 @@
 			  <div class="ui radio checkbox">
 			    <input value="No_token"
 				   type="radio"
-				   data-bind="checked : token_edit_state">
+				   data-bind="checked : !token_edit_state">
 			    <label>No token</label>
 			  </div>
 			</div>
@@ -341,73 +314,8 @@
 	      </div>
 	    </div>
 	  </div>
-	  <h2 class="ui horizontal divider header">
-	    Proteine manipulation
-	  </h2>
-	  <div class="row" data-bind="visible : protVM.active() && protVM.initialised(), with:protVM">
-
-	    <!-- **** 1ere colonne : protéine view -->
-	    <!-- vue cytoscape de la protéine associée à la molécule sélectionnée dans la liste ... -->
-	    <div class="four wide column">
-	      <h4 class="ui horizontal divider header">
-		Proteine view
-	      </h4>
-	      <div id="prot_cy" class="cy small"></div>
-	    </div>
-
-	    <!-- **** 2eme colonne : boutons divers -->
-	    <!-- mol builder, envoi au bac à sable, ... -->
-	    <div class="four wide column">
-	      <h4 class="ui horizontal divider header">
-		Actions
-	      </h4>
-	      <button class="ui disabled button">
-		Send to mol builder
-	      </button>
-	      <button class="ui disabled button">
-		Send to mol Sandbox
-	      </button>
-
-	      <div class="ui styled fluid accordion" id="mol_name_display">
-		<div class="title">
-		  <i class="dropdown icon"></i>
-		  Molecule string
-		</div>
-		<div class="content">
-
-		  <!-- <p data-bind="text:self.mols()[self.selected_mol]['mol_name']"></p> -->
-		  <p data-bind="text:mol_name"
-		     style="word-wrap:break-word"></p>
-		</div>
-	      </div>
-	    </div>
-	  </div>
+	  <!-- /ko -->
 	</div>
-      </div>
-
-      <!-- ** second tab : sandbox view  -->
-
-
-      <div class="ui bottom attached tab segment" data-tab="sandbox_tab">
-	onglet en standby : do not expect things to work
-	<div class="ui grid">
-	  <div class="row">
-	    <div class="2 wide column">
-	      <button type="button" class="btn" >Get data</button>
-            </div>
-	    <div class="ten wide column" style="max-height:300px;overflow-y:scroll">
-	      <table class="ui fixed table">
-		<thead ><tr>
-		  <th class="nine wide"> Molecule name</th>
-		  <th class="two wide" style="width:20px;"> Num</th>
-		  <th class="five wide" colspan="3" style="width:80px;text-align:center" > Actions</th>
-		</tr></thead>
-		<tbody style="">
-		</tbody></table>
-            </div>
-	  </div>
-	</div>
-
       </div>
 
       <!-- ** third tab : mol builder view -->

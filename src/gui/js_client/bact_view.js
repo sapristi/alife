@@ -3,33 +3,25 @@
 // * taskviewmodel
 // Main taskview
 
-function BactViewModel(pnetVM, protVM) {
+function BactViewModel(pnetVM) {
     var self = this;
 
 // ** variables
     self.pnetVM = pnetVM;
-    self.protVM = protVM;
     
     self.mols = ko.observableArray();
-    self.selected_mol = ko.observable(-1);
-    self.pnet_show = ko.observable(true);
+    self.selected_mol_index = ko.observable();
 
     self.mol_quantity_input = ko.observable(0);
     
     self.current_mol_name = ko.computed(
 	function() {
-	    if (self.selected_mol() >= 0
-		&& self.selected_mol() < self.mols().length)
-	    {return self.mols()[self.selected_mol()]["mol_name"]}
+	    if (self.selected_mol_index() in self.mols())
+	    {return self.mols()[self.selected_mol_index()]["mol_name"]}
 	    else {return ""}
 	});
     
     
-// ** examine a molecule
-    self.examine_mol = function(mol_data){
-        self.pnetVM.set_data(mol_data.mol_name);
-	self.protVM.set_data(mol_data.mol_name);
-    }
     
 // ** update_bact
     self.set_bact_data = function(data){
@@ -74,16 +66,22 @@ function BactViewModel(pnetVM, protVM) {
 
 // ** mol_select   
     self.mol_select = function(index) {
-	if (self.selected_mol() != -1
-	    && self.selected_mol() < self.mols().length) {
-	    self.mols()[self.selected_mol()]["status"]("")
+	if (self.selected_mol_index() in self.mols()) {
+	    self.mols()[self.selected_mol_index()]["status"]("")
 	}
-	self.mols()[index]["status"]("active");
-	self.selected_mol(index);
-	
-	self.examine_mol(self.mols()[index])
+	if (index != self.selected_mol_index())
+	{
+	    self.mols()[index]["status"]("active");
+	    self.selected_mol_index(index);
+
+	    var mol_name = self.mols()[index].mol_name
+            self.pnetVM.initialise(mol_name);
+	}
     };
 
+
+
+// ** Hooks for the bact managing buttons
     self.remove_mol = function() {
         utils.ajax_get(
             {command:"remove_mol",
@@ -113,7 +111,7 @@ function BactViewModel(pnetVM, protVM) {
     }
     
     
-    self.save_bactery_local = ko.computed (function() {
+    self.href_for_save_bactery_local = ko.computed (function() {
 	var data = [];
 	var textFile;
         for (var i = 0; i < self.mols().length; i++) {
@@ -123,7 +121,7 @@ function BactViewModel(pnetVM, protVM) {
 		    nb : self.mols()[i]["mol_number"]
                 });
         }
-	console.log(data);
+
 	var str_data = JSON.stringify(data);
 	var raw_data = new Blob([str_data], {type: 'text/plain'});
 	if (textFile !== null) {
@@ -138,9 +136,9 @@ function BactViewModel(pnetVM, protVM) {
     self.load_bact_file = function(evt) {
 	var file = evt.target.files[0];
 	var reader = new FileReader();
-	console.log("loading");
+	
         reader.onload = function(e) {
-	    console.log("sending");
+	    
 	    utils.ajax_get(
             {command:"set_bactery",
 	     container:"bactery",
