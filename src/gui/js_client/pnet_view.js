@@ -53,6 +53,7 @@ function PlaceViewModel(pnetVM) {
     
 // ** data setup
     self.set_token_edit_state = function() {
+	console.log(self.token());
 	if (self.token())
 	{
 	    self.token_edit_state("Token");
@@ -112,13 +113,14 @@ function PlaceViewModel(pnetVM) {
     self.get_edited_token = function () {
 	
 	var edited_token;
-	if (self.token_edit_state()) {
+	if (self.token_edit_state() == "Token") {
 	    edited_token =
 		[ self.token_edit_m1().length,
 		  self.token_edit_m1().toUpperCase() +
 		  self.token_edit_m2().toUpperCase()];
 	} else {
 	    edited_token = null;}
+	
 	return edited_token;
     }
     

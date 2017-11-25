@@ -8,9 +8,9 @@ $('.ui.dropdown').dropdown();
 
 // viewmodel
 var initVM = function() {
-    
+    var self = this;
     self.simVM = new SimViewModel();
-    self.molbuilderVM = new MolBuilderViewModel ();
+    self.molbuilderVM = new MolBuilderViewModel (self.simVM);
     self.molbuilderVM.init_setup();
     
     masterVM =	{

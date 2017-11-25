@@ -17,7 +17,10 @@ module Token =
   struct
     type t = int * Molecule.t
                      [@@deriving yojson]
-      
+
+    type option_t = t option
+                           [@@deriving yojson]
+                  
     let is_empty ((_,m) : t) =  m = ""
       
     let make_empty () : t = (0,"")

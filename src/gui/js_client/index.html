@@ -278,13 +278,18 @@
 			  <div class="ui radio checkbox">
 			    <input value="No_token"
 				   type="radio"
-				   data-bind="checked : !token_edit_state">
+				   name="token_edit_state_r"
+				   data-bind="checked : token_edit_state">
 			    <label>No token</label>
 			  </div>
 			</div>
 			<div class="field">
 			  <div class="ui radio checkbox">
-			    <input value="Token" type="radio" data-bind="checked : token_edit_state">
+			    <input
+			      value="Token"
+				type="radio" 
+				name="token_edit_state_r"
+				data-bind="checked : token_edit_state">
 			    <label>Token</label>
 			  </div>
 			</div>
@@ -381,7 +386,7 @@
 		  Restore prot
 		  <span class="tooltiptext">Revert changes</span>
 		</button>
-		<button class="ui button tooltip" data-bind="click:send_to_bactery">
+		<button class="ui button tooltip" data-bind="click:send_prot_to_bactery">
 		  Send to bactery
 		  <span class="tooltiptext">Add to the bactery (compile before using this)</span>
 		</button>
