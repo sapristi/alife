@@ -189,11 +189,14 @@ let build_transitions (prot : t) :
             transition_structure list =
   
     match transL with
-    | (t, input, output) :: transL' -> 
-       if transID = t 
-       then (t,  (nodeN, data) :: input, output) :: transL'
-       else (t, input, output) ::
-              (insert_new_input nodeN transID data transL')
+    | (t, input, output) :: transL' ->
+       if nodeN >= 0
+       then
+         if transID = t 
+         then (t,  (nodeN, data) :: input, output) :: transL'
+         else (t, input, output) ::
+                (insert_new_input nodeN transID data transL')
+       else (insert_new_input nodeN transID data transL')
     | [] -> [transID, [nodeN, data], []]
         
         
@@ -209,10 +212,13 @@ let build_transitions (prot : t) :
     
     match transL with
     | (t, input, output) :: transL' -> 
-       if transID = t 
-       then (t,  input, (nodeN, data) ::  output) :: transL'
-       else (t, input, output) ::
-              (insert_new_output nodeN transID data transL')
+       if nodeN >= 0
+       then 
+         if transID = t 
+         then (t,  input, (nodeN, data) ::  output) :: transL'
+         else (t, input, output) ::
+                (insert_new_output nodeN transID data transL')
+       else (insert_new_output nodeN transID data transL')
     | [] -> [transID, [], [nodeN, data]]
           
   in 
