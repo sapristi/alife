@@ -113,7 +113,7 @@ struct
     else []
     
 (* returns a list of all the possible grabs of a molecule *)
-  let get_possible_mol_grabs (mol : Molecule.t) (pnet : t) : (Graber.grab*int) list =
+  let get_possible_mol_grabs (mol : Molecule.t) (pnet : t) : (int*int) list =
     Array.fold_lefti
       (fun g_list i place ->
         (Place.get_possible_mol_grabs mol place i)@g_list)

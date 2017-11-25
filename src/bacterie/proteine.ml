@@ -88,7 +88,7 @@ module AcidTypes =
                         [@@deriving  yojson]
                     
     type extension =
-      | Grab of Graber.t
+      | Grab of string
       | Release
       | Init_with_token
 [@@deriving  yojson]
@@ -316,7 +316,11 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
          begin
            match ext with
            | AcidTypes.Grab g ->
-              aux prot' n (BatMultiPMap.add g n map)
+              (
+              match Graber.make g with
+              | Some g' -> aux prot' n (BatMultiPMap.add g' n map)
+              | None -> aux  prot' n map
+              )
            | _ -> aux  prot' n map
          end
        else

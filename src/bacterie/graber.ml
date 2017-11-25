@@ -22,18 +22,10 @@ module Graber =
   struct
 
 (* *** graber type *)
-(* we keep the atom list from which the graber was build to easily *)
-(* transform it back; this feature could be remove in future versions *)
-    type t = string
-     
-        [@@deriving yojson]
-
-(* *** grab type : represents the result of a grab tentative  *)
-(*  No_grab means the grab failed *)
-(*  Grab pos means a grab is possible at position pos *)
-  type grab =
-    | No_grab
-    | Grab of int
+    type t =
+      {mol_repr : string;
+       str_repr : string;
+       re : Re.re}
 
 
 (* *** build_from_atom_list *)
@@ -48,35 +40,50 @@ module Graber =
 (*      + two F atoms : *)
 (*        any non-empty sequence of atoms *)
 
-  let grab_location_re = Str.regexp "F\\(.\\)F"
-  and wildcard_re = Str.regexp "FF"
-            
-  let rec build_re (m : t) : string =
-    if m = ""
-    then "$"
-    else
-      if Str.string_match grab_location_re m 0 
-      then 
-        let a = Str.matched_group 1 m in
-        let m' = (Str.string_after m (Str.match_end ())) in
-        "\\("^a^"\\)"^(build_re m')
-      else if Str.string_match wildcard_re m 0
-      then 
-        let m' = (Str.string_after m (Str.match_end ())) in
-        ".*"^(build_re m')
+    let grab_location_re = ".*?F(.)F"
+    and wildcard_re = "FF"
+                    
+    let grab_location_cre = Re.compile (Re_perl.re grab_location_re)
+    and wildcard_cre = Re.compile (Re_perl.re wildcard_re)
+        
+    let make (m : string)  =
+      if Re.execp grab_location_cre m
+      then
+        let rep_loc (g : Re.Group.t) : string =
+          "(" ^ Re.Group.get g 1 ^ ")"
+        in
+        let m1 = Re.replace ~all:false
+                            grab_location_cre
+                            ~f:rep_loc m in
+        let m2 = Re.replace_string wildcard_cre
+                                   ~by:".*?" m1
+        in
+        let m3 = "^"^m2^"$" in
+        Some {mol_repr=m;
+              str_repr=m2;
+              re = Re.compile (Re_perl.re m3)}
       else
-        (Str.string_before m 1) ^ (build_re (Str.string_after m 1))
+        None
+      
+    let get_match_pos (graber : t)  (mol : string) : int option =
+      if Re.execp graber.re mol
+      then 
+        let g = Re.exec graber.re mol in
+        Some (Re.Group.start g 1)
+      else
+        None
 
-    
-  let get_match_pos (mol : string) (graber : t) : grab =
-    let rex = Str.regexp (build_re graber) in
-    if Str.string_match rex mol 0
-    then
-      try
-        Grab (Str.group_beginning 1)
-      with
-      | Not_found -> No_grab
-    else
-      No_grab
+    let to_yojson (g :t) : Yojson.Safe.json =
+      `String g.mol_repr
+
+    let of_yojson (json : Yojson.Safe.json) : (t,string) result =
+      match json with
+      | `String s ->
+         (
+           match make s with
+           | Some g -> Ok g
+           | None -> Error "graber : cannot build from json"
+         )
+      | _ -> Error "graber : cannot build from json"
       
 end

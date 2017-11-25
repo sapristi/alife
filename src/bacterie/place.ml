@@ -39,7 +39,14 @@ module Place =
       and grabers =
         List.fold_left
           (fun l acide ->
-            match acide with AcidTypes.Grab g -> g::l | _ -> l)
+            match acide with
+            | AcidTypes.Grab g ->
+               (
+                 match Graber.make g with
+                 | Some g' -> g'::l
+                 | None -> l
+               )
+            | _ -> l)
           [] extensions
       in
         {token;
@@ -102,14 +109,14 @@ module Place =
    of the molecule by the grabers associated with index of the place *)
         
     let get_possible_mol_grabs (mol : Molecule.t) (place : t) (i : int)
-        : ((Graber.grab * int) list) =
+        : ((int * int) list) =
       if is_empty place
       then
         List.fold_left
           (fun g_list g ->
-            match Graber.get_match_pos mol g with
-            | Graber.Grab n -> (Graber.Grab n, i) :: g_list
-            | Graber.No_grab -> g_list
+            match Graber.get_match_pos g mol with
+            | Some n -> ( n, i) :: g_list
+            | None -> g_list
           ) [] place.grabers
       else
         []

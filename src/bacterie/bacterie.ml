@@ -123,8 +123,7 @@ struct
     then
       let grab,pid = random_pick_from_list grabs in
       match grab with
-      | Graber.No_grab -> false
-      | Graber.Grab pos -> PetriNet.grab mol pos pid pnet
+      | pos -> PetriNet.grab mol pos pid pnet
     else
       false
 
