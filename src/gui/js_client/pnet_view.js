@@ -203,7 +203,7 @@ function PNetViewModel() {
             pnet_cy.layout({name:"cose"}).run();
 	}
     };
-
+    
 // ** data setup
 
     

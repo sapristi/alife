@@ -1,5 +1,5 @@
 (* * this file *)
-  
+
 (*   proteine.ml defines the basic properties of a proteine, some *)
 (*   functions to help build a petri-net out of it and a module to help it *)
 (*   get managed by a petri-net (i.e. simulate chemical reactions *)
@@ -50,34 +50,34 @@ open Graber
 (*   Le plus simple est de mettre les actions ayant de tels effets de bord *)
 (*   sur les transitions, donc send_message et release_mol seront sur *)
 (*   les olink *)
-  
+   
 (* ** implémentation *)
-              
+   
 module AcidTypes =
   struct
-(* *** place *)
+    (* *** place *)
     type place_type = Regular_place
                         [@@deriving yojson]
-    
-(* *** transition_input *)
+                    
+    (* *** transition_input *)
     type input_arc = 
       | Regular
       | Split
       | Filter of string
       | Filter_empty
-                         [@@deriving yojson]
-                     
-(* *** transition_output *)
+[@@deriving yojson]
+      
+    (* *** transition_output *)
     type output_arc = 
       | Regular
       | Bind
       | Move of bool
-                       [@@deriving  yojson]
+                  [@@deriving  yojson]
 
 
 
-(* *** extension *)
-(* Types used by the extensions. Usefull to use custom types for easier potential changes later on.  *)
+    (* *** extension *)
+    (* Types used by the extensions. Usefull to use custom types for easier potential changes later on.  *)
     type handle_id = string
                        [@@deriving  yojson]
     type bind_pattern = string
@@ -93,7 +93,7 @@ module AcidTypes =
       | Init_with_token
 [@@deriving  yojson]
       
-(*      
+    (*      
       | Information of string  
       | Displace_mol of bool
       | Handle of handle_id   
@@ -101,17 +101,17 @@ module AcidTypes =
 
 
       
-(* ** type definitions *)
-(* *** acid type definition *)
-(*     We define how the abstract types get combined to form functional  *)
-(*     types to eventually create petri net *)
-(*       + Node : used as a token placeholder in the petri net *)
-(*       + TransitionInput :  an incomming edge into a transition of the  *)
-(*       petri net *)
-(*       + a transition output : an outgoing edge into a transition of the  *)
-(*       petri net *)
-(*       + a piece of information : ???? *)
-    
+    (* ** type definitions *)
+    (* *** acid type definition *)
+    (*     We define how the abstract types get combined to form functional  *)
+    (*     types to eventually create petri net *)
+    (*       + Node : used as a token placeholder in the petri net *)
+    (*       + TransitionInput :  an incomming edge into a transition of the  *)
+    (*       petri net *)
+    (*       + a transition output : an outgoing edge into a transition of the  *)
+    (*       petri net *)
+    (*       + a piece of information : ???? *)
+      
     type acid = 
       | Place
       | InputArc of string * input_arc
@@ -119,18 +119,16 @@ module AcidTypes =
       | Extension of extension
                        [@@deriving yojson]
   end;;
-   
-   
+  
+  
 (* * Proteine module *)
-module Proteine = 
-  struct 
-    
-    open AcidTypes
+  
+open AcidTypes
 
 (* * A proteine *)                   
-    type t = acid list
-                  [@@deriving yojson]
-                
+type t = acid list
+              [@@deriving yojson]
+       
 
 (* *** transition structure type definition *)
 
@@ -141,17 +139,17 @@ module Proteine =
 (*       l'entier correspondant au nœud d'où part la transistion, *)
 (*       et le type de la transition *)
 (*       - de même pour les arcs sortants *)
-                
-    type transition_structure = 
-      string * 
-        (int * input_arc ) list * 
-          (int * output_arc) list
-      
+       
+type transition_structure = 
+  string * 
+    (int * input_arc ) list * 
+      (int * output_arc) list
+  
 (* *** place extensions definition *)
 
-    type place_extensions =
-      extension list
-    
+type place_extensions =
+  extension list
+  
 (* ** functions definitions *)
 (* *** build_transitions function *)
 
@@ -187,7 +185,7 @@ let build_transitions (prot : t) :
             (transL :  transition_structure list) : 
             
             transition_structure list =
-  
+    
     match transL with
     | (t, input, output) :: transL' ->
        if nodeN >= 0
@@ -198,9 +196,9 @@ let build_transitions (prot : t) :
                 (insert_new_input nodeN transID data transL')
        else (insert_new_input nodeN transID data transL')
     | [] -> [transID, [nodeN, data], []]
-        
-        
-(* insère un arc sortant dans la bonne transition 
+          
+          
+  (* insère un arc sortant dans la bonne transition 
    de la liste des transitions *)
   and insert_new_output 
         (nodeN :   int) 
@@ -208,7 +206,7 @@ let build_transitions (prot : t) :
         (data :    output_arc) 
         (transL :  transition_structure list) :
         
-      transition_structure list =  
+        transition_structure list =  
     
     match transL with
     | (t, input, output) :: transL' -> 
@@ -239,7 +237,7 @@ let build_transitions (prot : t) :
       
     | Extension _ :: prot' -> aux prot' nodeN transL
     | [] -> transL
-   
+          
   in 
   aux prot (-1) []
 
@@ -249,24 +247,24 @@ let build_transitions (prot : t) :
 (*     L'ordre est ensuite reinversé, sinon la liste des places est  *)
 (*     inversé dans la protéine. *)
 
-  let build_nodes_list_with_exts (prot : t) :
-        ((AcidTypes.extension list)) list =
-    
-    let rec aux prot res = 
-      match prot with
-      | Place :: prot' -> aux prot' (([]) :: res)
-      | Extension e :: prot' ->
-         begin
-           match res with
-           | [] -> aux prot' res
-           | (ext_l) :: res' ->
-              aux prot' ((e :: ext_l) :: res')
-         end
-      | _ :: prot' -> aux prot' res
-      | [] -> res
-    in
-    List.rev (aux prot [])
-    
+let build_nodes_list_with_exts (prot : t) :
+      ((AcidTypes.extension list)) list =
+  
+  let rec aux prot res = 
+    match prot with
+    | Place :: prot' -> aux prot' (([]) :: res)
+    | Extension e :: prot' ->
+       begin
+         match res with
+         | [] -> aux prot' res
+         | (ext_l) :: res' ->
+            aux prot' ((e :: ext_l) :: res')
+       end
+    | _ :: prot' -> aux prot' res
+    | [] -> res
+  in
+  List.rev (aux prot [])
+  
 (* *** build books  *)
 (* Functions used to build references to the handles, catchers and  *)
 (* grabers of a molecule *)
@@ -317,9 +315,9 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
            match ext with
            | AcidTypes.Grab g ->
               (
-              match Graber.make g with
-              | Some g' -> aux prot' n (BatMultiPMap.add g' n map)
-              | None -> aux  prot' n map
+                match Graber.make g with
+                | Some g' -> aux prot' n (BatMultiPMap.add g' n map)
+                | None -> aux  prot' n map
               )
            | _ -> aux  prot' n map
          end
@@ -329,8 +327,6 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
     | [] -> map
   in
   aux prot (-1) BatMultiPMap.empty
-
-end;;
 
 (* * AcidExamples module *)
   
@@ -353,5 +349,4 @@ module AcidExamples =
         Extension (AcidTypes.Grab "AAFBFAAFF");
       ]
 
-  end;;
-        
+end;;

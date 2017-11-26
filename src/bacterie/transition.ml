@@ -1,8 +1,4 @@
-open Molecule
-open Proteine.Proteine
 open Proteine
-open Place
-open Token
 open Misc_library
    
 (* * the transition module *)
@@ -14,8 +10,6 @@ open Misc_library
 (*      après il suffit des prendre les id des places  *)
 (*      pour recréer la structure dans le client *)
 
-module Transition =
-struct
 
 (* ** type d'une transition *)
 (* Structure contenant : *)
@@ -25,25 +19,25 @@ struct
 (*  - la liste des types de transition entrantes *)
 (*  - la liste des types de transitions sortantes *)
 
+   
+type input_arc = {source_place : int;
+                  iatype : AcidTypes.input_arc}
+                   [@@ deriving yojson]
+type output_arc = {dest_place : int;
+                   oatype : AcidTypes.output_arc;}
+                    [@@ deriving yojson]
+                
+type t =
+  {
+    mutable launchable : bool;
+    id : string;
+    places : Place.t array;
+    input_arcs :  input_arc list;
+    output_arcs : output_arc list;
+    index : int;
+  }
+    [@@ deriving yojson]
   
-  type input_arc = {source_place : int;
-                    iatype : AcidTypes.input_arc}
-                     [@@ deriving yojson]
-  type output_arc = {dest_place : int;
-                     oatype : AcidTypes.output_arc;}
-                      [@@ deriving yojson]
-                  
-  type t =
-    {
-      mutable launchable : bool;
-      id : string;
-      places : Place.t array;
-      input_arcs :  input_arc list;
-      output_arcs : output_arc list;
-      index : int;
-    }
-      [@@ deriving yojson]
-    
 (* ** launchable function *)
 (* Tells whether a given transition can be launched, *)
 (* i.e. checks whether *)
@@ -88,13 +82,13 @@ let launchable (transition : t) =
       (fun res oa -> res && launchable_output_arc oa.oatype (transition.places.(oa.dest_place)))
       true
       transition.output_arcs
-    
+  
 let update_launchable t : unit = 
   t.launchable <- launchable t
 (* ** make function       *)
 (* Creates a transition structure *)
 
-    
+  
 let make (id : string)
          (places : Place.t array)
          (input_arcs : (int * AcidTypes.input_arc) list)
@@ -112,7 +106,7 @@ let make (id : string)
     } in
   update_launchable t;
   t
-          
+  
 (* ** apply_transition function *)
 (* Applique la fonction de transition d'une transition à une liste de tokens.  *)
 
@@ -123,7 +117,7 @@ let make (id : string)
 (* ou certains token peuvent être perdus. On va dire pour l'instant que *)
 (* ce n'est pas grave, et que c'est au bactéries de gérer tout ça. *)
 
-                      
+  
 let apply_transition (transition : t) : Place.transition_effect list=
   let rec apply_input_arcs
             (i_arc_l :
@@ -183,5 +177,3 @@ let apply_transition (transition : t) : Place.transition_effect list=
        o_arc_l
        (apply_input_arcs i_arc_l)
    
-end;;
-  

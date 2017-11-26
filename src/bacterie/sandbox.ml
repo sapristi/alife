@@ -20,7 +20,7 @@ module SandBox =
 
     
     type t =
-      {mutable molecules : (PetriNet.t) MolMap.t}
+      {mutable molecules : (Petri_net.t) MolMap.t}
     
 
     let empty : t = 
@@ -35,14 +35,14 @@ module SandBox =
       
       if not (MolMap.mem m sandbox.molecules)
       then 
-        let p = PetriNet.make_from_mol m in
+        let p = Petri_net.make_from_mol m in
         sandbox.molecules <- MolMap.add m p sandbox.molecules;;
       
 (* *** launch_transition *)
     let launch_transition tid mol sandbox : unit =
       let pnet = MolMap.find mol sandbox.molecules in
-      PetriNet.launch_transition_by_id tid pnet;
-      PetriNet.update_launchables pnet;;
+      Petri_net.launch_transition_by_id tid pnet;
+      Petri_net.update_launchables pnet;;
       
       
     let to_json sandbox =         
