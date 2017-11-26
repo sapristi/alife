@@ -13,13 +13,13 @@
 open Misc_library
 open Batteries
 open Acid_types
-     
+   
 (* * Proteine module *)
 
 
 (* * A proteine *)                   
 type t = acid list
-                         [@@deriving yojson]
+              [@@deriving yojson]
        
 
 (* *** transition structure type definition *)
@@ -36,7 +36,6 @@ type transition_structure =
   string * 
     (int * input_arc ) list * 
       (int * output_arc) list
-  
 (* *** place extensions definition *)
 
 type place_extensions =
@@ -65,8 +64,15 @@ type place_extensions =
 (*       correspondent au même nœud et à la même transition, auquel cas ça  *)
 (*       buggerait *)
 
+
+
+
+  
 let build_transitions (prot : t) :
       transition_structure list = 
+
+  
+
   
   (* insère un arc entrant dans la bonne transition 
    de la liste des transitions *)
@@ -220,3 +226,50 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
   in
   aux prot (-1) BatMultiPMap.empty
 
+
+(* wonderfull tail-recursive all-in-one function*)
+
+  
+module Tmap = BatMap.Make(String)
+            
+            
+let rec build_data (prot : t)
+                   (trans : ((int*input_arc) list *
+                               (int*output_arc) list) Tmap.t)
+                   (places : (int * extension list) list)
+  = 
+  match places with
+  | (n, exts) :: places' ->
+     (
+       match prot with
+       | Place ::prot' -> 
+          build_data prot' trans ((n+1,[])::places)
+         
+       | InputArc (id, t) :: prot' ->
+          build_data prot' 
+                     (Tmap.modify_def
+                        ([],[]) id
+                        (fun (ias, oas) ->
+                          ((n, t)::ias, oas)) trans)
+                     places
+         
+       | OutputArc (id, t) ::prot' -> 
+          build_data prot' 
+                     (Tmap.modify_def
+                        ([],[]) id
+                        (fun (ias, oas) ->
+                          (ias, (n, t)::oas)) trans)
+                     places
+         
+       | Extension e :: prot' -> 
+          build_data prot' trans ((n, e::exts)::places')
+         
+       | [] -> trans, places
+     )
+  | [] ->
+     match prot with
+     | Place ::prot' -> 
+        build_data prot'  trans ((0,[])::[])
+     | _ ::prot'-> 
+        build_data prot' trans places
+     | [] -> trans, places
