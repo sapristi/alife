@@ -1,8 +1,5 @@
 open Misc_library
-open Molecule
-open Proteine
-open Token
-open Graber
+
    
 (* * the place module *)
 
@@ -12,10 +9,10 @@ open Graber
 
 (* ** divers *)
    
-type place_exts = AcidTypes.extension list;;
+type place_exts = Acid_types.extension list;;
 type t =
   {mutable token : Token.t option;
-   extensions : AcidTypes.extension list;
+   extensions : Acid_types.extension list;
    index : int;
    grabers : Graber.t list;
   }
@@ -28,7 +25,7 @@ let make (exts_list : place_exts) (index : int)
   let extensions = exts_list in
   
   let token = 
-    if List.mem AcidTypes.Init_with_token extensions
+    if List.mem Acid_types.Init_with_token_ext extensions
     then
       Some (Token.make_empty ())
     else
@@ -38,7 +35,7 @@ let make (exts_list : place_exts) (index : int)
     List.fold_left
       (fun l acide ->
         match acide with
-        | AcidTypes.Grab g ->
+        | Acid_types.Grab_ext g ->
            (
              match Graber.make g with
              | Some g' -> g'::l
@@ -75,7 +72,7 @@ type transition_effect =
 (* ** Token reçu d'une transition. *)
 (* **** TODO ajouter les effets de bords générés par les extensions *)
 let add_token_from_transition (inputToken : Token.t) (place : t) =
-  if List.mem AcidTypes.Release place.extensions 
+  if List.mem Acid_types.Release_ext place.extensions 
   then
     [Release_effect (Token.get_mol inputToken)]
   else
@@ -125,5 +122,5 @@ let get_possible_mol_grabs (mol : Molecule.t) (place : t) (i : int)
       `Assoc
        [("id", `Int p.global_id);
         ("token", token_holder_to_json p.tokenHolder);
-        ("extensions"), `List (List.map AcidTypes.extension_to_yojson p.extensions)]
+        ("extensions"), `List (List.map Acid_types.extension_to_yojson p.extensions)]
        *)

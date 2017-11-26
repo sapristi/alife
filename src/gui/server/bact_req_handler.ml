@@ -1,8 +1,3 @@
-open Bacterie
-open Molecule
-open Proteine
-open Petri_net
-open Place
 
 (* *** pnet_from_mol *) 
 
@@ -13,7 +8,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
              
     in 
     
-    let pnet_json = PetriNet.to_json pnet
+    let pnet_json = Petri_net.to_json pnet
     in
     let to_send_json =
       `Assoc
@@ -50,22 +45,22 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
     let token_str = cgi # argument_value "token" in
     let token_json = Yojson.Safe.from_string token_str in
 
-    match (Token.Token.option_t_of_yojson token_json) with
+    match (Token.option_t_of_yojson token_json) with
     | Ok token_o ->
         let mol = cgi # argument_value "molecule" in
         let place_index_str = cgi # argument_value "place_index" in
         let place_index = int_of_string place_index_str in
         
-        let (_,pnet) = MolMap.find mol bact.molecules in
+        let (_,pnet) = Bacterie.MolMap.find mol bact.molecules in
         (
         match token_o with
         | Some token -> 
            Place.set_token token pnet.places.(place_index);
         | None -> Place.remove_token pnet.places.(place_index);
         );
-        PetriNet.update_launchables pnet;
+        Petri_net.update_launchables pnet;
         
-        let pnet_json = PetriNet.to_json pnet
+        let pnet_json = Petri_net.to_json pnet
         in
         let to_send_json =
           `Assoc
@@ -82,11 +77,11 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
     let trans_index_str = cgi # argument_value "transition_index" in
     let trans_index = int_of_string trans_index_str in
     
-    let (_,pnet) = MolMap.find mol bact.molecules in
-    PetriNet.launch_transition_by_id trans_index pnet;
-    PetriNet.update_launchables pnet;
+    let (_,pnet) = Bacterie.MolMap.find mol bact.molecules in
+    Petri_net.launch_transition_by_id trans_index pnet;
+    Petri_net.update_launchables pnet;
     
-    let pnet_json = PetriNet.to_json pnet
+    let pnet_json = Petri_net.to_json pnet
     in
     let to_send_json =
       `Assoc

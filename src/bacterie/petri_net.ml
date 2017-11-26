@@ -26,14 +26,9 @@
 
 open Batteries
 open Misc_library
-open Molecule
-open Proteine
 open Maps
-open Place
-open Transition
-open Graber
 open Random
-open Token  
+
 (* * the proteine module *)
 
 

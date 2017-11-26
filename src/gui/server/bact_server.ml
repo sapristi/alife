@@ -1,12 +1,6 @@
 (* * simulation server *)
 
 (* ** preamble*)
-open Proteine
-open Bacterie
-open Molecule
-open Proteine
-open Petri_net
-open Sandbox
 open Bact_req_handler
 
 let handle_general_req (cgi:Netcgi.cgi) : string =
@@ -27,10 +21,10 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
   and build_all_from_mol (cgi : Netcgi.cgi) : string =
     let mol = cgi # argument_value "mol_desc" in
     let prot = Molecule.to_proteine mol in
-    let pnet = PetriNet.make_from_mol mol
+    let pnet = Petri_net.make_from_mol mol
     in
     let  prot_json = Proteine.to_yojson prot
-     and pnet_json = PetriNet.to_json pnet
+     and pnet_json = Petri_net.to_json pnet
     in
     let to_send_json =
       `Assoc
@@ -49,8 +43,8 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
     | Ok prot ->
        let mol = Molecule.of_proteine prot in
        let mol_json = `String mol in
-       let pnet = PetriNet.make_from_mol mol in
-       let pnet_json = PetriNet.to_json pnet in
+       let pnet = Petri_net.make_from_mol mol in
+       let pnet_json = Petri_net.to_json pnet in
        let to_send_json =
          `Assoc
           ["purpose", `String "build_all_from_prot";
@@ -68,13 +62,13 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
        ["purpose", `String "list_acids";
         "data", `List [
                    `Assoc ["type", `String "places";
-                           "acids", `List (List.map AcidTypes.acid_to_yojson AcidExamples.nodes)];
+                           "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.nodes)];
                    `Assoc ["type", `String "inputs_arcs";
-                           "acids", `List (List.map AcidTypes.acid_to_yojson AcidExamples.input_arcs)];
+                           "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.input_arcs)];
                    `Assoc ["type", `String "outputs_arcs";
-                           "acids", `List (List.map AcidTypes.acid_to_yojson AcidExamples.output_arcs)];
+                           "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.output_arcs)];
                    `Assoc ["type", `String "extensions";
-                           "acids", `List (List.map AcidTypes.acid_to_yojson AcidExamples.extensions);]]] in
+                           "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.extensions);]]] in
     Yojson.Safe.to_string json_data
     
   in
@@ -97,7 +91,7 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
 ;;
   
   
-let handle_req (bact : Bacterie.t) (sandbox : SandBox.t) env (cgi:Netcgi.cgi)  =
+let handle_req (bact : Bacterie.t) (sandbox : Sandbox.t) env (cgi:Netcgi.cgi)  =
   
   print_endline ("serving GET request :"^(cgi # environment # cgi_query_string));
 

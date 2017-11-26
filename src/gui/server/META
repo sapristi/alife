@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: b5771f69c94fe78c3d614ab2a9cfe0b5)
+# DO NOT EDIT (digest: 30a07478e6e4cdec131b0e6a0ea31fe2)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "servers.cma"
@@ -22,7 +22,7 @@ package "bact_server" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule servers.web_server bacterie.sandbox servers.bact_req_handler"
+ "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule servers.web_server bacterie.sandbox servers.bact_req_handler bacterie_libs.sandbox"
  archive(byte) = "bact_server.cma"
  archive(byte, plugin) = "bact_server.cma"
  archive(native) = "bact_server.cmxa"

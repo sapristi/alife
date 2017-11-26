@@ -26,6 +26,14 @@ Library "local_libs"
 
 ####################################################################
 
+Library "acid_types"
+  FindLibName : acid_types
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Acid_types
+  BuildDepends: 
+
+
 Library "graber"	
   FindLibName : graber
   FindLibParent : bacterie_libs
@@ -129,7 +137,7 @@ Library "bact_server"
   FindLibParent : servers
   Path: src/gui/server
   Modules: Bact_server
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule,  servers.web_server, bacterie.sandbox, servers.bact_req_handler
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule,  servers.web_server, bacterie.sandbox, servers.bact_req_handler, bacterie_libs.sandbox
 
 
 Library "servers"

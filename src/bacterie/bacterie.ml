@@ -23,7 +23,6 @@
 (* * libs *)
 open Misc_library
 open Maps
-open Petri_net
 open Batteries
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)

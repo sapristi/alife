@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: b6c90ba49d8d8aa332a4479e6a1da85d)
+# DO NOT EDIT (digest: c270feaafc61b6104905a02f31851d48)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "bacterie_libs.cma"
@@ -109,6 +109,16 @@ package "bacterie" (
  archive(native) = "bacterie.cmxa"
  archive(native, plugin) = "bacterie.cmxs"
  exists_if = "bacterie.cma"
+)
+
+package "acid_types" (
+ version = "0.1"
+ description = "Simulating life and stuff"
+ archive(byte) = "acid_types.cma"
+ archive(byte, plugin) = "acid_types.cma"
+ archive(native) = "acid_types.cmxa"
+ archive(native, plugin) = "acid_types.cmxs"
+ exists_if = "acid_types.cma"
 )
 # OASIS_STOP
 

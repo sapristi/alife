@@ -1,16 +1,5 @@
-open Molecule;;
-open Proteine;;
-open Proteine;;
-open Petri_net
-open Bacterie;;
-open Web_server;;
-open AcidTypes;;
-open Graber;;
-open Sandbox;;
-  
-open Bact_server;;
-  
 
+  
 let port = ref 1512;;
 let host = ref "localhost";;
 
@@ -35,5 +24,5 @@ let host = ref "localhost";;
                
       in
       
-       start_srv (handle_req (make_bact ()) SandBox.empty) (!host, !port) 
+       Web_server.start_srv (Bact_server.handle_req (make_bact ()) Sandbox.empty) (!host, !port) 
    
