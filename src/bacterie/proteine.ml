@@ -220,24 +220,3 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
   in
   aux prot (-1) BatMultiPMap.empty
 
-(* * AcidExamples module *)
-  
-module AcidExamples = 
-  struct
-    let nodes = [ Place;]
-    let input_arcs = [
-        InputArc ("A", Regular_iarc);
-        InputArc ("A", Split_iarc);
-        InputArc ("A", Filter_iarc "A");
-        InputArc ("A", Filter_empty_iarc);]
-    let output_arcs = [
-        OutputArc ("A", Regular_oarc);
-        OutputArc ("A", Bind_oarc);
-        OutputArc ("A", Move_oarc true);]
-    let extensions = [
-        Extension (Release_ext);
-        Extension (Init_with_token_ext);
-        Extension (Grab_ext "AAFBFAAFF");
-      ]
-
-  end;;

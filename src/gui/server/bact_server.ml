@@ -95,7 +95,7 @@ let handle_req (bact : Bacterie.t) (sandbox : Sandbox.t) env (cgi:Netcgi.cgi)  =
   
   print_endline ("serving GET request :"^(cgi # environment # cgi_query_string));
 
-  List.map (fun x -> print_endline ((x # name)^" : "^(x#value))) (cgi # arguments);
+  List.iter (fun x -> print_endline ((x # name)^" : "^(x#value))) (cgi # arguments);
   
   let response = 
     
