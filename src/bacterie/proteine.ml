@@ -163,69 +163,6 @@ let build_nodes_list_with_exts (prot : t) :
   in
   List.rev (aux prot [])
   
-(* *** build books  *)
-(* Functions used to build references to the handles, catchers and  *)
-(* grabers of a molecule *)
-(*
-let build_handles_book (prot : t) : (string, int) BatMultiPMap.t =
-  let rec aux prot n map =
-    match prot with
-    | Extension ext :: prot' ->
-       begin
-         match ext with
-         | Acid_types.Handle_ext hid ->
-            aux prot' (n+1) (BatMultiPMap.add hid n map)
-         | _ -> aux  prot' (n+1) map
-       end
-    | _ :: prot' -> aux prot' (n+1) map
-    | [] -> map
-  in
-  aux prot 0 BatMultiPMap.empty
-  
-let build_catchers_book (prot : t) : (string, int) BatMultiPMap.t =
-  let rec aux  prot n map =
-    match prot with
-    | Node _ :: prot' -> aux prot' (n+1) map
-    | Extension ext :: prot' ->
-       if n >= 0
-       then
-         begin
-           match ext with
-           | Acid_types.Handle_ext hid ->
-              aux prot' n (BatMultiPMap.add hid n map)
-           | _ -> aux  prot' n map
-         end
-       else
-         aux prot' n map
-    | _ :: prot' -> aux prot' n map
-    | [] -> map
-  in
-  aux prot (-1) BatMultiPMap.empty
- *)
-let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
-  let rec aux  prot n map =
-    match prot with
-    | Place :: prot' -> aux prot' (n+1) map
-    | Extension ext :: prot' ->
-       if n >= 0
-       then
-         begin
-           match ext with
-           | Grab_ext g ->
-              (
-                match Graber.make g with
-                | Some g' -> aux prot' n (BatMultiPMap.add g' n map)
-                | None -> aux  prot' n map
-              )
-           | _ -> aux  prot' n map
-         end
-       else
-         aux prot' n map
-    | _ :: prot' -> aux prot' n map
-    | [] -> map
-  in
-  aux prot (-1) BatMultiPMap.empty
-
 
 (* wonderfull tail-recursive all-in-one function*)
 

@@ -37,7 +37,6 @@ type t =
     mol : Molecule.t;
     transitions : Transition.t array;
     places : Place.t  array;
-    mol_grabers_book : (Graber.t, int) BatMultiPMap.t;
   } 
   
 let update_launchables (pnet :t) : unit =
@@ -70,15 +69,13 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t =
           tsigs := List.tl !tsigs;
           Transition.make id places ila ola index)
       
-    and mol_grabers_book = Proteine.build_grabers_book prot
                          
     in
-    {mol; transitions; places;
-     mol_grabers_book}
+    {mol; transitions; places}
   with
   | _ ->
      print_endline "cannot build pnet";
-     {mol=""; transitions=[||]; places=[||];mol_grabers_book= BatMultiPMap.empty}
+     {mol=""; transitions=[||]; places=[||]}
      
 let make_from_mol (mol : Molecule.t) : t =
   let prot = Molecule.to_proteine mol in
