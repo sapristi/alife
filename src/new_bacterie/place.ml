@@ -15,6 +15,7 @@ type t =
    extensions : Acid_types.extension list;
    index : int;
    grabers : Graber.t list;
+   binders : string list;
   }
     [@@deriving yojson]
 (* **** make a place *)
@@ -31,23 +32,26 @@ let make (exts_list : place_exts) (index : int)
     else
       None
     
-  and grabers =
+  and grabers,binders =
     List.fold_left
-      (fun gl acide ->
+      (fun (gl,bl) acide ->
         match acide with
         | Acid_types.Grab_ext g ->
            (
              match Graber.make g with
-             | Some g' -> g'::gl
-             | None -> gl
+             | Some g' -> (g'::gl,bl)
+             | None -> gl,bl
            )
-        | _ -> gl)
-      [] extensions
+        | Acid_types.Bind_ext b ->
+           gl, b :: bl
+        | _ -> gl, bl)
+      ([],[]) extensions
   in
   {token;
    extensions;
    index;
-   grabers}
+   grabers;
+   binders}
   
 let pop_token (p : t) : Token.t =
   match p.token with
@@ -116,6 +120,8 @@ let get_possible_mol_grabs (mol : Molecule.t) (place : t)
   else
     []
 
+let can_bind (patt : string) (place : t) : bool =
+  List.mem patt place.binders
   
       (* ** to_json *)
       (*

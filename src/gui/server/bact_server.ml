@@ -21,19 +21,20 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
   and build_all_from_mol (cgi : Netcgi.cgi) : string =
     let mol = cgi # argument_value "mol_desc" in
     let prot = Molecule.to_proteine mol in
-    let pnet = Petri_net.make_from_mol mol
-    in
     let  prot_json = Proteine.to_yojson prot
-     and pnet_json = Petri_net.to_json pnet
     in
-    let to_send_json =
-      `Assoc
-       ["purpose", `String "build_all_from_mol";
-        "data", `Assoc ["prot", prot_json;
-                        "pnet", pnet_json]] 
-    in
-    Yojson.Safe.to_string to_send_json
-    
+    match Petri_net.make_from_mol mol with
+    | Some pnet -> let pnet_json = Petri_net.to_json pnet
+                   in
+                   let to_send_json =
+                     `Assoc
+                      ["purpose", `String "build_all_from_mol";
+                       "data", `Assoc ["prot", prot_json;
+                                       "pnet", pnet_json]]
+                   in
+                   Yojson.Safe.to_string to_send_json
+    | None -> "cannot build pnet"
+            
   and build_all_from_prot (cgi : Netcgi.cgi) : string =
     let prot_desc = cgi # argument_value "prot_desc" in
     let prot_json = Yojson.Safe.from_string prot_desc in
@@ -43,17 +44,20 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
     | Ok prot ->
        let mol = Molecule.of_proteine prot in
        let mol_json = `String mol in
-       let pnet = Petri_net.make_from_mol mol in
-       let pnet_json = Petri_net.to_json pnet in
-       let to_send_json =
-         `Assoc
-          ["purpose", `String "build_all_from_prot";
-           "data",
-           `Assoc ["mol", mol_json; "pnet", pnet_json]]
-         
-       in
-       Yojson.Safe.to_string to_send_json
-    | Error s -> 
+       (
+         match Petri_net.make_from_mol mol with
+           | Some pnet ->  let pnet_json = Petri_net.to_json pnet in
+                           let to_send_json =
+                             `Assoc
+                              ["purpose", `String "build_all_from_prot";
+                               "data",
+                               `Assoc ["mol", mol_json; "pnet", pnet_json]]
+                             
+                           in
+                           Yojson.Safe.to_string to_send_json
+         | None -> "cannot build pnet"
+         )
+       | Error s -> 
        "error decoding proteine from json : "^s
       
   and list_acids () : string =

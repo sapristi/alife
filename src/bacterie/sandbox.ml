@@ -28,9 +28,9 @@ let add_molecule (m : Molecule.t) (sandbox : t) : unit =
   
   if not (MolMap.mem m sandbox.molecules)
   then 
-    let p = Petri_net.make_from_mol m in
-    sandbox.molecules <- MolMap.add m p sandbox.molecules;;
-  
+    match Petri_net.make_from_mol m with
+    | Some p -> sandbox.molecules <- MolMap.add m p sandbox.molecules
+    | None -> ()
 (* *** launch_transition *)
 let launch_transition tid mol sandbox : unit =
   let pnet = MolMap.find mol sandbox.molecules in

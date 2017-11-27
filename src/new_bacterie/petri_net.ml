@@ -37,6 +37,7 @@ type t =
     mol : Molecule.t;
     transitions : Transition.t array;
     places : Place.t  array;
+    binders_book : (string*int) list;
   } 
   
 let update_launchables (pnet :t) : unit =
@@ -70,8 +71,16 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
           Transition.make id places ila ola index)
 
     in
+    let binders_book =
+      let add_index i l = List.map (fun a -> (a,i)) l
+      in 
+      List.sort (fun (s1,_) (s2,_) -> String.compare s1 s2)
+                (List.fold_left (fun ll place ->
+                  (add_index place.Place.index place.binders)@ll) []
+                (Array.to_list places))
       
-    Some {mol; transitions; places}
+    in
+    Some {mol; transitions; places; binders_book}
   with
   | _ ->
      print_endline "cannot build pnet";
@@ -123,4 +132,7 @@ let to_json (p : t) =
      `List (Array.to_list (Array.map Transition.to_yojson p.transitions));
      "molecule",
      Molecule.to_yojson p.mol]
+  
+
+let bind pnet1 id1 pnet2 id2 =
   

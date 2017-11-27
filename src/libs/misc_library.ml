@@ -89,5 +89,19 @@ let idProvider = object
       let res = id in
       id <- id +1;
       res
-
+      
   end
+               
+let common_elements l1 l2 = 
+  let rec common_elements_aux (l1 : (string*int) list) (l2 : (string*int) list) res =
+    match l1, l2 with
+    | (s1,i1)::l1', (s2, i2)::l2' ->
+       if s1 = s2
+       then common_elements_aux l1' l2' ((s1, i1, i2) :: res)
+       else
+         if s1 < s2
+         then common_elements_aux l1' l2 res
+         else common_elements_aux l1 l2' res
+      
+    | _ -> res
+  in common_elements_aux l1 l2 []
