@@ -73,6 +73,8 @@ type extension =
   | Grab_ext of string
   | Release_ext
   | Init_with_token_ext
+  | Bind_ext of string
+          
 [@@deriving  yojson]
   
 (*      
@@ -120,6 +122,7 @@ module Examples =
         Extension (Release_ext);
         Extension (Init_with_token_ext);
         Extension (Grab_ext "AAFBFAAFF");
+        Extension (Bind_ext "AA");
       ]
 
   end;;
