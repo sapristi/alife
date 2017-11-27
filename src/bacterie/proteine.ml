@@ -231,8 +231,6 @@ let build_grabers_book (prot : t) : (Graber.t, int) BatMultiPMap.t =
 
   
 module Tmap = BatMap.Make(String)
-            
-            
 let rec build_data (prot : t)
                    (trans : ((int*input_arc) list *
                                (int*output_arc) list) Tmap.t)
