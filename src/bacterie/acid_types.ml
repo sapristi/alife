@@ -1,11 +1,6 @@
 
 
 (* * defining types for acids *)
-  
-(*   Since acid types are also used as primitives in petri net, *)
-(*   we put them in a separate file (as opposed to including them in *)
-(*   proteine.ml). *)
-
 (* ** description générale :in_progress: *)
 (*    Implémentation des types différents acides. Voilà en gros l'organisation : *)
 (*   + place : aucune fonctionalité *)
@@ -64,7 +59,7 @@ type output_arc =
 
 
 (* *** extension *)
-(* Types used by the extensions. Usefull to use custom types for easier potential changes later on. *)
+(* Types used by the extensions. Usefull to use custom types for easier potential changes later on.  *)
 type handle_id = string
                    [@@deriving  yojson]
 type bind_pattern = string
@@ -78,20 +73,26 @@ type extension =
   | Grab_ext of string
   | Release_ext
   | Init_with_token_ext
+  | Bind_ext of string
+          
 [@@deriving  yojson]
   
-     
+(*      
+      | Information of string  
+      | Displace_mol of bool
+      | Handle of handle_id   
+      | Catch of bind_pattern *)
 
 
   
 (* ** type definitions *)
 (* *** acid type definition *)
-(*     We define how the abstract types get combined to form functional *)
+(*     We define how the abstract types get combined to form functional  *)
 (*     types to eventually create petri net *)
 (*       + Node : used as a token placeholder in the petri net *)
-(*       + TransitionInput :  an incomming edge into a transition of the *)
+(*       + TransitionInput :  an incomming edge into a transition of the  *)
 (*       petri net *)
-(*       + a transition output : an outgoing edge into a transition of the *)
+(*       + a transition output : an outgoing edge into a transition of the  *)
 (*       petri net *)
 (*       + a piece of information : ???? *)
   
@@ -102,6 +103,7 @@ type acid =
   | Extension of extension
                    [@@deriving yojson]
 
+          
 (* * AcidExamples module *)
   
 module Examples = 
@@ -120,6 +122,7 @@ module Examples =
         Extension (Release_ext);
         Extension (Init_with_token_ext);
         Extension (Grab_ext "AAFBFAAFF");
+        Extension (Bind_ext "AA");
       ]
 
   end;;
