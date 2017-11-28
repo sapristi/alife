@@ -30,7 +30,8 @@ open Maps
 open Random
 
 (* * the proteine module *)
-
+ 
+   
 
 type t =
   {
@@ -39,6 +40,8 @@ type t =
     places : Place.t  array;
     binders_book : (string*int) list;
   } 
+
+
   
 let update_launchables (pnet :t) : unit =
   Array.iter (fun t -> Transition.update_launchable t) pnet.transitions
@@ -134,5 +137,5 @@ let to_json (p : t) =
      Molecule.to_yojson p.mol]
   
 
-let bind pnet1 id1 pnet2 id2 =
-  
+
+     

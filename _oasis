@@ -85,21 +85,19 @@ Library "petri_net"
   Modules: Petri_net
   BuildDepends: batteries, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, local_libs, yojson, ppx_deriving_yojson
 
+Library "extended_pnet"
+  FindLibName : extended_pnet
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Extended_Pnet
+  BuildDepends: batteries, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.petri_net, local_libs, yojson, ppx_deriving_yojson, ocamlgraph
+
 Library "bacterie"
   FindLibName : bacterie
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Bacterie
   BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.petri_net, batteries
-
-Library "sandbox"
-  FindLibName : sandbox
-  FindLibParent : bacterie_libs
-  Path: src/bacterie
-  Modules: Sandbox
-  BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.transition, bacterie_libs.petri_net, batteries
-
-
 
 Library "bacterie_libs"
   FindLibName : bacterie_libs

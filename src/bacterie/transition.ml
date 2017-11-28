@@ -25,22 +25,17 @@ type input_arc = {source_place : int;
 type output_arc = {dest_place : int;
                    oatype : Acid_types.output_arc;}
                     [@@ deriving yojson]
-module type Host = sig
-  type t
-  val places : t -> Place.t array
-end
-
-module Make_transition(Host : Host) = struct
                  
   type  t =
     {
       mutable launchable : bool;
       id : string;
-      pnet : Host.t;
+      places : Place.t array;
       input_arcs :  input_arc list;
       output_arcs : output_arc list;
       index : int;
     }
+                    [@@ deriving yojson]
   
 (* ** launchable function *)
 (* Tells whether a given transition can be launched, *)
@@ -78,12 +73,12 @@ let launchable (transition : t) =
       (List.exists (fun {source_place = sp; iatype = _} -> place.index=sp) transition.input_arcs )
   in
   List.fold_left
-    (fun res ia -> res && launchable_input_arc ia.iatype (Host.places transition.pnet).(ia.source_place))
+    (fun res ia -> res && launchable_input_arc ia.iatype transition.places.(ia.source_place))
     true
     transition.input_arcs
   &&
     List.fold_left
-      (fun res oa -> res && launchable_output_arc oa.oatype (Host.places transition.pnet).(oa.dest_place))
+      (fun res oa -> res && launchable_output_arc oa.oatype transition.places.(oa.dest_place))
       true
       transition.output_arcs
   
@@ -94,13 +89,13 @@ let update_launchable t : unit =
 
   
 let make (id : string)
-         (pnet : Host.t)
+         (places : Place.t array)
          (input_arcs : (int * Acid_types.input_arc) list)
          (output_arcs : (int * Acid_types.output_arc) list)
          (index : int) : t=
   
   let t =
-    {launchable=false; id; pnet;
+    {launchable=false; id; places;
      input_arcs = List.map( fun (pid, t) -> {source_place = pid;
                                              iatype = t}) input_arcs;
      
@@ -172,13 +167,12 @@ let apply_transition (transition : t) : Place.transition_effect list=
     | _ -> []
   in
   let i_arc_l = List.map
-                  (fun ia -> (Host.places transition.pnet).(ia.source_place),ia.iatype)  
+                  (fun ia -> transition.places.(ia.source_place),ia.iatype)  
                   transition.input_arcs
   and o_arc_l = List.map
-                  (fun oa -> (Host.places transition.pnet).(oa.dest_place),oa.oatype)
+                  (fun oa -> transition.places.(oa.dest_place),oa.oatype)
                   transition.output_arcs
   in apply_output_arcs
        o_arc_l
        (apply_input_arcs i_arc_l)
    
-end;;

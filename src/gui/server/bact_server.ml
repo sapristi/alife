@@ -95,7 +95,7 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
 ;;
   
   
-let handle_req (bact : Bacterie.t) (sandbox : Sandbox.t) env (cgi:Netcgi.cgi)  =
+let handle_req (bact : Bacterie.t) env (cgi:Netcgi.cgi)  =
   
   print_endline ("serving GET request :"^(cgi # environment # cgi_query_string));
 

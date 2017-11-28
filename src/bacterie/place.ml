@@ -19,20 +19,8 @@ type t =
   }
     [@@deriving yojson]
 (* **** make a place *)
-(* ***** DONE allow place extension to initialise the place with an empty token *)
 
-let make (exts_list : place_exts) (index : int)
-    : t =
-  let extensions = exts_list in
-  
-  let token = 
-    if List.mem Acid_types.Init_with_token_ext extensions
-    then
-      Some (Token.make_empty ())
-    else
-      None
-    
-  and grabers,binders =
+let make_binders_grabers extensions = 
     List.fold_left
       (fun (gl,bl) acide ->
         match acide with
@@ -46,6 +34,19 @@ let make (exts_list : place_exts) (index : int)
            gl, b :: bl
         | _ -> gl, bl)
       ([],[]) extensions
+  
+let make (exts_list : place_exts) (index : int)
+    : t =
+  let extensions = exts_list in
+  
+  let token = 
+    if List.mem Acid_types.Init_with_token_ext extensions
+    then
+      Some (Token.make_empty ())
+    else
+      None
+    
+  and grabers,binders = make_binders_grabers extensions
   in
   {token;
    extensions;
@@ -120,14 +121,12 @@ let get_possible_mol_grabs (mol : Molecule.t) (place : t)
   else
     []
 
-let can_bind (patt : string) (place : t) : bool =
-  List.mem patt place.binders
-  
-      (* ** to_json *)
-      (*
-    let to_json (p : t) =
-      `Assoc
-       [("id", `Int p.global_id);
-        ("token", token_holder_to_json p.tokenHolder);
-        ("extensions"), `List (List.map Acid_types.extension_to_yojson p.extensions)]
-       *)
+let merge (p1:t) (p2:t) : t =
+  let extensions = p1.extensions@p2.extensions in
+  let grabers,binders = make_binders_grabers extensions in
+  {token = None;
+   extensions;
+   index = p1.index;
+   grabers;
+   binders
+}
