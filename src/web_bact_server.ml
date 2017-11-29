@@ -24,5 +24,5 @@ let host = ref "localhost";;
                
       in
       
-       Web_server.start_srv (Bact_server.handle_req (make_bact ()) Sandbox.empty) (!host, !port) 
+       Web_server.start_srv (Bact_server.handle_req (make_bact ())) (!host, !port) 
    

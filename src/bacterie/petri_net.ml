@@ -38,7 +38,7 @@ type t =
     mol : Molecule.t;
     transitions : Transition.t array;
     places : Place.t  array;
-    binders_book : (string*int) list;
+    uid : int;
   } 
 
 
@@ -74,16 +74,9 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
           Transition.make id places ila ola index)
 
     in
-    let binders_book =
-      let add_index i l = List.map (fun a -> (a,i)) l
-      in 
-      List.sort (fun (s1,_) (s2,_) -> String.compare s1 s2)
-                (List.fold_left (fun ll place ->
-                  (add_index place.Place.index place.binders)@ll) []
-                (Array.to_list places))
-      
+    let uid = idProvider#get_id ()
     in
-    Some {mol; transitions; places; binders_book}
+    Some {mol; transitions; places; uid}
   with
   | _ ->
      print_endline "cannot build pnet";
@@ -118,7 +111,9 @@ let launch_random_transition (p : t)
 let get_possible_mol_grabs (mol : Molecule.t) (pnet : t) : (int*int) list =
   Array.fold_left
     (fun g_list place ->
-      (Place.get_possible_mol_grabs mol place)@g_list)
+      match Place.get_possible_mol_grabs mol place with
+      | None -> g_list
+      | Some (n, pid) -> (n, pid)::g_list)
     [] pnet.places
 
 let grab (mol : Molecule.t) (pos : int) (pid : int) (pnet : t)

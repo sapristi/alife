@@ -482,6 +482,42 @@ ce choix.
     (il faut que les protéines puissent se lier entre elles avec 
     des catch/bind)
 
+**** Membranes avec des bind
+
+     Une extension Bind d'une place permet à deux réseaux de pétri 
+     de se lier. Le design de cette extension est fait de sorte 
+     à pouvoir facilement implémenter des membranes
+
+     Une Bind extension possède simplement une string, et se colle
+     à une string symétrique :
+      + reversed ? -> le plus simple
+      + symétrie des atomes ? -> pourquoi, pourquoi pas ?
+
+     Condition pour Binder : Les places sont vides
+     Après le Bind, des token sont crées. -> cela permet d'effectuer
+     une action après le  bind.
+
+     Condition pour DéBinder : deux token reviennent, puis sont consommés.
+     
+     
+     Deux réseaux de pétri bindés sont donc liés physiquement dans l'espace.
+
+     Se présentent alors plusieurs choix :
+      + un Bind FORT : les réseaux de pétri sont fusionnés à la Place
+	de Bind, ce qui permet de créer de nouveaux réseaux plus 
+	compliqués
+	-> c'est assez compliqué à gérer, deux places sont fusionnées,
+	il faut aussi pouvoir débinder, bref garder beaucoup en mémoire
+	et avoir des structures de données compliquées
+      + un Bind FAIBLE : les réseaux de Pétri sont indépendants
+	-> c'est assez simple, et ça peut suffire pour les membranes
+
+     Dans tous les cas, il faut créer un graphe sur-jacent qui va garder 
+     en mémoire la structure de la molécule, pour pouvoir travailler sur 
+     la structure (détecter les cycles, la distance entre deux pnet, etc).
+     
+    
+
 *** Fonctionnement des proteines : des réseaux de pétri
 *** Ribosome
 

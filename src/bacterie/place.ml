@@ -14,8 +14,8 @@ type t =
   {mutable token : Token.t option;
    extensions : Acid_types.extension list;
    index : int;
-   grabers : Graber.t list;
-   binders : string list;
+   graber : Graber.t option;
+   binder : string option;
   }
     [@@deriving yojson]
 (* **** make a place *)
@@ -46,13 +46,18 @@ let make (exts_list : place_exts) (index : int)
     else
       None
     
-  and grabers,binders = make_binders_grabers extensions
+  and graber,binder =
+    match make_binders_grabers extensions with
+    | [], [] -> None, None
+    | g::_, [] -> Some g, None
+    | [], b::_ -> None, Some b
+    | g::_, b::_ -> Some g, Some b
   in
   {token;
    extensions;
    index;
-   grabers;
-   binders}
+   graber;
+   binder}
   
 let pop_token (p : t) : Token.t =
   match p.token with
@@ -109,24 +114,14 @@ let add_token_from_grab (token : Token.t) (p : t)
    of the molecule by the grabers associated with index of the place *)
   
 let get_possible_mol_grabs (mol : Molecule.t) (place : t)
-    : ((int * int) list) =
+    : ((int * int) option) =
   if is_empty place
   then
-    List.fold_left
-      (fun g_list g ->
-        match Graber.get_match_pos g mol with
-        | Some n -> ( n, place.index) :: g_list
-        | None -> g_list
-      ) [] place.grabers
+    match place.graber with
+    | None -> None
+    | Some g ->
+       match Graber.get_match_pos g mol with
+        | Some n -> Some ( n, place.index)
+        | None -> None
   else
-    []
-
-let merge (p1:t) (p2:t) : t =
-  let extensions = p1.extensions@p2.extensions in
-  let grabers,binders = make_binders_grabers extensions in
-  {token = None;
-   extensions;
-   index = p1.index;
-   grabers;
-   binders
-}
+    None
