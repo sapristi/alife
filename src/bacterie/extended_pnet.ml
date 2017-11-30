@@ -1,5 +1,6 @@
 open Graph
-
+open Batteries
+   
 module Pnet_graph = Imperative.Graph.AbstractLabeled
                       (struct type t = Petri_net.t
                               let compare =
@@ -16,8 +17,14 @@ module Pnet_graph = Imperative.Graph.AbstractLabeled
                               let compare = Pervasives.compare end)
                   
 module Pnet_graph_ops = Oper.I (Pnet_graph)
+
+module Binders_map = BatMap.Make (struct type t = int
+                                         let compare = Pervasives.compare end)
 type t = Pnet_graph.t
-    
+
+let get_pnet (v : Pnet_graph.V.t) : Petri_net.t =
+  (Pnet_graph.V.label v)
+       
 let make_from_pnet (pnet : Petri_net.t) : t =
   let this_vertex = Pnet_graph.V.create pnet in
   let pnets = Pnet_graph.create() in
@@ -34,9 +41,53 @@ let bind (epnet1: t) (pos1 : (Pnet_graph.V.t * int))
                      
   Pnet_graph.add_edge_e new_epnet new_edge;
   new_epnet
+  
+  
+let possible_binds (epnet1 : t) (epnet2 : t) :
+      ((Pnet_graph.V.t * int)
+       * (Pnet_graph.V.t * int)) list =
 
-  (*
-let possible_binds (epnet1 : t) (epnet2 : t) : ((Pnet_graph.V.t * int * string) * (Pnet_graph.V.t * int * string)) list =
-   *)
+  (* oui c'est un peu sale *)
+
+  Pnet_graph.fold_vertex
+    (fun vertex res ->
+      (List.fold_left
+         (fun res (index, binder) ->
+           (Pnet_graph.fold_vertex
+              (fun vertex' res ->
+                if (get_pnet vertex).uid != (get_pnet vertex').uid
+                then 
+                  (List.map
+                     (fun index' -> (vertex,index),(vertex', index'))
+                            (Petri_net.matching_binders
+                               binder
+                               (get_pnet vertex')))@res
+                else res) epnet2 [])@res
+        ) [] (get_pnet vertex).binders)@res
+    )  epnet1 []
   
   
+  
+let self_possible_bins (epnet : t) : 
+      ((Pnet_graph.V.t * int)
+       * (Pnet_graph.V.t * int)) list =      
+  
+
+  Pnet_graph.fold_vertex
+    (fun vertex res ->
+      (List.fold_left
+         (fun res (index, binder) ->
+           (Pnet_graph.fold_vertex
+              (fun vertex' res ->
+                if (get_pnet vertex).uid != (get_pnet vertex').uid
+                then
+                  let d = 
+                  
+                  (List.map
+                     (fun index' -> (vertex,index),(vertex', index'))
+                            (Petri_net.matching_binders
+                               binder
+                               (get_pnet vertex')))@res
+                else res) epnet [])@res
+        ) [] (get_pnet vertex).binders)@res
+    )  epnet []

@@ -39,6 +39,7 @@ type t =
     transitions : Transition.t array;
     places : Place.t  array;
     uid : int;
+    binders : (int*string) list;
   } 
 
 
@@ -74,9 +75,16 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
           Transition.make id places ila ola index)
 
     in
+    let binders = Array.fold_lefti
+                    (fun res index place   ->
+                      match place.Place.binder with
+                      |None -> res
+                      | Some b -> (index, b) :: res)
+                    [] places
+    in
     let uid = idProvider#get_id ()
     in
-    Some {mol; transitions; places; uid}
+    Some {mol; transitions; places; binders; uid}
   with
   | _ ->
      print_endline "cannot build pnet";
@@ -132,5 +140,8 @@ let to_json (p : t) =
      Molecule.to_yojson p.mol]
   
 
-
-     
+let matching_binders (b : string) (pnet : t) =
+  List.fold_left (fun res (index,b') ->
+      if b' = String.rev b
+      then index::res
+      else res)  [] pnet.binders
