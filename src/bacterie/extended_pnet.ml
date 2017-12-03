@@ -15,7 +15,7 @@ module Pnet_graph = Imperative.Graph.AbstractLabeled
                          in the node with higher uid
                        *)
                       (struct type t = (int) * (int)
-                              let default = (0),(0)
+                              let default = 0,0
                               let compare = Pervasives.compare end)
                   
 module Pnet_graph_ops = Oper.I (Pnet_graph)
@@ -109,7 +109,7 @@ let bind (epnet1: t) (pos1 : (Pnet_graph.V.t * int))
   {graph = new_graph;
    binders_map = map_union epnet1.binders_map epnet2.binders_map;
    path_checker = Pnet_graph_path.create new_graph}
-  
+
   
 let possible_binds (epnet1 : t) (epnet2 : t) :
       ((Pnet_graph.V.t * int) Set.PSet.t
@@ -197,6 +197,6 @@ let unbind (epnet : t)
     None
   else
     Some
-      (Array.map
+      (List.map
          (fun vertices -> sub_graph epnet vertices)
-         (Pnet_graph_components.scc_array epnet.graph))
+         (Pnet_graph_components.scc_list epnet.graph))
