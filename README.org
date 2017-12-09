@@ -28,9 +28,9 @@
 
 * Run
 
-#+BEGIN_SRC
-web\under{}bact\under{}server [-port port]
-#+END_SRC
+
+=web_bact_server [-port port]=
+
 
 Then visit =localhost:port=
 
