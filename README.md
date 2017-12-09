@@ -31,8 +31,7 @@ ideally set-up with opam.
 
 -   oasis
 -   batteries
--   ppx<sub>deriving</sub>.show
--   ppx<sub>deriving</sub>.yojson
+-   ppx_deriving_yojson
 -   ocamlgraph
     
     (install with opam)
