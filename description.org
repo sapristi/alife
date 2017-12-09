@@ -1,13 +1,18 @@
 
 * Setting up
 
-** Stuff to install Using opam, install
+  You will need a working OCaml developping environment, 
+  ideally set-up with opam.
+
+** OCaml libs dependancies
     + oasis
     + batteries
     + ppx_deriving.show
     + ppx_deriving.yojson
+    + ocamlgraph
 
-    Also requires OCaml, python3 with python3-graphviz and python3
+      (install with opam)
+
 ** Usefull stuff
    ocaml tools (Installed with opam) :
     + merlin (completion and errors detection in emacs)
@@ -122,62 +127,86 @@
    
    Enfin en vrai le but c'est de faire des *RIBOSOMES*, 
    ne l'oublions pas.
-   
-** Mise en œuvre
-  
-   Le modèle proposé est d'avoir tout d'abord des protéines sous forme
-   de liste d'acides (aminés), chaque acide contenant soit de
-   l'information, soit un morceau qui permette de reconstituer les
-   fonctionnement de la protéine : 
-   on veut la *replier* pour obtenir un réseau de pétri (plutôt un peu étendu).
-   
-   Un des trucs cool, c'est qu'on peut faire des *ribosomes* ! Et donc 
-   permettre à la duplication elle même d'évoluer.   
 
-*** Modèle pour les protéines et la formation du réseau de pétri
+   Et aussi des membranes, élément essentiel de toute bactérie qui se respecte.
+   
+** Implémentation actuelle
+   
+*** Atomes et Molécules
     
-    Une protéine est donc formée par une liste d'acide, dont le rôle va 
-    être de
-     + former des place du réseau de Pétri, 
-     + contribuer à former des transitions du réseau
-     + contenir de l'information
+    Les éléments de bases sont des atomes (ensemble fini).
+    Pour l'instant, les atomes sont au nombres de 6 : A,B,C,D,E,F
+    Les atomes se combinent linéairement pour former des molécules.
+
+    Autrement dit, une molécule est une chaine contenant les caractères A-F.
+
+*** Acides et Protéines
+
+    Une molécule est parsée linéairement, pour produire une liste d'acides,
+    c'est à dire une protéine.
+
+    Il y a quatre types d'acides :
+     + Place :
+       correspond à une place d'un réseau de pétri
+
+     + Input_arc :
+       correspond à un arc entrant d'une transition.
+       Il y a trois types d'Input_arc :
+       - Regular_iarc (tid) :
+	 pas d'effet particulier
+       - Split_iarc (tid) :
+	 sépare en deux les tokens qui passent par l'arc
+         ( en découpant aussi la molécule éventuellement présente )
+       - Filter_iarc (filter_pattern, tid) : 
+	 Ne laisse passer que les token dont la position courante 
+	 de la molécule contenue correspond au filter_pattern
+
+     + Output_arc :
+       correspond à un arc sortant d'une transition.
+       Il y a trois types d'Output_arc :
+       - Regular_oarc (tid) :
+	 pas d'effet particulier
+       - Move_oarc (tid, move)
+	 déplace la molécule contenue dans le token suivant move
+       - Bind_oarc (tid)
+	 Fusionne deux tokens (et les molécules qu'ils contiennent)
        
-     Après une opération de repli, on pourra attribuer à une protéine 
-     un réseau de pétri (graphe biparti). Il y a plusieurs moyens 
-     d'organiser une protéine et la façon dont elle se 
-     replie, on va donc détailler et justifier un peu le processus.
-    
-**** Différentes idées 
+     + Extension :
+       Ajoute des fonctionnalités à une place
+       - Bind_ext (binder) :
+	 Ajoute un binder 
+       - Grab_ext (graber) :
+	 ajoute un graber
+       - Init_with_token_ext :
+	 la place est initialisée avec un token (vide)
+       - Release_ext
+	 les tokens qui arrivent depuis une transition sont relachés
+	 à l'extérieur
+
+    Les types d'acides correspondent à une courte chaîne de caractères
+    (deux ou trois). Quand l'acide a besoin de plus d'information, 
+    l'information est encodée par la chaîne qui suit l'acide, terminée 
+    par un marqueur de fin (deux ou trois caractères, commun à tous 
+    les acides).
      
-     Tous les acides de la protéine forment une place, et se retrouvent 
-     donc au même niveau. Des places particulières contiennent un arc 
-     entrant ou un arc sortant. Plusieurs inconvénients : 
-       - Ça limite fortement les fonctionnalités d'une protéine
-       - Un seul arc entrant ou sortant par place
+*** Construction d'un réseau de pétri
+
+   Pour construire le réseau de pétri associé à une protéine,
+   la protéine est lue séquentiellement : 
    
-       Du coup, il faut pouvoir ajouter des attributs à une place. Ou 
-       pourrait faire ça de manière interne, mais on précisera dans la 
-       partie suivante pourquoi on choisira ici une mméthode externe.
+   1. Tous les acides qui précèdent le premier acide Place
+      sont ignorés
+   2. À chaque acide Place rencontrée, une nouvelle Place du 
+      réseau est construite.
+      Tant qu'une autre Place n'est pas rencontrée, les acides
+      qui suivent seront liés à la place.
 
-**** Modèle retenu
-     
-     On fonctionnera de manière modulaire, avec les types d'acide 
-     suivants :
-      + place : correspond à une place du réseau de pétri. On pourra 
-      fournir un attribut interne pour effectuer certaines actions
-      + transition_input/output : ajoute un arc sortant/entrant  
-      + extension : ajoute un attribut à la place précédente dans la 
-        molécule. 
-        Quelques types d'extension : 
-         - information : un morceau d'information
-         - autre ? action ?
-     
-      Les avantages sont les suivants : 
-       + facile à étendre
-       + du point de vue des mutations possibles, on a facilement des 
-         changements de fonctionnalité
+      Pour simplifier les réactions, seul le premier Bind
+      et le premier Grab seront pris en compte par une place.
+      
 
-*************** TODO Un *GROS PROBLÈME*:
+
+***** TODO Un *PROBLÈME*:
 
        Que se passe-t-il si plusieurs transtions input avec la même id 
        partent d'un même nœud, en particulier 
@@ -188,26 +217,152 @@
         - utiliser un des arcs au hasard
         - le programme bugge
 
-**** Détails d'implémentation
+*** Fonctionnement d'un réseau de pétri
 
-On part donc d'une protéine = liste d'acides.
-On parcourt la protéine pour en extraire :
-    1. d'une part la liste des nœuds, en associant à chaque nœud la 
-       liste des extensions qui le suivent
-    2. d'autre part tous les arcs sont stoqués dans une liste (qui 
-       pourrait être remplacée par un dictionnaire) dans laquelle on 
-       stoque pour chaque id de transition les transitions 
-       correspondantes
+   Le modéle est inspiré des modèles existants, avec 
+   certaines spécificités. On a un graphe avec deux types
+   de nœuds : 
+    + Des Places :
+      - Peuvent contenir au plus un Token.
+      - Interagissent avec l'extérieur.
+    + Des Transitions :
+      - font passer les Tokens d'une place à l'autre,
+	en appliquant des effets particuliers.
 
-       
-***** Questions
+    Des arcs entrants vont des places aux transitions, 
+    et des arcs sortants vont des transitions aux places.
 
-Est-ce qu'on définit un unique type extension (qui contient les transitions) ou on sépare les transitions ?
-À priori c'est pas mal de séparer puisque :
- + les transitions font partie de la structure du réseau de pétri, au contraire des autres extensions
- + ça permet de construire le réseau sans avoir à connaitre l'implémentation particulière des types
+    Les Tokens peuvent éventuellement contenir 
+    une molécule, ainsi qu'un pointeur vers 
+    un acide particulier (ou à la fin de la 
+    molécule).
 
-**** Arguments pour le réseau de pétri
+**** Fonctionnement des transitions :
+    
+   Une transition sera déclenchable si toutes les places avec des arcs
+   entrants contiennent un token, et toutes les places d'arrivée 
+   sont vides.
+   
+   Quand une transition est déclenchée :
+   1. Les arcs entrants sont parcourus séquentiellement (dans l'ordre 
+      dans lequel ils apparaissent dans la protéine). Une liste de tokens 
+      est alors générée, qui correspond aux tokens des places de départ 
+      après modification par les arcs entrants.
+   2. La liste de token est parcourue, et les tokens répartis 
+      dans les arcs sortants (un token par arc, sauf pour les bind).
+   3. Si le nombre de Token est supérieur au nombre d'arcs sortants,
+      les Tokens restants sont relachés à l'extérieur
+      (avec éventuellement des effets supplémentaires à l'avenir).
+
+   En particulier, l'ordre dans lequels les places apparaissent dans 
+   la molécule a une influence sur le fonctionnement du réseau de pétri.
+
+*** Réseaux de pétri étendus
+
+Les réactions de type Bind lient deux réseaux de pétri entre eux.
+Cette opération peut-être réalisée à volonté, pour former 
+des graphes arbitraires de réseaux de pétri.
+
+*** Réactions
+
+   Une réaction est susceptible de se produire lorsque deux 
+   molécules se rencontrent. Il y a pour l'instant deux types 
+   de réactions implémentées :
+   Grab et Bind
+  
+   Le renvoi d'une molécule à l'extérieur peut aussi être vu
+   comme un type de réaction.
+ 
+**** Grab
+    
+    Une place dotée d'une extension Grab sera capable d'attraper
+    des molécules particulières, qui seront alors placées 
+    à l'intérieur d'un Token.
+
+    Un acide de type Grab contient un chaîne de caractères,
+    qui est parsée pour générer une expression régulière 
+    (restreinte).
+    Les molécules qui sont matchées par l'expression régulière
+    pourront être grabés (attrapées).
+    
+    Un grab ne peut se produire que si la place n'a pas de Token.
+
+**** TODO Bind
+
+    Une extension de type bind possède un bind_pattern 
+    (une chaîne de caractère). 
+    Deux Places avec Bind de réseaux de pétri différent pourront
+    se binder (s'attacher) si les chaînes de caractères 
+    sont le symétrique l'une de l'autre (reverse),
+    et que les deux places n'ont pas de Token.
+
+    Lorsqu'un Bind se produit, un token est créé dans les
+    deux places impliquées.
+
+    Dès que les deux places reçoivent à nouveau un token,
+    les places se séparent (unbind).
+
+    --> Mais donc  :
+      - soit la phase de réactions se produit avant 
+	la phase de déclenchment de transitions.
+	Si les tokens sont toujours là après le déclenchement,
+	on sépare
+      - soit il faut faire plus attention, c'est compliqué
+    
+*** Réacteur et Simulation
+    
+    Le réacteur contient toutes les molécules, et gère les rencontres 
+    et la simulation. 
+    Le réacteur doit accomplir deux objectifs concurrents :
+     - être « réaliste »
+     - être efficace
+   
+**** TODO Molécules et réseaux de pétri
+     
+     Dans le réacteur se trouvent un certain nombre de molécules 
+     différentes, chacune ayant une quantité propre.
+
+     Afin d'être efficace, un unique réseau de pétri est créé
+     par type de molécule (pour plus de réalisme, on pourrait 
+     aller vers un nombre logarithmique).
+     
+     Deux choix :
+      + calculer la quantité de réactions entre deux molécules
+	en fonction de la quantité de chacune des molécules
+      + creuser du coté de 
+	Generalized Stochastic simulation algorithm for Artificial Chemistry,
+	H. Soula
+	
+     
+
+**** TODO Rencontres
+
+     Tant qu'on n'étends pas les réseaux de pétri, c'est assez simple.
+     Mais ensuite, il y a plusieurs choses à gérer:
+      + Rencontre entre deux réseaux étendus :
+	le problème, c'est qu'il peut y avoir beaucoup (BEAUCOUP) de bind
+	possibles. 
+	Pour régler ça, on pourrait faire en sorte de ne faire de réactions
+	qu'entre deux réseaux de pétri; donc quand deux réseaux étendus
+	se recontrent, on détermine le lieu (réseau de pétri pour chacun)
+	de leur rencontre.
+     
+      + Rencontres à l'intérieur d'un réseau étendu.
+	Il faut faire en sorte :
+	- que deux pnets très proches puissent réagir
+	- que deux pnets lointains puissent réagir
+	- sinon, pas de réaction
+
+     Ou alors, dans le contexte du papier de Soula, 
+     donner les bons taux de réaction.
+
+      
+
+** Réflexions, choix et ouvertures
+
+Cette partie sera un peu fouillis
+     
+*** Arguments pour le réseau de pétri
 
 Les réseaux de pétri forment donc le modèle de calcul utilisé par
 les bactéries pour fonctionner, interagir et se dupliquer.
@@ -231,214 +386,9 @@ ce choix.
    entre eux (bind/catch), permettant d'étendre leur fonctionnalités,
    ainsi que de créer des *membranes*.
 
-*** Modèle pour le réseau de pétri
+*** Forme des molécules
 
-    Un réseau de Pétri est un graphe bipartie  (deux types de nœuds) :
-     - des places, qui correspondent directement à un acide de la 
-       protéine
-     - des transitions, qui sont construites implicitements à partir 
-       d'arcs entrants et sortants, décrits dans la protéine
-
-    Les places contiennent des token, qui peuvent eux-même contenir une 
-    molécule (et de l'information, et autre ?).
-    Une transition peut être lancée quand toutes les places de départ 
-    de la transition contiennent un token, et qu'il n'y a pas de token 
-    dans les places d'arrivée.
-
-    Les protéines doivent gérer :
-     1. Le réseau de pétri, c'est à dire le déclenchement de 
-     transitions et la gestion des tokens qui va avec
-     2. Tous les effets appliqués sur le tokens par les transitions et 
-     les extensions
-     3. L'interface avec la bactérie, c'est à dire l'envoi/reception de 
-     message, et l'attachement/détachement de molécules
-	
-***** Réseau de pétri
-      
-****** Token et MoleculeManager
-       Un token est soit vide, soit contient un moleculeHolder, qui est 
-       lui-même une interface contenant une molécule et un poiteur 
-       (entier) vers un des acides de la molécule, et qui permet de 
-       manipuler celle-ci : 
-        - découpage (à la position du pointeur)
-	- insertion d'une autre molécule (à la position du pointeur)
-	- déplacement du pointeur
-
-	On va aussi ajouter un possible label à un token, qui permettra
-	aux arcs de filtrer les token.
-****** Places
-       Les places sont soit vides, soit contiennent un token. Elles 
-       gardent aussi en mémoire la liste des extensions associées, et 
-       implémentent une interface pour gérer l'éventuel token.
-
-*************** TODO Ajouter les effets sur les tokens générés par les extensions ?       
-
-****** Transitions
-
-       Les transitions ont pour l'instant pour rôle de découper et 
-       recoller des molécules. Voilà comment ça se passe :
- 
-        1. Quand un token porteur passe par un arc entrant, 
-	   - si le token porte une molécule et que l'arc est de 
-	   type Split, la molécule est coupée en deux, chaque partie 
-	   est stoquée dans un token
-	   - sinon, le token (avec l'éventuelle molécule) n'est pas 
-	   modifié
-
-	2. Tous les token venant des arcs entrant sont mis dans un « 
-	pool » commun
-
-	3. Les token passent dans les transitions sortantes, dans un 
-	ordre fixe déterminé par les transitions d'arrivée : 
-	   - Si deux token porteur de molécule se trouvent devant un 
-	   arc de type Bind, la seconde molécule est insérée dans la 
-	   première
-	   - Sinon, un unique token passe par l'arc sortant
-	   - Si il reste des token, ils sont perdus
-	   - Si il n'y a pas assez de token, les places d'arrivée ne 
-	   sont pas remplies
-	     
-	On remarquera vite que tout ça n'a pas l'air très propre, mais 
-	en même temps on traite ici avec le « vivant », donc c'est un 
-	peu normal :)
-	Plus sérieusement, on supposera pour l'instant que les capacités
-	évolutives des bactéries ne seront pas affectées. 
-	
-*************** DONE Implémenter proprement ce modèle dans les transitions 
-
-
-	Une transition peut affecter les token, mais aussi l'environnement
-	(c'est à dire la bactérie), par exemple en relachant une molécule.
-	
-	Comme c'est la bactérie qui a l'initiative pour lancer une transition,
-	on donne un type de retour aux transition qui permettra de passer 
-	l'information nécéssaire.
-	
-*** Modèle pour une bactérie
-    
-    Une bactérie est simplement une boite contenant des protéines,
-    dont il faut organiser le déroulement des interactions.
-    
-    Il y a principalement trois choses à gérer : 
-     + une protéine en attrape une autre
-     + les transitions du réseau de pétri d'une protéine 
-     + l'échange de message (on verra plus tard)
-
-**** Une protéine en attrape une autre
-
-
-     Une molécule peut en attrapper une autre si elle a une place avec
-     une extension « mol_catcher » correspondant à une « handle » sur
-     une autre protéine.
- 
-     On peut donc garder en mémoire une table qui référence des couples
-     de molécule (catcher, handle), indexés par un identifier.
-
-     Il faut ensuite déterminer si deux protéines d'un de ces couples 
-     interagissent, en fonction du nombre présent de chacune d'elles.
-
-     On pourrait faire en sorte qu'avoir plusieurs catcher/handle du
-     avec le même id augmente les chances d'interaction, mais ce n'est
-     pas le facteur principal pour de vraies réactions chimiques, et ça
-     compliquerait un peu le modèle.
-
-     Donc dans le cas où on aurait plusieurs catcher/handle, on peut 
-     simplement en choisir un aléatoirement.
-
-*************** TODO Que se passe-t-il si une protéine réagit avec elle même ? 
-
-*************** TODO Ce mode de réaction est trop déséquilibré.
-		Une petite molécule peut attrapper et donc détruire ou
-		désactiver trop facilement d'autres molécules.
-		Autre idées : 
-		 + Deux molécules réagissent en formant un réseau de pétri 
-		 élargi.
-		Enfin c'est compliqué, mais à creuser
-*************** TODO Il faudrait aussi permettre d'attrapper une molécule 
-		par les acides (ou plutôt ce qui la compose au niveau inférieur;
-		non encore implémenté).
-		Ça permettrait au moins d'attrapper les composants de base
-		(ce que le ribosome ne peut pas faire pour l'instant,
-		puisque pour attrapper qqchose il faut une poignée : pas très 
-		pratique).
-
-
-		 
-**** Gestion des transitions des réseaux de pétri
-
-     On peut organiser la répartition du temps de calcul (= nb de transitions
-     lancées) entre les protéines de diverses manières
-
-***** Rapide, un peu grossier
-      Chaque molécule présente possède un unique représentant sous forme protéinée.
-      
-      Le nombre de molécules présente détermine la vitesse de réaction.
-
-      Si une molécule est attrapée par une autre, on peut considérer qu'il y en a 
-      une de moins dans la bactérie, jusqu'au moment où elle est relachée.
-
-** Processus de reflexion sur comment faire avancer le schmilblick en cours
-
-*** Atomes et molécules
-
-    Les atomes sont les briques de base pour construire des molécules.
-    Il y a pour l'instant quatre types d'atomes, dont les séquences 
-    dans une molécule sont interprétées pour former les acides des
-    protéines.
-
-**** Utilisation actuelle
-
-     Pour l'instant, on lit une séquence d'atomes par groupes de 3.
-     Quand une séquence formant un acide est reconnue, on ajoute cet 
-     acide à la protéine, et on passe à la séquence de trois atomes 
-     suivants.
-
-     Si la séquence n'est pas reconnue, on décalle d'un atome 
-     (l'atome en plus est donc ignoré dans la formation de la protéine).
-
-***** Informations supplémentaires
-
-     Certains acides ont besoin d'information supplémentaire, qui est 
-     lue dans la suite d'atomes, jusqu'à atteindre une séquence d'arrêt 
-     (pour l'instant trois atomes D à la suite).
-
-     Ce type de séquence est aussi utilisé pour générer les 
-     expressions régulières des grabers, il faut donc avoir un 
-     système cohérent.
-     
-*** Interactions entre proteines
-
-    Les protéines sont sensés pouvoir interagir entre elles, notemment
-    en s'attrappant les une les autres. 
-    Le modèle de départ suppose qu'on peut attrapper une protéine dès
-    lors qu'une des places contient une extension « Handle » (avec une 
-    certaine clé)
-    
-    Problème : comment attrapper un simple acide ?
-    (oui c'est très problèmatique si on veut fabriquer de nouvelles 
-    molécules)
-
-    Pour résoudre ça, on crée un niveau en dessous : une molécule est 
-    une liste d'atomes, qui vont être interprétés en acides puis en 
-    protéines.
-
-    Une protéine pourra alors disposer d'un site qui attrappe une 
-    molécule, en la reconnaissant avec une expression régulière.
-
-**** Conséquences de ce modèle
-     Un problème est que cela ajoute un niveau d'interprétation dans 
-     l'édifice, mais ce niveau peut paraître naturel quand on veut 
-     fabriquer des acides :
-     l'avantage est que cela permet de limiter le nb de briques
-     de base (atomes), ce serait un peu bizarre d'avoir tous les types
-     d'acides qui se baladent dans la nature (sans parler de tous 
-     les identifiants dont on a besoin).
-     
-     Reste à savoir comment organiser pratiquement tout ça pour que ça 
-     reste cohérent, pratique et joli.
-     
-
-***** Molécule linéaire
+**** Molécule linéaire
 
       Le modèle le plus simple pour une molécule est simplement d'avoir
       une molécule linéaire (une liste).
@@ -448,20 +398,12 @@ ce choix.
 
       Mais le problème, 
       
-***** Molécule sous forme de graphe
+**** Molécule sous forme de graphe
       
      Ce qui serait joli, ce serait d'avoir des connecteurs (à deux ou 
      trois branches), et des morceaux d'information, mais plus 
      compliqué à manipuler; il pourrait être intéressant de comparer 
      avec une structure linéaire pour les molécules.
-
-**** Un autre type de réaction
-
-     On peut garder un système de poignées et de sites qui attrappent 
-     des poignées, mais avec un autre effet: au lieu d'avoir une 
-     protéine qui capture et une molécule capturée, les deux protéines 
-     seront « liées », en joignant par exemple les deux réseaux de 
-     pétri.
 
 *** Membrane
 
@@ -482,7 +424,40 @@ ce choix.
     (il faut que les protéines puissent se lier entre elles avec 
     des catch/bind)
 
-*** Fonctionnement des proteines : des réseaux de pétri
+**** Membranes avec des bind
+
+     Une extension Bind d'une place permet à deux réseaux de pétri 
+     de se lier. Le design de cette extension est fait de sorte 
+     à pouvoir facilement implémenter des membranes
+
+     Une Bind extension possède simplement une string, et se colle
+     à une string symétrique :
+      + reversed ? -> le plus simple
+      + symétrie des atomes ? -> pourquoi, pourquoi pas ?
+
+     Condition pour Binder : Les places sont vides
+     Après le Bind, des token sont crées. -> cela permet d'effectuer
+     une action après le  bind.
+
+     Condition pour DéBinder : deux token reviennent, puis sont consommés.
+     
+     
+     Deux réseaux de pétri bindés sont donc liés physiquement dans l'espace.
+
+     Se présentent alors plusieurs choix :
+      + un Bind FORT : les réseaux de pétri sont fusionnés à la Place
+	de Bind, ce qui permet de créer de nouveaux réseaux plus 
+	compliqués
+	-> c'est assez compliqué à gérer, deux places sont fusionnées,
+	il faut aussi pouvoir débinder, bref garder beaucoup en mémoire
+	et avoir des structures de données compliquées
+      + un Bind FAIBLE : les réseaux de Pétri sont indépendants
+	-> c'est assez simple, et ça peut suffire pour les membranes
+
+     Dans tous les cas, il faut créer un graphe sur-jacent qui va garder 
+     en mémoire la structure de la molécule, pour pouvoir travailler sur 
+     la structure (détecter les cycles, la distance entre deux pnet, etc).
+       
 *** Ribosome
 
     Un ribosome est une protéine qui lit un code génétique (ADN) et 
@@ -824,25 +799,7 @@ A more compact universal ribosome, working in reverse.
     d'une molécule à l'intérieur d'
 
 *** Interface
-    
-**** Présentation
-     On est parti pour faire une interface web uniquement,
-     c'est beaucoup plus puissant et quand même plus pratique,
-     même si il faut se tapper la couche http.
-     
-     L'interface est séparée en deux parties : 
-     + d'un coté, un simulation (qui contient pour l'instant 
-       une bactérie (et plus tard le monde entier))
-     + de l'autre coté, un bac à sable qui peut contenir des pnet 
-       (qui n'interagissent pas entre eux), et peut-être plus
-       tard des bactéries entières.
-       
-
-     Pour l'instant, l'interface est centrée sur une unique 
-     bactérie.
-    
-    
-    
+        
 **** Buts de l'interface :
       + Controler le déroulé de la simulation d'une bactérie :
 	- contrôler et afficher chaque pnet individuellement
