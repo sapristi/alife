@@ -43,7 +43,9 @@ ideally set-up with opam.
 
 # Run<a id="sec-3" name="sec-3"></a>
 
-web_bact_server [-port port]
+    web\under{}bact\under{}server [-port port]
+
+Then visit `localhost:port`
 
 # Usefull stuff<a id="sec-4" name="sec-4"></a>
 
