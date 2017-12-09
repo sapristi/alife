@@ -30,14 +30,19 @@ open Maps
 open Random
 
 (* * the proteine module *)
-
+ 
+   
 
 type t =
   {
     mol : Molecule.t;
     transitions : Transition.t array;
     places : Place.t  array;
+    uid : int;
+    binders : (int*string) list;
   } 
+
+
   
 let update_launchables (pnet :t) : unit =
   Array.iter (fun t -> Transition.update_launchable t) pnet.transitions
@@ -70,8 +75,16 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
           Transition.make id places ila ola index)
 
     in
-      
-    Some {mol; transitions; places}
+    let binders = Array.fold_lefti
+                    (fun res index place   ->
+                      match place.Place.binder with
+                      |None -> res
+                      | Some b -> (index, b) :: res)
+                    [] places
+    in
+    let uid = idProvider#get_id ()
+    in
+    Some {mol; transitions; places; binders; uid}
   with
   | _ ->
      print_endline "cannot build pnet";
@@ -106,7 +119,9 @@ let launch_random_transition (p : t)
 let get_possible_mol_grabs (mol : Molecule.t) (pnet : t) : (int*int) list =
   Array.fold_left
     (fun g_list place ->
-      (Place.get_possible_mol_grabs mol place)@g_list)
+      match Place.get_possible_mol_grabs mol place with
+      | None -> g_list
+      | Some (n, pid) -> (n, pid)::g_list)
     [] pnet.places
 
 let grab (mol : Molecule.t) (pos : int) (pid : int) (pnet : t)
@@ -124,3 +139,9 @@ let to_json (p : t) =
      "molecule",
      Molecule.to_yojson p.mol]
   
+
+let matching_binders (b : string) (pnet : t) =
+  List.fold_left (fun res (index,b') ->
+      if b' = String.rev b
+      then index::res
+      else res)  [] pnet.binders

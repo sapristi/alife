@@ -25,17 +25,17 @@ type input_arc = {source_place : int;
 type output_arc = {dest_place : int;
                    oatype : Acid_types.output_arc;}
                     [@@ deriving yojson]
-                
-type t =
-  {
-    mutable launchable : bool;
-    id : string;
-    places : Place.t array;
-    input_arcs :  input_arc list;
-    output_arcs : output_arc list;
-    index : int;
-  }
-    [@@ deriving yojson]
+                 
+  type  t =
+    {
+      mutable launchable : bool;
+      id : string;
+      places : Place.t array;
+      input_arcs :  input_arc list;
+      output_arcs : output_arc list;
+      index : int;
+    }
+                    [@@ deriving yojson]
   
 (* ** launchable function *)
 (* Tells whether a given transition can be launched, *)
@@ -73,12 +73,12 @@ let launchable (transition : t) =
       (List.exists (fun {source_place = sp; iatype = _} -> place.index=sp) transition.input_arcs )
   in
   List.fold_left
-    (fun res ia -> res && launchable_input_arc ia.iatype (transition.places.(ia.source_place)))
+    (fun res ia -> res && launchable_input_arc ia.iatype transition.places.(ia.source_place))
     true
     transition.input_arcs
   &&
     List.fold_left
-      (fun res oa -> res && launchable_output_arc oa.oatype (transition.places.(oa.dest_place)))
+      (fun res oa -> res && launchable_output_arc oa.oatype transition.places.(oa.dest_place))
       true
       transition.output_arcs
   
@@ -170,7 +170,7 @@ let apply_transition (transition : t) : Place.transition_effect list=
                   (fun ia -> transition.places.(ia.source_place),ia.iatype)  
                   transition.input_arcs
   and o_arc_l = List.map
-                  (fun oa -> transition.places.(oa.dest_place),oa.oatype)  
+                  (fun oa -> transition.places.(oa.dest_place),oa.oatype)
                   transition.output_arcs
   in apply_output_arcs
        o_arc_l

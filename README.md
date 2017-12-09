@@ -1,22 +1,3 @@
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#sec-1">1. Description</a></li>
-<li><a href="#sec-2">2. Setting up</a>
-<ul>
-<li><a href="#sec-2-1">2.1. OCaml libs dependancies</a></li>
-<li><a href="#sec-2-2">2.2. Install</a></li>
-</ul>
-</li>
-<li><a href="#sec-3">3. Run</a></li>
-<li><a href="#sec-4">4. Usefull stuff</a></li>
-</ul>
-</div>
-</div>
-
-# Description<a id="sec-1" name="sec-1"></a>
-
 YAA is an artificial chemistry, centered around petri nets.
 
 The project also includes a webserver that can interact 
@@ -47,7 +28,7 @@ ideally set-up with opam.
 
 Then visit `localhost:port`
 
-# Usefull stuff<a id="sec-4" name="sec-4"></a>
+# Usefull stuff
 
 ocaml tools (Installed with opam) :
 -   merlin (completion and errors detection in emacs)

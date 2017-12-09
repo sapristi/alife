@@ -37,7 +37,7 @@ module MolMap = MakeMolMap
 (* et de leurs interactions. *)
 
 type t =
-  {mutable molecules : (int * Petri_net.t) MolMap.t}
+  {mutable molecules : (int * Petri_net.t option) MolMap.t}
 
 (* an empty bactery *)
 let make_empty () : t = 
@@ -62,9 +62,9 @@ let add_molecule (m : Molecule.t) (bact : t) : unit =
   then 
     bact.molecules <- MolMap.modify m (fun x -> let y,z = x in (y+1,z)) bact.molecules
   else
-    match Petri_net.make_from_mol m with
-    | Some p ->  bact.molecules <- MolMap.add m (1,p) bact.molecules
-    | None -> ()
+    let p = Petri_net.make_from_mol m in
+    bact.molecules <- MolMap.add m (1,p) bact.molecules
+    
 (* *** remove_molecule *)
 (* totally removes a molecule from a bactery *)
 let remove_molecule (m : Molecule.t) (bact : t) : unit =
@@ -87,7 +87,8 @@ let set_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
   then 
     bact.molecules <- MolMap.modify mol (fun x -> let y,z = x in (n,z)) bact.molecules
   else
-    failwith "bacterie.ml : cannot change quantity :  target molecule is not present"
+    failwith ("bacterie.ml : cannot change quantity :  target molecule is not present\n"
+              ^mol)
 
   
 (* *** add_proteine *)
@@ -127,30 +128,26 @@ let asymetric_grab mol pnet =
 
 let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
     : unit =
-  let _,pnet1 = MolMap.find mol1 bact.molecules
-  and _,pnet2 = MolMap.find mol2 bact.molecules in
-  if Random.bool ()
-  then
-    (
-      if asymetric_grab mol2 pnet1
-      then
-        (
-          add_to_mol_quantity mol2 (-1) bact;
-          Petri_net.update_launchables pnet1
-        )
-      else ()
-    )
-  else
-    (
-      if  asymetric_grab mol1 pnet2
-      then
-        (
-          add_to_mol_quantity mol1 (-1) bact;
-          Petri_net.update_launchables pnet2
-        )
-      else ()
-    )
-  
+  let _,opnet1 = MolMap.find mol1 bact.molecules
+  and _,opnet2 = MolMap.find mol2 bact.molecules
+  and try_grab mol pnet =
+    if asymetric_grab mol pnet
+    then
+      (
+        add_to_mol_quantity mol (-1) bact;
+        Petri_net.update_launchables pnet
+      )
+    else ()
+               
+  in
+  match opnet1, opnet2 with
+  | Some pnet1, Some pnet2 ->
+     if Random.bool ()
+     then try_grab mol2 pnet1
+     else try_grab mol1 pnet2
+  | Some pnet1, None -> try_grab mol2 pnet1
+  | None, Some pnet2 -> try_grab mol1 pnet2
+  | None, None -> ()
 (* *** make_reactions *)
 (* Reactions between molecules : *)
 (* we have to simulate molecules collision, *)
@@ -190,23 +187,26 @@ let rec execute_actions (actions : Place.transition_effect list) (bact : t) : un
 
 (* *** launch_transition a specific transition in a specific pnet*)
 let launch_transition tid mol bact : unit =
-  let _,pnet = MolMap.find mol bact.molecules in
-  let actions = Petri_net.launch_transition_by_id tid pnet in
-  Petri_net.update_launchables pnet;
-  execute_actions actions bact
-
+  match (MolMap.find mol bact.molecules) with
+  | _, Some pnet ->
+     let actions = Petri_net.launch_transition_by_id tid pnet in
+     Petri_net.update_launchables pnet;
+     execute_actions actions bact
+  | _ -> ()
 (* *** step_simulate *)
 (* the more the quantity of a molecule, the more actions it can
 do in one round *)    
 let step_simulate (bact : t) : unit = 
   MolMap.iter
     (fun k x ->
-      let (n, pnet) = x in  
-      for i = 1 to n do
-        let actions = Petri_net.launch_random_transition pnet in
-        Petri_net.update_launchables pnet;
-        execute_actions actions bact
-      done)
+      match x with
+      | (n, Some pnet) ->  
+         for i = 1 to n do
+           let actions = Petri_net.launch_random_transition pnet in
+           Petri_net.update_launchables pnet;
+           execute_actions actions bact
+         done
+      | n, None -> ())
     bact.molecules;
   make_reactions bact
   
@@ -233,6 +233,8 @@ let json_reset (json : Yojson.Safe.json) (bact:t): unit  =
     List.iter
       (fun {mol = m;nb = n} ->
         add_molecule m bact;
-        set_mol_quantity m n bact;) bact_sig;
+        set_mol_quantity m n bact;
+        print_endline ("added mol: "^m);
+      ) bact_sig;
   | Error s -> failwith s
              

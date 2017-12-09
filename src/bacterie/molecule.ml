@@ -28,6 +28,7 @@ and oa_move_bw_id = "CCB"
 and ext_grab_id = "ABA"
 and ext_rel_id = "ABB"
 and ext_tinit_id = "ABC"
+and ext_bind_id = "ACC"
 and msg_end_id = "DDF"
                
 let place_re = "^"^place_id^"(.*)"
@@ -42,6 +43,7 @@ and oa_move_bw_re = "^"^oa_move_bw_id^"(.*?)"^msg_end_id^"(.*)"
 and ext_grab_re = "^"^ext_grab_id^"(.*?)"^msg_end_id^"(.*)"
 and ext_rel_re =  "^"^ext_rel_id^"(.*)"
 and ext_tinit_re =  "^"^ext_tinit_id^"(.*)"
+and ext_bind_re = "^"^ext_bind_id^"(.*?)"^msg_end_id^"(.*)"
 
                    
 let place_cre = Re.compile (Re_perl.re place_re)
@@ -56,7 +58,8 @@ and oa_move_bw_cre = Re.compile (Re_perl.re oa_move_bw_re)
 and ext_grab_cre = Re.compile (Re_perl.re ext_grab_re)
 and ext_rel_cre = Re.compile (Re_perl.re ext_rel_re)
 and ext_tinit_cre = Re.compile (Re_perl.re ext_tinit_re)
-                  
+and ext_bind_cre = Re.compile (Re_perl.re ext_bind_re)
+                 
 let rec mol_parser (s : t) : Proteine.t =
   if s = ""
   then []
@@ -144,6 +147,13 @@ let rec mol_parser (s : t) : Proteine.t =
         let s' = Re.Group.get groups 1 in
         Extension Init_with_token_ext :: (mol_parser s')
         
+      else if Re.execp ext_bind_cre s
+      then
+        let groups  = Re.exec ext_tinit_cre s in
+        let b = Re.Group.get groups 1
+        and s' = Re.Group.get groups 2 in
+        Extension (Bind_ext b) :: (mol_parser s')
+        
       else 
         mol_parser (Str.string_after s 1)
                    (* if a group did not match, catch exception and continue parsing *) 
@@ -180,6 +190,8 @@ let rec of_proteine (p : Proteine.t) : t =
        ext_tinit_id 
     | Extension (Grab_ext g) ->
        ext_grab_id ^ g ^msg_end_id
+    | Extension (Bind_ext b) ->
+       ext_bind_id ^ b ^ msg_end_id
   in 
   match p with
   | a :: p' ->
