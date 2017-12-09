@@ -28,7 +28,9 @@ open Batteries
 (*   et le nombre de molécules présentes. *)
 
 module MolMap = MakeMolMap
-                  (struct type t = Molecule.t let compare = Pervasives.compare end)
+                  (struct type t = Molecule.t
+                          let compare = Pervasives.compare
+                   end)
 
 (* * Bacterie module *)
 
@@ -36,12 +38,39 @@ module MolMap = MakeMolMap
 (* protéine (i.e. pnet), puis d'organiser la simulation des pnet *)
 (* et de leurs interactions. *)
 
+(* grabers_map : associe à chaque graber  *)
+(*   - l'ensemble des places qui contiennet ce graber *)
+(*   - l'ensemble des molécules qui peuvent être attrapées par *)
+(*     ce graber *)
+
+module PSet = Set.Make (struct type t = (Molecule.t*int)
+                               let compare = Pervasives.compare
+                        end)
+module MolSet = Set.Make (struct type t = Molecule.t
+                                 let compare = Pervasives.compare
+                          end)
+module GMap = Map.Make (struct type t = Graber.t
+                               let compare g1 g2 =
+                                 Pervasives.compare g1.Graber.mol_repr
+                                                    g2.Graber.mol_repr
+                        end)
+type gmap = (PSet.t * MolSet.t) GMap.t
+module BMap = Map.Make (struct type t = string
+                               let compare = Pervasives.compare 
+                        end)
+type bmap = (PSet.t * PSet.t) BMap.t
+          
 type t =
-  {mutable molecules : (int * Petri_net.t option) MolMap.t}
+  {mutable molecules : (int * Petri_net.t option) MolMap.t;
+   mutable grabers_map : (PSet.t * MolSet.t)  GMap.t;
+   mutable binders_map : (PSet.t * PSet.t) BMap.t;
+                         }
 
 (* an empty bactery *)
 let make_empty () : t = 
-  {molecules =  MolMap.empty;}
+  {molecules =  MolMap.empty;
+   grabers_map = GMap.empty;
+   binders_map = BMap.empty}
   
 (* ** Molecules handling *)
 (* Les fonctions suivantes servent à gérer les molécules (quantité) *)
@@ -58,13 +87,85 @@ let get_pnet_from_mol mol bact =
 (* adds a molecule inside a bactery *)
 let add_molecule (m : Molecule.t) (bact : t) : unit =
   
+  let add_graber (g : Graber.t)
+                 (mol : Molecule.t)
+                 (pid : int)
+                 (bact : t) : unit =
+    try
+      bact.grabers_map <-
+        GMap.modify g 
+        (fun (pset, molset) -> (PSet.add (mol, pid) pset, molset))
+        bact.grabers_map
+    with Not_found ->
+         let grabable_mols =
+           Enum.fold
+             (fun res mol ->
+               match Graber.get_match_pos g mol with
+               | None -> res
+               | Some _ -> MolSet.add mol res
+             ) MolSet.empty (MolMap.keys bact.molecules)
+           in
+      bact.grabers_map <-
+        GMap.add g ((PSet.singleton (mol,pid)), grabable_mols)
+        bact.grabers_map
+  in
+
+  let add_binder (b:string)
+                 (mol : Molecule.t)
+                 (pid : int)
+                 (bact : t) : unit =
+
+    let b' = String.rev b in
+    if b < b'
+    then
+      bact.binders_map <-
+        BMap.modify_def (PSet.singleton (mol, pid), PSet.empty)
+                        b
+                        (fun (l, r) ->
+                          (PSet.add (mol, pid) l, r))
+                        bact.binders_map
+    else if b > b'
+    then
+      bact.binders_map <-
+        BMap.modify_def (PSet.empty, PSet.singleton (mol, pid))
+                        b'
+                        (fun (l, r) ->
+                          (l, PSet.add (mol, pid) r))
+                        bact.binders_map
+    else 
+      bact.binders_map <-
+        BMap.modify_def (PSet.singleton (mol, pid),
+                         PSet.singleton (mol, pid))
+                        b
+                        (fun (l, r) ->
+                          (PSet.add (mol, pid)l,
+                           PSet.add (mol, pid) r))
+                        bact.binders_map
+  in
+  
   if MolMap.mem m bact.molecules
   then 
     bact.molecules <- MolMap.modify m (fun x -> let y,z = x in (y+1,z)) bact.molecules
   else
     let p = Petri_net.make_from_mol m in
-    bact.molecules <- MolMap.add m (1,p) bact.molecules
-    
+    bact.molecules <- MolMap.add m (1,p) bact.molecules;
+    match p with
+    | None -> ()
+    | Some pnet ->
+       Array.iteri
+         (fun i place ->
+           (
+             match place.Place.graber with
+             | None -> ()
+             | Some g -> add_graber g m i bact
+           );
+           match place.Place.binder with
+           | None -> ()
+           | Some b -> add_binder b m i bact
+         ) pnet.places
+                    
+                
+                  
 (* *** remove_molecule *)
 (* totally removes a molecule from a bactery *)
 let remove_molecule (m : Molecule.t) (bact : t) : unit =
@@ -92,17 +193,15 @@ let set_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
 
   
 (* *** add_proteine *)
-(* adds the molecule corresponding to a proteine to a bactery 
-     first transforms it back to a molecule, so the 
-     process is not very natural.
-     **** SHOULD NOT BE USED
-     *)
+(* adds the molecule corresponding to a proteine to a bactery first transforms it back to a molecule, so the  *)
+(* process is not very natural. *)
+(* **** SHOULD NOT BE USED *)
+
 let add_proteine (prot : Proteine.t) (bact : t) : unit =
   let mol = Molecule.of_proteine prot in
   add_molecule mol bact
-  
 
-(* ** Interactions *)  
+(* ** Interactions   *)
 
 
 (* *** asymetric_grab *)
@@ -165,10 +264,10 @@ let make_reactions (bact : t) =
     (MolMap.keys bact.molecules)
   
 
-(* ** simulation *) 
+(* ** simulation  *)
 (* *** execute_actions *)
-(* after a transition from a proteine has occured,   *)
-(*    some actions may need to be performed by the bactery  *)
+(* after a transition from a proteine has occured, *)
+(*    some actions may need to be performed by the bactery *)
 (*   for now, only the release effect is in use *)
 (*   todo later : ??? *)
 (*   il faudrait peut-être mettre dans une file les molécules à ajouter *)
@@ -185,7 +284,7 @@ let rec execute_actions (actions : Place.transition_effect list) (bact : t) : un
   | [] -> ()
         
 
-(* *** launch_transition a specific transition in a specific pnet*)
+(* *** launch_transition a specific transition in a specific pnet *)
 let launch_transition tid mol bact : unit =
   match (MolMap.find mol bact.molecules) with
   | _, Some pnet ->
@@ -194,8 +293,8 @@ let launch_transition tid mol bact : unit =
      execute_actions actions bact
   | _ -> ()
 (* *** step_simulate *)
-(* the more the quantity of a molecule, the more actions it can
-do in one round *)    
+(* the more the quantity of a molecule, the more actions it  *)
+(* can do in one round     *)
 let step_simulate (bact : t) : unit = 
   MolMap.iter
     (fun k x ->
@@ -237,4 +336,3 @@ let json_reset (json : Yojson.Safe.json) (bact:t): unit  =
         print_endline ("added mol: "^m);
       ) bact_sig;
   | Error s -> failwith s
-             
