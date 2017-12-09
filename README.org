@@ -21,9 +21,11 @@
 
 ** Install
    
+#+BEGIN_SRC
    oasis-setup
    make
-   
+#+END_SRC
+
 * Run
 
 web\under{}bact\under{}server [-port port]
