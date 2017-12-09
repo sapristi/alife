@@ -1,0 +1,42 @@
+* Description
+
+  YAA is an artificial chemistry, centered around petri nets.
+  
+  The project also includes a webserver that can interact 
+  with the simulation, and a web interface
+
+
+* Setting up
+
+  You will need a working OCaml developping environment, 
+  ideally set-up with opam.
+
+** OCaml libs dependancies
+    + oasis
+    + batteries
+    + ppx\under{}deriving\under{}yojson
+    + ocamlgraph
+
+      (install with opam)
+
+** Install
+   
+   oasis-setup
+   make
+   
+* Run
+
+web\under{}bact\under{}server [-port port]
+
+
+* Usefull stuff
+   ocaml tools (Installed with opam) :
+    + merlin (completion and errors detection in emacs)
+    + utop (advanced top-level)
+
+   emacs tools (installed with melpa) : 
+    + outshine / outorg
+    + tuareg-mode
+    + graphviz-dot mode
+
+      
