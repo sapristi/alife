@@ -31,7 +31,7 @@ ideally set-up with opam.
 
 -   oasis
 -   batteries
--   ppx_deriving_yojson
+-   ppx=<sub>deriving_</sub>{}yojson
 -   ocamlgraph
     
     (install with opam)
@@ -43,7 +43,7 @@ make
 
 # Run<a id="sec-3" name="sec-3"></a>
 
-web<sub>bact</sub><sub>server</sub> [-port port]
+web\\<sub>bact\\</sub><sub>server</sub> [-port port]
 
 # Usefull stuff<a id="sec-4" name="sec-4"></a>
 
