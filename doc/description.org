@@ -1,28 +1,5 @@
+#+OPTIONS: ^:{}
 
-* Setting up
-
-  You will need a working OCaml developping environment, 
-  ideally set-up with opam.
-
-** OCaml libs dependancies
-    + oasis
-    + batteries
-    + ppx_deriving.show
-    + ppx_deriving.yojson
-    + ocamlgraph
-
-      (install with opam)
-
-** Usefull stuff
-   ocaml tools (Installed with opam) :
-    + merlin (completion and errors detection in emacs)
-    + utop (advanced top-level)
-
-   emacs tools (installed with melpa) : 
-    + outshine / outorg
-    + tuareg-mode
-    + graphviz-dot mode
-      
 * Intro
 
   Du coup, on veut ici créer un programme qui réalise le rêve de
@@ -357,7 +334,6 @@ des graphes arbitraires de réseaux de pétri.
      donner les bons taux de réaction.
 
       
-
 ** Réflexions, choix et ouvertures
 
 Cette partie sera un peu fouillis
@@ -492,7 +468,7 @@ ce choix.
     les chemins que peut suivre le brin d'ADN est en bleu, et les acides
     en vert.
     
-    #+BEGIN_SRC dot :file ribosome.png :cmdline -Kdot -Tpng
+    #+BEGIN_SRC dot :file images/ribosome.png :cmdline -Kdot -Tpng
   digraph G {
           mol_start_place[color = "red"]
           DNA_start_place[color = "blue"]
@@ -549,7 +525,7 @@ ce choix.
    En détaillant un chemin en particulier, voici ce que cela donne : 
  
 
-    #+BEGIN_SRC dot :file ribosome_detailed.png :cmdline -Kdot -Tpng
+    #+BEGIN_SRC dot :file images/ribosome_detailed.png :cmdline -Kdot -Tpng
       digraph G {
               mol_start_place[color = "red"]
               DNA_start_place[color = "blue"]
@@ -577,79 +553,6 @@ ce choix.
     #+RESULTS:
     [[file:ribosome_detailed.png]]
 
-Description d'un ribosome qui reconnait deux atomes : A et B
-(non terminé et non débuggé)
-#+BEGIN_SRC
-[
-["Place"],
-["Extension",["Init_with_token_ext"]],
-["InputArc","CCC",["Split_iarc"]],
-["OutputArc","CCC",["Regular_oarc"]],
-["Place"],
-["OutputArc","CCC",["Regular_oarc"]],
-["InputArc","CA",["Regular_iarc"]],
-
-
-["Place"],
-["Extension",["Grab_ext","DDFAFFF"]],
-["InputArc","CCA",["Regular_iarc"]],
-["InputArc","CCB",["Regular_iarc"]],
-["Place"],
-["OutputArc","CCA",["Regular_oarc"]],
-["OutputArc","CCB",["Regular_oarc"]],
-["InputArc","CA",["Regular_iarc"]],
-
-["Place"],
-["OutputArc","CA",["Regular_oarc"]],
-["InputArc","AA",["Regular_iarc"]],
-["InputArc","AB",["Regular_iarc"]],
-["InputArc","CB",["Regular_iarc"]],
-["OutputArc","BA",["Bind_oarc"]],
-["OutputArc","BB",["Bind_oarc"]],
-
-
-
-["Place"],
-["OutputArc","CB",["Regular_oarc"]],
-["InputArc","CCB",["Regular_iarc"]],
-
-
-["Place"],
-["OutputArc","AA",["Regular_oarc"]],
-["InputArc","BA",["Regular_iarc"]],
-["Place"],
-["OutputArc","AB",["Regular_oarc"]],
-["InputArc","BB",["Regular_iarc"]],
-["Place"],
-["Extension",["Grab_ext","FAF"]],
-["InputArc","BA",["Regular_iarc"]],
-["Place"],
-["Extension",["Grab_ext","FBF"]],
-["InputArc","BB",["Regular_iarc"]],
-
-
-
-["Place"],
-["InputArc","AA",["Filter_iarc","A"]],
-["InputArc","AB",["Filter_iarc","B"]],
-["InputArc","CB",["Filter_iarc","D"]],
-["OutputArc","AA",["Move_oarc",true]],
-["OutputArc","AB",["Move_oarc",true]],
-["OutputArc","CA",["Regular_oarc"]],
-
-["Place"],
-["OutputArc","CCB",["Regular_oarc"]],
-["Extension",["Release_ext"]],
-["OutputArc","CB",["Regular_oarc"]],
-["OutputArc","CCA",["Regular_oarc"]],
-
-
-["Place"],
-["Extension",["Init_with_token_ext"]],
-["InputArc","CCA",["Regular_iarc"]]
-]
-
-#+END_SRC
 
 A more compact universal ribosome, working in reverse.
 #+BEGIN_SRC
@@ -798,100 +701,3 @@ A more compact universal ribosome, working in reverse.
     (par exemple : problème de transition, problème lors du décalage
     d'une molécule à l'intérieur d'
 
-*** Interface
-        
-**** Buts de l'interface :
-      + Controler le déroulé de la simulation d'une bactérie :
-	- contrôler et afficher chaque pnet individuellement
-	- lancer les transitions des pnet de manière globale
-	- lancer les interactions entre pnet. 
-
-      + Permettre de tester les pnet en dehors d'une bactérie :
-	- Faire des tests de simulation. À partir d'une molécule :
-	  * afficher la protéine, le pnet correspondant
-	  * afficher et simuler le pnet correspondant. Le pnet
-	    est initialisé à l'état initial, et on peut modifier 
-	    les tokens à volonté, et lancer les transitions possibles.
-	- Faire des tests de création de molécule. Il faut donc une
-	  interface qui permette de rentrer la chaîne d'une molécule
-	  et d'afficher la protéine et le pnet correspondant, mais aussi
-	  de construire directement une protéine
-
-**** Organisation de l'interface
-
-     L'interface sera donc séparée en deux partie : 
-      - une partie qui contient la simulation.
-	Particularités : dans une bactérie, chaque type 
-	de molécule ne possède qu'une unique instance de pnet.
-	On peut donc se référer à un pnet en passant 
-	la description de la molécule qui l'a généré.
-	
-	Cette partie contient des commandes qui permettent de 
-        contrôler la simulation (transitions de tous les pnet, 
-        réactions, etc).
-
-
-      - une partie bac à sable.
-	Particularités : soit chaque molécule 
-	n'a qu'une instance de pnet, auquel cas on fait 
-	comme dans une bactérie.
-	Sinon, il faut que chaque molécule ait en 
-	plus un identifiant unique.
-	
-	Cette partie contient un éditeur de molécule/protéine.
-      
-     Les deux parties auront un jeu de commandes communes :
-      - examen et édition d'un pnet (puis d'une bactérie, etc)
-
-**** Communication serveur/interface
-
-     On aura donc besoin des fonctions suivantes : 
-     
-      + Fonctions communes à la simulation et au bac à sable :
-	- prot_from_mol : renvoie la description d'une protéine 
-	  à partir d'une molécule
-     
-	- pnet_from_mol : renvoie la description du pnet
-	  qui correspond à la molécule donnée.
-	  Il faut aussi toutes les actions qui permettent de simuler 
-	  et tester ce pnet :
-	  * Pnet_add_token(pnet_id, place, token)
-	  * Pnet_launch_transition (pnet_id, trans_id)
-	  * Pnet_remove_token(pnet_id, place)
-
-	- update_bact/mol : envoie la description de l'object demandé
-	  (après modification par action du client).
-	  
-	  
-      + Fonctions de la simulation :
-	- eval_reactions : reactions entre pnet
-	- transitions_round : effectue un round de transitions
-	  de tous les pnet
-
-      + Fonctions du bac à sable : 
-	- mol_from_prot : pour créer de nouvelles protéines 
-	  directement
-	- save/load : sauvegarde de molécules sur le système de 
-	  fichiers local -> du coup pas fonction serveur 
-	  (ou le serveur ?)
-     
-
-* Stuff to do
-  
-** DONE v0.0.0
-*** DONE ajouter des arcs entre tous les nœuds dans le client ?
-*** DONE Clarifier les dénominations, en particulier input et output links
-*** DONE Bugs quand le client demande une transition et que ce n'est pas possible
-    
-
-** v0.0.1
-*** DONE reconstruire les types d'acides
-*** TODO définir et utiliser une convention de nommage qui sépare clairement les noms de types/noms de variables/noms de modules
-*** TODO mettre le protocole de communication dans un fichier de configuration lu à la fois par le client et le serveur
-*** TODO améliorer le protocole pour unifier les fonctions qui génèrent des données
-
-* In-progress
-
-** TODO fonction make_reactions de l'interface : 
-  + evaluer les reactions
-  + retourner les données pertinentes
