@@ -1,13 +1,18 @@
 
 * Setting up
 
-** Stuff to install Using opam, install
+  You will need a working OCaml developping environment, 
+  ideally set-up with opam.
+
+** OCaml libs dependancies
     + oasis
     + batteries
     + ppx_deriving.show
     + ppx_deriving.yojson
+    + ocamlgraph
 
-    Also requires OCaml, python3 with python3-graphviz and python3
+      (install with opam)
+
 ** Usefull stuff
    ocaml tools (Installed with opam) :
     + merlin (completion and errors detection in emacs)
@@ -252,13 +257,11 @@
    En particulier, l'ordre dans lequels les places apparaissent dans 
    la molécule a une influence sur le fonctionnement du réseau de pétri.
 
-
 *** Réseaux de pétri étendus
 
 Les réactions de type Bind lient deux réseaux de pétri entre eux.
 Cette opération peut-être réalisée à volonté, pour former 
 des graphes arbitraires de réseaux de pétri.
-
 
 *** Réactions
 
