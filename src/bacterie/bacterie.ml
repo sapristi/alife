@@ -58,8 +58,27 @@ open Batteries
 (*    on pourrait garder les binders et grabers map, *)
 (*    mais pour l'instant je vais les virer pour que ce soit *)
 (*    plus simple *)
+
+(*    Bon en fait le problème c'est que les ensembles ne sont pas  *)
+(*    symétriques  *)
+(*    (mol.reactants = { mol' tq  can_bind mol'.pnet mol.pnet *)
+(*                             OU can_grab mol' mol.pnet } ) *)
+(*    Si on faisait un ensemble symétrique, on aurait tout en double. *)
+
+(*    Du coup la solution ce serait d'avoir : *)
+(*    (mol.reactants = { mol' tq mol' < mol   ET  *)
+(*                             (   can_bind mol'.pnet mol.pnet *)
+(*                             OU  can_grab mol  mol'.pnet *)
+(*                             OU  can_grab mol' mol.pnet )} ) *)
+(*    ou plus simplement *)
+(*    (mol.reactants = { mol' tq mol' < mol *)
+(*                            ET can_react mol mol'}) *)
+
+
 (* - il faudrait aussi stoquer séparement les molécules qui n'ont *)
 (*   pas de réseau de pétri (ou des réseaux dégénérés) *)
+
+
 
 (* ** types *)
 
@@ -222,12 +241,6 @@ let add_proteine (prot : Proteine.t) (bact : t) : unit =
 
 (* *** interactions *)
 
-let grab_likelihood (b : t) = 
-  GMap.fold
-    (fun _ ((mol1,_), mol2) res ->
-      res + (get_mol_quantity mol1 b)*(get_mol_quantity mol2 b))
-  b.grabers_map
-  
   
 (* ** Interactions  ; soon deprecated *)
 
