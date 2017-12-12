@@ -34,18 +34,41 @@ module MolMap = MakeMolMap
 
 (* * Bacterie module *)
 
+
 (* Une bacterie est un conteneur à molecules. Elle s'occupe de fournir l'interprétation d'une molécule en tant que *)
 (* protéine (i.e. pnet), puis d'organiser la simulation des pnet *)
 (* et de leurs interactions. *)
 
-(* grabers_map : associe à chaque graber  *)
-(*   - l'ensemble des places qui contiennet ce graber *)
-(*   - l'ensemble des molécules qui peuvent être attrapées par *)
-(*     ce graber *)
+(* Pour organiser la simulation, il faut : *)
+(*  - organiser le lancement des transitions *)
+(*  - gérer les réactions *)
 
-module PSet = Set.Make (struct type t = (Molecule.t*int)
-                               let compare = Pervasives.compare
-                        end)
+(* Pour rentrer dans le cadre Stochastic Simulations,  *)
+(* il faut associer à chaque réaction une probabilité. *)
+(* Le calcul de la réaction suivante nécéssite de calculer la *)
+(* proba de chacune des réactions, ce qui se fait en N² où N  *)
+(* est le NOMBRE total de molécules (c'est beaucoup trop). *)
+
+(* Afin d'améliorer ça, on peut : *)
+(*  - passer en n² + something  *)
+(*    (où n est le nombre de molécules différentes) *)
+(*    en déterminant la probabilité de deux espèces de se *)
+(*    rencontrer, puis la paire précise de molécules qui vont  *)
+(*    réagir, et enfin quelle réaction va avoir lieu *)
+(*  - On peut aussi stoquer pour chaque molécule l'ensemble  *)
+(*    des molécules avec lesquelles elle peut réagir, mais ça *)
+(*    ne paraît pas si clair que ça améliore les performances, *)
+(*    en plus de devoir gérer des structures de données plus compliquées *)
+   
+
+(* ** types *)
+
+              
+module MolMap = Map.Make (struct type t = Molecule.t
+                                 let compare = Pervasives.compare
+                          end)
+
+                    
 module MolSet = Set.Make (struct type t = Molecule.t
                                  let compare = Pervasives.compare
                           end)
@@ -54,16 +77,16 @@ module GMap = Map.Make (struct type t = Graber.t
                                  Pervasives.compare g1.Graber.mol_repr
                                                     g2.Graber.mol_repr
                         end)
-type gmap = (PSet.t * MolSet.t) GMap.t
+type gmap = (MolSet.t * MolSet.t) GMap.t
 module BMap = Map.Make (struct type t = string
                                let compare = Pervasives.compare 
                         end)
-type bmap = (PSet.t * PSet.t) BMap.t
+type bmap = (MolSet.t * MolSet.t) BMap.t
           
 type t =
   {mutable molecules : (int * Petri_net.t option) MolMap.t;
-   mutable grabers_map : (PSet.t * MolSet.t)  GMap.t;
-   mutable binders_map : (PSet.t * PSet.t) BMap.t;
+   mutable grabers_map : gmap;
+   mutable binders_map : bmap;
                          }
 
 (* an empty bactery *)
@@ -82,20 +105,24 @@ let get_pnet_from_mol mol bact =
   let (_,pnet) = MolMap.find mol bact.molecules in
   pnet
 
+let get_mol_quantity mol bact = 
+  let (n,_) = MolMap.find mol bact.molecules in
+  n
   
 (* *** add_molecule *)
 (* adds a molecule inside a bactery *)
 let add_molecule (m : Molecule.t) (bact : t) : unit =
   
-  let add_graber (g : Graber.t)
+  let add_graber (g: Graber.t)
                  (mol : Molecule.t)
-                 (pid : int)
                  (bact : t) : unit =
     try
       bact.grabers_map <-
-        GMap.modify g 
-        (fun (pset, molset) -> (PSet.add (mol, pid) pset, molset))
-        bact.grabers_map
+        GMap.modify
+          g 
+          (fun (grabers_mols, target_mols) ->
+            (MolSet.add mol grabers_mols, target_mols))
+          bact.grabers_map
     with Not_found ->
          let grabable_mols =
            Enum.fold
@@ -106,40 +133,39 @@ let add_molecule (m : Molecule.t) (bact : t) : unit =
              ) MolSet.empty (MolMap.keys bact.molecules)
            in
       bact.grabers_map <-
-        GMap.add g ((PSet.singleton (mol,pid)), grabable_mols)
+        GMap.add g (MolSet.singleton mol, grabable_mols)
         bact.grabers_map
   in
 
   let add_binder (b:string)
                  (mol : Molecule.t)
-                 (pid : int)
                  (bact : t) : unit =
 
     let b' = String.rev b in
     if b < b'
     then
       bact.binders_map <-
-        BMap.modify_def (PSet.singleton (mol, pid), PSet.empty)
+        BMap.modify_def (MolSet.singleton mol, MolSet.empty)
                         b
                         (fun (l, r) ->
-                          (PSet.add (mol, pid) l, r))
+                          (MolSet.add mol l, r))
                         bact.binders_map
     else if b > b'
     then
       bact.binders_map <-
-        BMap.modify_def (PSet.empty, PSet.singleton (mol, pid))
+        BMap.modify_def (MolSet.empty, MolSet.singleton mol)
                         b'
                         (fun (l, r) ->
-                          (l, PSet.add (mol, pid) r))
+                          (l, MolSet.add mol r))
                         bact.binders_map
     else 
       bact.binders_map <-
-        BMap.modify_def (PSet.singleton (mol, pid),
-                         PSet.singleton (mol, pid))
+        BMap.modify_def (MolSet.singleton mol,
+                         MolSet.singleton mol)
                         b
                         (fun (l, r) ->
-                          (PSet.add (mol, pid)l,
-                           PSet.add (mol, pid) r))
+                          (MolSet.add mol l,
+                           MolSet.add mol r))
                         bact.binders_map
   in
   
@@ -152,16 +178,21 @@ let add_molecule (m : Molecule.t) (bact : t) : unit =
     match p with
     | None -> ()
     | Some pnet ->
-       Array.iteri
-         (fun i place ->
+       (* un peu moche puisqu'on va éventuellement 
+          faire des trucs inutiles si le pnet contient 
+          plusieurs fois le meme graber ou le même binder *)
+       Array.iter
+         (fun place ->
            (
              match place.Place.graber with
              | None -> ()
-             | Some g -> add_graber g m i bact
+             | Some g -> add_graber g m bact
            );
-           match place.Place.binder with
-           | None -> ()
-           | Some b -> add_binder b m i bact
+           (
+             match place.Place.binder with
+             | None -> ()
+             | Some b -> add_binder b m bact
+           );
          ) pnet.places
                     
                 
@@ -193,7 +224,7 @@ let set_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
 
   
 (* *** add_proteine *)
-(* adds the molecule corresponding to a proteine to a bactery first transforms it back to a molecule, so the  *)
+(* adds the molecule corresponding to a proteine to a bactery first transforms it back to a molecule, so the *)
 (* process is not very natural. *)
 (* **** SHOULD NOT BE USED *)
 
@@ -201,7 +232,20 @@ let add_proteine (prot : Proteine.t) (bact : t) : unit =
   let mol = Molecule.of_proteine prot in
   add_molecule mol bact
 
-(* ** Interactions   *)
+
+
+(* ** simulation ; new *)
+
+(* *** interactions *)
+
+let grab_likelihood (b : t) = 
+  GMap.fold
+    (fun _ ((mol1,_), mol2) res ->
+      res + (get_mol_quantity mol1 b)*(get_mol_quantity mol2 b))
+  b.grabers_map
+  
+  
+(* ** Interactions  ; soon deprecated *)
 
 
 (* *** asymetric_grab *)
@@ -263,8 +307,9 @@ let make_reactions (bact : t) =
         (MolMap.keys bact.molecules))
     (MolMap.keys bact.molecules)
   
-
-(* ** simulation  *)
+  
+  
+(* ** simulation ; soon deprecated *)
 (* *** execute_actions *)
 (* after a transition from a proteine has occured, *)
 (*    some actions may need to be performed by the bactery *)
@@ -293,8 +338,8 @@ let launch_transition tid mol bact : unit =
      execute_actions actions bact
   | _ -> ()
 (* *** step_simulate *)
-(* the more the quantity of a molecule, the more actions it  *)
-(* can do in one round     *)
+(* the more the quantity of a molecule, the more actions it *)
+(* can do in one round *)
 let step_simulate (bact : t) : unit = 
   MolMap.iter
     (fun k x ->
