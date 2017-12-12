@@ -69,31 +69,13 @@ module MolMap = Map.Make (struct type t = Molecule.t
                           end)
 
                     
-module MolSet = Set.Make (struct type t = Molecule.t
-                                 let compare = Pervasives.compare
-                          end)
-module GMap = Map.Make (struct type t = Graber.t
-                               let compare g1 g2 =
-                                 Pervasives.compare g1.Graber.mol_repr
-                                                    g2.Graber.mol_repr
-                        end)
-type gmap = (MolSet.t * MolSet.t) GMap.t
-module BMap = Map.Make (struct type t = string
-                               let compare = Pervasives.compare 
-                        end)
-type bmap = (MolSet.t * MolSet.t) BMap.t
           
 type t =
-  {mutable molecules : (int * Petri_net.t option) MolMap.t;
-   mutable grabers_map : gmap;
-   mutable binders_map : bmap;
-                         }
+  {mutable molecules : (int * Petri_net.t option) MolMap.t;  }
 
 (* an empty bactery *)
 let make_empty () : t = 
-  {molecules =  MolMap.empty;
-   grabers_map = GMap.empty;
-   binders_map = BMap.empty}
+  {molecules =  MolMap.empty;}
   
 (* ** Molecules handling *)
 (* Les fonctions suivantes servent à gérer les molécules (quantité) *)
@@ -113,87 +95,12 @@ let get_mol_quantity mol bact =
 (* adds a molecule inside a bactery *)
 let add_molecule (m : Molecule.t) (bact : t) : unit =
   
-  let add_graber (g: Graber.t)
-                 (mol : Molecule.t)
-                 (bact : t) : unit =
-    try
-      bact.grabers_map <-
-        GMap.modify
-          g 
-          (fun (grabers_mols, target_mols) ->
-            (MolSet.add mol grabers_mols, target_mols))
-          bact.grabers_map
-    with Not_found ->
-         let grabable_mols =
-           Enum.fold
-             (fun res mol ->
-               match Graber.get_match_pos g mol with
-               | None -> res
-               | Some _ -> MolSet.add mol res
-             ) MolSet.empty (MolMap.keys bact.molecules)
-           in
-      bact.grabers_map <-
-        GMap.add g (MolSet.singleton mol, grabable_mols)
-        bact.grabers_map
-  in
-
-  let add_binder (b:string)
-                 (mol : Molecule.t)
-                 (bact : t) : unit =
-
-    let b' = String.rev b in
-    if b < b'
-    then
-      bact.binders_map <-
-        BMap.modify_def (MolSet.singleton mol, MolSet.empty)
-                        b
-                        (fun (l, r) ->
-                          (MolSet.add mol l, r))
-                        bact.binders_map
-    else if b > b'
-    then
-      bact.binders_map <-
-        BMap.modify_def (MolSet.empty, MolSet.singleton mol)
-                        b'
-                        (fun (l, r) ->
-                          (l, MolSet.add mol r))
-                        bact.binders_map
-    else 
-      bact.binders_map <-
-        BMap.modify_def (MolSet.singleton mol,
-                         MolSet.singleton mol)
-                        b
-                        (fun (l, r) ->
-                          (MolSet.add mol l,
-                           MolSet.add mol r))
-                        bact.binders_map
-  in
-  
   if MolMap.mem m bact.molecules
   then 
     bact.molecules <- MolMap.modify m (fun x -> let y,z = x in (y+1,z)) bact.molecules
   else
     let p = Petri_net.make_from_mol m in
-    bact.molecules <- MolMap.add m (1,p) bact.molecules;
-    match p with
-    | None -> ()
-    | Some pnet ->
-       (* un peu moche puisqu'on va éventuellement 
-          faire des trucs inutiles si le pnet contient 
-          plusieurs fois le meme graber ou le même binder *)
-       Array.iter
-         (fun place ->
-           (
-             match place.Place.graber with
-             | None -> ()
-             | Some g -> add_graber g m bact
-           );
-           (
-             match place.Place.binder with
-             | None -> ()
-             | Some b -> add_binder b m bact
-           );
-         ) pnet.places
+    bact.molecules <- MolMap.add m (1,p) bact.molecules
                     
                 
                   
