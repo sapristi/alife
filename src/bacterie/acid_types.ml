@@ -53,7 +53,7 @@ type input_arc =
 (* *** transition_output *)
 type output_arc = 
   | Regular_oarc
-  | Bind_oarc
+  | Merge_oarc
   | Move_oarc of bool
                    [@@deriving  yojson]
 
@@ -116,7 +116,7 @@ module Examples =
         InputArc ("A", Filter_empty_iarc);]
     let output_arcs = [
         OutputArc ("A", Regular_oarc);
-        OutputArc ("A", Bind_oarc);
+        OutputArc ("A", Merge_oarc);
         OutputArc ("A", Move_oarc true);]
     let extensions = [
         Extension (Release_ext);

@@ -45,28 +45,35 @@ type place_extensions =
 (* *** build_transitions function *)
 
 (*     This function builds the transitions defined by the acides of a *)
-(*     proteine. This will be used when folding the proteine to get  *)
+(*     proteine. This will be used when folding the proteine to get *)
 (*     functional form. *)
 (*     On retourne une liste contenant les items (transID, *)
 (*     transitionInputs, transitionOutputs) *)
 
-(*     Algo : on parcourt les acides de la molécule, en gardant en  *)
-(*     mémoire l'id du dernier nœud visité. Si on tombe sur un acide  *)
-(*     contenant une transition, on parcourt la liste des transitions  *)
-(*     déjà créées pour voir si des transitions avec la même id ont déjà  *)
-(*     été traitées, auquel cas on ajoute cette transition à la  *)
-(*     transition_structure correspondante, et sinon on créée une  *)
+(*     Algo : on parcourt les acides de la molécule, en gardant en *)
+(*     mémoire l'id du dernier nœud visité. Si on tombe sur un acide *)
+(*     contenant une transition, on parcourt la liste des transitions *)
+(*     déjà créées pour voir si des transitions avec la même id ont déjà *)
+(*     été traitées, auquel cas on ajoute cette transition à la *)
+(*     transition_structure correspondante, et sinon on créée une *)
 (*     nouvelle transition_structure *)
 
 (*     Idées pour améliorer l'algo : *)
 (*       - utiliser une table d'associations  (pour accélerer ?) *)
-(*       - TODO : faire attention si plusieurs arcs entrants ou sortant  *)
-(*       correspondent au même nœud et à la même transition, auquel cas ça  *)
+(*       - TODO : faire attention si plusieurs arcs entrants ou sortant *)
+(*       correspondent au même nœud et à la même transition, auquel cas ça *)
 (*       buggerait *)
 
 
-
-
+(*       Problème : *)
+(*       Que se passe-t-il si plusieurs transtions input avec la même id  *)
+(*       partent d'un même nœud, en particulier  *)
+(*       pour la gestion des token ? *)
+(*       Plusieurs pistes : *)
+(*         - la transition n'est pas crée *)
+(*         - seul un des arcs est pris en compte *)
+(*         - utiliser un des arcs au hasard *)
+(*         - le programme bugge *)
   
 let build_transitions (prot : t) :
       transition_structure list = 

@@ -110,7 +110,7 @@ let make (id : string)
 (* Applique la fonction de transition d'une transition à une liste de tokens.  *)
 
 (* La fonction apply_transitions_input parcourt la liste des (place*transitions d'entrée), on prend le token de la place et on applique éventuellement les split. Ça nous donne une liste de token, qu'on donne à manger à la fonction apply_output_arcs. *)
-(* Cette fonction parcourt la liste des (place * transition de sortie), et leur donne un token (éventuellement en combinant deux token pour un bind). *)
+(* Cette fonction parcourt la liste des (place * transition de sortie), et leur donne un token (éventuellement en combinant deux token pour un merge). *)
 
 (* Du coup, certaines places d'arrivée peuvent ne pas reçevoir de token, *)
 (* ou certains token peuvent être perdus. On va dire pour l'instant que *)
@@ -139,10 +139,10 @@ let apply_transition (transition : t) : Place.transition_effect list=
            (Place.t * Acid_types.output_arc) list)
         (tokens : Token.t list) :
         Place.transition_effect list =
-    (* TODO : permettre au bind de ne prendre qu'un token 
+    (* TODO : permettre au merge de ne prendre qu'un token 
 (et donc de   ne pas avoir d'effet ?) *)
     match o_arc_l, tokens with
-    | (place, Acid_types.Bind_oarc) :: o_arc_l',
+    | (place, Acid_types.Merge_oarc) :: o_arc_l',
       t1 :: t2 :: tokens' ->
        let effects = 
          Place.add_token_from_transition

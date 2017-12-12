@@ -22,7 +22,7 @@ and ia_split_id = "BBA"
 and ia_filter_id = "BC"
 and ia_filter_empty_id = "BAB"
 and oa_reg_id = "CAA"
-and oa_bind_id = "CBA"
+and oa_merge_id = "CBA"
 and oa_move_fw_id = "CCA"
 and oa_move_bw_id = "CCB"
 and ext_grab_id = "ABA"
@@ -37,7 +37,7 @@ and ia_split_re = "^"^ia_split_id^"(.*?)"^msg_end_id^"(.*)"
 and ia_filter_re = "^"^ia_filter_id^"("^atoms^")(.*?)"^msg_end_id^"(.*)"
 and ia_filter_empty_re = "^"^ia_filter_empty_id^"(.*?)"^msg_end_id^"(.*)"
 and oa_reg_re = "^"^oa_reg_id^"(.*?)"^msg_end_id^"(.*)"
-and oa_bind_re = "^"^oa_bind_id^"(.*?)"^msg_end_id^"(.*)"
+and oa_merge_re = "^"^oa_merge_id^"(.*?)"^msg_end_id^"(.*)"
 and oa_move_fw_re = "^"^oa_move_fw_id^"(.*?)"^msg_end_id^"(.*)"
 and oa_move_bw_re = "^"^oa_move_bw_id^"(.*?)"^msg_end_id^"(.*)"
 and ext_grab_re = "^"^ext_grab_id^"(.*?)"^msg_end_id^"(.*)"
@@ -52,7 +52,7 @@ and ia_split_cre = Re.compile (Re_perl.re ia_split_re)
 and ia_filter_cre = Re.compile (Re_perl.re ia_filter_re)
 and ia_filter_empty_cre = Re.compile (Re_perl.re ia_filter_empty_re)
 and oa_reg_cre = Re.compile (Re_perl.re oa_reg_re)
-and oa_bind_cre = Re.compile (Re_perl.re oa_bind_re)
+and oa_merge_cre = Re.compile (Re_perl.re oa_merge_re)
 and oa_move_fw_cre = Re.compile (Re_perl.re oa_move_fw_re)
 and oa_move_bw_cre = Re.compile (Re_perl.re oa_move_bw_re)
 and ext_grab_cre = Re.compile (Re_perl.re ext_grab_re)
@@ -107,12 +107,12 @@ let rec mol_parser (s : t) : Proteine.t =
         and s' = Re.Group.get groups 2 in
         (OutputArc (tid , Regular_oarc)) :: (mol_parser s')
         
-      else if Re.execp oa_bind_cre s
+      else if Re.execp oa_merge_cre s
       then 
-        let groups  = Re.exec oa_bind_cre s in
+        let groups  = Re.exec oa_merge_cre s in
         let tid  = Re.Group.get groups 1
         and s' = Re.Group.get groups 2 in
-        (OutputArc (tid , Bind_oarc)) :: (mol_parser s')
+        (OutputArc (tid , Merge_oarc)) :: (mol_parser s')
         
       else if Re.execp oa_move_fw_cre s
       then
@@ -178,8 +178,8 @@ let rec of_proteine (p : Proteine.t) : t =
        ia_filter_empty_id ^ s ^ msg_end_id
     | OutputArc (s,Regular_oarc) ->
        oa_reg_id ^ s ^ msg_end_id
-    | OutputArc (s,Bind_oarc)  ->
-       oa_bind_id ^ s ^ msg_end_id
+    | OutputArc (s,Merge_oarc)  ->
+       oa_merge_id ^ s ^ msg_end_id
     | OutputArc (s,Move_oarc true) ->
        oa_move_fw_id ^ s^ msg_end_id
     | OutputArc (s,Move_oarc false)  ->
