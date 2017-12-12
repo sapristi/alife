@@ -27,11 +27,6 @@ open Batteries
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
 
-module MolMap = MakeMolMap
-                  (struct type t = Molecule.t
-                          let compare = Pervasives.compare
-                   end)
-
 (* * Bacterie module *)
 
 
@@ -43,23 +38,28 @@ module MolMap = MakeMolMap
 (*  - organiser le lancement des transitions *)
 (*  - gérer les réactions *)
 
-(* Pour rentrer dans le cadre Stochastic Simulations,  *)
+(* Pour rentrer dans le cadre Stochastic Simulations, *)
 (* il faut associer à chaque réaction une probabilité. *)
 (* Le calcul de la réaction suivante nécéssite de calculer la *)
-(* proba de chacune des réactions, ce qui se fait en N² où N  *)
+(* proba de chacune des réactions, ce qui se fait en N² où N *)
 (* est le NOMBRE total de molécules (c'est beaucoup trop). *)
 
 (* Afin d'améliorer ça, on peut : *)
-(*  - passer en n² + something  *)
+(*  - passer en n² + something *)
 (*    (où n est le nombre de molécules différentes) *)
 (*    en déterminant la probabilité de deux espèces de se *)
-(*    rencontrer, puis la paire précise de molécules qui vont  *)
+(*    rencontrer, puis la paire précise de molécules qui vont *)
 (*    réagir, et enfin quelle réaction va avoir lieu *)
-(*  - On peut aussi stoquer pour chaque molécule l'ensemble  *)
-(*    des molécules avec lesquelles elle peut réagir, mais ça *)
-(*    ne paraît pas si clair que ça améliore les performances, *)
-(*    en plus de devoir gérer des structures de données plus compliquées *)
-   
+(*  - On peut aussi stoquer pour chaque molécule l'ensemble *)
+(*    des molécules avec lesquelles elle peut réagir, *)
+(*    qui est pas mal puisque la plupart des molécules *)
+(*    ne vont pas réagir avec beaucoup d'autres. *)
+(*    Afin d'accélérer la création de cet ensemble, *)
+(*    on pourrait garder les binders et grabers map, *)
+(*    mais pour l'instant je vais les virer pour que ce soit *)
+(*    plus simple *)
+(* - il faudrait aussi stoquer séparement les molécules qui n'ont *)
+(*   pas de réseau de pétri (ou des réseaux dégénérés) *)
 
 (* ** types *)
 
@@ -69,9 +69,11 @@ module MolMap = Map.Make (struct type t = Molecule.t
                           end)
 
                     
-          
+module MolSet = Set.Make (struct type t = Molecule.t
+                                 let compare = Pervasives.compare
+                          end)
 type t =
-  {mutable molecules : (int * Petri_net.t option) MolMap.t;  }
+  {mutable molecules : (int * Petri_net.t option * MolSet.t) MolMap.t;}
 
 (* an empty bactery *)
 let make_empty () : t = 
@@ -84,26 +86,100 @@ let make_empty () : t =
 (* *** get_pnet_from_mol *)
 
 let get_pnet_from_mol mol bact = 
-  let (_,pnet) = MolMap.find mol bact.molecules in
+  let (_,pnet, _) = MolMap.find mol bact.molecules in
   pnet
 
 let get_mol_quantity mol bact = 
-  let (n,_) = MolMap.find mol bact.molecules in
+  let (n,_, _) = MolMap.find mol bact.molecules in
   n
   
 (* *** add_molecule *)
 (* adds a molecule inside a bactery *)
+(* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
 let add_molecule (m : Molecule.t) (bact : t) : unit =
+
+  let add_grabables (g : Graber.t) (reactives : MolSet.t) (bact : t) =
+    MolMap.fold
+      (fun mol _ res ->
+        match Graber.get_match_pos g mol with
+               | None -> res
+               | Some _ -> MolSet.add mol res
+      )
+      bact.molecules
+      reactives
+
+  and add_bindables (b : string) (reactives : MolSet.t) (bact : t) =
+    MolMap.fold
+      (fun mol (_,opnet, _) res ->
+        match opnet with
+        | None -> res
+        | Some pnet ->
+           Array.fold_left
+             (fun res place ->
+               match place.Place.binder with
+               | None -> res
+               | Some b' ->
+                  if b = String.rev b'
+                  then MolSet.add mol res
+                  else res
+             ) res pnet.Petri_net.places )
+      bact.molecules
+      reactives
+    
+  in
+
   
   if MolMap.mem m bact.molecules
   then 
-    bact.molecules <- MolMap.modify m (fun x -> let y,z = x in (y+1,z)) bact.molecules
+    bact.molecules <- MolMap.modify m (fun x -> let y,z,r = x in (y+1,z,r)) bact.molecules
   else
-    let p = Petri_net.make_from_mol m in
-    bact.molecules <- MolMap.add m (1,p) bact.molecules
-                    
-                
+    let op = Petri_net.make_from_mol m in
+    
+    match op with
+    | None ->
+       bact.molecules <-
+         MolMap.add m (1,None, MolSet.empty) bact.molecules;
+    | Some pnet ->
+       (* on ajoute d'abord les molécules avec laquelle elle 
+          peut réagir *)
+       (* un peu moche puisqu'on va éventuellement 
+          faire des trucs inutiles si le pnet contient 
+          plusieurs fois le meme graber ou le même binder *)
+       let reactives = 
+         (Array.fold_left
+            (fun reactives place ->
+              let reactives' = 
+                match place.Place.graber with
+                | None -> reactives
+                | Some g -> add_grabables g reactives bact
+              in
+              match place.Place.binder with
+              | None -> reactives'
+              | Some b -> add_bindables b reactives' bact
+            ) MolSet.empty pnet.places) in
+       bact.molecules <-
+         MolMap.add m (1,Some pnet, reactives) bact.molecules;
+       
+       (* et ensuite on ajoute cette molécule aux réactions
+          possibles des molécules déjà présentes *)
+       bact.molecules <-
+         MolMap.mapi
+           (fun mol' (n',opnet', reactives') ->
+             match opnet' with
+             | None -> (n', opnet', reactives)
+             | Some pnet' ->
+                if (Petri_net.can_bind pnet pnet' ||
+                      Petri_net.can_grab m pnet')
+                then
+                  (n', Some pnet', MolSet.add m reactives')
+                else
+                  (n', Some pnet', reactives')
+           )
+           bact.molecules
+       
                   
+
+             
 (* *** remove_molecule *)
 (* totally removes a molecule from a bactery *)
 let remove_molecule (m : Molecule.t) (bact : t) : unit =
@@ -115,7 +191,7 @@ let add_to_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
   
   if MolMap.mem mol bact.molecules
   then 
-    bact.molecules <- MolMap.modify mol (fun x -> let y,z = x in (y+n,z)) bact.molecules
+    bact.molecules <- MolMap.modify mol (fun x -> let y,z,r = x in (y+n,z,r)) bact.molecules
   else
     failwith "cannot update absent molecule"
   
@@ -124,7 +200,8 @@ let add_to_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
 let set_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
   if MolMap.mem mol bact.molecules
   then 
-    bact.molecules <- MolMap.modify mol (fun x -> let y,z = x in (n,z)) bact.molecules
+    bact.molecules <-
+      MolMap.modify mol (fun x -> let y,z,r = x in (n,z,r)) bact.molecules
   else
     failwith ("bacterie.ml : cannot change quantity :  target molecule is not present\n"
               ^mol)

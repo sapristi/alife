@@ -129,6 +129,35 @@ let grab (mol : Molecule.t) (pos : int) (pid : int) (pnet : t)
   let token = Token.make mol pos in
   Place.add_token_from_grab token (pnet.places.(pid))
   
+(* *** functions to build the reactives *)
+(* can be optimized, but this will do for now *)
+  
+let can_grab (mol : Molecule.t) (pnet : t) : bool =
+  Array.fold_left
+    (fun res place ->
+      match place.Place.graber with
+      | None -> res 
+      | Some g ->
+         match Graber.get_match_pos g mol with
+         | None -> res
+         | Some _ -> true
+    ) false pnet.places
+
+let can_bind (pnet1 : t) (pnet2 : t) : bool = 
+  Array.fold_left
+    (fun res place1 ->
+      match place1.Place.binder with
+      | None -> res
+      | Some b ->
+           Array.fold_left
+             (fun res place2 ->
+                  match place2.Place.binder with
+                  | None -> res
+                  | Some b' ->
+                     b = String.rev b'
+             ) res pnet2.places
+    )
+    false pnet1.places
   
 let to_json (p : t) =
   `Assoc [
