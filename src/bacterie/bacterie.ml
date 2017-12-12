@@ -59,20 +59,29 @@ open Batteries
 (*    mais pour l'instant je vais les virer pour que ce soit *)
 (*    plus simple *)
 
-(*    Bon en fait le problème c'est que les ensembles ne sont pas  *)
-(*    symétriques  *)
+(*    Bon en fait le problème c'est que les ensembles ne sont pas *)
+(*    symétriques *)
 (*    (mol.reactants = { mol' tq  can_bind mol'.pnet mol.pnet *)
 (*                             OU can_grab mol' mol.pnet } ) *)
 (*    Si on faisait un ensemble symétrique, on aurait tout en double. *)
 
 (*    Du coup la solution ce serait d'avoir : *)
-(*    (mol.reactants = { mol' tq mol' < mol   ET  *)
+(*    (mol.reactants = { mol' tq mol' < mol   ET *)
 (*                             (   can_bind mol'.pnet mol.pnet *)
 (*                             OU  can_grab mol  mol'.pnet *)
 (*                             OU  can_grab mol' mol.pnet )} ) *)
 (*    ou plus simplement *)
-(*    (mol.reactants = { mol' tq mol' < mol *)
+(*    (mol.reactants = { mol' tq mol' <= mol *)
 (*                            ET can_react mol mol'}) *)
+
+(*    MAIS *)
+
+(*    si on veut pouvoir simplifier avec les molécules qui n'ont  *)
+(*    pas de pnet, il faudra avoir deux sets de reactives :  *)
+(*    + un comme précédemment (donc seulement les mol' < mol) *)
+(*      pour les molécules qui ont un PNet *)
+(*    + un second qui ne contient que des molécules qui  *)
+(*      n'ont pas de PNet *)
 
 
 (* - il faudrait aussi stoquer séparement les molécules qui n'ont *)
@@ -115,86 +124,39 @@ let get_mol_quantity mol bact =
 (* *** add_molecule *)
 (* adds a molecule inside a bactery *)
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
-let add_molecule (m : Molecule.t) (bact : t) : unit =
-
-  let add_grabables (g : Graber.t) (reactives : MolSet.t) (bact : t) =
-    MolMap.fold
-      (fun mol _ res ->
-        match Graber.get_match_pos g mol with
-               | None -> res
-               | Some _ -> MolSet.add mol res
-      )
-      bact.molecules
-      reactives
-
-  and add_bindables (b : string) (reactives : MolSet.t) (bact : t) =
-    MolMap.fold
-      (fun mol (_,opnet, _) res ->
-        match opnet with
-        | None -> res
-        | Some pnet ->
-           Array.fold_left
-             (fun res place ->
-               match place.Place.binder with
-               | None -> res
-               | Some b' ->
-                  if b = String.rev b'
-                  then MolSet.add mol res
-                  else res
-             ) res pnet.Petri_net.places )
-      bact.molecules
-      reactives
-    
-  in
+let add_molecule (mol : Molecule.t) (bact : t) : unit =
 
   
-  if MolMap.mem m bact.molecules
+  if MolMap.mem mol bact.molecules
   then 
-    bact.molecules <- MolMap.modify m (fun x -> let y,z,r = x in (y+1,z,r)) bact.molecules
+    bact.molecules <- MolMap.modify mol (fun x -> let y,z,r = x in (y+1,z,r)) bact.molecules
   else
-    let op = Petri_net.make_from_mol m in
+    let opnet = Petri_net.make_from_mol mol in
     
-    match op with
-    | None ->
-       bact.molecules <-
-         MolMap.add m (1,None, MolSet.empty) bact.molecules;
-    | Some pnet ->
-       (* on ajoute d'abord les molécules avec laquelle elle 
-          peut réagir *)
-       (* un peu moche puisqu'on va éventuellement 
-          faire des trucs inutiles si le pnet contient 
-          plusieurs fois le meme graber ou le même binder *)
-       let reactives = 
-         (Array.fold_left
-            (fun reactives place ->
-              let reactives' = 
-                match place.Place.graber with
-                | None -> reactives
-                | Some g -> add_grabables g reactives bact
-              in
-              match place.Place.binder with
-              | None -> reactives'
-              | Some b -> add_bindables b reactives' bact
-            ) MolSet.empty pnet.places) in
-       bact.molecules <-
-         MolMap.add m (1,Some pnet, reactives) bact.molecules;
+    let reactives = ref MolSet.empty in
+    bact.molecules <-
+      MolMap.mapi
+        (fun mol' (n', opnet', reactives') ->
+          if Petri_net.can_react mol opnet mol' opnet'
+          then
+            if mol' <= mol
+            then
+              (
+                reactives := MolSet.add mol' !reactives;
+                (n', opnet', reactives')
+              )
+            else
+              (n', opnet', MolSet.add mol reactives')
+          else
+            (n', opnet', reactives')
+        )
+        bact.molecules;
+    if Petri_net.can_react mol opnet mol opnet
+    then reactives := MolSet.add mol !reactives;
+    
+    bact.molecules <-
+      MolMap.add mol (1,opnet, !reactives) bact.molecules
        
-       (* et ensuite on ajoute cette molécule aux réactions
-          possibles des molécules déjà présentes *)
-       bact.molecules <-
-         MolMap.mapi
-           (fun mol' (n',opnet', reactives') ->
-             match opnet' with
-             | None -> (n', opnet', reactives)
-             | Some pnet' ->
-                if (Petri_net.can_bind pnet pnet' ||
-                      Petri_net.can_grab m pnet')
-                then
-                  (n', Some pnet', MolSet.add m reactives')
-                else
-                  (n', Some pnet', reactives')
-           )
-           bact.molecules
        
                   
 

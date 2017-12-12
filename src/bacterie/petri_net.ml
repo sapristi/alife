@@ -158,6 +158,19 @@ let can_bind (pnet1 : t) (pnet2 : t) : bool =
              ) res pnet2.places
     )
     false pnet1.places
+
+let can_react (mol1 : Molecule.t) (opnet1 : t option)
+              (mol2 : Molecule.t) (opnet2 : t option) =
+  match opnet1, opnet2 with
+  | None, None -> false
+  | Some pnet1, None -> can_grab mol2 pnet1
+  | None, Some pnet2 -> can_grab mol1 pnet2
+  | Some pnet1, Some pnet2 ->
+     can_bind pnet1 pnet2 ||
+       can_grab mol1 pnet2 ||
+         can_grab mol2 pnet1
+  
+  
   
 let to_json (p : t) =
   `Assoc [
