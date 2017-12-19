@@ -1,8 +1,5 @@
 (* * this file *)
 
-(* on simule une bacterie entière - YAY *)
-
-(* Alors comment on fait ??? *)
 
 (*   - on compte combien de molécules identiques de chaque type on a *)
 (*    ( ça voudrait dire qu'il faudrait bien les ranger *)
@@ -27,7 +24,7 @@ open Batteries
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
 
-(* * Bacterie module *)
+(* * Container module *)
 
 
 (* Une bacterie est un conteneur à molecules. Elle s'occupe de fournir l'interprétation d'une molécule en tant que *)
@@ -101,35 +98,28 @@ module MolSet = Set.Make (struct type t = Molecule.t
                                  let compare = Pervasives.compare
                           end)
 type t =
-  {mutable molecules : (int * Petri_net.t option * MolSet.t) MolMap.t;}
+  {mutable molecules : (int * Petri_net.t option * MolSet.t) MolMap.t;
+   mutable total_mol_count : int;}
 
 (* an empty bactery *)
 let make_empty () : t = 
-  {molecules =  MolMap.empty;}
+  {molecules =  MolMap.empty;
+   total_mol_count = 0;}
   
-(* ** Molecules handling *)
-(* Les fonctions suivantes servent à gérer les molécules (quantité) *)
-(* à l'intérieur d'une bactérie *)
+(* ** interface *)
 
-(* *** get_pnet_from_mol *)
+(* Whenever modifying the bactery, it should be *)
+(* done through these functions alone *)
 
-let get_pnet_from_mol mol bact = 
-  let (_,pnet, _) = MolMap.find mol bact.molecules in
-  pnet
-
-let get_mol_quantity mol bact = 
-  let (n,_, _) = MolMap.find mol bact.molecules in
-  n
-  
-(* *** add_molecule *)
-(* adds a molecule inside a bactery *)
+(* *** add new molecule *)
+(* adds a new molecule inside a bactery *)
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
-let add_molecule (mol : Molecule.t) (bact : t) : unit =
+let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
 
   
   if MolMap.mem mol bact.molecules
   then 
-    bact.molecules <- MolMap.modify mol (fun x -> let y,z,r = x in (y+1,z,r)) bact.molecules
+    failwith "container : add_new_molecule : molecule was already present"
   else
     let opnet = Petri_net.make_from_mol mol in
     
@@ -155,55 +145,116 @@ let add_molecule (mol : Molecule.t) (bact : t) : unit =
     then reactives := MolSet.add mol !reactives;
     
     bact.molecules <-
-      MolMap.add mol (1,opnet, !reactives) bact.molecules
+      MolMap.add mol (1,opnet, !reactives) bact.molecules;
+    bact.total_mol_count <-
+      bact.total_mol_count + 1
        
-       
-                  
 
-             
-(* *** remove_molecule *)
-(* totally removes a molecule from a bactery *)
-let remove_molecule (m : Molecule.t) (bact : t) : unit =
-  bact.molecules <- MolMap.remove m bact.molecules
-
-(* *** add_to_mol_quantity *)
-(* changes the number of items of a particular molecule *)
-let add_to_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
   
-  if MolMap.mem mol bact.molecules
-  then 
-    bact.molecules <- MolMap.modify mol (fun x -> let y,z,r = x in (y+n,z,r)) bact.molecules
-  else
-    failwith "cannot update absent molecule"
-  
-(* *** set_mol_quantity *)
+(* *** set mol quantity *)
 (* changes the number of items of a particular molecule *)
 let set_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
   if MolMap.mem mol bact.molecules
-  then 
+  then
+    let old_quantity = ref 0 in
     bact.molecules <-
-      MolMap.modify mol (fun x -> let y,z,r = x in (n,z,r)) bact.molecules
+      MolMap.modify mol (fun x -> let y,z,r = x in
+                                  old_quantity := y;
+                                  (n,z,r)) bact.molecules;
+    bact.total_mol_count <-
+      bact.total_mol_count + n - !old_quantity
   else
-    failwith ("bacterie.ml : cannot change quantity :  target molecule is not present\n"
+    failwith ("bacterie.ml : update_mol_quantity :  target molecule is not present\n"
               ^mol)
 
+let add_mol_quantity (mol : Molecule.t) (n : int) (bact : t) : unit= 
+  if MolMap.mem mol bact.molecules
+  then
+    (
+      bact.molecules <-
+        MolMap.modify mol (fun x -> let y,z,r = x in
+                                    (y+n,z,r)) bact.molecules;
+      bact.total_mol_count <-
+        bact.total_mol_count + n;
+    )
+  else
+    failwith ("bacterie.ml : add_mol_quantity :  target molecule is not present\n"
+              ^mol)
   
+(* *** remove molecule *)
+(* totally removes a molecule from a bactery *)
+let remove_molecule (m : Molecule.t) (bact : t) : unit =
+  let old_quantity = ref 0 in
+  bact.molecules <-
+    MolMap.modify_opt
+      m
+      (fun data ->
+        match data with
+        | None -> failwith "container: cannot remove absent molecule"
+        | Some (n, _, _) ->
+           old_quantity := n;
+           None)
+      bact.molecules;
+  bact.total_mol_count <-
+    bact.total_mol_count - !old_quantity
+
+
+
+
+(* *** add_molecule *)
+(* adds a molecule inside a bactery *)
+(* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
+let add_molecule (mol : Molecule.t) (bact : t) : unit =
+
+  
+  if MolMap.mem mol bact.molecules
+  then 
+    add_mol_quantity mol 1 bact
+  else
+    add_new_molecule mol bact
+
+             
 (* *** add_proteine *)
 (* adds the molecule corresponding to a proteine to a bactery first transforms it back to a molecule, so the *)
 (* process is not very natural. *)
-(* **** SHOULD NOT BE USED *)
+(* ***** SHOULD NOT BE USED *)
 
 let add_proteine (prot : Proteine.t) (bact : t) : unit =
   let mol = Molecule.of_proteine prot in
   add_molecule mol bact
 
 
+  
+
+  
 
 (* ** simulation ; new *)
 
+  
 (* *** interactions *)
+(*     Interactions are reactions that happen when two molecules  *)
+(*     come in contact. *)
+
+(*     We need here to calculate each interaction probability,  *)
+(*     and then the sum of it. *)
+
+let interactions_probas (cont : t)
+    : (int * (int*(Molecule.t*Molecule.t)) list) =
+  MolMap.fold
+    (fun mol1 (n1, _, react_set) res ->
+      MolSet.fold
+        (fun mol2 res' ->
+          let (n2, _, _ ) = MolMap.find mol2 cont.molecules in
+          let (total, l) = res' in
+          (n1*n2+total, (n1*n2, (mol1, mol2))::l))
+        react_set
+        res)
+    cont.molecules
+    (0, [])
+  
 
   
+
 (* ** Interactions  ; soon deprecated *)
 
 
@@ -230,13 +281,13 @@ let asymetric_grab mol pnet =
 
 let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
     : unit =
-  let _,opnet1 = MolMap.find mol1 bact.molecules
-  and _,opnet2 = MolMap.find mol2 bact.molecules
+  let _,opnet1,_ = MolMap.find mol1 bact.molecules
+  and _,opnet2, _ = MolMap.find mol2 bact.molecules
   and try_grab mol pnet =
     if asymetric_grab mol pnet
     then
       (
-        add_to_mol_quantity mol (-1) bact;
+        add_mol_quantity mol (-1) bact;
         Petri_net.update_launchables pnet
       )
     else ()
@@ -291,7 +342,7 @@ let rec execute_actions (actions : Place.transition_effect list) (bact : t) : un
 (* *** launch_transition a specific transition in a specific pnet *)
 let launch_transition tid mol bact : unit =
   match (MolMap.find mol bact.molecules) with
-  | _, Some pnet ->
+  | _, Some pnet, _ ->
      let actions = Petri_net.launch_transition_by_id tid pnet in
      Petri_net.update_launchables pnet;
      execute_actions actions bact
@@ -303,13 +354,13 @@ let step_simulate (bact : t) : unit =
   MolMap.iter
     (fun k x ->
       match x with
-      | (n, Some pnet) ->  
+      | (n, Some pnet, _) ->  
          for i = 1 to n do
            let actions = Petri_net.launch_random_transition pnet in
            Petri_net.update_launchables pnet;
            execute_actions actions bact
          done
-      | n, None -> ())
+      | n, None, _ -> ())
     bact.molecules;
   make_reactions bact
   
@@ -324,7 +375,7 @@ type bact_sig = bact_elem list
               
 let to_json (bact : t) : Yojson.Safe.json =
   let mol_enum = MolMap.enum bact.molecules in
-  let trimmed_mol_enum = Enum.map (fun (a,(b,c)) -> {mol=a; nb=b}) mol_enum in
+  let trimmed_mol_enum = Enum.map (fun (a,(b,c,_)) -> {mol=a; nb=b}) mol_enum in
   let trimmed_mol_list = List.of_enum trimmed_mol_enum in
   bact_sig_to_yojson trimmed_mol_list
   
