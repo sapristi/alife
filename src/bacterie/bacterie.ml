@@ -101,16 +101,17 @@ type t =
   {mutable molecules : (int * Petri_net.t option * MolSet.t) MolMap.t;
    mutable total_mol_count : int;}
 
-(* an empty bactery *)
-let make_empty () : t = 
-  {molecules =  MolMap.empty;
-   total_mol_count = 0;}
   
 (* ** interface *)
 
 (* Whenever modifying the bactery, it should be *)
 (* done through these functions alone *)
 
+(* *** make empty *)
+(* an empty bactery *)
+let make_empty () : t = 
+  {molecules =  MolMap.empty;
+   total_mol_count = 0;}
 (* *** add new molecule *)
 (* adds a new molecule inside a bactery *)
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
@@ -205,7 +206,6 @@ let remove_molecule (m : Molecule.t) (bact : t) : unit =
 (* adds a molecule inside a bactery *)
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
 let add_molecule (mol : Molecule.t) (bact : t) : unit =
-
   
   if MolMap.mem mol bact.molecules
   then 
@@ -229,36 +229,43 @@ let add_proteine (prot : Proteine.t) (bact : t) : unit =
   
 
 (* ** simulation ; new *)
+   
+(*    This part takes care of simulating what happens inside  *)
+(*    a bactery (or more generally any container). *)
 
+(*    Possible events are :  *)
+(*    + a transition is launched (possibly with side effects) *)
+(*    + two molecules colide *)
+
+(*    The current simulation framework calculates each reaction rate,  *)
+(*    and then randomly selects the next reaction. *)
+   
   
-(* *** interactions *)
-(*     Interactions are reactions that happen when two molecules  *)
-(*     come in contact. *)
+(* *** collision probas *)
+(*     The collision probability between two molecules is *)
+(*     the product of their quantities.  *)
+(*     We need here to calculate each collision probability, *)
+(*     and the sum of it. *)
+(*     WARNING : possible integer overflow *)
 
-(*     We need here to calculate each interaction probability,  *)
-(*     and then the sum of it. *)
-
-let interactions_probas (cont : t)
+let collision_probas (bact : t)
     : (int * (int*(Molecule.t*Molecule.t)) list) =
   MolMap.fold
     (fun mol1 (n1, _, react_set) res ->
       MolSet.fold
         (fun mol2 res' ->
-          let (n2, _, _ ) = MolMap.find mol2 cont.molecules in
+          let (n2, _, _ ) = MolMap.find mol2 bact.molecules in
           let (total, l) = res' in
           (n1*n2+total, (n1*n2, (mol1, mol2))::l))
         react_set
         res)
-    cont.molecules
+    bact.molecules
     (0, [])
-  
 
-  
-
-(* ** Interactions  ; soon deprecated *)
+(* *** Interactions *)
 
 
-(* *** asymetric_grab *)
+(* **** asymetric_grab *)
 (* auxilary function used by try_grabs *)
 (* Try the grab of a molecule by a pnet *)
 
@@ -273,7 +280,7 @@ let asymetric_grab mol pnet =
   else
     false
 
-(* *** try grabs *)
+(* **** try grabs *)
 (* Resolve grabs when two molecules interact. Only one of the two *)
 (* molecules will get to grab the other one, randomly decided. *)
 (* We could also decide that if a mol can't grab, *)
@@ -301,6 +308,7 @@ let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
   | Some pnet1, None -> try_grab mol2 pnet1
   | None, Some pnet2 -> try_grab mol1 pnet2
   | None, None -> ()
+                
 (* *** make_reactions *)
 (* Reactions between molecules : *)
 (* we have to simulate molecules collision, *)
@@ -319,6 +327,7 @@ let make_reactions (bact : t) =
   
   
   
+
 (* ** simulation ; soon deprecated *)
 (* *** execute_actions *)
 (* after a transition from a proteine has occured, *)
