@@ -21,10 +21,10 @@ open Misc_library
 
 type input_arc = {source_place : int;
                   iatype : Acid_types.input_arc}
-                   [@@ deriving yojson]
+                   [@@ deriving show, yojson]
 type output_arc = {dest_place : int;
                    oatype : Acid_types.output_arc;}
-                    [@@ deriving yojson]
+                    [@@ deriving show, yojson]
                  
   type  t =
     {
@@ -35,7 +35,7 @@ type output_arc = {dest_place : int;
       output_arcs : output_arc list;
       index : int;
     }
-                    [@@ deriving yojson]
+                    [@@ deriving show, yojson]
   
 (* ** launchable function *)
 (* Tells whether a given transition can be launched, *)

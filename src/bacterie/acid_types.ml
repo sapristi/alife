@@ -40,7 +40,7 @@
 
 (* *** place *)
 type place_type = Regular_place
-                    [@@deriving yojson]
+                    [@@deriving show, yojson]
                 
 (* *** transition_input *)
 type input_arc = 
@@ -48,14 +48,14 @@ type input_arc =
   | Split_iarc
   | Filter_iarc of string
   | Filter_empty_iarc
-[@@deriving yojson]
+[@@deriving show, yojson]
   
 (* *** transition_output *)
 type output_arc = 
   | Regular_oarc
   | Bind_oarc
   | Move_oarc of bool
-                   [@@deriving  yojson]
+                   [@@deriving show, yojson]
 
 
 (* *** extension *)
@@ -75,7 +75,7 @@ type extension =
   | Init_with_token_ext
   | Bind_ext of string
           
-[@@deriving  yojson]
+[@@deriving  show, yojson]
   
 (*      
       | Information of string  

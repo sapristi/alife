@@ -2,10 +2,10 @@
 (* *** pnet_from_mol *) 
 
 let handle_bact_req bact (cgi:Netcgi.cgi) :string  = 
-  let pnet_from_mol bact (cgi:Netcgi.cgi) =
+  let pnet_from_mol (bact : Bacterie.t) (cgi:Netcgi.cgi) =
     let mol = cgi # argument_value "mol_desc" in
-    match Bacterie.get_pnet_from_mol mol bact with
-    | Some pnet ->
+    match Bacterie.MolMap.find mol bact.molecules with
+    | _,Some pnet,_ ->
        let pnet_json = Petri_net.to_json pnet
        in
        let to_send_json =
@@ -14,7 +14,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
            "data",  `Assoc ["pnet", pnet_json]] 
        in
        Yojson.Safe.to_string to_send_json
-    | None -> "no pnet for this mol"
+    | _,None,_ -> "no pnet for this mol"
 (* *** get_bact_elements *)
     
   and get_bact_elements bact =
@@ -25,15 +25,8 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
     
     
   in
-  let make_reactions bact =
-    Bacterie.make_reactions bact;
-    let json_data = `Assoc
-                     ["purpose", `String "bactery_update_desc";
-                      "data", (Bacterie.to_json bact)] in  
-    Yojson.Safe.to_string json_data
-    
-  and make_sim_round bact =
-    Bacterie.step_simulate bact;
+  let next_reaction bact =
+    Bacterie.next_reaction bact;
     let json_data = `Assoc
                      ["purpose", `String "bactery_update_desc";
                       "data", (Bacterie.to_json bact)] in  
@@ -52,7 +45,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
          let place_index = int_of_string place_index_str in
          
          match Bacterie.MolMap.find mol bact.molecules with
-         | _, Some pnet ->
+         | _, Some pnet,_ ->
             (
               match token_o with
               | Some token -> 
@@ -68,7 +61,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
                ["purpose", `String "pnet_update";
                 "data",  `Assoc ["pnet", pnet_json]] in  
             Yojson.Safe.to_string to_send_json
-         | _, None -> "no pnet for this mol"
+         | _, None,_ -> "no pnet for this mol"
        )
     | Error s -> print_endline "error decoding token";
                  s
@@ -80,7 +73,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
     let trans_index = int_of_string trans_index_str in
     
     match Bacterie.MolMap.find mol bact.molecules with
-    | _, Some pnet -> 
+    | _, Some pnet,_ -> 
     
        Petri_net.launch_transition_by_id trans_index pnet;
        Petri_net.update_launchables pnet;
@@ -92,7 +85,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
        ["purpose", `String "pnet_update";
         "data",  `Assoc ["pnet", pnet_json]] in  
        Yojson.Safe.to_string to_send_json
-    | _, None ->  "no pnet for this mol"
+    | _, None,_ ->  "no pnet for this mol"
 
   and add_mol bact (cgi : Netcgi.cgi) = 
     let mol = cgi # argument_value "mol_desc" in
@@ -138,11 +131,8 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
   else if command = "get_elements"
   then get_bact_elements bact
   
-  else if command = "make_reactions"
-  then make_reactions bact
-  
-  else if command = "make_sim_round"
-  then make_sim_round bact
+  else if command = "next_reaction"
+  then next_reaction bact
   
   else if command = "commit token edit"
   then commit_token_edit bact cgi

@@ -36,12 +36,12 @@ open Random
 type t =
   {
     mol : Molecule.t;
-    transitions : Transition.t array;
-    places : Place.t  array;
-    uid : int;
-    binders : (int*string) list;
+    transitions : Transition.t array; [@opaque]
+    places : Place.t  array; [@opaque]
+    uid : int; [@opaque]
+    binders : (int*string) list; [@opaque]
   } 
-
+    [@@deriving show]
 
   
 let update_launchables (pnet :t) : unit =

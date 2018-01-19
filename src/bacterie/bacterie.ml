@@ -21,6 +21,7 @@
 open Misc_library
 open Maps
 open Batteries
+open Reactions
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
 
@@ -99,6 +100,7 @@ module MolSet = Set.Make (struct type t = Molecule.t
                           end)
 type t =
   {mutable molecules : (int * Petri_net.t option * MolSet.t) MolMap.t;
+   (* mol -> mol_quantity, pnet, possible_reactants *)
    mutable total_mol_count : int;}
 
   
@@ -239,30 +241,51 @@ let add_proteine (prot : Proteine.t) (bact : t) : unit =
 
 (*    The current simulation framework calculates each reaction rate,  *)
 (*    and then randomly selects the next reaction. *)
-   
-  
-(* *** collision probas *)
+
+             
+(* *** reactions *)
+
+(* **** transitions *)
+
+let transition_reactions (bact:t) : float*((float*reaction) list) =
+  MolMap.fold
+    (fun mol1 (n, opnet, _) res ->
+      match opnet with
+      | Some pnet ->
+         let total_rate, l = res
+         and rate = (float_of_int n) /. (float_of_int bact.total_mol_count) in
+         (total_rate +. rate, (rate, Transition pnet) :: l)
+      | None -> res
+    )
+    bact.molecules
+    (0., [])
+(* **** collision  *)
 (*     The collision probability between two molecules is *)
-(*     the product of their quantities.  *)
-(*     We need here to calculate each collision probability, *)
+(*     the product of their quantities. *)
+(*     We might need to add other parameters, such as  *)
+(*     the volume of the container, and use a float constant *)
+(*     to avoid integer overflow. *)
+(*     We here calculate each collision probability, *)
 (*     and the sum of it. *)
 (*     WARNING : possible integer overflow *)
 
-let collision_probas (bact : t)
-    : (int * (int*(Molecule.t*Molecule.t)) list) =
+let collision_reactions (bact : t) : float *((float* reaction) list) =
   MolMap.fold
     (fun mol1 (n1, _, react_set) res ->
       MolSet.fold
         (fun mol2 res' ->
           let (n2, _, _ ) = MolMap.find mol2 bact.molecules in
           let (total, l) = res' in
-          (n1*n2+total, (n1*n2, (mol1, mol2))::l))
+          let current_rate = (float_of_int (n1*n2)) /. float_of_int bact.total_mol_count in
+          (current_rate +. total,
+           (current_rate, Collision (mol1, mol2))::l))
         react_set
         res)
     bact.molecules
-    (0, [])
+    (0., [])
 
-(* *** Interactions *)
+
+(* *** Interactions  *)
 
 
 (* **** asymetric_grab *)
@@ -316,20 +339,8 @@ let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
 
 (* For now, collisions are static and do *)
 (* not depend on anything (e.g. the number of molecules) *)
-  
-let make_reactions (bact : t) =
-  Enum.iter
-    (fun mol1 ->
-      Enum.iter
-        (fun mol2 -> try_grabs mol1 mol2 bact)
-        (MolMap.keys bact.molecules))
-    (MolMap.keys bact.molecules)
-  
-  
-  
 
-(* ** simulation ; soon deprecated *)
-(* *** execute_actions *)
+(* **** execute_actions *)
 (* after a transition from a proteine has occured, *)
 (*    some actions may need to be performed by the bactery *)
 (*   for now, only the release effect is in use *)
@@ -347,7 +358,33 @@ let rec execute_actions (actions : Place.transition_effect list) (bact : t) : un
      execute_actions actions' bact
   | [] -> ()
         
+  
+let treat_reaction (bact : t) (r : reaction) =
+  match r with
+  | Transition pnet ->
+     let actions = Petri_net.launch_random_transition pnet in
+     Petri_net.update_launchables pnet;
+     execute_actions actions bact
+  | Collision (mol1,mol2) ->
+     try_grabs mol1 mol2 bact
+  | _ ->
+     failwith "treat_reaction@bacterie.ml : can't treat meta reaction"
 
+let next_reaction (bact : t)  =
+  let t_rate, t_reacs = transition_reactions bact
+  and col_rate, col_reacs = collision_reactions bact in
+  print_endline (Reactions.show_reaction (Meta t_reacs));
+  print_endline (Reactions.show_reaction (Meta col_reacs));
+  let r =  pick_reaction (t_rate +. col_rate)
+                         (Meta [(t_rate, Meta t_reacs);
+                                (col_rate, Meta col_reacs)])
+  in treat_reaction bact r   
+
+  
+  
+(* ** simulation ; soon deprecated *)
+
+        
 (* *** launch_transition a specific transition in a specific pnet *)
 let launch_transition tid mol bact : unit =
   match (MolMap.find mol bact.molecules) with
@@ -356,24 +393,6 @@ let launch_transition tid mol bact : unit =
      Petri_net.update_launchables pnet;
      execute_actions actions bact
   | _ -> ()
-(* *** step_simulate *)
-(* the more the quantity of a molecule, the more actions it *)
-(* can do in one round *)
-let step_simulate (bact : t) : unit = 
-  MolMap.iter
-    (fun k x ->
-      match x with
-      | (n, Some pnet, _) ->  
-         for i = 1 to n do
-           let actions = Petri_net.launch_random_transition pnet in
-           Petri_net.update_launchables pnet;
-           execute_actions actions bact
-         done
-      | n, None, _ -> ())
-    bact.molecules;
-  make_reactions bact
-  
-(*    pop_all_messages bact *)
 
 (* ** json serialisation *)
 type bact_elem = {nb : int;mol: Molecule.t} 

@@ -46,16 +46,9 @@ function BactViewModel(pnetVM) {
     };
 
     
-    self.eval_reactions = function() {
+    self.next_reaction = function() {
         utils.ajax_get(
-            {command:"make_reactions",
-	     container:"bactery"}
-        ).done(self.set_bact_data);
-    };
-    
-    self.make_sim_round = function() {
-        utils.ajax_get(
-            {command:"make_sim_round",
+            {command:"next_reaction",
 	     container:"bactery"}
         ).done(self.set_bact_data);
     };

@@ -13,10 +13,10 @@ open Misc_library
 
    
 type t = int * Molecule.t
-                 [@@deriving yojson]
+                 [@@deriving show, yojson]
 
 type option_t = t option
-                  [@@deriving yojson]
+                  [@@deriving show, yojson]
               
 let is_empty ((_,m) : t) =  m = ""
                           

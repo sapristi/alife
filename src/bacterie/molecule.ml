@@ -12,7 +12,7 @@
 
     
 type t = string
-           [@@deriving yojson] 
+           [@@deriving show, yojson] 
        
 let atoms = "[A-F]"
 
