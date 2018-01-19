@@ -84,7 +84,12 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
     in
     let uid = idProvider#get_id ()
     in
-    Some {mol; transitions; places; binders; uid}
+    (* simple filter to deactivate pnets without places *)
+    if Array.length places > 0
+    then 
+      Some {mol; transitions; places; binders; uid}
+    else
+      None
   with
   | _ ->
      print_endline "cannot build pnet";

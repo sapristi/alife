@@ -31,6 +31,17 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
                      ["purpose", `String "bactery_update_desc";
                       "data", (Bacterie.to_json bact)] in  
     Yojson.Safe.to_string json_data
+
+  and next_n_reactions bact =
+    let n_str = cgi # argument_value "n" in
+    let n = int_of_string n_str in 
+    for i = 0 to n do
+      Bacterie.next_reaction bact;
+    done;
+    let json_data = `Assoc
+                     ["purpose", `String "bactery_update_desc";
+                      "data", (Bacterie.to_json bact)] in  
+    Yojson.Safe.to_string json_data
     
   and commit_token_edit (bact : Bacterie.t) (cgi : Netcgi.cgi)
       : string =
@@ -133,6 +144,9 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
   
   else if command = "next_reaction"
   then next_reaction bact
+  
+  else if command = "next_n_reactions"
+  then next_n_reactions bact
   
   else if command = "commit token edit"
   then commit_token_edit bact cgi

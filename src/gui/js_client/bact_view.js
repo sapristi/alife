@@ -13,6 +13,7 @@ function BactViewModel(pnetVM) {
     self.selected_mol_index = ko.observable();
 
     self.mol_quantity_input = ko.observable(0);
+    self.reactions_number_input = ko.observable(1);
     
     self.current_mol_name = ko.computed(
 	function() {
@@ -46,6 +47,13 @@ function BactViewModel(pnetVM) {
     };
 
     
+    self.next_n_reactions = function(n) {
+        utils.ajax_get(
+            {command:"next_n_reactions",
+	     n : self.reactions_number_input,
+	     container:"bactery"}
+        ).done(self.set_bact_data);
+    };
     self.next_reaction = function() {
         utils.ajax_get(
             {command:"next_reaction",

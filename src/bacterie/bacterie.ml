@@ -74,16 +74,26 @@ open Reactions
 
 (*    MAIS *)
 
-(*    si on veut pouvoir simplifier avec les molécules qui n'ont  *)
-(*    pas de pnet, il faudra avoir deux sets de reactives :  *)
+(*    si on veut pouvoir simplifier avec les molécules qui n'ont *)
+(*    pas de pnet, il faudra avoir deux sets de reactives : *)
 (*    + un comme précédemment (donc seulement les mol' < mol) *)
 (*      pour les molécules qui ont un PNet *)
-(*    + un second qui ne contient que des molécules qui  *)
+(*    + un second qui ne contient que des molécules qui *)
 (*      n'ont pas de PNet *)
 
 
 (* - il faudrait aussi stoquer séparement les molécules qui n'ont *)
 (*   pas de réseau de pétri (ou des réseaux dégénérés) *)
+
+
+(* Autre idée : construire un arbre des réactions (pas complètement *)
+(* un arbre mais presque). *)
+(* Les feuilles sont les molécules. *)
+(* Pour chaque réaction, un nœud est créé comme étant un parent *)
+(* des molécules impliquées. Quand une molécule change *)
+(* (changement du pnet, changement des quantités), il suffit  *)
+(* de parcourir l'arbre vers la racine pour mettre à jour les taux de réaction. *)
+
 
 
 
@@ -232,14 +242,14 @@ let add_proteine (prot : Proteine.t) (bact : t) : unit =
 
 (* ** simulation ; new *)
    
-(*    This part takes care of simulating what happens inside  *)
+(*    This part takes care of simulating what happens inside *)
 (*    a bactery (or more generally any container). *)
 
-(*    Possible events are :  *)
+(*    Possible events are : *)
 (*    + a transition is launched (possibly with side effects) *)
 (*    + two molecules colide *)
 
-(*    The current simulation framework calculates each reaction rate,  *)
+(*    The current simulation framework calculates each reaction rate, *)
 (*    and then randomly selects the next reaction. *)
 
              
@@ -259,10 +269,10 @@ let transition_reactions (bact:t) : float*((float*reaction) list) =
     )
     bact.molecules
     (0., [])
-(* **** collision  *)
+(* **** collision *)
 (*     The collision probability between two molecules is *)
 (*     the product of their quantities. *)
-(*     We might need to add other parameters, such as  *)
+(*     We might need to add other parameters, such as *)
 (*     the volume of the container, and use a float constant *)
 (*     to avoid integer overflow. *)
 (*     We here calculate each collision probability, *)
@@ -285,7 +295,7 @@ let collision_reactions (bact : t) : float *((float* reaction) list) =
     (0., [])
 
 
-(* *** Interactions  *)
+(* *** Interactions *)
 
 
 (* **** asymetric_grab *)
