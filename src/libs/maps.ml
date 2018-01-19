@@ -42,22 +42,6 @@ struct
 end;;
    
 
-
-module MakeMolMap = 
-  functor 
-  (KeyT : BatInterfaces.OrderedType)  -> 
-struct 
-  include BatMap.Make(KeyT)
-
-  let rel_change_mol_quantity (key : KeyT.t) (n : int) map =
-    modify 
-      key
-      (fun x -> let (a,b) = x in (a+n,b))
-      map
-
-
-end;;
-
   
 
 let get_maps_keys (map : ('a, 'b) BatMultiPMap.t) : 'a list =

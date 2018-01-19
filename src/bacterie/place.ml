@@ -17,7 +17,7 @@ type t =
    graber : Graber.t option;
    binder : string option;
   }
-    [@@deriving yojson]
+    [@@deriving show, yojson]
 (* **** make a place *)
 
 let make_binders_grabers extensions = 

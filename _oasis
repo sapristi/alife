@@ -92,12 +92,20 @@ Library "extended_pnet"
   Modules: Extended_pnet
   BuildDepends: batteries, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.petri_net, local_libs, yojson, ppx_deriving_yojson, ocamlgraph
 
+Library "reactions"
+  FindLibName : reactions
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Reactions
+  BuildDepends : ppx_deriving.show
+
+
 Library "bacterie"
   FindLibName : bacterie
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Bacterie
-  BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.petri_net, batteries
+  BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.petri_net, batteries, bacterie_libs.reactions
 
 Library "bacterie_libs"
   FindLibName : bacterie_libs

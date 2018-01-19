@@ -23,7 +23,7 @@ type t =
   {mol_repr : string;
    str_repr : string;
    re : Re.re}
-  
+  [@@deriving show]
 
 (* *** build_from_atom_list *)
 (*     Transforms a list of atoms into a string representing a regular *)

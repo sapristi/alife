@@ -36,12 +36,12 @@ open Random
 type t =
   {
     mol : Molecule.t;
-    transitions : Transition.t array;
-    places : Place.t  array;
-    uid : int;
-    binders : (int*string) list;
+    transitions : Transition.t array; [@opaque]
+    places : Place.t  array; [@opaque]
+    uid : int; [@opaque]
+    binders : (int*string) list; [@opaque]
   } 
-
+    [@@deriving show]
 
   
 let update_launchables (pnet :t) : unit =
@@ -84,7 +84,12 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
     in
     let uid = idProvider#get_id ()
     in
-    Some {mol; transitions; places; binders; uid}
+    (* simple filter to deactivate pnets without places *)
+    if Array.length places > 0
+    then 
+      Some {mol; transitions; places; binders; uid}
+    else
+      None
   with
   | _ ->
      print_endline "cannot build pnet";
@@ -128,6 +133,48 @@ let grab (mol : Molecule.t) (pos : int) (pid : int) (pnet : t)
     : bool = 
   let token = Token.make mol pos in
   Place.add_token_from_grab token (pnet.places.(pid))
+  
+(* *** functions to build the reactives *)
+(* can be optimized, but this will do for now *)
+  
+let can_grab (mol : Molecule.t) (pnet : t) : bool =
+  Array.fold_left
+    (fun res place ->
+      match place.Place.graber with
+      | None -> res 
+      | Some g ->
+         match Graber.get_match_pos g mol with
+         | None -> res
+         | Some _ -> true
+    ) false pnet.places
+
+let can_bind (pnet1 : t) (pnet2 : t) : bool = 
+  Array.fold_left
+    (fun res place1 ->
+      match place1.Place.binder with
+      | None -> res
+      | Some b ->
+           Array.fold_left
+             (fun res place2 ->
+                  match place2.Place.binder with
+                  | None -> res
+                  | Some b' ->
+                     b = String.rev b'
+             ) res pnet2.places
+    )
+    false pnet1.places
+
+let can_react (mol1 : Molecule.t) (opnet1 : t option)
+              (mol2 : Molecule.t) (opnet2 : t option) =
+  match opnet1, opnet2 with
+  | None, None -> false
+  | Some pnet1, None -> can_grab mol2 pnet1
+  | None, Some pnet2 -> can_grab mol1 pnet2
+  | Some pnet1, Some pnet2 ->
+     can_bind pnet1 pnet2 ||
+       can_grab mol1 pnet2 ||
+         can_grab mol2 pnet1
+  
   
   
 let to_json (p : t) =

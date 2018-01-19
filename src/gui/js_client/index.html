@@ -58,21 +58,26 @@
 		 style="max-width:100px; padding-left:0; padding-right:0">
 		  <h4 class="ui horizontal divider header">
 			  Simulation
-	      </h4>
-		  <div class="ui vertical buttons">
-			  <button class="ui button tooltip"
-			data-bind="click:bactVM.eval_reactions"
-			style="padding-left:5px;padding-right:5px">
-			  Eval Reactions
-			  <span class="tooltiptext">Evaluates reactions between molecules</span>
-		</button>
-			  <button class="ui primary button tooltip"
-			data-bind="click:bactVM.make_sim_round"
-			style="padding-left:5px;padding-right:5px">
-			  Simulation round
-			  <span class="tooltiptext">Evaluates reactions and launches transitions of the petri nets</span>
-		</button>
-	      </div>
+		  </h4>
+		  
+		  <button class="ui primary button tooltip"
+			  data-bind="click:bactVM.next_reaction"
+			  style="padding-left:5px;padding-right:5px">
+		    Next reaction
+		    <span class="tooltiptext">Evaluates the next reaction</span>
+		  </button>
+		  <div class="ui action input">
+		    <button class="ui primary button tooltip"
+			    data-bind="click:bactVM.next_reactions"
+			    style="padding-left:5px;padding-right:5px">
+		      Next reactions
+		      <span class="tooltiptext">Evaluates the next reaction</span>
+		    </button>
+		    <input placeholder="number"
+			   type="text"
+			   size="4"
+			   data-bind="value:bactVM.reactions_number_input"/>
+		  </div>
 	    </div></div>
 		</div>
 	<div class="ui divided grid">
@@ -161,13 +166,13 @@
 				 data-bind="click:set_mol_quantity">
 			    Set quantity
 			    <span class="big tooltiptext">Set the quantity of molecules in the bactery. <br> Note that molecules can have negative quantity (ugh), but if the quantity is less than 0 then no transition will be launched in a simulation round </span>
-		  </button>
+			    </button>
 
 			    <input placeholder="quantity"
-			 type="text"
-			 size="4"
-			 data-bind="value:mol_quantity_input"/>
-		</div>
+				   type="text"
+				   size="4"
+				   data-bind="value:mol_quantity_input"/>
+			    </div>
 
 			    <button class="ui icon button tooltip" data-bind="click:$root.molbuilderVM.init_from_mol">
 			    Send to Mol Builder
