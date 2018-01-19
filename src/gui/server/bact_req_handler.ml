@@ -136,7 +136,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
   else if command = "get_elements"
   then get_bact_elements bact
   
-  else if command = "next_n_reactions"
+  else if command = "next_reactions"
   then next_reactions bact
   
   else if command = "commit token edit"
