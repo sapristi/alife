@@ -47,16 +47,17 @@ function BactViewModel(pnetVM) {
     };
 
     
-    self.next_n_reactions = function(n) {
+    self.next_reactions = function(n) {
         utils.ajax_get(
-            {command:"next_n_reactions",
+            {command:"next_reactions",
 	     n : self.reactions_number_input,
 	     container:"bactery"}
         ).done(self.set_bact_data);
     };
     self.next_reaction = function() {
         utils.ajax_get(
-            {command:"next_reaction",
+            {command:"next_reactions",
+	     n:1,
 	     container:"bactery"}
         ).done(self.set_bact_data);
     };

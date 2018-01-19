@@ -25,14 +25,8 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
     
     
   in
-  let next_reaction bact =
-    Bacterie.next_reaction bact;
-    let json_data = `Assoc
-                     ["purpose", `String "bactery_update_desc";
-                      "data", (Bacterie.to_json bact)] in  
-    Yojson.Safe.to_string json_data
 
-  and next_n_reactions bact =
+  let next_reactions bact =
     let n_str = cgi # argument_value "n" in
     let n = int_of_string n_str in 
     for i = 0 to n do
@@ -142,11 +136,8 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
   else if command = "get_elements"
   then get_bact_elements bact
   
-  else if command = "next_reaction"
-  then next_reaction bact
-  
   else if command = "next_n_reactions"
-  then next_n_reactions bact
+  then next_reactions bact
   
   else if command = "commit token edit"
   then commit_token_edit bact cgi
