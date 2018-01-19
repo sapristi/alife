@@ -45,3 +45,9 @@ Then visit =localhost:port=
     + graphviz-dot mode
 
       
+* todo
+
+- implement a graph to manage reactions and reaction rates
+- logging system
+- errors to allow evolution
+- extended pnets and membranes
