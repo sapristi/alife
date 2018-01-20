@@ -108,11 +108,11 @@ module MolMap = Map.Make (struct type t = Molecule.t
 module MolSet = Set.Make (struct type t = Molecule.t
                                  let compare = Pervasives.compare
                           end)
-type t =
-  {mutable molecules : (int * Petri_net.t option * MolSet.t) MolMap.t;
-   (* mol -> mol_quantity, pnet, possible_reactants *)
-   mutable total_mol_count : int;}
 
+type t =
+  {mutable molecules : ((int ref * Petri_net.t option ref * MolSet.t) ) MolMap.t;
+   mutable total_mol_count : int;}
+  
   
 (* ** interface *)
 
@@ -139,26 +139,26 @@ let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
     let reactives = ref MolSet.empty in
     bact.molecules <-
       MolMap.mapi
-        (fun mol' (n', opnet', reactives') ->
-          if Petri_net.can_react mol opnet mol' opnet'
+        (fun mol' (rn', ropnet', reactives') ->
+          if Petri_net.can_react mol opnet mol' (!ropnet')
           then
             if mol' <= mol
             then
               (
                 reactives := MolSet.add mol' !reactives;
-                (n', opnet', reactives')
+                (rn', ropnet', reactives')
               )
             else
-              (n', opnet', MolSet.add mol reactives')
+              (rn', ropnet', MolSet.add mol reactives')
           else
-            (n', opnet', reactives')
+            (rn', ropnet', reactives')
         )
         bact.molecules;
     if Petri_net.can_react mol opnet mol opnet
     then reactives := MolSet.add mol !reactives;
     
     bact.molecules <-
-      MolMap.add mol (1,opnet, !reactives) bact.molecules;
+      MolMap.add mol (ref 1,ref opnet, !reactives) bact.molecules;
     bact.total_mol_count <-
       bact.total_mol_count + 1
        
@@ -169,13 +169,11 @@ let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
 let set_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
   if MolMap.mem mol bact.molecules
   then
-    let old_quantity = ref 0 in
-    bact.molecules <-
-      MolMap.modify mol (fun x -> let y,z,r = x in
-                                  old_quantity := y;
-                                  (n,z,r)) bact.molecules;
+    let y, _, _ = MolMap.find mol bact.molecules in
+    let old_quantity = !y in
+    y := n;
     bact.total_mol_count <-
-      bact.total_mol_count + n - !old_quantity
+      bact.total_mol_count + n - old_quantity
   else
     failwith ("bacterie.ml : update_mol_quantity :  target molecule is not present\n"
               ^mol)
@@ -184,9 +182,8 @@ let add_mol_quantity (mol : Molecule.t) (n : int) (bact : t) : unit=
   if MolMap.mem mol bact.molecules
   then
     (
-      bact.molecules <-
-        MolMap.modify mol (fun x -> let y,z,r = x in
-                                    (y+n,z,r)) bact.molecules;
+      let y, _, _ = MolMap.find mol bact.molecules in
+      y := !y + n;
       bact.total_mol_count <-
         bact.total_mol_count + n;
     )
@@ -196,6 +193,8 @@ let add_mol_quantity (mol : Molecule.t) (n : int) (bact : t) : unit=
   
 (* *** remove molecule *)
 (* totally removes a molecule from a bactery *)
+(* TODO : update reactives *)
+
 let remove_molecule (m : Molecule.t) (bact : t) : unit =
   let old_quantity = ref 0 in
   bact.molecules <-
@@ -205,14 +204,11 @@ let remove_molecule (m : Molecule.t) (bact : t) : unit =
         match data with
         | None -> failwith "container: cannot remove absent molecule"
         | Some (n, _, _) ->
-           old_quantity := n;
+           old_quantity := !n;
            None)
       bact.molecules;
   bact.total_mol_count <-
     bact.total_mol_count - !old_quantity
-
-
-
 
 (* *** add_molecule *)
 (* adds a molecule inside a bactery *)
@@ -286,7 +282,7 @@ let collision_reactions (bact : t) : float *((float* reaction) list) =
         (fun mol2 res' ->
           let (n2, _, _ ) = MolMap.find mol2 bact.molecules in
           let (total, l) = res' in
-          let current_rate = (float_of_int (n1*n2)) /. float_of_int bact.total_mol_count in
+          let current_rate = (float_of_int (!n1*(!n2))) /. float_of_int bact.total_mol_count in
           (current_rate +. total,
            (current_rate, Collision (mol1, mol2))::l))
         react_set
@@ -321,8 +317,8 @@ let asymetric_grab mol pnet =
 
 let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
     : unit =
-  let _,opnet1,_ = MolMap.find mol1 bact.molecules
-  and _,opnet2, _ = MolMap.find mol2 bact.molecules
+  let _,{contents = opnet1},_ = MolMap.find mol1 bact.molecules
+  and _,{contents = opnet2}, _ = MolMap.find mol2 bact.molecules
   and try_grab mol pnet =
     if asymetric_grab mol pnet
     then
@@ -398,7 +394,7 @@ let next_reaction (bact : t)  =
 (* *** launch_transition a specific transition in a specific pnet *)
 let launch_transition tid mol bact : unit =
   match (MolMap.find mol bact.molecules) with
-  | _, Some pnet, _ ->
+  | _, {contents = Some pnet}, _ ->
      let actions = Petri_net.launch_transition_by_id tid pnet in
      Petri_net.update_launchables pnet;
      execute_actions actions bact
@@ -413,7 +409,7 @@ type bact_sig = bact_elem list
               
 let to_json (bact : t) : Yojson.Safe.json =
   let mol_enum = MolMap.enum bact.molecules in
-  let trimmed_mol_enum = Enum.map (fun (a,(b,c,_)) -> {mol=a; nb=b}) mol_enum in
+  let trimmed_mol_enum = Enum.map (fun (a,(b,c,_)) -> {mol=a; nb= !b}) mol_enum in
   let trimmed_mol_list = List.of_enum trimmed_mol_enum in
   bact_sig_to_yojson trimmed_mol_list
   
