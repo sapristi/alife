@@ -255,11 +255,11 @@ let add_proteine (prot : Proteine.t) (bact : t) : unit =
 
 let transition_reactions (bact:t) : float*((float*reaction) list) =
   MolMap.fold
-    (fun mol1 (n, opnet, _) res ->
+    (fun mol1 (n, {contents = opnet}, _) res ->
       match opnet with
       | Some pnet ->
          let total_rate, l = res
-         and rate = (float_of_int n) /. (float_of_int bact.total_mol_count) in
+         and rate = (float_of_int !n) /. (float_of_int bact.total_mol_count) in
          (total_rate +. rate, (rate, Transition pnet) :: l)
       | None -> res
     )
