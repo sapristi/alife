@@ -2,7 +2,8 @@
 
 (* ** preamble*)
 open Bact_req_handler
-
+open Logs
+   
 let handle_general_req (cgi:Netcgi.cgi) : string =
 (* *** prot_from_mol *)
   let prot_from_mol (cgi:Netcgi.cgi) : string =
@@ -96,9 +97,8 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
   
   
 let handle_req (bact : Bacterie.t) env (cgi:Netcgi.cgi)  =
+  Logs.info (fun m -> m "serving GET request : %s\n" (cgi # environment # cgi_query_string));
   
-  print_endline ("serving GET request :"^(cgi # environment # cgi_query_string));
-
   List.iter (fun x -> print_endline ((x # name)^" : "^(x#value))) (cgi # arguments);
   
   let response = 

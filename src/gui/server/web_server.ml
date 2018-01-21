@@ -114,19 +114,3 @@ let start_srv req_processor (conn_attr) =
   Unixqueue.run ues
 ;;
 
-(*
-let print_req env (cgi:Netcgi.cgi) =
-  let rec print_arg_list (l : Netcgi.cgi_argument list) =
-    match l with
-    | h::t -> (h#name )^" "^(h#value)^(print_arg_list t)
-    | [] -> ""
-  in
-  
-  cgi # output # output_string "<html><body>\n";
-  cgi # output # output_string (print_arg_list cgi#arguments);
-  cgi # output # output_string "</body></html>\n";
-  cgi # output # commit_work()
-;;
-
- *)
-  (*  start_srv print_req 8765;; *)

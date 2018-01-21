@@ -103,12 +103,12 @@ open Reactions_new
 module MolMap = Map.Make (struct type t = Molecule.t
                                  let compare = Pervasives.compare
                           end)
-
-                    
+              
+              
 module MolSet = Set.Make (struct type t = Molecule.t
                                  let compare = Pervasives.compare
                           end)
-
+              
 type t =
   {mutable molecules : (int ref * Petri_net.t option ref * ((Reactions_new.collision ref list) * (Reactions_new.transition ref option))) MolMap.t;
    mutable total_mol_count : int;
@@ -117,7 +117,7 @@ type t =
   
   
 (* ** interface *)
-
+  
 (* Whenever modifying the bactery, it should be *)
 (* done through these functions alone *)
 
@@ -131,7 +131,6 @@ let make_empty () : t =
 (* adds a new molecule inside a bactery *)
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
 let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
-
   
   if MolMap.mem mol bact.molecules
   then 

@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 30a07478e6e4cdec131b0e6a0ea31fe2)
+# DO NOT EDIT (digest: 5f123d68dbaebad3571f4328d7c8d054)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "servers.cma"
@@ -22,7 +22,7 @@ package "bact_server" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule servers.web_server bacterie.sandbox servers.bact_req_handler bacterie_libs.sandbox"
+ "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule servers.web_server bacterie.sandbox servers.bact_req_handler bacterie_libs.sandbox logs logs_fmt"
  archive(byte) = "bact_server.cma"
  archive(byte, plugin) = "bact_server.cma"
  archive(native) = "bact_server.cmxa"
@@ -34,7 +34,7 @@ package "bact_req_handler" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule"
+ "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule logs"
  archive(byte) = "bact_req_handler.cma"
  archive(byte, plugin) = "bact_req_handler.cma"
  archive(native) = "bact_req_handler.cmxa"

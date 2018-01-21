@@ -33,5 +33,8 @@ CMT /home/sapristi/.opam/4.04.0/build/ppx_deriving.4.2/_build
 PKG re
 CMT /home/sapristi/.opam/4.04.0/build/re.1.7.1/_build
 
+PKG logs
+CMT /home/sapristi/.opam/4.04.0/build/logs.0.6.2/_build
+
 PKG ocamlgraph
 CMT /home/sapristi/.opam/4.04.0/build/ocamlgraph.1.8.8/_build
