@@ -21,7 +21,7 @@
 open Misc_library
 open Maps
 open Batteries
-open Reactions
+open Reactions_new
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
 
@@ -110,8 +110,10 @@ module MolSet = Set.Make (struct type t = Molecule.t
                           end)
 
 type t =
-  {mutable molecules : ((int ref * Petri_net.t option ref * MolSet.t) ) MolMap.t;
-   mutable total_mol_count : int;}
+  {mutable molecules : (int ref * Petri_net.t option ref * ((Reactions_new.collision ref list) * (Reactions_new.transition ref option))) MolMap.t;
+   mutable total_mol_count : int;
+   reacs : Reactions_new.t;
+  }
   
   
 (* ** interface *)
@@ -123,7 +125,8 @@ type t =
 (* an empty bactery *)
 let make_empty () : t = 
   {molecules =  MolMap.empty;
-   total_mol_count = 0;}
+   total_mol_count = 0;
+   reacs = Reactions_new.make_new ();}
 (* *** add new molecule *)
 (* adds a new molecule inside a bactery *)
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
@@ -134,34 +137,61 @@ let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
   then 
     failwith "container : add_new_molecule : molecule was already present"
   else
-    let opnet = Petri_net.make_from_mol mol in
+    let ropnet = ref (Petri_net.make_from_mol mol)
+    and rn = ref 1
+    in
     
-    let reactives = ref MolSet.empty in
+    let collisions = ref [] in
     bact.molecules <-
       MolMap.mapi
-        (fun mol' (rn', ropnet', reactives') ->
-          if Petri_net.can_react mol opnet mol' (!ropnet')
+        (fun mol' (rn', ropnet', (collisions', transition')) ->
+          if Petri_net.can_react mol (!ropnet) mol' (!ropnet')
           then
-            if mol' <= mol
-            then
-              (
-                reactives := MolSet.add mol' !reactives;
-                (rn', ropnet', reactives')
-              )
-            else
-              (rn', ropnet', MolSet.add mol reactives')
+            let new_collision = Reactions_new.add_collision
+                                  (mol, rn, ropnet)
+                                  (mol', rn', ropnet')
+                                  bact.reacs
+            in
+            collisions := new_collision :: (!collisions);
+            (rn', ropnet', (new_collision::collisions', transition'))
           else
-            (rn', ropnet', reactives')
+            (rn', ropnet', (collisions', transition'))
         )
         bact.molecules;
-    if Petri_net.can_react mol opnet mol opnet
-    then reactives := MolSet.add mol !reactives;
-    
+    if Petri_net.can_react mol !ropnet mol !ropnet
+    then
+      (
+        let new_collision = Reactions_new.add_collision
+                              (mol, rn, ropnet)
+                              (mol, rn, ropnet)
+                              bact.reacs
+        in
+        collisions := new_collision :: (!collisions);
+      );
+
+    let transition = match !ropnet with
+      | Some pnet ->
+         Some (Reactions_new.add_transition (mol, rn, ropnet) bact.reacs)
+      | None -> None
+    in
     bact.molecules <-
-      MolMap.add mol (ref 1,ref opnet, !reactives) bact.molecules;
+      MolMap.add mol (rn,ropnet, (!collisions, transition)) bact.molecules;
     bact.total_mol_count <-
       bact.total_mol_count + 1
        
+(* *** update reaction rates *)
+
+(* Update the rates of all the reactions implicating *)
+(* a molecule                      *)
+
+let update_rates reactions bact =
+  let collisions, transition = reactions in
+  List.iter
+    (fun col -> Reactions_new.update_collision_rate col bact.reacs)
+    collisions;
+  match transition with
+  | Some t ->  Reactions_new.update_transition_rate t bact.reacs
+  | None -> ()
 
   
 (* *** set mol quantity *)
@@ -169,11 +199,12 @@ let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
 let set_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
   if MolMap.mem mol bact.molecules
   then
-    let y, _, _ = MolMap.find mol bact.molecules in
+    let y, _,reacs = MolMap.find mol bact.molecules in
     let old_quantity = !y in
     y := n;
     bact.total_mol_count <-
-      bact.total_mol_count + n - old_quantity
+      bact.total_mol_count + n - old_quantity;
+    update_rates reacs bact
   else
     failwith ("bacterie.ml : update_mol_quantity :  target molecule is not present\n"
               ^mol)
@@ -182,10 +213,11 @@ let add_mol_quantity (mol : Molecule.t) (n : int) (bact : t) : unit=
   if MolMap.mem mol bact.molecules
   then
     (
-      let y, _, _ = MolMap.find mol bact.molecules in
+      let y, _, reacs= MolMap.find mol bact.molecules in
       y := !y + n;
       bact.total_mol_count <-
         bact.total_mol_count + n;
+      update_rates reacs bact
     )
   else
     failwith ("bacterie.ml : add_mol_quantity :  target molecule is not present\n"
@@ -196,19 +228,23 @@ let add_mol_quantity (mol : Molecule.t) (n : int) (bact : t) : unit=
 (* TODO : update reactives *)
 
 let remove_molecule (m : Molecule.t) (bact : t) : unit =
-  let old_quantity = ref 0 in
+  let old_quantity = ref 0
+  and old_reacs = ref ([], None)
+  in
   bact.molecules <-
     MolMap.modify_opt
       m
       (fun data ->
         match data with
         | None -> failwith "container: cannot remove absent molecule"
-        | Some (n, _, _) ->
+        | Some (n, _, reacs) ->
            old_quantity := !n;
+           old_reacs := reacs;
            None)
       bact.molecules;
   bact.total_mol_count <-
-    bact.total_mol_count - !old_quantity
+    bact.total_mol_count - !old_quantity;
+  update_rates !old_reacs bact
 
 (* *** add_molecule *)
 (* adds a molecule inside a bactery *)
@@ -221,7 +257,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : unit =
   else
     add_new_molecule mol bact
 
-             
+
 (* *** add_proteine *)
 (* adds the molecule corresponding to a proteine to a bactery first transforms it back to a molecule, so the *)
 (* process is not very natural. *)
@@ -231,10 +267,6 @@ let add_proteine (prot : Proteine.t) (bact : t) : unit =
   let mol = Molecule.of_proteine prot in
   add_molecule mol bact
 
-
-  
-
-  
 
 (* ** simulation ; new *)
    
@@ -248,47 +280,7 @@ let add_proteine (prot : Proteine.t) (bact : t) : unit =
 (*    The current simulation framework calculates each reaction rate, *)
 (*    and then randomly selects the next reaction. *)
 
-             
-(* *** reactions *)
 
-(* **** transitions *)
-
-let transition_reactions (bact:t) : float*((float*reaction) list) =
-  MolMap.fold
-    (fun mol1 (n, {contents = opnet}, _) res ->
-      match opnet with
-      | Some pnet ->
-         let total_rate, l = res
-         and rate = (float_of_int !n) /. (float_of_int bact.total_mol_count) in
-         (total_rate +. rate, (rate, Transition pnet) :: l)
-      | None -> res
-    )
-    bact.molecules
-    (0., [])
-(* **** collision *)
-(*     The collision probability between two molecules is *)
-(*     the product of their quantities. *)
-(*     We might need to add other parameters, such as *)
-(*     the volume of the container, and use a float constant *)
-(*     to avoid integer overflow. *)
-(*     We here calculate each collision probability, *)
-(*     and the sum of it. *)
-(*     WARNING : possible integer overflow *)
-
-let collision_reactions (bact : t) : float *((float* reaction) list) =
-  MolMap.fold
-    (fun mol1 (n1, _, react_set) res ->
-      MolSet.fold
-        (fun mol2 res' ->
-          let (n2, _, _ ) = MolMap.find mol2 bact.molecules in
-          let (total, l) = res' in
-          let current_rate = (float_of_int (!n1*(!n2))) /. float_of_int bact.total_mol_count in
-          (current_rate +. total,
-           (current_rate, Collision (mol1, mol2))::l))
-        react_set
-        res)
-    bact.molecules
-    (0., [])
 
 
 (* *** Interactions *)
@@ -364,26 +356,27 @@ let rec execute_actions (actions : Place.transition_effect list) (bact : t) : un
      execute_actions actions' bact
   | [] -> ()
         
-  
+(* to be moved to the reactions modules *)
 let treat_reaction (bact : t) (r : reaction) =
   match r with
-  | Transition pnet ->
-     let actions = Petri_net.launch_random_transition pnet in
-     Petri_net.update_launchables pnet;
-     execute_actions actions bact
-  | Collision (mol1,mol2) ->
+  | Transition trans ->
+     (
+     let (_, _, {contents = opnet}) = (!trans).mol in
+     match opnet with
+     | Some pnet ->
+        let actions = Petri_net.launch_random_transition pnet in
+        Petri_net.update_launchables pnet;
+        execute_actions actions bact
+     | None -> ()
+     )
+  | Collision col ->
+     let (mol1, _, {contents = opnet1}) = (!col).mol1
+     and (mol2, _, {contents = opnet2}) = (!col).mol2
+     in
      try_grabs mol1 mol2 bact
-  | _ ->
-     failwith "treat_reaction@bacterie.ml : can't treat meta reaction"
-
+    
 let next_reaction (bact : t)  =
-  let t_rate, t_reacs = transition_reactions bact
-  and col_rate, col_reacs = collision_reactions bact in
-  print_endline (Reactions.show_reaction (Meta t_reacs));
-  print_endline (Reactions.show_reaction (Meta col_reacs));
-  let r =  pick_reaction (t_rate +. col_rate)
-                         (Meta [(t_rate, Meta t_reacs);
-                                (col_rate, Meta col_reacs)])
+  let r = Reactions_new.pick_next_reaction bact.reacs
   in treat_reaction bact r   
 
   
@@ -394,7 +387,7 @@ let next_reaction (bact : t)  =
 (* *** launch_transition a specific transition in a specific pnet *)
 let launch_transition tid mol bact : unit =
   match (MolMap.find mol bact.molecules) with
-  | _, {contents = Some pnet}, _ ->
+  | _, {contents = Some pnet}, _  ->
      let actions = Petri_net.launch_transition_by_id tid pnet in
      Petri_net.update_launchables pnet;
      execute_actions actions bact

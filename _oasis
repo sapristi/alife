@@ -99,6 +99,13 @@ Library "reactions"
   Modules : Reactions
   BuildDepends : ppx_deriving.show
 
+Library "reactions_new"
+  FindLibName : reactions_new
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Reactions_new
+  BuildDepends : ppx_deriving.show
+
 
 Library "bacterie"
   FindLibName : bacterie
