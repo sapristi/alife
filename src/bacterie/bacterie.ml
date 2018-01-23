@@ -110,7 +110,7 @@ module MolSet = Set.Make (struct type t = Molecule.t
                           end)
               
 type t =
-  {mutable molecules : (int ref * Petri_net.t option ref * ((Reactions_new.collision ref list) * (Reactions_new.transition ref option))) MolMap.t;
+  {mutable molecules : (int ref * Petri_net.t option ref * ((Reactions_new.reaction list))) MolMap.t;
    mutable total_mol_count : int;
    reacs : Reactions_new.t;
   }
@@ -137,44 +137,60 @@ let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
     failwith "container : add_new_molecule : molecule was already present"
   else
     let ropnet = ref (Petri_net.make_from_mol mol)
-    and rn = ref 1
+    and qtt = ref 1
     in
     
-    let collisions = ref [] in
+    let reactions = ref [] in
     bact.molecules <-
       MolMap.mapi
-        (fun mol' (rn', ropnet', (collisions', transition')) ->
-          if Petri_net.can_react mol (!ropnet) mol' (!ropnet')
+        (fun mol' (qtt', ropnet', reactions') ->
+          let rreactions' = ref reactions' in
+          if Petri_net.ocan_grab mol (!ropnet')
           then
-            let new_collision = Reactions_new.add_collision
-                                  (mol, rn, ropnet)
-                                  (mol', rn', ropnet')
-                                  bact.reacs
+            (
+              let md1 = {mol = mol'; qtt = qtt'; pnet = ropnet'}
+              and md2 = {mol; qtt; pnet = ropnet}
+              in
+              let new_grab =
+                Reactions_new.add_grab md1 md2 bact.reacs
             in
-            collisions := new_collision :: (!collisions);
-            (rn', ropnet', (new_collision::collisions', transition'))
-          else
-            (rn', ropnet', (collisions', transition'))
+            reactions := new_grab :: !reactions;
+            rreactions' := new_grab:: !rreactions'
+            );
+          if Petri_net.ocan_grab mol' (!ropnet)
+          then
+            (
+              let md2 = {mol = mol'; qtt = qtt'; pnet = ropnet'}
+              and md1 = {mol = mol; qtt = qtt; pnet = ropnet}
+              in
+              let new_grab =
+                Reactions_new.add_grab md1 md2 bact.reacs
+            in
+            reactions :=  new_grab :: !reactions;
+            rreactions' := new_grab:: !rreactions'
+            );
+            (qtt', ropnet', !rreactions')
         )
         bact.molecules;
     if Petri_net.can_react mol !ropnet mol !ropnet
     then
       (
-        let new_collision = Reactions_new.add_collision
-                              (mol, rn, ropnet)
-                              (mol, rn, ropnet)
+        let md = {mol; qtt; pnet =ropnet} in
+        let new_self_grab = Reactions_new.add_self_grab
+                              md
                               bact.reacs
         in
-        collisions := new_collision :: (!collisions);
+        reactions := new_self_grab :: (!reactions);
       );
-
-    let transition = match !ropnet with
+    (
+      match !ropnet with  
       | Some pnet ->
-         Some (Reactions_new.add_transition (mol, rn, ropnet) bact.reacs)
-      | None -> None
-    in
+        let trans = Reactions_new.add_transition {mol; qtt; pnet=ropnet} bact.reacs
+        in reactions := trans:: !reactions
+      | None -> ()
+    );       
     bact.molecules <-
-      MolMap.add mol (rn,ropnet, (!collisions, transition)) bact.molecules;
+      MolMap.add mol (qtt,ropnet, !reactions) bact.molecules;
     bact.total_mol_count <-
       bact.total_mol_count + 1
        
@@ -184,13 +200,10 @@ let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
 (* a molecule                      *)
 
 let update_rates reactions bact =
-  let collisions, transition = reactions in
   List.iter
-    (fun col -> Reactions_new.update_collision_rate col bact.reacs)
-    collisions;
-  match transition with
-  | Some t ->  Reactions_new.update_transition_rate t bact.reacs
-  | None -> ()
+    (fun reac ->
+      Reactions_new.update_reaction_rates reac bact.reacs)
+    reactions
 
   
 (* *** set mol quantity *)
@@ -228,7 +241,7 @@ let add_mol_quantity (mol : Molecule.t) (n : int) (bact : t) : unit=
 
 let remove_molecule (m : Molecule.t) (bact : t) : unit =
   let old_quantity = ref 0
-  and old_reacs = ref ([], None)
+  and old_reacs = ref ([])
   in
   bact.molecules <-
     MolMap.modify_opt
@@ -282,53 +295,6 @@ let add_proteine (prot : Proteine.t) (bact : t) : unit =
 
 
 
-(* *** Interactions *)
-
-
-(* **** asymetric_grab *)
-(* auxilary function used by try_grabs *)
-(* Try the grab of a molecule by a pnet *)
-
-let asymetric_grab mol pnet = 
-  let grabs = Petri_net.get_possible_mol_grabs mol pnet
-  in
-  if not (grabs = [])
-  then
-    let grab,pid = random_pick_from_list grabs in
-    match grab with
-    | pos -> Petri_net.grab mol pos pid pnet
-  else
-    false
-
-(* **** try grabs *)
-(* Resolve grabs when two molecules interact. Only one of the two *)
-(* molecules will get to grab the other one, randomly decided. *)
-(* We could also decide that if a mol can't grab, *)
-(* then the other will try *)
-
-let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
-    : unit =
-  let _,{contents = opnet1},_ = MolMap.find mol1 bact.molecules
-  and _,{contents = opnet2}, _ = MolMap.find mol2 bact.molecules
-  and try_grab mol pnet =
-    if asymetric_grab mol pnet
-    then
-      (
-        add_mol_quantity mol (-1) bact;
-        Petri_net.update_launchables pnet
-      )
-    else ()
-               
-  in
-  match opnet1, opnet2 with
-  | Some pnet1, Some pnet2 ->
-     if Random.bool ()
-     then try_grab mol2 pnet1
-     else try_grab mol1 pnet2
-  | Some pnet1, None -> try_grab mol2 pnet1
-  | None, Some pnet2 -> try_grab mol1 pnet2
-  | None, None -> ()
-                
 (* *** make_reactions *)
 (* Reactions between molecules : *)
 (* we have to simulate molecules collision, *)
@@ -344,53 +310,35 @@ let try_grabs (mol1 : Molecule.t) (mol2 : Molecule.t) (bact : t)
 (*   todo later : ??? *)
 (*   il faudrait peut-être mettre dans une file les molécules à ajouter *)
 
-let rec execute_actions (actions : Place.transition_effect list) (bact : t) : unit =
-  match actions with
-  | Place.Release_effect mol :: actions' ->
-     if mol != ""
-     then add_molecule mol bact;
-     execute_actions actions' bact
-  | Place.Message_effect m :: actions' ->
-     (* bact.message_queue <- m :: bact.message_queue; *)
-     execute_actions actions' bact
-  | [] -> ()
-        
-(* to be moved to the reactions modules *)
-let treat_reaction (bact : t) (r : reaction) =
-  match r with
-  | Transition trans ->
-     (
-     let (_, _, {contents = opnet}) = (!trans).mol in
-     match opnet with
-     | Some pnet ->
-        let actions = Petri_net.launch_random_transition pnet in
-        Petri_net.update_launchables pnet;
-        execute_actions actions bact
-     | None -> ()
-     )
-  | Collision col ->
-     let (mol1, _, {contents = opnet1}) = (!col).mol1
-     and (mol2, _, {contents = opnet2}) = (!col).mol2
-     in
-     try_grabs mol1 mol2 bact
+let rec execute_actions (actions : Reactions_new.reaction_effect list) (bact : t) : unit =
+  List.iter
+    (fun effect ->
+      match effect with
+      | T_effects tel ->
+         List.iter
+           (fun teffect ->
+             match teffect with
+             | Place.Release_effect mol  ->
+                if mol != ""
+                then add_molecule mol bact
+             | Place.Message_effect m  ->
+             (* bact.message_queue <- m :: bact.message_queue; *)
+                ()
+           ) tel
+      | Update mol ->
+         let _, _, reacs= MolMap.find mol bact.molecules in
+         update_rates reacs bact)
+  actions
+                                     
     
 let next_reaction (bact : t)  =
-  let r = Reactions_new.pick_next_reaction bact.reacs
-  in treat_reaction bact r   
-
+  let r = Reactions_new.pick_next_reaction bact.reacs in
   
+  Logs.info (fun m -> m "picked reaction %s" (Reactions_new.show_reaction r));
   
-(* ** simulation ; soon deprecated *)
+  let actions = Reactions_new.treat_reaction r in
+  execute_actions actions bact
 
-        
-(* *** launch_transition a specific transition in a specific pnet *)
-let launch_transition tid mol bact : unit =
-  match (MolMap.find mol bact.molecules) with
-  | _, {contents = Some pnet}, _  ->
-     let actions = Petri_net.launch_transition_by_id tid pnet in
-     Petri_net.update_launchables pnet;
-     execute_actions actions bact
-  | _ -> ()
 
 (* ** json serialisation *)
 type bact_elem = {nb : int;mol: Molecule.t} 

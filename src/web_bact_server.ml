@@ -5,16 +5,15 @@ let host = ref "localhost";;
 
   
     
-  let speclist = [ ("-port", Arg.Int (fun x -> port := x), "connection port");
-                   ("-host", Arg.String (fun x -> host := x), "declared host; must match the adress provided to the client")]
-      in let usage_msg = "Bact simul serveur" 
-         in Arg.parse speclist print_endline usage_msg
-  ;;
+let speclist = [ ("-port", Arg.Int (fun x -> port := x), "connection port");
+                 ("-host", Arg.String (fun x -> host := x), "declared host; must match the adress provided to the client")]
+    in let usage_msg = "Bact simul serveur" 
+       in Arg.parse speclist print_endline usage_msg
+;;
     
- 
-
-    Logs.set_reporter (Logs_fmt.reporter ());
-    Logs.set_level (Some Logs.Info);
+  
+  Logs.set_reporter (Logs.format_reporter ());
+  Logs.set_level (Some Logs.Info);
     
     let make_bact () : Bacterie.t =
       

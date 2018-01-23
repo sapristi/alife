@@ -29,7 +29,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
   let next_reactions bact =
     let n_str = cgi # argument_value "n" in
     let n = int_of_string n_str in 
-    for i = 0 to n do
+    for i = 0 to n-1 do
       Bacterie.next_reaction bact;
     done;
     let json_data = `Assoc

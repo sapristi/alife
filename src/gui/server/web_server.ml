@@ -17,7 +17,8 @@ let fs_spec =
     file_suffix_types = [ "txt", "text/plain";
 			  "html", "text/html";
                           "css", "text/css";
-                          "js", "text/js"];
+                          "js", "text/js";
+                          "ico", "img/ico"];
     file_default_type = "application/octet-stream";
     file_options = [ `Enable_gzip;
 		     `Enable_listings (simple_listing ?hide:None);
@@ -43,7 +44,7 @@ let make_srv req_processor (conn_attr : (string * int)) =
                                  dyn_uri = None;
                                  dyn_translator = (fun _ -> "");
                                  dyn_accept_all_conditionals = false
-                            })
+                            });
         ]
     ] 
 

@@ -104,7 +104,7 @@ Library "reactions_new"
   FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Reactions_new
-  BuildDepends : ppx_deriving.show
+  BuildDepends : ppx_deriving.show, logs
 
 
 Library "bacterie"
