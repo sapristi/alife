@@ -123,7 +123,7 @@ let handle_req (bact : Bacterie.t) env (cgi:Netcgi.cgi)  =
         
     else handle_general_req cgi
   in
-  Log.info (fun m -> m "preparing to send response :%s\n" response);
+  Log.debug (fun m -> m "preparing to send response :%s\n" response);
   (*  print_endline ("preparing to send response :" ^response);*)
   cgi # set_header ~content_type:"application/json" ();
   cgi # out_channel # output_string response;
