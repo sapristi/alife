@@ -99,6 +99,13 @@ Library "reactions"
   Modules : Reactions
   BuildDepends : ppx_deriving.show
 
+Library "reactions_new"
+  FindLibName : reactions_new
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Reactions_new
+  BuildDepends : ppx_deriving.show, logs
+
 
 Library "bacterie"
   FindLibName : bacterie
@@ -136,14 +143,14 @@ Library "bact_req_handler"
   FindLibParent : servers
   Path: src/gui/server
   Modules: Bact_req_handler
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, logs
 
 Library "bact_server"
   FindLibName : bact_server
   FindLibParent : servers
   Path: src/gui/server
   Modules: Bact_server
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule,  servers.web_server, bacterie.sandbox, servers.bact_req_handler, bacterie_libs.sandbox
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule,  servers.web_server, bacterie.sandbox, servers.bact_req_handler, bacterie_libs.sandbox, logs
 
 
 Library "servers"
@@ -157,7 +164,7 @@ Library "servers"
 Executable "web_bact_server"
   Path : src/
   MainIs : web_bact_server.ml
-  BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries,  servers.bact_server
+  BuildDepends : bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries,  servers.bact_server, logs
   ByteOpt:  -g
   Custom : true
 

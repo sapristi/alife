@@ -2,7 +2,14 @@
 
 (* ** preamble*)
 open Bact_req_handler
+open Logs
 
+
+let src = Logs.Src.create "mylib.network" ~doc:"logs mylib's network events";;
+  
+module Log = (val Logs.src_log src : Logs.LOG);;
+                
+   
 let handle_general_req (cgi:Netcgi.cgi) : string =
 (* *** prot_from_mol *)
   let prot_from_mol (cgi:Netcgi.cgi) : string =
@@ -97,9 +104,10 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
   
 let handle_req (bact : Bacterie.t) env (cgi:Netcgi.cgi)  =
   
-  print_endline ("serving GET request :"^(cgi # environment # cgi_query_string));
-
-  List.iter (fun x -> print_endline ((x # name)^" : "^(x#value))) (cgi # arguments);
+  Log.info (fun m -> m "serving GET request : %s" (cgi # environment # cgi_query_string));
+  
+  List.iter (fun x ->
+      Log.info (fun m -> m "%s : %s" (x # name) (x#value))) (cgi # arguments);
   
   let response = 
     
@@ -115,13 +123,12 @@ let handle_req (bact : Bacterie.t) env (cgi:Netcgi.cgi)  =
         
     else handle_general_req cgi
   in
-  
-  
-  print_endline ("preparing to send response :" ^response);
+  Log.debug (fun m -> m "preparing to send response :%s\n" response);
+  (*  print_endline ("preparing to send response :" ^response);*)
   cgi # set_header ~content_type:"application/json" ();
   cgi # out_channel # output_string response;
   cgi # out_channel # commit_work();
-  print_endline ("response sent");
+  Log.info (fun m -> m "response sent");
   
 ;;
   

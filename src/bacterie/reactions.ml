@@ -3,6 +3,7 @@
 (*   occuring reaction *)
 
 
+                       
 type reaction =
   | Transition of Petri_net.t
   | Collision of (Molecule.t * Molecule.t)
@@ -30,5 +31,3 @@ let rec pick_reaction (a0 : float) (reac : reaction) : reaction =
      let (a0', reac) = aux bound 0. rl in
      pick_reaction a0' reac
   | _ as r -> r
-
-

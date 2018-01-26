@@ -40,12 +40,19 @@ type t =
     places : Place.t  array; [@opaque]
     uid : int; [@opaque]
     binders : (int*string) list; [@opaque]
+    mutable launchables_nb:int;
   } 
     [@@deriving show]
 
   
 let update_launchables (pnet :t) : unit =
-  Array.iter (fun t -> Transition.update_launchable t) pnet.transitions
+  pnet.launchables_nb <- 0;
+  Array.iter (fun t ->
+      Transition.update_launchable t;
+      if t.launchable
+      then pnet.launchables_nb <- pnet.launchables_nb +1;
+
+    ) pnet.transitions
   
 let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
   try
@@ -84,10 +91,15 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
     in
     let uid = idProvider#get_id ()
     in
+    let launchables_nb = 
+      Array.fold_left
+        (fun res t -> if t.Transition.launchable then res +1 else res)
+        0 transitions
+    in
     (* simple filter to deactivate pnets without places *)
     if Array.length places > 0
     then 
-      Some {mol; transitions; places; binders; uid}
+      Some {mol; transitions; places; binders; uid; launchables_nb;}
     else
       None
   with
@@ -148,6 +160,35 @@ let can_grab (mol : Molecule.t) (pnet : t) : bool =
          | Some _ -> true
     ) false pnet.places
 
+let ocan_grab (mol : Molecule.t) (opnet : t option) : bool =
+  match opnet with
+  | None -> false
+  | Some pnet ->
+     Array.fold_left
+       (fun res place ->
+         match place.Place.graber with
+         | None -> res 
+         | Some g ->
+            match Graber.get_match_pos g mol with
+            | None -> res
+            | Some _ -> true
+       ) false pnet.places
+    
+let grab_factor (mol : Molecule.t) (pnet : t) : int =
+  Array.fold_left
+    (fun res place ->
+      if Place.is_empty place
+      then 
+        match place.Place.graber with
+        | None -> res 
+        | Some g ->
+           match Graber.get_match_pos g mol with
+           | None -> res
+           | Some _ -> res + 1
+      else
+        res
+    ) 0 pnet.places
+  
 let can_bind (pnet1 : t) (pnet2 : t) : bool = 
   Array.fold_left
     (fun res place1 ->

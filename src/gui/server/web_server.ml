@@ -17,7 +17,8 @@ let fs_spec =
     file_suffix_types = [ "txt", "text/plain";
 			  "html", "text/html";
                           "css", "text/css";
-                          "js", "text/js"];
+                          "js", "text/js";
+                          "ico", "img/ico"];
     file_default_type = "application/octet-stream";
     file_options = [ `Enable_gzip;
 		     `Enable_listings (simple_listing ?hide:None);
@@ -43,7 +44,7 @@ let make_srv req_processor (conn_attr : (string * int)) =
                                  dyn_uri = None;
                                  dyn_translator = (fun _ -> "");
                                  dyn_accept_all_conditionals = false
-                            })
+                            });
         ]
     ] 
 
@@ -114,19 +115,3 @@ let start_srv req_processor (conn_attr) =
   Unixqueue.run ues
 ;;
 
-(*
-let print_req env (cgi:Netcgi.cgi) =
-  let rec print_arg_list (l : Netcgi.cgi_argument list) =
-    match l with
-    | h::t -> (h#name )^" "^(h#value)^(print_arg_list t)
-    | [] -> ""
-  in
-  
-  cgi # output # output_string "<html><body>\n";
-  cgi # output # output_string (print_arg_list cgi#arguments);
-  cgi # output # output_string "</body></html>\n";
-  cgi # output # commit_work()
-;;
-
- *)
-  (*  start_srv print_req 8765;; *)
