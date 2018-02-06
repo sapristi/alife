@@ -109,13 +109,66 @@ module MolSet = Set.Make (struct type t = Molecule.t
                                  let compare = Pervasives.compare
                           end)
               
+
+(* ** ActiveMolSet *)
+(* An active mol set manages the molecules with an attached pnet. *)
+(*  - quantity : mol quantity *)
+(*  - dummy_pnet : an associated pnet that will not be used during *)
+(*    the simulation, but only to calculate possible reactions *)
+(*    with new molecules (we could do without, but it may be a bit *)
+(*    more elegant) *)
+(*  - pnet : a set of pnet ref  * reacs set ref, with as many  *)
+(*    elements as quantity *)
+   
+module ActiveMolSet  = struct
+
+  module PnetSet = Set.Make (
+                             struct
+                               type t = (Petri_net.t ref * reacsSet ref)
+                               let compare =
+                                 fun ((p1,_) :t) ((p2,_):t) ->
+                                 Pervasives.compare !p1.uid !p2.uid
+                             end)
+                 
+  type t = {
+      quantity : int ref;
+      dummy_pnet : Petri_net.t;
+      reacs : reacsSet ref;
+      pnets : PnetSet.t;
+    }
+         
+  let make_empty mol pnet : t =
+       {
+         quantity = ref 0;
+         dummy_pnet = pnet;
+         pnets = PnetSet.empty;
+       }
+(* *** update reacs with mol *)
+(* Calculates the possible reactions with an *)
+(* inactive molecule *)
+      
+  let update_reacs_with_mol mol amolset =
+    
+    if Petri_net.can_grab mol amolset.dummy_pnet
+    then
+      let md1 = { mol = amolset.dummy_pnet.molecule;
+                  qtt = amolset.quantity,
+                        
+      let res = ref ReacSet.empty in
+      Set.iter
+        (fun (pnet, reacs) ->
+          let new_grab = 
+          
+      
+end
+                       
 type t =
-  {mutable molecules : (int ref * Petri_net.t option ref * ((Reactions_new.reaction list))) MolMap.t;
+  {mutable inert_molecules : (int ref * (Reactions_new.reaction list)) MolMap.t;
+   mutable active_molecules : (int ref * PnetAndReacsSet.t) MolMap.t;
    mutable total_mol_count : int;
    reacs : Reactions_new.t;
   }
-  
-  
+
 (* ** interface *)
   
 (* Whenever modifying the bactery, it should be *)
@@ -124,59 +177,65 @@ type t =
 (* *** make empty *)
 (* an empty bactery *)
 let make_empty () : t = 
-  {molecules =  MolMap.empty;
+  {inert_molecules =  MolMap.empty;
+   active_molecules = MolMap.empty;
    total_mol_count = 0;
    reacs = Reactions_new.make_new ();}
+  
 (* *** add new molecule *)
 (* adds a new molecule inside a bactery *)
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
 let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
   
-  if MolMap.mem mol bact.molecules
+  if (MolMap.mem mol bact.inert_molecules
+      || MolMap.mem mol bact.active_molecules)
   then 
     failwith "container : add_new_molecule : molecule was already present"
   else
-    let ropnet = ref (Petri_net.make_from_mol mol)
+    let opnet = Petri_net.make_from_mol mol
     and qtt = ref 1
     in
-    
-    let reactions = ref [] in
-    bact.molecules <-
-      MolMap.mapi
-        (fun mol' (qtt', ropnet', reactions') ->
-          let rreactions' = ref reactions' in
-          if Petri_net.ocan_grab mol (!ropnet')
-          then
-            (
-              let md1 = {mol = mol'; qtt = qtt'; pnet = ropnet'}
-              and md2 = {mol; qtt; pnet = ropnet}
-              in
-              let new_grab =
-                Reactions_new.add_grab md1 md2 bact.reacs
-            in
-            reactions := new_grab :: !reactions;
-            rreactions' := new_grab:: !rreactions'
-            );
-          if Petri_net.ocan_grab mol' (!ropnet)
-          then
-            (
-              let md2 = {mol = mol'; qtt = qtt'; pnet = ropnet'}
-              and md1 = {mol = mol; qtt = qtt; pnet = ropnet}
-              in
-              let new_grab =
-                Reactions_new.add_grab md1 md2 bact.reacs
-            in
-            reactions :=  new_grab :: !reactions;
-            rreactions' := new_grab:: !rreactions'
-            );
-            (qtt', ropnet', !rreactions')
+    match opnet with
+    | None ->
+       
+       let reactions = ref [] in
+       bact.active_molecules <-
+         MolMap.mapi
+           (fun mol' (qtt', prset) ->
+             
+             let rreactions' = ref reactions' in
+             if Petri_net.ocan_grab mol (!ropnet')
+             then
+               (
+                 let md1 = {mol = mol'; qtt = qtt'; pnet = ropnet'}
+                 and md2 = {mol; qtt; pnet = ropnet}
+                 in
+                 let new_grab =
+                   Reactions_new.add_grab md1 md2 bact.reacs
+                 in
+                 reactions := new_grab :: !reactions;
+                 rreactions' := new_grab:: !rreactions'
+               );
+             if Petri_net.ocan_grab mol' (!ropnet)
+             then
+               (
+                 let md2 = {mol = mol'; qtt = qtt'; pnet = ropnet'}
+                 and md1 = {mol = mol; qtt = qtt; pnet = ropnet}
+                 in
+                 let new_grab =
+                   Reactions_new.add_grab md1 md2 bact.reacs
+                 in
+                 reactions :=  new_grab :: !reactions;
+                 rreactions' := new_grab:: !rreactions'
+               );
+             (qtt', ropnet', !rreactions')
         )
-        bact.molecules;
-    if Petri_net.can_react mol !ropnet mol !ropnet
-    then
-      (
-        let md = {mol; qtt; pnet =ropnet} in
-        let new_self_grab = Reactions_new.add_self_grab
+           bact.molecules;
+       if Petri_net.can_react mol !ropnet mol !ropnet
+       then
+         (
+           let md = {mol; qtt; pnet =ropnet} in
+           let new_self_grab = Reactions_new.add_self_grab
                               md
                               bact.reacs
         in
