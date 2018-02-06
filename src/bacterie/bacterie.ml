@@ -21,7 +21,7 @@
 open Misc_library
 open Maps
 open Batteries
-open Reactions_new
+open Reactions
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
 
@@ -117,14 +117,16 @@ module MolSet = Set.Make (struct type t = Molecule.t
 (*    the simulation, but only to calculate possible reactions *)
 (*    with new molecules (we could do without, but it may be a bit *)
 (*    more elegant) *)
-(*  - pnet : a set of pnet ref  * reacs set ref, with as many  *)
+(*  - reacs : reactions involving the pnets as inactive molecules  *)
+(*    (grabs) *)
+(*  - pnet : a set of pnet ref  * reacs set ref, with as many *)
 (*    elements as quantity *)
    
 module ActiveMolSet  = struct
 
   module PnetSet = Set.Make (
                              struct
-                               type t = (Petri_net.t ref * reacsSet ref)
+                               type t = (Petri_net.t ref * Reactions.reacsSet ref)
                                let compare =
                                  fun ((p1,_) :t) ((p2,_):t) ->
                                  Pervasives.compare !p1.uid !p2.uid
@@ -141,32 +143,43 @@ module ActiveMolSet  = struct
        {
          quantity = ref 0;
          dummy_pnet = pnet;
+         reacs = ref Set.empty;
          pnets = PnetSet.empty;
        }
 (* *** update reacs with mol *)
 (* Calculates the possible reactions with an *)
 (* inactive molecule *)
       
-  let update_reacs_with_mol mol amolset =
+  let update_reacs_with_mol (mol : Molecule.t)
+                            (molqtt : int ref)
+                            molreacs amolset bactreacs =
     
     if Petri_net.can_grab mol amolset.dummy_pnet
     then
-      let md1 = { mol = amolset.dummy_pnet.molecule;
-                  qtt = amolset.quantity,
-                        
-      let res = ref ReacSet.empty in
-      Set.iter
+      let (imd : Reactions.inactive_mol_data) = { mol = mol;
+                  qtt = molqtt;
+                  reacs = molreacs;
+                }
+      in
+      PnetSet.iter
         (fun (pnet, reacs) ->
+          let amd = { mol = amolset.dummy_pnet.mol;
+                      pnet = pnet;
+                      reacs = reacs;}
+          in
           let new_grab = 
+            Reactions.add_grab imd amd bactreacs in
+          reacs := Set.add new_grab !reacs;
+          molreacs := Set.add new_grab ! molreacs
+        ) amolset.pnets
           
-      
 end
                        
 type t =
-  {mutable inert_molecules : (int ref * (Reactions_new.reaction list)) MolMap.t;
-   mutable active_molecules : (int ref * PnetAndReacsSet.t) MolMap.t;
+  {mutable inert_molecules : (int ref * (Reactions.reaction Set.t)) MolMap.t;
+   mutable active_molecules : (int ref * ActiveMolSet.t) MolMap.t;
    mutable total_mol_count : int;
-   reacs : Reactions_new.t;
+   reacs : Reactions.t;
   }
 
 (* ** interface *)
@@ -180,7 +193,7 @@ let make_empty () : t =
   {inert_molecules =  MolMap.empty;
    active_molecules = MolMap.empty;
    total_mol_count = 0;
-   reacs = Reactions_new.make_new ();}
+   reacs = Reactions.make_new ();}
   
 (* *** add new molecule *)
 (* adds a new molecule inside a bactery *)
@@ -211,7 +224,7 @@ let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
                  and md2 = {mol; qtt; pnet = ropnet}
                  in
                  let new_grab =
-                   Reactions_new.add_grab md1 md2 bact.reacs
+                   Reactions.add_grab md1 md2 bact.reacs
                  in
                  reactions := new_grab :: !reactions;
                  rreactions' := new_grab:: !rreactions'
@@ -223,7 +236,7 @@ let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
                  and md1 = {mol = mol; qtt = qtt; pnet = ropnet}
                  in
                  let new_grab =
-                   Reactions_new.add_grab md1 md2 bact.reacs
+                   Reactions.add_grab md1 md2 bact.reacs
                  in
                  reactions :=  new_grab :: !reactions;
                  rreactions' := new_grab:: !rreactions'
@@ -235,7 +248,7 @@ let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
        then
          (
            let md = {mol; qtt; pnet =ropnet} in
-           let new_self_grab = Reactions_new.add_self_grab
+           let new_self_grab = Reactions.add_self_grab
                               md
                               bact.reacs
         in
@@ -244,7 +257,7 @@ let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
     (
       match !ropnet with  
       | Some pnet ->
-        let trans = Reactions_new.add_transition {mol; qtt; pnet=ropnet} bact.reacs
+        let trans = Reactions.add_transition {mol; qtt; pnet=ropnet} bact.reacs
         in reactions := trans:: !reactions
       | None -> ()
     );       
@@ -261,7 +274,7 @@ let add_new_molecule (mol : Molecule.t) (bact : t) : unit =
 let update_rates reactions bact =
   List.iter
     (fun reac ->
-      Reactions_new.update_reaction_rates reac bact.reacs)
+      Reactions.update_reaction_rates reac bact.reacs)
     reactions
 
   
@@ -369,7 +382,7 @@ let add_proteine (prot : Proteine.t) (bact : t) : unit =
 (*   todo later : ??? *)
 (*   il faudrait peut-être mettre dans une file les molécules à ajouter *)
 
-let rec execute_actions (actions : Reactions_new.reaction_effect list) (bact : t) : unit =
+let rec execute_actions (actions : Reactions.reaction_effect list) (bact : t) : unit =
   List.iter
     (fun effect ->
       match effect with
@@ -391,11 +404,11 @@ let rec execute_actions (actions : Reactions_new.reaction_effect list) (bact : t
                                      
     
 let next_reaction (bact : t)  =
-  let r = Reactions_new.pick_next_reaction bact.reacs in
+  let r = Reactions.pick_next_reaction bact.reacs in
   
-  Logs.info (fun m -> m "picked reaction %s" (Reactions_new.show_reaction r));
+  Logs.info (fun m -> m "picked reaction %s" (Reactions.show_reaction r));
   
-  let actions = Reactions_new.treat_reaction r in
+  let actions = Reactions.treat_reaction r in
   execute_actions actions bact
 
 
