@@ -1,20 +1,21 @@
-
+open Bacterie
 (* *** pnet_from_mol *) 
 
 let handle_bact_req bact (cgi:Netcgi.cgi) :string  = 
   let pnet_from_mol (bact : Bacterie.t) (cgi:Netcgi.cgi) =
-    let mol = cgi # argument_value "mol_desc" in
-    match Bacterie.MolMap.find mol bact.molecules with
-    | _,{contents = Some pnet},_ ->
-       let pnet_json = Petri_net.to_json pnet
-       in
-       let to_send_json =
-         `Assoc
-          ["purpose", `String "pnet_from_mol";
-           "data",  `Assoc ["pnet", pnet_json]] 
-       in
+    let mol = cgi # argument_value "mol_desc"
+    and pnet_id = int_of_string (cgi# argument_value "pnet_id") in
+    let amolset =  Bacterie.MolMap.find mol bact.active_molecules in
+    let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset
+    in
+    let pnet_json = Petri_net.to_json pnet
+    in
+    let to_send_json =
+      `Assoc
+       ["purpose", `String "pnet_from_mol";
+        "data",  `Assoc ["pnet", pnet_json]] 
+    in
        Yojson.Safe.to_string to_send_json
-    | _,{contents = None},_ -> "no pnet for this mol"
 (* *** get_bact_elements *)
     
   and get_bact_elements bact =
@@ -46,52 +47,54 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
     | Ok token_o ->
        (
          let mol = cgi # argument_value "molecule" in
+         let pnet_id = int_of_string (cgi # argument_value "pnet_id") in
          let place_index_str = cgi # argument_value "place_index" in
          let place_index = int_of_string place_index_str in
          
-         match Bacterie.MolMap.find mol bact.molecules with
-         | _, {contents = Some pnet},_ ->
-            (
-              match token_o with
-              | Some token -> 
-                 Place.set_token token pnet.places.(place_index);
-              | None -> Place.remove_token pnet.places.(place_index);
-            );
-            Petri_net.update_launchables pnet;
-            
-            let pnet_json = Petri_net.to_json pnet
-            in
-            let to_send_json =
-              `Assoc
-               ["purpose", `String "pnet_update";
-                "data",  `Assoc ["pnet", pnet_json]] in  
-            Yojson.Safe.to_string to_send_json
-         | _, {contents = None},_ -> "no pnet for this mol"
-       )
+         let amolset =  Bacterie.MolMap.find mol bact.active_molecules in
+         let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset in
+         (
+           match token_o with
+           | Some token -> 
+              Place.set_token token pnet.places.(place_index);
+           | None -> Place.remove_token pnet.places.(place_index);
+         );
+         Petri_net.update_launchables pnet;
+         
+         let pnet_json = Petri_net.to_json pnet
+         in
+         let to_send_json =
+           `Assoc
+            ["purpose", `String "pnet_update";
+             "data",  `Assoc ["pnet", pnet_json]] in  
+         Yojson.Safe.to_string to_send_json
+         
+       );
     | Error s -> print_endline "error decoding token";
                  s
    
     
   and launch_transition (bact : Bacterie.t) (cgi : Netcgi.cgi) =
     let mol = cgi # argument_value "molecule" in
+    let pnet_id = int_of_string (cgi # argument_value "pnet_id") in
     let trans_index_str = cgi # argument_value "transition_index" in
     let trans_index = int_of_string trans_index_str in
     
-    match Bacterie.MolMap.find mol bact.molecules with
-    | _, {contents = Some pnet},_ -> 
+         
+    let amolset =  Bacterie.MolMap.find mol bact.active_molecules in
+    let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset in
     
-       Petri_net.launch_transition_by_id trans_index pnet;
-       Petri_net.update_launchables pnet;
-       
-       let pnet_json = Petri_net.to_json pnet
-       in
-       let to_send_json =
+    Petri_net.launch_transition_by_id trans_index pnet;
+    Petri_net.update_launchables pnet;
+    
+    let pnet_json = Petri_net.to_json pnet
+    in
+    let to_send_json =
       `Assoc
        ["purpose", `String "pnet_update";
         "data",  `Assoc ["pnet", pnet_json]] in  
-       Yojson.Safe.to_string to_send_json
-    | _, {contents = None},_ ->  "no pnet for this mol"
-
+    Yojson.Safe.to_string to_send_json
+    
   and add_mol bact (cgi : Netcgi.cgi) = 
     let mol = cgi # argument_value "mol_desc" in
     Bacterie.add_molecule mol bact;
@@ -105,7 +108,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
   and set_mol_quantity bact (cgi : Netcgi.cgi) = 
     let mol = cgi # argument_value "mol_desc"
     and n = cgi # argument_value "mol_quantity" in
-    Bacterie.set_mol_quantity mol (int_of_string n) bact;
+    Bacterie.set_inert_mol_quantity mol (int_of_string n) bact;
     get_bact_elements bact;
 
     (*

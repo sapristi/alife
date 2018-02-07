@@ -1,4 +1,6 @@
 
+w3.includeHTML();
+
 // semantic-ui 
 $('#tab_menu .item').tab();
 $('#mol_name_display').accordion();

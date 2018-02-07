@@ -100,76 +100,76 @@ open Reacs_mgr
 (* ** types *)
 
               
-module MolMap = Map.Make (struct type t = Molecule.t
-                                 let compare = Pervasives.compare
-                          end)
-              
-              
-module MolSet = Set.Make (struct type t = Molecule.t
-                                 let compare = Pervasives.compare
-                          end)
-              
+module MolMap =
+  Map.Make (struct type t = Molecule.t
+                   let compare = Pervasives.compare
+            end)
+  
+  
+module MolSet =
+  Set.Make (struct type t = Molecule.t
+                   let compare = Pervasives.compare
+            end)
+  
 
 (* ** ActiveMolSet *)
 (* An active mol set manages the molecules with an attached pnet. *)
-(*  - quantity : mol quantity *)
-(*  - dummy_pnet : an associated pnet that will not be used during *)
-(*    the simulation, but only to calculate possible reactions *)
-(*    with new molecules (we could do without, but it may be a bit *)
-(*    more elegant) *)
-(*  - reacs : reactions involving the pnets as inactive molecules  *)
-(*    (grabs) *)
-(*  - pnet : a set of pnet ref  * reacs set ref, with as many *)
-(*    elements as quantity *)
    
 module ActiveMolSet  = struct
 
-  module PnetSet = Set.Make (
-                             struct
-                               type t = (Petri_net.t ref * Reacs_mgr.reacsSet ref)
-                               let compare =
-                                 fun ((p1,_) :t) ((p2,_):t) ->
-                                 Pervasives.compare !p1.uid !p2.uid
-                             end)
-                 
-  type t = {
-      dummy_pnet : Petri_net.t;
-      reacs : reacsSet ref;
-      pnets : PnetSet.t;
-    }
-         
-  let make_empty mol pnet : t =
-       {
-         dummy_pnet = pnet;
-         reacs = ref Set.empty;
-         pnets = PnetSet.empty;
-       }
+  module PnetSet =
+    Set.Make (
+        struct
+          type t = (Petri_net.t ref * Reacs_mgr.reacsSet ref)
+          let compare =
+            fun ((p1 ,_) :t) ((p2,_):t) ->
+            Pervasives.compare !p1.uid !p2.uid
+        end)
+  include PnetSet
+
+  let find_by_pnet_id pid amolset : Petri_net.t= 
+    let (dummy_pnet : Petri_net.t) = {
+        mol = ""; transitions = [||];places = [||];
+        uid = pid;
+        binders = []; launchables_nb = 0;}
+    in
+    let ({contents = pnet},_ ) =
+      (find (ref dummy_pnet, ref Set.empty) amolset)
+    in pnet
+
+    
 (* *** update reacs with mol *)
 (* Calculates the possible reactions with an *)
-(* inactive molecule *)
+(* inert molecule *)
       
   let add_reacs_with_new_mol (new_mol : Molecule.t)
                             (new_molqtt : int ref)
                             molreacs amolset reacs_mgr =
-    
-    if Petri_net.can_grab new_mol amolset.dummy_pnet
+    if is_empty amolset
     then
-      let (grabed_d : Reacs_mgr.inactive_mol_data) = { mol = new_mol;
-                  qtt = new_molqtt;
-                  reacs = molreacs;
-                }
-      in
-      PnetSet.iter
-        (fun (pnet, reacs) ->
-          let graber_d = { mol = amolset.dummy_pnet.mol;
-                      pnet = pnet;
-                      reacs = reacs;}
+      ()
+    else
+      let ({contents = dummy_pnet},_) = any amolset in
+      
+      if Petri_net.can_grab new_mol dummy_pnet
+      then
+        let (grabed_d : Reacs_mgr.inert_mol_data) =
+          { mol = new_mol;
+            qtt = new_molqtt;
+            reacs = molreacs;
+          }
+        in
+        PnetSet.iter
+          (fun (pnet, reacs) ->
+            let graber_d = { mol = dummy_pnet.mol;
+                             pnet = pnet;
+                             reacs = reacs;}
           in
           let new_grab = 
             Reacs_mgr.add_grab graber_d grabed_d reacs_mgr in
           reacs := Set.add new_grab !reacs;
           molreacs := Set.add new_grab !molreacs
-        ) amolset.pnets
+        ) amolset
 
 
   let add_reacs_with_new_pnet (new_mol : Molecule.t)
@@ -177,46 +177,52 @@ module ActiveMolSet  = struct
                              pnetreacs
                              amolset
                              reacs_mgr =
-    (* the new pnet is grabed *)
-    let is_graber = Petri_net.can_grab new_mol amolset.dummy_pnet
-    and is_grabed = Petri_net.can_grab amolset.dummy_pnet.mol !new_pnet
-    in
-    
-    let new_d = { mol = new_mol;
-                  pnet = new_pnet;
-                  reacs = pnetreacs; }
-    in
-    if (is_graber || is_grabed)
-    then 
-      PnetSet.iter
-        (fun (pnet, reacs) ->
-          let current_d = { mol = amolset.dummy_pnet.mol;
-                           pnet = pnet;
-                           reacs = reacs;}
-          in
-          if is_graber
-          then
-            let new_agrab =
-              Reacs_mgr.add_agrab new_d current_d reacs_mgr in
-            reacs := Set.add new_agrab !reacs;
-            pnetreacs := Set.add new_agrab !pnetreacs;
-            
-          if is_grabed
-          then 
-            let new_agrab =
-              Reacs_mgr.add_agrab current_d new_d reacs_mgr in
-            reacs := Set.add new_agrab !reacs;
-            pnetreacs := Set.add new_agrab !pnetreacs;
-        ) amolset.pnets;
-    
+    if is_empty amolset
+    then
+      ()
+    else
+      let ({contents = dummy_pnet},_) = any amolset in
+      
+      (* the new pnet is grabed *)
+      let is_graber = Petri_net.can_grab new_mol dummy_pnet
+      and is_grabed = Petri_net.can_grab dummy_pnet.mol !new_pnet
+      in
+      
+      let new_d = { mol = new_mol;
+                    pnet = new_pnet;
+                    reacs = pnetreacs; }
+      in
+      if (is_graber || is_grabed)
+      then 
+        PnetSet.iter
+          (fun (pnet, reacs) ->
+            let current_d = { mol = dummy_pnet.mol;
+                              pnet = pnet;
+                              reacs = reacs;}
+            in
+            if is_graber
+            then
+              let new_agrab =
+                Reacs_mgr.add_agrab new_d current_d reacs_mgr in
+              reacs := Set.add new_agrab !reacs;
+              pnetreacs := Set.add new_agrab !pnetreacs;
+              
+              if is_grabed
+              then 
+                let new_agrab =
+                  Reacs_mgr.add_agrab current_d new_d reacs_mgr in
+                reacs := Set.add new_agrab !reacs;
+                pnetreacs := Set.add new_agrab !pnetreacs;
+          ) amolset;
+      
 end
                        
 type t =
   {mutable inert_molecules : (int ref * (Reacs_mgr.reaction Set.t ref)) MolMap.t;
-   mutable active_molecules : (int ref * ActiveMolSet.t) MolMap.t;
+   mutable active_molecules : (ActiveMolSet.t) MolMap.t;
    reacs_mgr : Reacs_mgr.t;
   }
-
+  
 (* ** interface *)
   
 (* Whenever modifying the bactery, it should be *)
@@ -234,54 +240,62 @@ let make_empty () : t =
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
 let add_new_molecule (new_mol : Molecule.t) (bact : t) : unit =
   
-  if (MolMap.mem new_mol bact.inert_molecules
-      || MolMap.mem new_mol bact.active_molecules)
-  then 
-    failwith "container : add_new_molecule : molecule was already present"
-  else
-    let new_opnet = Petri_net.make_from_mol new_mol
-    in
-    match new_opnet with
-    | None ->
-       let new_qtt = ref 1
-       and new_reacs = ref Set.empty in
-       
-       MolMap.iter
-         (fun mol (qtt, amolset) ->
-           ActiveMolSet.add_reacs_with_new_mol
-             new_mol new_qtt new_reacs amolset bact.reacs_mgr)
-         bact.active_molecules;
-       
-       bact.inert_molecules <-
-         MolMap.add new_mol
-                    ( new_qtt, new_reacs) bact.inert_molecules;
-       
-    | Some new_pnet ->
-       let new_rpnet = ref new_pnet
-       and new_reacs = ref Set.empty in
-       MolMap.iter
-         (fun mol (qtt, amolset) ->
-           ActiveMolSet.add_reacs_with_new_pnet
-             new_mol new_rpnet new_reacs amolset bact.reacs_mgr)
-         bact.active_molecules;
+  let new_opnet = Petri_net.make_from_mol new_mol
+  in
+  match new_opnet with
+  | None ->
+     let new_qtt = ref 1
+     and new_reacs = ref Set.empty in
+     
+     MolMap.iter
+       (fun mol amolset ->
+         ActiveMolSet.add_reacs_with_new_mol
+           new_mol new_qtt new_reacs amolset bact.reacs_mgr)
+       bact.active_molecules;
+     
+     bact.inert_molecules <-
+       MolMap.add new_mol
+                  ( new_qtt, new_reacs) bact.inert_molecules;
+     
+  | Some new_pnet ->
+     let new_rpnet = ref new_pnet
+     and new_reacs = ref Set.empty in
+     MolMap.iter
+       (fun mol amolset ->
+         ActiveMolSet.add_reacs_with_new_pnet
+           new_mol new_rpnet new_reacs amolset bact.reacs_mgr)
+       bact.active_molecules;
+     
+     let graber_d = {mol = new_mol;
+                     pnet = new_rpnet;
+                     reacs = new_reacs}
+     in
+     MolMap.iter
+       (fun mol (qtt, molreacs) ->
+         if Petri_net.can_grab mol new_pnet
+         then
+           let grabed_d = {mol = mol; qtt = qtt; reacs = new_reacs;}
+           in
+           let new_grab = 
+             Reacs_mgr.add_grab graber_d grabed_d bact.reacs_mgr
+           in
+           new_reacs := Set.add new_grab !new_reacs;
+           molreacs := Set.add new_grab !molreacs;
+       ) bact.inert_molecules;
 
-       let graber_d = {mol = new_mol;
-                       pnet = new_rpnet;
-                       reacs = new_reacs}
-       in
-       MolMap.iter
-         (fun mol (qtt, molreacs) ->
-           if Petri_net.can_grab mol new_pnet
-           then
-             let grabed_d = {mol = mol; qtt = qtt; reacs = new_reacs;}
-             in
-             let new_grab = 
-               Reacs_mgr.add_grab graber_d grabed_d bact.reacs_mgr
-             in
-             new_reacs := Set.add new_grab !new_reacs;
-             molreacs := Set.add new_grab !molreacs;
-         ) bact.inert_molecules
-       
+     bact.active_molecules <-
+       MolMap.modify_opt
+         new_mol
+         (fun data ->
+           match data with
+           | Some amolset ->
+              Some (ActiveMolSet.add (new_rpnet,new_reacs) amolset)
+           | None ->
+              Some (ActiveMolSet.singleton (new_rpnet,new_reacs)))
+         bact.active_molecules
+              
+
+           
 (* *** update reaction rates *)
 
 (* Update the rates of all the reactions implicating *)
@@ -300,7 +314,6 @@ let set_inert_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
   if MolMap.mem mol bact.inert_molecules
   then
     let y, reacs = MolMap.find mol bact.inert_molecules in
-    let old_quantity = !y in
     y := n;
     update_rates !reacs bact
   else
@@ -323,32 +336,29 @@ let add_inert_mol_quantity (mol : Molecule.t) (n : int) (bact : t) : unit=
 (* TODO : update reactives *)
 
 let remove_molecule (m : Molecule.t) (bact : t) : unit =
-  let old_quantity = ref 0
-  and old_reacs = ref ([])
+  let old_reacs = ref Set.empty
   in
-  bact.molecules <-
+  bact.inert_molecules <-
     MolMap.modify_opt
       m
       (fun data ->
         match data with
         | None -> failwith "container: cannot remove absent molecule"
-        | Some (n, _, reacs) ->
-           old_quantity := !n;
-           old_reacs := reacs;
+        | Some (qtt, reacs) ->
+           old_reacs := !reacs;
            None)
-      bact.molecules;
-  bact.total_mol_count <-
-    bact.total_mol_count - !old_quantity;
-  update_rates !old_reacs bact
+      bact.inert_molecules;
+  update_rates !old_reacs bact;
+  Reacs_mgr.remove_reactions !old_reacs bact.reacs_mgr
 
 (* *** add_molecule *)
 (* adds a molecule inside a bactery *)
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
 let add_molecule (mol : Molecule.t) (bact : t) : unit =
   
-  if MolMap.mem mol bact.molecules
+  if MolMap.mem mol bact.inert_molecules
   then 
-    add_mol_quantity mol 1 bact
+    add_inert_mol_quantity mol 1 bact
   else
     add_new_molecule mol bact
 
@@ -408,9 +418,20 @@ let rec execute_actions (actions : Reacs_mgr.reaction_effect list) (bact : t) : 
              (* bact.message_queue <- m :: bact.message_queue; *)
                 ()
            ) tel
-      | Update mol ->
-         let _, _, reacs= MolMap.find mol bact.molecules in
-         update_rates reacs bact)
+      | Update reacs ->
+         update_rates !reacs bact
+      | Remove_pnet (mol, pnet) ->
+         bact.active_molecules <-
+           MolMap.modify_opt
+             mol
+             (fun data ->
+               match data with
+               | Some amolset ->
+                  Some (ActiveMolSet.remove
+                          (pnet, ref Set.empty) amolset) 
+               | None -> None
+             ) bact.active_molecules
+    )
   actions
                                      
     
@@ -425,25 +446,47 @@ let next_reaction (bact : t)  =
 (* ** json serialisation *)
 type bact_elem = {nb : int;mol: Molecule.t} 
                    [@@ deriving yojson]
-type bact_sig = bact_elem list
-                          [@@ deriving yojson]
+type bact_sig ={
+    inert_mols : bact_elem list;
+    active_mols : bact_elem list;
+  }
+                 [@@ deriving yojson]
               
               
 let to_json (bact : t) : Yojson.Safe.json =
-  let mol_enum = MolMap.enum bact.molecules in
-  let trimmed_mol_enum = Enum.map (fun (a,(b,c,_)) -> {mol=a; nb= !b}) mol_enum in
-  let trimmed_mol_list = List.of_enum trimmed_mol_enum in
-  bact_sig_to_yojson trimmed_mol_list
+  let imol_enum = MolMap.enum bact.inert_molecules in
+  let trimmed_imol_enum = Enum.map (fun (a,(b,c)) -> {mol=a; nb= !b}) imol_enum in
+  let trimmed_imol_list = List.of_enum trimmed_imol_enum in
+  
+  let amol_enum = MolMap.enum bact.active_molecules in
+  let trimmed_amol_enum =
+    Enum.map (fun (a, amolset) ->
+        {mol = a; nb = ActiveMolSet.cardinal amolset;})
+             amol_enum
+  in
+  let trimmed_amol_list = List.of_enum trimmed_amol_enum
+  in  
+    bact_sig_to_yojson {inert_mols = trimmed_imol_list;
+                        active_mols = trimmed_amol_list;}
   
   
 let json_reset (json : Yojson.Safe.json) (bact:t): unit  =
   match  bact_sig_of_yojson json with
   |Ok bact_sig -> 
-    bact.molecules <- MolMap.empty;
+    bact.inert_molecules <- MolMap.empty;
     List.iter
       (fun {mol = m;nb = n} ->
         add_molecule m bact;
-        set_mol_quantity m n bact;
-        print_endline ("added mol: "^m);
-      ) bact_sig;
+        set_inert_mol_quantity m n bact;
+        print_endline ("added inactive mol: "^m);
+      ) bact_sig.inert_mols;
+    
+    bact.active_molecules <-  MolMap.empty;
+    List.iter
+      (fun {mol = m; nb = n} ->
+        (*        for i = 0 to n do *)
+        add_molecule m bact;
+                       (*        done; *)
+        print_endline ("added active mol: "^m);)
+    bact_sig.active_mols
   | Error s -> failwith s

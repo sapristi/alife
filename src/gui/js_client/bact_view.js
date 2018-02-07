@@ -9,7 +9,9 @@ function BactViewModel(pnetVM) {
 // ** variables
     self.pnetVM = pnetVM;
     
-    self.mols = ko.observableArray();
+    self.inert_mols = ko.observableArray();
+    self.active_mols = ko.observableArray();
+    
     self.selected_mol_index = ko.observable();
 
     self.mol_quantity_input = ko.observable(0);
@@ -17,7 +19,7 @@ function BactViewModel(pnetVM) {
     
     self.current_mol_name = ko.computed(
 	function() {
-	    if (self.selected_mol_index() in self.mols())
+	    if (self.selected_mol_index() in self.inert_mols())
 	    {return self.mols()[self.selected_mol_index()]["mol_name"]}
 	    else {return ""}
 	});
@@ -26,16 +28,28 @@ function BactViewModel(pnetVM) {
     
 // ** update_bact
     self.set_bact_data = function(data){
-	self.mols.removeAll();
-        mols_data = data.data;
-        for (var i = 0; i < mols_data.length; i++) {
-            self.mols.push(
+	self.active_mols.removeAll();
+	self.inert_mols.removeAll();
+        inert_mols_data = data.data.inert_mols;
+        active_mols_data = data.data.active_mols;
+        for (var i = 0; i < inert_mols_data.length; i++) {
+            self.inert_mols.push(
                 {
-                    mol_name : mols_data[i]["mol"],
-                    mol_number : mols_data[i]["nb"],
+                    mol_name : inert_mols_data[i]["mol"],
+                    mol_number : inert_mols_data[i]["nb"],
                     status : ko.observable("")
                 });
         }
+	
+        for (var i = 0; i < active_mols_data.length; i++) {
+            self.active_mols.push(
+                {
+                    mol_name : active_mols_data[i]["mol"],
+                    mol_number : active_mols_data[i]["nb"],
+                    status : ko.observable("")
+                });
+        }
+	
 	self.pnetVM.global_sim_update();
     };
     
@@ -116,11 +130,11 @@ function BactViewModel(pnetVM) {
     self.href_for_save_bactery_local = ko.computed (function() {
 	var data = [];
 	var textFile;
-        for (var i = 0; i < self.mols().length; i++) {
+        for (var i = 0; i < self.inert_mols().length; i++) {
 	    data.push(
                 {
-		    mol : self.mols()[i]["mol_name"],
-		    nb : self.mols()[i]["mol_number"]
+		    mol : self.inert_mols()[i]["mol_name"],
+		    nb : self.inert_mols()[i]["mol_number"]
                 });
         }
 

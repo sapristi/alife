@@ -7,7 +7,7 @@ open Batteries
    
 type reacsSet = reaction Set.t
    
- and inactive_mol_data = {
+ and inert_mol_data = {
      mol : Molecule.t;
      qtt : int ref;
      reacs : reacsSet ref;
@@ -22,7 +22,7 @@ type reacsSet = reaction Set.t
  and grab = {
     mutable rate : float;
     graber_data : active_mol_data;
-    grabed_data : inactive_mol_data;
+    grabed_data : inert_mol_data;
    }
  and agrab = {
     mutable rate : float;
@@ -34,7 +34,7 @@ type reacsSet = reaction Set.t
    {
     mutable rate : float;
     amd : active_mol_data;
-    imd : inactive_mol_data;
+    imd : inert_mol_data;
    }
          *)
    
@@ -55,7 +55,7 @@ and reaction =
 type reaction_effect =
   | T_effects of Place.transition_effect list
   | Remove_pnet of Molecule.t * Petri_net.t ref
-  | Update of Molecule.t
+  | Update of reacsSet ref
             
 type t =
   {
@@ -93,18 +93,20 @@ let remove_reactions reactions reac_mgr =
       | Transition t -> 
          reac_mgr.transitions <- Set.remove t reac_mgr.transitions
       | Grab g ->
-         reac_mgr.grabs <- Set.remove g reac_mgr.grabs;
-         (*  pas besoin a priori puisqu'on va tout virer ensuite        
-
-           let ar = (!g).graber_data.reacs in
-         ar := Set.remove (Grab g) !ar; *)
+         reac_mgr.grabs <- Set.remove g reac_mgr.grabs;     
+         (* we remove reactions in both the graber and the grabed 
+            even though only the graber can normally disappear,
+            we allow the gui to remove inert molecules, plus it might
+            help clean some stuff *)
+         let ar = (!g).graber_data.reacs in
+         ar := Set.remove (Grab g) !ar; 
          let ir = (!g).grabed_data.reacs in
          ir := Set.remove (Grab g) !ir;
          
       | AGrab ag ->
          reac_mgr.agrabs <- Set.remove ag reac_mgr.agrabs;
-(*         let ar = (!ag).graber_data.reacs in
-         ar := Set.remove (AGrab ag) !ar; *)
+         let ar = (!ag).graber_data.reacs in
+         ar := Set.remove (AGrab ag) !ar; 
          let ir = (!ag).grabed_data.reacs in
          ir := Set.remove (AGrab ag) !ir;
          
@@ -126,7 +128,7 @@ let remove_reactions reactions reac_mgr =
 
 (* ** Grabs *)
 
-let grab_rate (amd : active_mol_data) (imd : inactive_mol_data) reacs=
+let grab_rate (amd : active_mol_data) (imd : inert_mol_data) reacs=
   float_of_int !(imd.qtt) *. reacs.raw_grab_rate
   
 let add_grab amd imd reacs : reaction =
@@ -180,12 +182,12 @@ let update_agrab_rate (rc : agrab ref) reacs =
 
 (* ** Self grabs *)
 (*
-let self_grab_rate (amd : active_mol_data) (imd : inactive_mol_data) reacs=
+let self_grab_rate (amd : active_mol_data) (imd : inert_mol_data) reacs=
   (float_of_int !(imd.qtt) -. 1.)
   *. reacs.raw_grab_rate
   *. (float_of_int (Petri_net.grab_factor (imd.mol) !(amd.pnet)))
                
-let add_self_grab (amd : active_mol_data) (imd : inactive_mol_data) reacs : reaction =
+let add_self_grab (amd : active_mol_data) (imd : inert_mol_data) reacs : reaction =
   let (sg : self_grab) = {
       rate = self_grab_rate amd imd reacs;
       amd = amd;
@@ -323,7 +325,7 @@ let treat_reaction  (r : reaction) :
      let actions = Petri_net.launch_random_transition !pnet in
      Petri_net.update_launchables !pnet;
      effects :=
-       Update (!trans).amd.mol :: T_effects actions :: (!effects);
+       Update (!trans).amd.reacs :: T_effects actions :: (!effects);
      !effects
      
   | Grab g ->
@@ -331,8 +333,8 @@ let treat_reaction  (r : reaction) :
      ignore (asymetric_grab (!g).grabed_data.mol !pnet);
      (!g).grabed_data.qtt := !((!g).grabed_data.qtt) -1;
      Petri_net.update_launchables !pnet;
-     effects := Update (!g).grabed_data.mol  ::
-                     Update (!g).graber_data.mol ::
+     effects := Update (!g).grabed_data.reacs  ::
+                     Update (!g).graber_data.reacs ::
                        (!effects);
      !effects
      (* we will need to take care of possible tokens inside the
@@ -341,8 +343,8 @@ let treat_reaction  (r : reaction) :
      let pnet =  !(g).graber_data.pnet in
      ignore (asymetric_grab (!g).grabed_data.mol !pnet);
      Petri_net.update_launchables !pnet;
-     effects := Update (!g).grabed_data.mol  ::
-                  Update (!g).graber_data.mol ::
+     effects := Update (!g).grabed_data.reacs  ::
+                  Update (!g).graber_data.reacs ::
                     Remove_pnet (!(g).grabed_data.mol,
                                  !(g).grabed_data.pnet)
                     ::   (!effects);
@@ -352,7 +354,7 @@ let treat_reaction  (r : reaction) :
      let pnet =  !(sg).amd.pnet in
         ignore (asymetric_grab  (!sg).amd.mol !pnet);
         Petri_net.update_launchables !pnet;
-        effects := Update (!sg).amd.mol  :: (!effects);
+        effects := Update (!sg).amd.reacs  :: (!effects);
         !effects
       *)
   | No_reaction -> []

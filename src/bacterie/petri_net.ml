@@ -104,7 +104,7 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
       None
   with
   | _ ->
-     print_endline "cannot build pnet";
+     (*     print_endline ("cannot build pnet for mol" ^ mol); *)
      None
      
 let make_from_mol (mol : Molecule.t) : t option =
