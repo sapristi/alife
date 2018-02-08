@@ -1,8 +1,23 @@
 open Bacterie
 (* *** pnet_from_mol *) 
 
-let handle_bact_req bact (cgi:Netcgi.cgi) :string  = 
-  let pnet_from_mol (bact : Bacterie.t) (cgi:Netcgi.cgi) =
+let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
+
+  let pnet_ids_from_mol  (bact : Bacterie.t) (cgi:Netcgi.cgi) =
+    let mol = cgi # argument_value "mol_desc" in
+    let amolset =  Bacterie.MolMap.find mol bact.active_molecules in
+    let pnet_ids = ActiveMolSet.get_pnet_ids amolset in
+    let pnet_ids_json =
+      `List (List.map (fun i -> `Int i) pnet_ids) in
+    let to_send_json =
+      `Assoc
+       ["purpose", `String "pnet_ids";
+        "data", pnet_ids_json]
+    in
+    Yojson.Safe.to_string to_send_json
+    
+  
+  and pnet_from_mol (bact : Bacterie.t) (cgi:Netcgi.cgi) =
     let mol = cgi # argument_value "mol_desc"
     and pnet_id = int_of_string (cgi# argument_value "pnet_id") in
     let amolset =  Bacterie.MolMap.find mol bact.active_molecules in
@@ -132,8 +147,12 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
   
   
   let command = cgi # argument_value "command" in
+
   
-  if command = "pnet_from_mol"
+  if command = "pnet_ids_from_mol"
+  then pnet_ids_from_mol bact cgi
+  
+  else if command = "pnet_from_mol"
   then pnet_from_mol bact cgi
   
   else if command = "get_elements"

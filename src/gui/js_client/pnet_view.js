@@ -207,17 +207,19 @@ function PNetViewModel() {
 // ** data setup
 
     
-    self.request_data = function (mol_desc, data_fun) {
+    self.request_data = function (mol_desc, pnet_index, data_fun) {
         utils.ajax_get(
             {command: "pnet_from_mol",
              mol_desc: mol_desc,
+	     pnet_id : pnet_index,
 	     container: "bactery"}
         ).done(data_fun);
     }
 
-    self.initialise = function(mol_desc) {
+    self.initialise = function(mol_desc, pnet_index) {
 	self.request_data(
 	    mol_desc,
+	    pnet_index,
 	    function(data) {
 		self.placeVM.disable();
 		self.transitionVM.disable();
@@ -225,8 +227,8 @@ function PNetViewModel() {
 		self.display_cy_graph();
 	    }
 	);
-
     }
+    
     self.disable = function() {self.data(null);}
     
     

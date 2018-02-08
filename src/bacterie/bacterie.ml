@@ -137,7 +137,15 @@ module ActiveMolSet  = struct
       (find (ref dummy_pnet, ref Set.empty) amolset)
     in pnet
 
-    
+  let  get_pnet_ids amolset : int list =
+    let pnet_enum = enum amolset in
+    let ids_enum = Enum.map
+                     (fun (rpnet,_) ->
+                       (!rpnet).Petri_net.uid) pnet_enum in
+    List.of_enum ids_enum
+
+
+        
 (* *** update reacs with mol *)
 (* Calculates the possible reactions with an *)
 (* inert molecule *)

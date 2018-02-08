@@ -60,5 +60,8 @@ var utils = {
         var textBefore = v.substring(0,  cursorPosStart );
         var textAfter  = v.substring( cursorPosEnd, v.length );
 	field.val( textBefore + mystring +textAfter );
+    },
+    range : function(bound) {
+	return Array.apply(null, Array(bound)).map(function (_, i) {return i;});
     }
 }
