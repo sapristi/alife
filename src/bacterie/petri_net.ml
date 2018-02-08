@@ -225,7 +225,8 @@ let to_json (p : t) =
      "transitions",
      `List (Array.to_list (Array.map Transition.to_yojson p.transitions));
      "molecule",
-     Molecule.to_yojson p.mol]
+     Molecule.to_yojson p.mol;
+     "id", `Int p.uid]
   
 
 let matching_binders (b : string) (pnet : t) =

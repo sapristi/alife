@@ -294,9 +294,11 @@ function PNetViewModel() {
     
 
     self.global_sim_update = function() {
+	console.log(self.data());
 	if (self.data()) {
 	    self.request_data(
 		self.data().molecule,
+		self.data().id,
 		function(data) {
 		    self.data(data.data.pnet);
 		    self.placeVM.update();
