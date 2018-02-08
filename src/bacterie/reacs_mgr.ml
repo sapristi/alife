@@ -129,6 +129,7 @@ let remove_reactions reactions reac_mgr =
 (* ** Grabs *)
 
 let grab_rate (amd : active_mol_data) (imd : inert_mol_data) reacs=
+  float_of_int (Petri_net.grab_factor imd.mol !(amd.pnet)) *.
   float_of_int !(imd.qtt) *. reacs.raw_grab_rate
   
 let add_grab amd imd reacs : reaction =
