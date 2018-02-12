@@ -97,7 +97,7 @@ Library "reacs_mgr"
   FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Reacs_mgr
-  BuildDepends : ppx_deriving.show, logs
+  BuildDepends : ppx_deriving.show, logs, ppx_deriving.ord
 
 
 Library "bacterie"

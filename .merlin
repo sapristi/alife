@@ -30,6 +30,9 @@ CMT /home/sapristi/.opam/4.04.0/build/ppx_deriving_yojson.3.0/_build
 PKG ppx_deriving.show
 CMT /home/sapristi/.opam/4.04.0/build/ppx_deriving.4.2/_build
 
+PKG ppx_deriving.ord
+CMT /home/sapristi/.opam/4.04.0/build/ppx_deriving.4.2/_build
+
 PKG re
 CMT /home/sapristi/.opam/4.04.0/build/re.1.7.1/_build
 

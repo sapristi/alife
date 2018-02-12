@@ -103,11 +103,14 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
   
   
 let handle_req (bact : Bacterie.t) env (cgi:Netcgi.cgi)  =
+  let req_descr = List.fold_left
+                    (fun res x->
+                      res ^(Printf.sprintf "\t%s : %s\n" x#name x#value))
+                    ""
+                    (cgi#arguments)
+  in
+  Log.info (fun m -> m "serving GET request : \n%s" req_descr);
   
-  Log.info (fun m -> m "serving GET request : %s" (cgi # environment # cgi_query_string));
-  
-  List.iter (fun x ->
-      Log.info (fun m -> m "%s : %s" (x # name) (x#value))) (cgi # arguments);
   
   let response = 
     
