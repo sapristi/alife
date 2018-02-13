@@ -13,7 +13,7 @@ let speclist = [ ("-port", Arg.Int (fun x -> port := x), "connection port");
     
   
   Logs.set_reporter (Logs.format_reporter ());
-  Logs.set_level (Some Logs.Info);
+  Logs.set_level (Some Logs.Debug);
     
     let make_bact () : Bacterie.t =
       
