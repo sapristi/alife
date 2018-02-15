@@ -73,7 +73,7 @@ let remove_reactions reactions reac_mgr =
 (* ** Grabs *)
 
 let add_grab (graber_d : Reaction.active_md)
-             (grabed_d : Reaction.inert_md) reacs  : Reaction.t =
+             (grabed_d : Reaction.inert_md) reacs  =
   let (g:Reaction.grab) = Reaction.make_grab graber_d grabed_d 
   in
 
@@ -83,9 +83,12 @@ let add_grab (graber_d : Reaction.active_md)
   
   let r = Reaction.Grab (ref g) in
   reacs.grabs <- GrabsSet.add g reacs.grabs;
+
+  Reaction.add_reac_to_active_md r graber_d;
+  Reaction.add_reac_to_inert_md r grabed_d;
+  
   reacs.total_grabs_rate <-
-    g.rate +. reacs.total_grabs_rate;
-  r
+    g.rate +. reacs.total_grabs_rate
   
 let update_grab_rate (rg : Reaction.grab ref) reacs =
   let old_rate  = !rg.rate 
@@ -99,7 +102,7 @@ let update_grab_rate (rg : Reaction.grab ref) reacs =
 
   
 let add_agrab (graber_d : Reaction.active_md)
-              (grabed_d : Reaction.active_md) reacs : Reaction.t =
+              (grabed_d : Reaction.active_md) reacs  =
   let (ag : Reaction.agrab) = Reaction.make_agrab graber_d grabed_d 
   in
   
@@ -108,9 +111,12 @@ let add_agrab (graber_d : Reaction.active_md)
                         (Reaction.show_active_md grabed_d));
   let r = Reaction.AGrab (ref ag) in
   reacs.agrabs <- AGrabsSet.add ag reacs.agrabs;
+
+  Reaction.add_reac_to_active_md r graber_d;
+  Reaction.add_reac_to_active_md r grabed_d;
+  
   reacs.total_agrabs_rate <-
-    ag.rate +. reacs.total_agrabs_rate;
-  r
+    ag.rate +. reacs.total_agrabs_rate
   
 let update_agrab_rate (rag : Reaction.agrab ref) reacs =
   let old_rate  = !rag.rate 
@@ -124,7 +130,7 @@ let update_agrab_rate (rag : Reaction.agrab ref) reacs =
 (* ** Transitions *)
   
            
-let add_transition amd reacs : Reaction.t =
+let add_transition amd reacs  =
   let t = Reaction.make_transition amd 
   in
 
@@ -133,9 +139,11 @@ let add_transition amd reacs : Reaction.t =
   
   let rt = Reaction.Transition (ref t) in
   reacs.transitions <- TransitionsSet.add t reacs.transitions;
+
+  Reaction.add_reac_to_active_md rt amd;
+  
   reacs.total_transitions_rate <-
-    t.rate +. reacs.total_transitions_rate;
-  rt
+    t.rate +. reacs.total_transitions_rate
   
 let update_transition_rate (rt : Reaction.transition ref) reacs =
   let old_rate = (!rt).rate

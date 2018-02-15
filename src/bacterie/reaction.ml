@@ -2,16 +2,25 @@
 open Misc_library
 
 
+(* * The Reaction module *)
+
+(* ** module signature *)
 module rec Reaction : sig
          type active_md = { mol : Molecule.t;
                             pnet : Petri_net.t ref;
                             reacs : ReacsSet.t ref; }
          val show_active_md : active_md -> string
-                        
+         val make_active_md : Petri_net.t ref -> ReacsSet.t ref -> active_md
+         val make_new_active_md : Petri_net.t ref -> active_md
+         val add_reac_to_active_md : Reaction.t -> active_md -> unit
+           
          type inert_md = {   mol : Molecule.t;
                              qtt : int ref; 
                              reacs : ReacsSet.t ref; }
          val show_inert_md : inert_md -> string
+         val make_inert_md : Molecule.t -> int ref -> ReacsSet.t ref -> inert_md
+         val make_new_inert_md : Molecule.t -> int ref -> inert_md
+         val add_reac_to_inert_md : Reaction.t -> inert_md -> unit
            
          type grab = { mutable rate : float;
                        graber_data : active_md;
@@ -46,7 +55,7 @@ module rec Reaction : sig
 
          type reaction_effect =
            | T_effects of Place.transition_effect list
-           | Remove_pnet of Molecule.t * Petri_net.t ref
+           | Remove_pnet of Petri_net.t ref
            | Update of ReacsSet.t ref
          val treat_reaction : t -> reaction_effect list
          val rate : t -> float
@@ -55,50 +64,68 @@ module rec Reaction : sig
          val unlink : t -> unit
        end
   = struct
-  
+(* ** module definition *)
+
   type reaction_effect =
     | T_effects of Place.transition_effect list
-    | Remove_pnet of Molecule.t * Petri_net.t ref
+    | Remove_pnet of Petri_net.t ref
     | Update of ReacsSet.t ref
-  
+
+              
+(* *** inert mol data *)
+
   type inert_md = {
       mol : Molecule.t;
       qtt : int ref; 
       reacs : ReacsSet.t ref; 
     }
-   and active_md = {
-       mol : Molecule.t;
-       pnet : Petri_net.t ref;
-       reacs : ReacsSet.t ref; 
-     }
+         
 
-(* ** mol data *)
-                       
+  let make_inert_md mol qtt reacs : inert_md = {mol;qtt;reacs}
+  let make_new_inert_md mol qtt : inert_md = {mol; qtt; reacs = ref (ReacsSet.empty)}
+  let add_reac_to_inert_md (reac : Reaction.t) (imd : inert_md) =
+    imd.reacs := ReacsSet.add reac !(imd.reacs) 
   let compare_inert_md
         (imd1 : inert_md) (imd2 : inert_md) =
     String.compare imd1.mol imd2.mol
-  let compare_active_md 
-        (amd1 : active_md) (amd2 : active_md) =
-    Pervasives.compare !(amd1.pnet).Petri_net.uid !(amd2.pnet).Petri_net.uid
-    
   let show_inert_md (imd : inert_md) =
     let res = Printf.sprintf "Inert : %s (%i)" imd.mol !(imd.qtt)
     in Bytes.of_string res
      
   let pp_inert_md (f : Format.formatter)
-                        (imd : inert_md)
+                  (imd : inert_md)
     = Format.pp_print_string f (show_inert_md imd)
     
+
+(* *** active mol data *)
+           
+  type active_md = {
+      mol : Molecule.t;
+      pnet : Petri_net.t ref;
+      reacs : ReacsSet.t ref; 
+     }
+  let make_active_md (pnet : Petri_net.t ref) reacs : active_md = {
+      mol = !pnet.mol; pnet; reacs}
+
+  let make_new_active_md (pnet : Petri_net.t ref) =
+    {mol = !pnet.mol; pnet; reacs = ref ReacsSet.empty}
+
+  let add_reac_to_active_md reac (amd : active_md) =
+    amd.reacs := ReacsSet.add reac !(amd.reacs) 
+    
+  let compare_active_md 
+        (amd1 : active_md) (amd2 : active_md) =
+    Pervasives.compare !(amd1.pnet).Petri_net.uid !(amd2.pnet).Petri_net.uid
 
   let show_active_md (amd : active_md) =
     let res = Printf.sprintf "Active : %s" amd.mol
     in Bytes.of_string res
-
+     
   let pp_active_md (f : Format.formatter)
-                        (amd : active_md)
+                   (amd : active_md)
     = Format.pp_print_string f (show_active_md amd)
     
-(* ** grab *)
+(* *** grab *)
      
   type grab = {
       mutable rate : float;
@@ -122,7 +149,7 @@ module rec Reaction : sig
       graber_data = amd;
       grabed_data = imd;}
     
-(* ** agrab *)
+(* *** agrab *)
   type agrab = {
       mutable rate : float;
       graber_data : active_md;
@@ -140,7 +167,7 @@ module rec Reaction : sig
       graber_data;
       grabed_data;}
     
-(* ** transition *)
+(* *** transition *)
   type transition = {
       mutable rate : float;
       amd : active_md;
@@ -157,7 +184,9 @@ module rec Reaction : sig
       rate = transition_rate amd;
       amd;
     }
-    
+
+
+(* *** reaction generals *) 
   type t =
     | Transition of transition ref
     | Grab of grab ref
@@ -220,8 +249,7 @@ module rec Reaction : sig
        Petri_net.update_launchables !pnet;
        effects := Update (!g).grabed_data.reacs  ::
                     Update (!g).graber_data.reacs ::
-                      Remove_pnet (!(g).grabed_data.mol,
-                                   !(g).grabed_data.pnet)
+                      Remove_pnet (!(g).grabed_data.pnet)
                       ::   (!effects);
        !effects
        
@@ -303,4 +331,3 @@ module TransitionsSet =
            ts
            ""
   end
-  
