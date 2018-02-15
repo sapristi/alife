@@ -203,7 +203,7 @@ module rec Reaction : sig
 (* **** asymetric_grab *)
 (* auxilary function used by try_grabs *)
 (* Try the grab of a molecule by a pnet *)
-                  
+                
   let asymetric_grab mol pnet = 
     let grabs = Petri_net.get_possible_mol_grabs mol pnet
     in
@@ -272,7 +272,7 @@ module rec Reaction : sig
        ir := ReacsSet.remove r !ir;
                    
 end
-  
+(* * The ReacsSet module *)
    and ReacsSet :
          sig
            include Set.S with type elt := Reaction.t
@@ -289,7 +289,8 @@ end
                 ""
 
    end
-         
+
+(* * Various set modules *)
 module GrabsSet =
   struct 
     include Set.Make (struct

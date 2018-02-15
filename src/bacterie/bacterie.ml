@@ -99,13 +99,13 @@ open Reaction
 
 
 (* ** types *)
-
+   
 type active_md = Reaction.active_md = { mol : Molecule.t;
-                                  pnet : Petri_net.t ref;
-                                  reacs : ReacsSet.t ref; }
+                                        pnet : Petri_net.t ref;
+                                        reacs : ReacsSet.t ref; }
 type inert_md = Reaction.inert_md = {   mol : Molecule.t;
-                                   qtt : int ref; 
-                                   reacs : ReacsSet.t ref; }
+                                        qtt : int ref; 
+                                        reacs : ReacsSet.t ref; }
 module MolMap =
   Map.Make (struct type t = Molecule.t
                    let compare = Pervasives.compare
@@ -251,19 +251,18 @@ let add_new_molecule (new_mol : Molecule.t) (bact : t) : unit =
            new_active_md amolset bact.reacs_mgr)
        bact.active_molecules;
      
-     (
-       (* adding grabs with inert molecules *)
-       MolMap.iter
-         (fun mol grabed_d ->
-           if Petri_net.can_grab mol new_pnet
-           then
-             Reacs_mgr.add_grab new_active_md grabed_d bact.reacs_mgr;
-             
+     (* adding grabs with inert molecules *)
+     MolMap.iter
+       (fun mol grabed_d ->
+         if Petri_net.can_grab mol new_pnet
+         then
+           Reacs_mgr.add_grab new_active_md grabed_d bact.reacs_mgr;
+         
          ) bact.inert_molecules;
-       
-       (* adding the transition reaction *)
-       Reacs_mgr.add_transition new_active_md bact.reacs_mgr 
-     );
+     
+     (* adding the transition reaction *)
+     Reacs_mgr.add_transition new_active_md bact.reacs_mgr;
+     
      
      (* adding the molecule to the bactery *)
      bact.active_molecules <-
