@@ -49,12 +49,12 @@ let remove_reactions reactions reac_mgr =
       | Grab g ->
          reac_mgr.grabs <-
            GrabsSet.remove !g reac_mgr.grabs;
-         Reaction.unlink r;
+         Grab.unlink !g;
          
       | AGrab ag ->
          reac_mgr.agrabs <-
            AGrabsSet.remove !ag reac_mgr.agrabs;
-         Reaction.unlink r;
+         AGrab.unlink !r;
 
     ) reactions
 
@@ -74,7 +74,7 @@ let remove_reactions reactions reac_mgr =
 
 let add_grab (graber_d : Reaction.active_md)
              (grabed_d : Reaction.inert_md) reacs  =
-  let (g:Reaction.grab) = Reaction.make_grab graber_d grabed_d 
+  let (g:Grab.t) = Grab.make (graber_d,grabed_d) 
   in
 
   Log.debug (fun m -> m "added new grab between : %s\n%s"
