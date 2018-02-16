@@ -109,43 +109,43 @@ module GrabM (MD : MOLDATA) : REAC =
 module AGrabM (MD : MOLDATA) : REAC =
   struct
     
-      type t = {
-          mutable rate : float;
-          graber_data : MD.active_md;
-          grabed_data : MD.active_md;
-        }  
-                 [@@ deriving ord, show]
-             
-      type build_t = (MD.active_md*MD.active_md)
-      type reacsSet = MD.reacsSet
-      type effect = MD.reaction_effect
-                  
-      let calculate_rate ((graber_d,grabed_d) : build_t) =
-        1.
-      let rate (ag : t) = ag.rate
-                                
-      let make ((graber_data, grabed_data) : build_t) : t =    {
-          rate = calculate_rate (graber_data, grabed_data);
-          graber_data;
-          grabed_data;}
-                                                             
-      let linked_reacs (ag : t) =
-        MD.union !(ag.graber_data.reacs)
-                 !(ag.grabed_data.reacs)
-
-
-      let eval (ag : t) : MD.reaction_effect list = 
-       
-       ignore (asymetric_grab
-                 (ag.grabed_data.mol)
-                 !(ag.graber_data.pnet));
-       Petri_net.update_launchables
-         !(ag.graber_data.pnet);
-       MD.Remove_pnet ag.grabed_data ::
-         MD.Update_reacs !(ag.grabed_data.reacs) ::
-           MD.Update_reacs  (linked_reacs ag) ::
-             []
-
+    type t = {
+        mutable rate : float;
+        graber_data : MD.active_md;
+        grabed_data : MD.active_md;
+      }  
+               [@@ deriving ord, show]
+           
+    type build_t = (MD.active_md*MD.active_md)
+    type reacsSet = MD.reacsSet
+    type effect = MD.reaction_effect
+                
+    let calculate_rate ((graber_d,grabed_d) : build_t) =
+      1.
+    let rate (ag : t) = ag.rate
+                      
+    let make ((graber_data, grabed_data) : build_t) : t =    {
+        rate = calculate_rate (graber_data, grabed_data);
+        graber_data;
+        grabed_data;}
+                                                           
+    let linked_reacs (ag : t) =
+      MD.union !(ag.graber_data.reacs)
+               !(ag.grabed_data.reacs)
+      
+      
+    let eval (ag : t) : MD.reaction_effect list = 
+      
+      ignore (asymetric_grab
+                (ag.grabed_data.mol)
+                !(ag.graber_data.pnet));
+      Petri_net.update_launchables
+        !(ag.graber_data.pnet);
+      MD.Remove_pnet ag.grabed_data ::
+        MD.Update_reacs !(ag.grabed_data.reacs) ::
+          MD.Update_reacs  (linked_reacs ag) ::
+            []
+      
        
     end          
 

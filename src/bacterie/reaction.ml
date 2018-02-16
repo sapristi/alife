@@ -4,9 +4,6 @@ open Reactions
 
    
 (* * The MolData module *)
-
-
-  
 (* ** module signature *)
 module rec MolData : sig
          type reacsSet = ReacsSet.t

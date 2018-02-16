@@ -8,44 +8,80 @@ let src = Logs.Src.create "reactions" ~doc:"logs reacs events";;
 module Log = (val Logs.src_log src : Logs.LOG);;
 
 (* * Reaction module *)
+module type REACSET =
+  sig
+    module RSet :
+    sig
+        include Set.S
+        val show : t -> string
+    end
+    type t = {mutable total_rate : float;
+              mutable set : RSet.t;
+              modifier : float}
+    val make_empty : float -> t
+  end
+
+  
+module MakeReacSet (E : sig
+                      type t
+                      val show : t -> string
+                      val compare : t -> t -> int
+                    end) : REACSET
+  = struct
+  module RSet=
+    struct
+      include Set.Make(E) 
+      let show (s : t) =
+        fold (fun (e : elt) desc ->
+            (E.show e)^"\n"^desc) s ""
+    end
+  type t = {mutable total_rate : float;
+            mutable set : RSet.t;
+            modifier : float}
+  let make_empty (modifier : float) : t =
+    {total_rate = 0.;
+     set = RSet.empty;
+     modifier;}
+end
+  
+module type ReacSetInstance = sig
+    module ReacSet : REACSET
+    val this : ReacSet.t
+end;;
+
+let build_instance
+      (module RS : REACSET )
+      modifier
+  =
+    (module struct
+       module ReacSet = RS
+       type elt = 
+       let this = RS.make_empty modifier
+     end : ReacSetInstance)
   
 
-            
-            
-type t =
-  {
-    mutable grabs : GrabsSet.t;
-    mutable total_grabs_rate : float ;
-    mutable agrabs : AGrabsSet.t;
-    mutable total_agrabs_rate : float;
-    mutable transitions : TransitionsSet.t;
-    mutable total_transitions_rate : float;
-    raw_grab_rate : float;
-    raw_transition_rate : float;
-  }
-  
+let grabRSet = (module MakeReacSet(Grab) : REACSET)
+let agrabRSet = (module MakeReacSet(AGrab) : REACSET)
+let transitionRSet = (module MakeReacSet(Transition) : REACSET)
+let reacsSets = [grabRSet; agrabRSet; transitionRSet]
+
+type t = (module ReacSetInstance) array
+              
   
 let make_new () : t =
-  {
-    grabs = GrabsSet.empty;
-    total_grabs_rate = 0.;
-    agrabs = AGrabsSet.empty;
-    total_agrabs_rate = 0.;
-    (*    self_grabs = Set.empty;
-          total_self_grabs_rate = 0.;  *)     
-    transitions = TransitionsSet.empty;
-    total_transitions_rate = 0.;
-    raw_grab_rate = 1.;
-    raw_transition_rate = 10.;
-  }
+  let grabSI = build_instance grabRSet 1.
+  and agrabSI = build_instance agrabRSet 1.
+  and transitionSI = build_instance transitionRSet 1. in
+  [|grabSI; agrabSI; transitionSI|]
   
 let remove_reactions reactions reac_mgr =
   ReacsSet.iter
     (fun (r : Reaction.t) ->
       match r with
-      | Transition t -> 
-         reac_mgr.transitions <-
-           TransitionsSet.remove !t reac_mgr.transitions
+      | Transition t ->
+         let (module R : ReacSetInstance) = reac_mgr.(2) in
+         R.this.set <- R.ReacSet.RSet.remove !t R.this.set
+         
       | Grab g ->
          reac_mgr.grabs <-
            GrabsSet.remove !g reac_mgr.grabs;
@@ -223,3 +259,4 @@ let rec update_reaction_rates (reac : Reaction.t) reac_mgr=
   | Transition t -> update_transition_rate t reac_mgr
 
 
+ *)
