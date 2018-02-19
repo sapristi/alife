@@ -61,7 +61,6 @@ module type REAC =
 
 module GrabM (MD : MOLDATA) : REAC =
   struct
-    
       type t =  {
             mutable rate : float;
             graber_data : MD.active_md;

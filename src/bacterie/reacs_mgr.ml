@@ -10,30 +10,29 @@ module Log = (val Logs.src_log src : Logs.LOG);;
 (* * Reaction module *)
 module type REACSET =
   sig
+    type elt
     module RSet :
     sig
-        include Set.S
+        include Set.S with type elt = elt
         val show : t -> string
     end
     type t = {mutable total_rate : float;
               mutable set : RSet.t;
               modifier : float}
+
     val make_empty : float -> t
   end
-
   
-module MakeReacSet (E : sig
-                      type t
-                      val show : t -> string
-                      val compare : t -> t -> int
-                    end) : REACSET
+  
+module MakeReacSet (Reac : Reactions.REAC) : (REACSET with type elt = Reac.t )
   = struct
+  type elt = Reac.t
   module RSet=
     struct
-      include Set.Make(E) 
+      include Set.Make(Reac)  
       let show (s : t) =
         fold (fun (e : elt) desc ->
-            (E.show e)^"\n"^desc) s ""
+            (Reac.show e)^"\n"^desc) s ""
     end
   type t = {mutable total_rate : float;
             mutable set : RSet.t;
@@ -43,43 +42,71 @@ module MakeReacSet (E : sig
      set = RSet.empty;
      modifier;}
 end
+
+let build_reac_set
+      (type a)
+      (module Reac : Reactions.REAC with type t = a)
+  = 
+  (module struct
+     
+     module RSet =
+       struct
+         include Set.Make(Reac)
+         let show (s : t) =
+           fold (fun (e : elt) desc ->
+               (Reac.show e)^"\n"^desc) s ""
+       end
+
+     type elt = RSet.elt
+     type t = {mutable total_rate : float;
+               mutable set : RSet.t;
+               modifier : float}
+     let make_empty (modifier : float) : t =
+       {total_rate = 0.;
+        set = RSet.empty;
+        modifier;}
+   end : REACSET with type elt = Reac.t)
+
+
+let grabRSet = (module MakeReacSet(Grab) :
+                REACSET with type elt = Grab.t)
+let agrabRSet = (module MakeReacSet(AGrab) :
+                 REACSET with type elt = AGrab.t)
+let transitionRSet = (module MakeReacSet(Transition) :
+                      REACSET with type elt = Transition.t)
+
+
   
 module type ReacSetInstance = sig
-    module ReacSet : REACSET
-    val this : ReacSet.t
+  module ReacSet : REACSET
+  type elt
+  val this : ReacSet.t
 end;;
 
 let build_instance
-      (module RS : REACSET )
+      (type a)
+      (module RS : REACSET with type elt = a)
       modifier
   =
-    (module struct
-       module ReacSet = RS
-       type elt = 
-       let this = RS.make_empty modifier
-     end : ReacSetInstance)
-  
+  (module struct
+     module ReacSet = RS 
+     let this = RS.make_empty modifier
+     type elt = a
+   end : ReacSetInstance)
 
-let grabRSet = (module MakeReacSet(Grab) : REACSET)
-let agrabRSet = (module MakeReacSet(AGrab) : REACSET)
-let transitionRSet = (module MakeReacSet(Transition) : REACSET)
-let reacsSets = [grabRSet; agrabRSet; transitionRSet]
 
-type t = (module ReacSetInstance) array
-              
-  
-let make_new () : t =
-  let grabSI = build_instance grabRSet 1.
-  and agrabSI = build_instance agrabRSet 1.
-  and transitionSI = build_instance transitionRSet 1. in
-  [|grabSI; agrabSI; transitionSI|]
-  
+type t =
+  { t_set :  (module ReacSetInstance with type elt = Transition.t);
+    g_set :  (module ReacSetInstance with type elt = Grab.t) ;
+    ag_set :  (module ReacSetInstance with type elt = AGrab.t);
+  }
+    
 let remove_reactions reactions reac_mgr =
   ReacsSet.iter
     (fun (r : Reaction.t) ->
       match r with
       | Transition t ->
-         let (module R : ReacSetInstance) = reac_mgr.(2) in
+         let (module R : ReacSetInstance with type elt = Transition.t) = reac_mgr.t_set in
          R.this.set <- R.ReacSet.RSet.remove !t R.this.set
          
       | Grab g ->
@@ -93,8 +120,7 @@ let remove_reactions reactions reac_mgr =
          AGrab.unlink !r;
 
     ) reactions
-
-
+(*
 (* **** collision *)
 (*     The collision probability between two molecules is *)
 (*     the product of their quantities. *)
