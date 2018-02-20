@@ -162,6 +162,6 @@ end
               rset
               ""
        let pp (f : Format.formatter) (rset : t) =
-       Format.pp_print_string f "reactions set"
+         Format.pp_print_string f "reactions set"
      end
 
