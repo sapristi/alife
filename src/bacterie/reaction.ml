@@ -103,11 +103,12 @@ end
 (* * General reaction module *)
    and Reaction :
          (sig
-           type t = 
+           
+           type t =
              | Grab of Grab.t ref
              | AGrab of AGrab.t ref
              | Transition of Transition.t ref
-                           
+             
            val treat_reaction : t -> MolData.reaction_effect list
            val compare : t -> t -> int
            val show : t -> bytes
@@ -121,8 +122,9 @@ end
          | Grab of Grab.t ref
          | AGrab of AGrab.t ref
          | Transition of Transition.t ref
-                                      [@@ deriving show, ord]
-       let rate r  =
+                                      [@@ deriving ord, show]    
+                         
+       let rate r =
          match r with
          | Transition t -> Transition.rate (!t)
          | Grab g -> Grab.rate (!g)
@@ -148,7 +150,7 @@ end
 (* * ReacSet module *)
    and ReacSet :
          (sig
-           include Set.S with type elt = Reaction.t
+           include Set.S with type elt =  Reaction.t
            val show : t -> string
          end)
      =
