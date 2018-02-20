@@ -27,7 +27,7 @@
 open Batteries
 open Misc_library
 open Maps
-open Random
+
 
 (* * the proteine module *)
  

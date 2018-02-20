@@ -1,8 +1,4 @@
 
-
-open Reactions
-
-   
 (* * The MolData module *)
 (* ** module signature *)
 module rec MolData :
@@ -18,18 +14,18 @@ module rec MolData :
     struct
       type t = {
           mol : Molecule.t;
-          qtt : int ref; 
+          qtt : int; 
           reacs : ReacSet.t ref; 
         }
              
       let make mol qtt reacs : t = {mol;qtt;reacs}
-      let make_new mol qtt : t = {mol; qtt; reacs = ref (ReacSet.empty)}
+      let make_new mol qtt : t = {mol; qtt; reacs = (ref ReacSet.empty)}
       let add_reac (reac : Reaction.t) (imd : t) =
         imd.reacs := ReacSet.add reac !(imd.reacs) 
       let compare (imd1 : t) (imd2 : t) =
         String.compare imd1.mol imd2.mol
       let show (imd : t) =
-        let res = Printf.sprintf "Inert : %s (%i)" imd.mol !(imd.qtt)
+        let res = Printf.sprintf "Inert : %s (%i)" imd.mol imd.qtt
         in Bytes.of_string res
          
       let pp (f : Format.formatter)
@@ -42,23 +38,23 @@ module rec MolData :
     struct
       type t = {
           mol : Molecule.t;
-          pnet : Petri_net.t ref;
+          pnet : Petri_net.t;
           reacs : ReacSet.t ref; 
         }
              
-      let make (pnet : Petri_net.t ref) reacs :
+      let make (pnet : Petri_net.t) reacs :
             t =
-        {mol = !pnet.mol; pnet; reacs}
+        {mol = pnet.mol; pnet; reacs}
         
-      let make_new (pnet : Petri_net.t ref) =
-        {mol = !pnet.mol; pnet; reacs = ref ReacSet.empty}
+      let make_new (pnet : Petri_net.t) =
+        {mol = pnet.mol; pnet; reacs = ref ReacSet.empty}
         
       let add_reac reac (amd : t) =
         amd.reacs := ReacSet.add reac !(amd.reacs) 
         
       let compare
             (amd1 : t) (amd2 : t) =
-        Pervasives.compare !(amd1.pnet).Petri_net.uid !(amd2.pnet).Petri_net.uid
+        Pervasives.compare amd1.pnet.Petri_net.uid amd2.pnet.Petri_net.uid
         
       let show (amd : t) =
         let res = Printf.sprintf "Active : %s" amd.mol
@@ -71,9 +67,9 @@ module rec MolData :
 (* *** reaction effect and others *)               
   type reaction_effect =
     | T_effects of Place.transition_effect list
-    | Remove_pnet of Active.t
+    | Remove_pnet of Active.t ref
     | Update_reacs of ReacSet.t 
-    | Modify_quantity of Inert.t * int
+    | Modify_quantity of Inert.t ref * int
                                   
   type reac = Reaction.t      
   type reacSet = ReacSet.t
@@ -84,21 +80,23 @@ end
    and Grab :
          (Reactions.REAC
           with type reacSet = MolData.reacSet
-           and type build_t = (MolData.Active.t * MolData.Inert.t)
+           and type build_t = (MolData.Active.t ref
+                               * MolData.Inert.t ref)
            and type effect = MolData.reaction_effect) 
-     = GrabM(MolData) 
+     = Reactions.GrabM(MolData) 
    and AGrab :
          (Reactions.REAC 
           with type reacSet = MolData.reacSet
-           and type build_t = (MolData.Active.t * MolData.Active.t)
+           and type build_t = (MolData.Active.t ref
+                               * MolData.Active.t ref)
            and type effect = MolData.reaction_effect)  
-     = AGrabM(MolData)
+     = Reactions.AGrabM(MolData)
    and Transition :
          (Reactions.REAC
           with type reacSet = MolData.reacSet
-           and type build_t = MolData.Active.t
+           and type build_t = MolData.Active.t ref
            and type effect = MolData.reaction_effect)
-     = TransitionM(MolData)
+     = Reactions.TransitionM(MolData)
      
 (* * General reaction module *)
    and Reaction :

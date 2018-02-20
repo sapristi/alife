@@ -1,7 +1,5 @@
-open Molecule
-open Petri_net
-open Misc_library
 
+open Misc_library
 
 
 let asymetric_grab mol pnet = 
@@ -23,36 +21,38 @@ module type MOLDATA =
     sig
       type t = {
           mol : Molecule.t;
-          pnet : Petri_net.t ref;
+          pnet : Petri_net.t;
+          (* reacs needs to be a ref because we modify
+             it externally with unlink *)
           reacs : reacSet ref; 
         }
       val show : t -> string
       val pp : Format.formatter -> t -> unit
       val compare : t -> t -> int
       val add_reac : reac -> t -> unit
-      val make_new : Petri_net.t ref -> t
+      val make_new : Petri_net.t -> t
     end
          
     module Inert :
     sig
       type t = {
           mol : Molecule.t;
-          qtt : int ref; 
+          qtt : int; 
           reacs : reacSet ref; 
         }
       val show : t -> string
       val pp : Format.formatter -> t -> unit
       val compare : t -> t -> int
       val add_reac : reac -> t -> unit
-      val make_new : Molecule.t -> int ref -> t
+      val make_new : Molecule.t -> int -> t
     end
     val union : reacSet -> reacSet -> reacSet
        
     type reaction_effect =
       | T_effects of Place.transition_effect list
-      | Remove_pnet of Active.t
+      | Remove_pnet of Active.t ref
       | Update_reacs of reacSet
-      | Modify_quantity of Inert.t * int
+      | Modify_quantity of Inert.t ref * int
   end
 
 module type REAC =
@@ -74,26 +74,26 @@ module type REAC =
 
 module GrabM (MD : MOLDATA) :
 (REAC with type reacSet = MD.reacSet
-       and type build_t = (MD.Active.t * MD.Inert.t)
+       and type build_t = (MD.Active.t ref * MD.Inert.t ref)
        and type effect = MD.reaction_effect) =
   struct
     type t =  {
         mutable rate : float;
-        graber_data : MD.Active.t;
-        grabed_data : MD.Inert.t;
+        graber_data : MD.Active.t ref;
+        grabed_data : MD.Inert.t ref;
       }
             [@@ deriving show, ord]
                
             
-    type build_t = (MD.Active.t * MD.Inert.t)
+    type build_t = (MD.Active.t ref * MD.Inert.t ref)
     type reacSet = MD.reacSet
     type effect = MD.reaction_effect
                 
     let calculate_rate ({graber_data; grabed_data;_} : t) =
       float_of_int (Petri_net.grab_factor
-                      grabed_data.mol
-                      !(graber_data.pnet)) *.
-        float_of_int !(grabed_data.qtt) 
+                      !grabed_data.mol
+                      !graber_data.pnet) *.
+        float_of_int !grabed_data.qtt 
       
     let rate ({rate;_} : t) : float=
       rate
@@ -112,13 +112,14 @@ module GrabM (MD : MOLDATA) :
             even though only the graber can normally disappear,
             we allow the gui to remove inert molecules, plus it might
             help clean some stuff *)
-        MD.union !(g.graber_data.reacs)
-                 !(g.grabed_data.reacs)
+        MD.union !(!(g.graber_data).reacs)
+                 !(!(g.grabed_data).reacs)
 
       let eval (g : t) : MD.reaction_effect list= 
-        ignore (asymetric_grab g.grabed_data.mol !(g.graber_data.pnet));
+        ignore (asymetric_grab !(g.grabed_data).mol
+                               !(g.graber_data).pnet);
         Petri_net.update_launchables
-          !(g.graber_data.pnet);
+          !(g.graber_data).pnet;
         MD.Modify_quantity ( g.grabed_data, -1) ::
           MD.Update_reacs (linked_reacs g) ::
               []
@@ -127,25 +128,25 @@ module GrabM (MD : MOLDATA) :
         grabed  pnet *)
 
       let linked_reacSets (g : t) =
-        [(g.graber_data.reacs); (g.grabed_data.reacs)]
+        [(!(g.graber_data).reacs); (!(g.grabed_data).reacs)]
   end
 
 
 module AGrabM (MD : MOLDATA) :
 (REAC with type reacSet = MD.reacSet
-       and type build_t = (MD.Active.t * MD.Active.t)
+       and type build_t = (MD.Active.t ref * MD.Active.t ref)
        and type effect = MD.reaction_effect)
   =
   struct
     
     type t = {
         mutable rate : float;
-        graber_data : MD.Active.t;
-        grabed_data : MD.Active.t;
+        graber_data : MD.Active.t ref;
+        grabed_data : MD.Active.t ref;
       }  
                [@@ deriving ord, show]
            
-    type build_t = (MD.Active.t*MD.Active.t)
+    type build_t = (MD.Active.t ref * MD.Active.t ref)
     type reacSet = MD.reacSet
     type effect = MD.reaction_effect
                 
@@ -164,50 +165,50 @@ module AGrabM (MD : MOLDATA) :
         grabed_data;}
                                                            
     let linked_reacs (ag : t) =
-      MD.union !(ag.graber_data.reacs)
-               !(ag.grabed_data.reacs)
+      MD.union !(!(ag.graber_data).reacs)
+               !(!(ag.grabed_data).reacs)
       
       
     let eval (ag : t) : MD.reaction_effect list = 
       
       ignore (asymetric_grab
-                (ag.grabed_data.mol)
-                !(ag.graber_data.pnet));
+                !(ag.grabed_data).mol
+                !(ag.graber_data).pnet);
       Petri_net.update_launchables
-        !(ag.graber_data.pnet);
-      MD.Remove_pnet ag.grabed_data ::
-        MD.Update_reacs !(ag.grabed_data.reacs) ::
+        !(ag.graber_data).pnet;
+      MD.Remove_pnet (ag.grabed_data) ::
+        MD.Update_reacs !(!(ag.grabed_data).reacs) ::
           MD.Update_reacs  (linked_reacs ag) ::
             []
       
     let linked_reacSets (g : t) =
-      [(g.graber_data.reacs); (g.grabed_data.reacs)]
+      [!(g.graber_data).reacs; !(g.grabed_data).reacs]
        
     end          
 
 
 module TransitionM (MD : MOLDATA) :
 (REAC with type reacSet = MD.reacSet
-       and type build_t = MD.Active.t
+       and type build_t = MD.Active.t ref
        and type effect = MD.reaction_effect)
   =
   struct
     type t = {
         mutable rate : float;
-        amd : MD.Active.t;
+        amd : MD.Active.t ref;
       }
                [@@ deriving ord, show]
            
-    type build_t = MD.Active.t
+    type build_t = MD.Active.t ref
     type reacSet = MD.reacSet
     type effect = MD.reaction_effect
     let calculate_rate ({amd; _} :t)  =
-      (float_of_int !(amd.pnet).launchables_nb)
+      (float_of_int !amd.pnet.launchables_nb)
       
     let rate (t : t)  =
       t.rate
       
-    let make (amd : MD.Active.t)  =
+    let make (amd : build_t)  =
       {
         rate = calculate_rate {amd; rate = 0.};
         amd;
@@ -219,10 +220,10 @@ module TransitionM (MD : MOLDATA) :
       t.rate -. old_rate
       
     let linked_reacs (t : t) =
-      !(t.amd.reacs)
+      !(!(t.amd).reacs)
                  
     let eval (trans : t) : MD.reaction_effect list= 
-      let pnet = !(trans.amd.pnet) in
+      let pnet = !(trans.amd).pnet in
       let actions = Petri_net.launch_random_transition pnet in
       Petri_net.update_launchables pnet;
       MD.Update_reacs (linked_reacs trans) ::
@@ -230,5 +231,5 @@ module TransitionM (MD : MOLDATA) :
 
       
     let linked_reacSets (g : t) =
-        [(g.amd.reacs);]
+        [!(g.amd).reacs;]
   end

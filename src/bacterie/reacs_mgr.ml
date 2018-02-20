@@ -175,36 +175,36 @@ let remove_reactions reactions reac_mgr =
 
 (* ** Grabs *)
 
-let add_grab (graber_d : MolData.Active.t)
-             (grabed_d : MolData.Inert.t) (reac_mgr :t)  =
+let add_grab (graber_d : MolData.Active.t ref)
+             (grabed_d : MolData.Inert.t ref) (reac_mgr :t)  =
   let (g:Grab.t) = Grab.make (graber_d,grabed_d) 
   in
 
   Log.debug (fun m -> m "added new grab between : %s\n%s"
-                        (MolData.Active.show graber_d)
-                        (MolData.Inert.show grabed_d));
+                        (MolData.Active.show !graber_d)
+                        (MolData.Inert.show !grabed_d));
   
   let r = Reaction.Grab (ref g) in
   GSet.add g reac_mgr.g_set;
-  MolData.Active.add_reac r graber_d;
-  MolData.Inert.add_reac r grabed_d
+  MolData.Active.add_reac r !graber_d;
+  MolData.Inert.add_reac r !grabed_d
   
   
 (* ** AGrabs *)
 
   
-let add_agrab (graber_d : MolData.Active.t)
-              (grabed_d : MolData.Active.t) reac_mgr  =
+let add_agrab (graber_d : MolData.Active.t ref)
+              (grabed_d : MolData.Active.t ref) reac_mgr  =
   let (ag : AGrab.t) = AGrab.make (graber_d,grabed_d) 
   in
   
   Log.debug (fun m -> m "added new agrab between : %s\n%s"
-                        (MolData.Active.show graber_d)
-                        (MolData.Active.show grabed_d));
+                        (MolData.Active.show !graber_d)
+                        (MolData.Active.show !grabed_d));
   let r = Reaction.AGrab (ref ag) in
   AGSet.add ag reac_mgr.ag_set;
-  MolData.Active.add_reac r graber_d;
-  MolData.Active.add_reac r grabed_d
+  MolData.Active.add_reac r !graber_d;
+  MolData.Active.add_reac r !grabed_d
   
 (* ** Transitions *)
   
@@ -213,11 +213,11 @@ let add_transition amd reac_mgr  =
   let t = Transition.make amd 
   in
   Log.debug (fun m -> m "added new transition : %s"
-                        (MolData.Active.show amd));
+                        (MolData.Active.show !amd));
   
   let rt = Reaction.Transition (ref t) in
   TSet.add t reac_mgr.t_set;
-  MolData.Active.add_reac rt amd
+  MolData.Active.add_reac rt !amd
 
   
 (* ** pick next reaction *)
