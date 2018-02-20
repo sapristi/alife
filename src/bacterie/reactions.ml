@@ -64,13 +64,12 @@ module type REAC =
     val show : t -> string
     val pp : Format.formatter -> t -> unit
     val compare : t -> t -> int
-    val calculate_rate : t -> float
+    val make : build_t -> t
     val rate : t -> float
     val update_rate : t -> float
-    val make : build_t -> t
     val linked_reacs : t -> reacSet
-    val eval : t -> effect list
     val linked_reacSets : t -> reacSet ref list
+    val eval : t -> effect list
   end
 
 module GrabM (MD : MOLDATA) :

@@ -38,16 +38,20 @@ module MakeReacSet (Reac : Reactions.REAC) =
       {total_rate = 0.;
        set = RSet.empty;
        modifier;}
+
     let remove r s =
       let rate = Reac.rate r in
       s.set <- RSet.remove r s.set;
       s.total_rate <- s.total_rate -. rate
+
     let add r s =
       s.set <- RSet.add r s.set;
       s.total_rate <- s.total_rate +. (Reac.rate r)
+      
     let update_rate r s =
       let rate_delta = Reac.update_rate r in
       s.total_rate <- s.total_rate +. rate_delta
+      
     let show (s : t) =
       RSet.fold (fun (e : elt) desc ->
           (Reac.show e)^"\n"^desc) s.set ""
@@ -217,17 +221,6 @@ let add_transition amd reac_mgr  =
 
   
 (* ** pick next reaction *)
-let rec aux
-          (b : float) (c : float)
-          (r_access : 'a -> float)
-          (l : 'a list)  = 
-  match l with
-  | h::t ->
-     let c' = c +. (r_access h) in
-     if c' > b then h
-     else aux b c' r_access t
-  | [] -> failwith "pick_reaction @ reactions.ml : can't find reaction"
-
 (* replace to_list with to_enum ? *)
 let pick_next_reaction (reac_mgr:t) : Reaction.t option=
 
