@@ -17,7 +17,7 @@ let asymetric_grab mol pnet =
    
 module type MOLDATA =
   sig
-    type reac
+    type _ reac
     type reacSet 
     module Active :
     sig
@@ -29,7 +29,7 @@ module type MOLDATA =
       val show : t -> string
       val pp : Format.formatter -> t -> unit
       val compare : t -> t -> int
-      val add_reac : reac -> t -> unit
+      val add_reac : _ reac -> t -> unit
       val make_new : Petri_net.t ref -> t
     end
          
@@ -43,7 +43,7 @@ module type MOLDATA =
       val show : t -> string
       val pp : Format.formatter -> t -> unit
       val compare : t -> t -> int
-      val add_reac : reac -> t -> unit
+      val add_reac : _ reac -> t -> unit
       val make_new : Molecule.t -> int ref -> t
     end
     val union : reacSet -> reacSet -> reacSet
