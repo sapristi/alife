@@ -12,12 +12,14 @@ $('.ui.dropdown').dropdown();
 var initVM = function() {
     var self = this;
     self.simVM = new SimViewModel();
+    self.sandboxVM = new SandboxViewModel();
     self.molbuilderVM = new MolBuilderViewModel (self.simVM);
     self.molbuilderVM.init_setup();
     
     masterVM =	{
 	simVM : self.simVM,
-	molbuilderVM : self.molbuilderVM
+	molbuilderVM : self.molbuilderVM,
+	sandboxVM : self.sandboxVM
     }
 
     ko.applyBindings(masterVM);

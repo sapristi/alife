@@ -25,5 +25,5 @@ let speclist = [ ("-port", Arg.Int (fun x -> port := x), "connection port");
                
       in
       
-       Web_server.start_srv (Bact_server.handle_req (make_bact ())) (!host, !port) 
+       Web_server.start_srv (Bact_server.handle_req (make_bact ()) (make_bact ())) (!host, !port) 
    

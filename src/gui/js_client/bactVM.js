@@ -3,9 +3,9 @@
 // * taskviewmodel
 // Main taskview
 
-function BactViewModel(pnetVM) {
+function BactViewModel(pnetVM, container_id) {
     var self = this;
-
+    self.container_id = container_id
 // ** variables
     self.pnetVM = pnetVM;
     self.inertMolsVM = new InertMolsVM(self);
@@ -27,7 +27,7 @@ function BactViewModel(pnetVM) {
     self.update = function() {
         utils.ajax_get(
             {command:"get_elements",
-	     container:"bactery"}
+	     container:self.container_id}
         ).done(self.set_bact_data);
     };
 
@@ -36,14 +36,14 @@ function BactViewModel(pnetVM) {
         utils.ajax_get(
             {command:"next_reactions",
 	     n : self.reactions_number_input,
-	     container:"bactery"}
+	     container:self.container_id}
         ).done(self.set_bact_data);
     };
     self.next_reaction = function() {
         utils.ajax_get(
             {command:"next_reactions",
 	     n:1,
-	     container:"bactery"}
+	     container:self.container_id}
         ).done(self.set_bact_data);
     };
 // ** init_data
@@ -72,7 +72,7 @@ function BactViewModel(pnetVM) {
     self.remove_mol = function() {
         utils.ajax_get(
             {command:"remove_mol",
-	     container:"bactery",
+	     container:self.container_id,
 	     mol_desc:self.current_mol_name()}
         ).done(self.set_bact_data);
 	
@@ -81,7 +81,7 @@ function BactViewModel(pnetVM) {
     self.set_mol_quantity = function() {
         utils.ajax_get(
             {command:"set_mol_quantity",
-	     container:"bactery",
+	     container:self.container_id,
 	     mol_desc:self.current_mol_name(),
 	     mol_quantity : self.mol_quantity_input}
         ).done(self.set_bact_data);
@@ -92,7 +92,7 @@ function BactViewModel(pnetVM) {
     self.reset_bactery = function () {
         utils.ajax_get(
             {command:"reset_bactery",
-	     container:"bactery"}
+	     container:self.container_id}
         ).done(self.set_bact_data);
 
     }
@@ -129,7 +129,7 @@ function BactViewModel(pnetVM) {
 	    
 	    utils.ajax_get(
             {command:"set_bactery",
-	     container:"bactery",
+	     container:self.container_id,
 	     bact_desc : reader.result}
         ).done(self.set_bact_data);
         }

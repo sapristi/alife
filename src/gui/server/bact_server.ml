@@ -3,7 +3,7 @@
 (* ** preamble*)
 open Bact_req_handler
 open Logs
-
+open Sandbox_req_handler
 
 let src = Logs.Src.create "mylib.network" ~doc:"logs mylib's network events";;
   
@@ -102,7 +102,7 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
 ;;
   
   
-let handle_req (bact : Bacterie.t) env (cgi:Netcgi.cgi)  =
+let handle_req (sim : Bacterie.t) (sandbox : Bacterie.t) env (cgi:Netcgi.cgi)  =
   let req_descr = List.fold_left
                     (fun res x->
                       res ^(Printf.sprintf "\t%s : %s\n" x#name x#value))
@@ -117,10 +117,10 @@ let handle_req (bact : Bacterie.t) env (cgi:Netcgi.cgi)  =
     if (cgi # argument_exists "container")
     then
       let container = cgi# argument_value "container" in
-      if container = "bactery"
-      then handle_bact_req bact cgi
+      if container = "simulation"
+      then handle_bact_req sim cgi
       else if container = "sandbox"
-      then "sandbox inactive"
+      then handle_sandbox_req sandbox cgi
       else handle_general_req cgi
           
         

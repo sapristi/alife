@@ -153,12 +153,19 @@ Library "bact_req_handler"
   Modules: Bact_req_handler
   BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, logs
 
+Library "sandbox_req_handler"
+  FindLibName : sandbox_req_handler
+  FindLibParent : servers
+  Path: src/gui/server
+  Modules: Sandbox_req_handler
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, logs
+
 Library "bact_server"
   FindLibName : bact_server
   FindLibParent : servers
   Path: src/gui/server
   Modules: Bact_server
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule,  servers.web_server, bacterie.sandbox, servers.bact_req_handler, bacterie_libs.sandbox, logs
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule,  servers.web_server, bacterie.sandbox, servers.bact_req_handler, servers.sandbox_req_handler, logs
 
 
 Library "servers"

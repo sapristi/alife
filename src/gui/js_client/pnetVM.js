@@ -1,7 +1,6 @@
 // * place VM
 
 function PlaceViewModel(pnetVM) {
-
 // ** data initialisation
     var self = this;
     self.data = null;
@@ -160,10 +159,13 @@ function TransitionViewModel(pnetVM) {
 
 // * PNet VM
 
-function PNetViewModel() {
+function PNetViewModel(container_id) {
     
 // ** initialisation
     var self = this;
+    
+    self.container_id = container_id
+    
     var pnet_cy;
     self.placeVM = new PlaceViewModel(self);
     self.transitionVM = new TransitionViewModel(self);
@@ -212,7 +214,7 @@ function PNetViewModel() {
             {command: "pnet_from_mol",
              mol_desc: mol_desc,
 	     pnet_id : pnet_index,
-	     container: "bactery"}
+	     container: self.container_id}
         ).done(data_fun);
     }
 
@@ -263,7 +265,7 @@ function PNetViewModel() {
 	     molecule : self.data().molecule,
 	     place_index : pindex,
              token: JSON.stringify(token),
-	     container: "bactery"}
+	     container: self.container_id}
         ).done(
 	    function (data)
 	    {	
@@ -281,7 +283,7 @@ function PNetViewModel() {
 	    {command: "launch_transition",
 	     molecule : self.data().molecule,
 	     transition_index : tindex,
-	     container: "bactery"}
+	     container: self.container_id}
         ).done(
 	    function (data)
 	    {	
