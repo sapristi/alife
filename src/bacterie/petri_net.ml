@@ -37,7 +37,7 @@ type t =
   {
     mol : Molecule.t;
     transitions : Transition.t array; [@opaque]
-    places : Place.t  array; [@opaque]
+    places : Place.t array; [@opaque]
     uid : int; [@opaque]
     binders : (int*string) list; [@opaque]
     mutable launchables_nb:int;
@@ -234,3 +234,11 @@ let matching_binders (b : string) (pnet : t) =
       if b' = String.rev b
       then index::res
       else res)  [] pnet.binders
+let get_tokens (pnet :t)  : Token.t list =
+  Array.fold_left
+    (fun res p ->
+      match p.Place.token with
+      | None -> res
+      | Some t -> t::res)
+    []
+    pnet.places

@@ -7,12 +7,16 @@
 (* * preamble : load libraries *)
 
 
-
-
-
     
 type t = string
            [@@deriving show, yojson] 
+
+
+let break m =
+  let n = String.length m in
+  let b = Random.int n in
+  (String.sub m 0 b, String.sub m b (n-b))
+
        
 let atoms = "[A-F]"
 
@@ -197,3 +201,7 @@ let rec of_proteine (p : Proteine.t) : t =
   | a :: p' ->
      (acid_to_mol a) ^ (of_proteine p')
   | [] -> ""
+
+
+
+        

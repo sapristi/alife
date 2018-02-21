@@ -157,7 +157,7 @@ module ActiveMolSet  = struct
 (* Calculates the possible reactions with an *)
 (* inert molecule *)
       
-  let add_reacs_with_new_mol (new_inert_md : inert_md ref) amolset reacs_mgr =
+  let add_reacs_with_new_mol (new_inert_md : inert_md ref) amolset reac_mgr =
     if is_empty amolset
     then
       ()
@@ -168,13 +168,13 @@ module ActiveMolSet  = struct
       then
         PnetSet.iter
           (fun graber_d ->
-            Reacs_mgr.add_grab graber_d new_inert_md reacs_mgr)
+            Reac_mgr.add_grab graber_d new_inert_md reac_mgr)
           amolset
       
 
   let add_reacs_with_new_pnet (new_active_md : active_md ref)
                               amolset
-                              reacs_mgr =
+                              reac_mgr =
     if is_empty amolset
     then
       ()
@@ -192,11 +192,11 @@ module ActiveMolSet  = struct
           (fun current_amd ->
             if is_graber
             then
-              Reacs_mgr.add_agrab new_active_md current_amd reacs_mgr;
+              Reac_mgr.add_agrab new_active_md current_amd reac_mgr;
             
             if is_grabed
             then 
-              Reacs_mgr.add_agrab current_amd new_active_md reacs_mgr;
+              Reac_mgr.add_agrab current_amd new_active_md reac_mgr;
           ) amolset;
       
 end
@@ -204,7 +204,7 @@ end
 type t =
   {mutable inert_molecules : (inert_md ref) MolMap.t;
    mutable active_molecules : (ActiveMolSet.t) MolMap.t;
-   reacs_mgr : Reacs_mgr.t;
+   reac_mgr : Reac_mgr.t;
   }
   
 (* ** interface *)
@@ -217,7 +217,10 @@ type t =
 let make_empty () : t = 
   {inert_molecules =  MolMap.empty;
    active_molecules = MolMap.empty;
-   reacs_mgr = Reacs_mgr.make_new ();}
+   reac_mgr = Reac_mgr.make_new
+                {transition_rate = 10.;
+                 grab_rate = 1.;
+                 break_rate = 10.;}}
   
 (* *** add new molecule *)
 (* adds a new molecule inside a bactery *)
@@ -229,13 +232,18 @@ let add_new_molecule (new_mol : Molecule.t) (bact : t) : unit =
   match new_opnet with
   | None ->
      let new_inert_md = ref (MolData.Inert.make_new new_mol 1) in
-     
+
+     (* reactions : grab  by active mols *)
      MolMap.iter
        (fun mol amolset ->
          ActiveMolSet.add_reacs_with_new_mol
-           new_inert_md amolset bact.reacs_mgr)
+           new_inert_md amolset bact.reac_mgr)
        bact.active_molecules;
+
+     (* reactions : break *)
+     Reac_mgr.add_break_inert new_inert_md bact.reac_mgr;
      
+     (* add to bactery *)
      bact.inert_molecules <-
        MolMap.add new_mol
                   new_inert_md
@@ -248,7 +256,7 @@ let add_new_molecule (new_mol : Molecule.t) (bact : t) : unit =
      MolMap.iter
        (fun mol amolset ->
          ActiveMolSet.add_reacs_with_new_pnet
-           new_active_md amolset bact.reacs_mgr)
+           new_active_md amolset bact.reac_mgr)
        bact.active_molecules;
      
      (* adding grabs with inert molecules *)
@@ -256,14 +264,15 @@ let add_new_molecule (new_mol : Molecule.t) (bact : t) : unit =
        (fun mol grabed_d ->
          if Petri_net.can_grab mol new_pnet
          then
-           Reacs_mgr.add_grab new_active_md grabed_d bact.reacs_mgr;
+           Reac_mgr.add_grab new_active_md grabed_d bact.reac_mgr;
          
          ) bact.inert_molecules;
      
      (* adding the transition reaction *)
-     Reacs_mgr.add_transition new_active_md bact.reacs_mgr;
+     Reac_mgr.add_transition new_active_md bact.reac_mgr;
      
-     
+     (* adding break reaction *)
+     Reac_mgr.add_break_active new_active_md bact.reac_mgr;
      (* adding the molecule to the bactery *)
      bact.active_molecules <-
        MolMap.modify_opt
@@ -288,7 +297,7 @@ let add_new_molecule (new_mol : Molecule.t) (bact : t) : unit =
 let update_rates reactions bact =
   ReacSet.iter
     (fun reac ->
-      Reacs_mgr.update_reaction_rates reac bact.reacs_mgr)
+      Reac_mgr.update_reaction_rates reac bact.reac_mgr)
     reactions
 
   
@@ -333,7 +342,7 @@ let remove_molecule (m : Molecule.t) (bact : t) : unit =
            None)
       bact.inert_molecules;
   update_rates !old_reacs bact;
-  Reacs_mgr.remove_reactions !old_reacs bact.reacs_mgr
+  Reac_mgr.remove_reactions !old_reacs bact.reac_mgr
   
 (* *** add_molecule *)
 (* adds a molecule inside a bactery *)
@@ -418,12 +427,17 @@ let rec execute_actions (actions : MolData.reaction_effect list) (bact : t) : un
       (* we assume the reactions will be updated after ? *)
       | Modify_quantity (imd, qttd) ->
          imd := {!imd with qtt = !imd.qtt + qttd}
+      | Release_tokens tl ->
+         List.iter
+           (fun ((_,mol) : Token.t) -> add_molecule mol bact)
+           tl
+      | Release_mol mol -> add_molecule mol bact 
     )
     actions
   
   
 let next_reaction (bact : t)  =
-  let ro = Reacs_mgr.pick_next_reaction bact.reacs_mgr in
+  let ro = Reac_mgr.pick_next_reaction bact.reac_mgr in
   match ro with
   | None -> failwith "next_reaction @ bacterie : no more reactions"
   | Some r ->

@@ -74,7 +74,8 @@ end
 module GSet = MakeReacSet(Grab)
 module AGSet = MakeReacSet(AGrab)
 module TSet = MakeReacSet(Transition)
-
+module BASet = MakeReacSet(BreakA)
+module BISet = MakeReacSet(BreakI)
 (* ** too complicated stuff *)
   
 (*
@@ -133,17 +134,25 @@ let build_instance
    *)
 
 (* ** module defs *)
-            
+
+type config = { transition_rate : float;
+                grab_rate : float;
+                break_rate : float;}
+             
 type t =
   { t_set :  TSet.t;
     g_set :  GSet.t;
-    ag_set :  AGSet.t
+    ag_set : AGSet.t;
+    ba_set : BASet.t;
+    bi_set : BISet.t;
   }
 
-let make_new () =
-  {t_set = TSet.make_empty 1.;
-   g_set = GSet.make_empty 1.;
-   ag_set = AGSet.make_empty 1.;}
+let make_new (config : config) =
+  {t_set = TSet.make_empty config.transition_rate;
+   g_set = GSet.make_empty config.grab_rate;
+   ag_set = AGSet.make_empty config.grab_rate;
+   ba_set = BASet.make_empty config.break_rate;
+   bi_set = BISet.make_empty config.break_rate}
   
 let remove_reactions reactions reac_mgr =
   ReacSet.iter
@@ -160,6 +169,11 @@ let remove_reactions reactions reac_mgr =
          AGSet.remove !ag reac_mgr.ag_set;
          Reaction.unlink r;
 
+      | BreakI bi ->
+         BISet.remove !bi reac_mgr.bi_set;
+
+      | BreakA ba ->
+         BASet.remove !ba reac_mgr.ba_set;
     ) reactions
 
 (* **** collision *)
@@ -219,6 +233,22 @@ let add_transition amd reac_mgr  =
   TSet.add t reac_mgr.t_set;
   MolData.Active.add_reac rt !amd
 
+
+(* ** BreakInert *)
+let add_break_inert imd reac_mgr =
+  let bi = BreakI.make imd in
+  let rbi = Reaction.BreakI (ref bi) in
+  BISet.add bi reac_mgr.bi_set;
+  MolData.Inert.add_reac rbi !imd
+
+
+(* ** BreakActive *)
+let add_break_active amd reac_mgr =
+  let ba = BreakA.make amd in
+  let rba = Reaction.BreakA (ref ba) in
+  BASet.add ba reac_mgr.ba_set;
+  MolData.Active.add_reac rba !amd
+  
   
 (* ** pick next reaction *)
 (* replace to_list with to_enum ? *)
@@ -239,8 +269,13 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
                       *. reac_mgr.ag_set.modifier
   and total_t_rate = reac_mgr.t_set.total_rate
                      *. reac_mgr.t_set.modifier
+  and total_bi_rate = reac_mgr.bi_set.total_rate
+                    *. reac_mgr.bi_set.modifier
+  and total_ba_rate = reac_mgr.ba_set.total_rate
+                    *. reac_mgr.ba_set.modifier
   in
   let a0 = (total_g_rate) +. (total_ag_rate) +. (total_t_rate)
+         +. (total_bi_rate) +. (total_ba_rate)
   in
   if a0 = 0.
   then None
@@ -254,9 +289,16 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
     else if bound <  total_g_rate +. total_ag_rate
     then
       Some (AGrab (ref (AGSet.pick_reaction reac_mgr.ag_set)))
-    else
+    else if bound < total_g_rate +.  total_ag_rate +. total_t_rate
+    then 
       Some( Transition ( ref (TSet.pick_reaction reac_mgr.t_set)))
-      
+    else if bound <  total_g_rate +.  total_ag_rate +. total_t_rate
+                     +. total_bi_rate
+    then
+      Some (BreakI (ref (BISet.pick_reaction reac_mgr.bi_set)))
+    else
+      Some (BreakA (ref (BASet.pick_reaction reac_mgr.ba_set)))
+    
 let rec update_reaction_rates (reac : Reaction.t) reac_mgr=
   match reac with
   | Grab g -> 
@@ -265,4 +307,8 @@ let rec update_reaction_rates (reac : Reaction.t) reac_mgr=
      AGSet.update_rate !ag reac_mgr.ag_set
   | Transition t -> 
      TSet.update_rate !t reac_mgr.t_set
+  | BreakI bi ->
+     BISet.update_rate !bi reac_mgr.bi_set
+  | BreakA ba ->
+     BASet.update_rate !ba reac_mgr.ba_set
 
