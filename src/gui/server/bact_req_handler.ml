@@ -1,4 +1,4 @@
-open Bacterie
+
 (* *** pnet_from_mol *) 
 
 let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
@@ -6,7 +6,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
   let pnet_ids_from_mol  (bact : Bacterie.t) (cgi:Netcgi.cgi) =
     let mol = cgi # argument_value "mol_desc" in
     let amolset =  Bacterie.MolMap.find mol bact.active_molecules in
-    let pnet_ids = ActiveMolSet.get_pnet_ids amolset in
+    let pnet_ids = Bacterie.ActiveMolSet.get_pnet_ids amolset in
     let pnet_ids_json =
       `List (List.map (fun i -> `Int i) pnet_ids) in
     let to_send_json =
@@ -21,7 +21,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
     let mol = cgi # argument_value "mol_desc"
     and pnet_id = int_of_string (cgi# argument_value "pnet_id") in
     let amolset =  Bacterie.MolMap.find mol bact.active_molecules in
-    let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset
+    let pnet = Bacterie.ActiveMolSet.find_by_pnet_id pnet_id amolset
     in
     let pnet_json = Petri_net.to_json pnet
     in
@@ -67,7 +67,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
          let place_index = int_of_string place_index_str in
          
          let amolset =  Bacterie.MolMap.find mol bact.active_molecules in
-         let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset in
+         let pnet = Bacterie.ActiveMolSet.find_by_pnet_id pnet_id amolset in
          (
            match token_o with
            | Some token -> 
@@ -97,7 +97,7 @@ let handle_bact_req bact (cgi:Netcgi.cgi) :string  =
     
          
     let amolset =  Bacterie.MolMap.find mol bact.active_molecules in
-    let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset in
+    let pnet = Bacterie.ActiveMolSet.find_by_pnet_id pnet_id amolset in
     
     Petri_net.launch_transition_by_id trans_index pnet;
     Petri_net.update_launchables pnet;

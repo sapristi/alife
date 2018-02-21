@@ -9,6 +9,13 @@ module Log = (val Logs.src_log src : Logs.LOG);;
 
 
 (* * Reaction module *)
+(* Manages reactions at the higher level. *)
+(* Contains a set for each of the reaction types, and  *)
+(* will randomly select a reaction from them. *)
+(* Also handles the add of new reactions (when new molecules *)
+(* are added) and the removing of reactions (when molecules *)
+(* disappear) *)
+
 
 (* ** REACSet functor *)
 (*module type REACSET =
@@ -184,7 +191,7 @@ let remove_reactions reactions reac_mgr =
 (*     to avoid integer overflow. *)
 (*     We here calculate each collision probability, *)
 (*     and the sum of it. *)
-(*     WARNING : possible integer overflow *) 
+(*     WARNING : possible integer overflow  *)
 (* https://fr.wikipedia.org/wiki/Th%C3%A9orie_des_collisions *)
 
 (* ** Grabs *)
@@ -311,4 +318,3 @@ let rec update_reaction_rates (reac : Reaction.t) reac_mgr=
      BISet.update_rate !bi reac_mgr.bi_set
   | BreakA ba ->
      BASet.update_rate !ba reac_mgr.ba_set
-
