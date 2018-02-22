@@ -3,7 +3,8 @@
 var utils = {
     
     ajax_get : function(req_data) {
-
+	console.log("sending:");
+	console.log(req_data);
 	var connect_uri = window.location.origin + "/sim_commands/";
 	var request = {
             url: connect_uri,

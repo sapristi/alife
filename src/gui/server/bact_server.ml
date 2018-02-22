@@ -1,7 +1,7 @@
 (* * simulation server *)
 
 (* ** preamble*)
-open Bact_req_handler
+open Sim_req_handler
 open Logs
 open Sandbox_req_handler
 
@@ -102,7 +102,7 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
 ;;
   
   
-let handle_req (sim : Bacterie.t) (sandbox : Bacterie.t) env (cgi:Netcgi.cgi)  =
+let handle_req (sim : Simulator.t) (sandbox : Bacterie.t) env (cgi:Netcgi.cgi)  =
   let req_descr = List.fold_left
                     (fun res x->
                       res ^(Printf.sprintf "\t%s : %s\n" x#name x#value))
@@ -118,7 +118,7 @@ let handle_req (sim : Bacterie.t) (sandbox : Bacterie.t) env (cgi:Netcgi.cgi)  =
     then
       let container = cgi# argument_value "container" in
       if container = "simulation"
-      then handle_bact_req sim cgi
+      then handle_sim_req sim cgi
       else if container = "sandbox"
       then handle_sandbox_req sandbox cgi
       else handle_general_req cgi

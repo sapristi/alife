@@ -12,14 +12,14 @@ function ActiveMolsVM(bactVM) {
 	function (new_id) {
 	    console.log(new_id);
 	    self.bactVM.pnetVM.initialise(
-		self.mols()[self.selected_mol_index()].name,
+		self.mols()[self.selected_mol_index()].mol,
 		self.selected_pnet_id());
 	});
     
     self.current_mol_name = ko.computed(
 	function() {
 	    if (self.selected_mol_index() in self.mols())
-	    {return self.mols()[self.selected_mol_index()].name}
+	    {return self.mols()[self.selected_mol_index()].mol}
 	    else {return ""}
 	});
 
@@ -30,8 +30,8 @@ function ActiveMolsVM(bactVM) {
         for (var i = 0; i < inert_mols_data.length; i++) {
             self.mols.push(
                 {
-                    name : inert_mols_data[i].mol,
-                    qtt : inert_mols_data[i].nb,
+                    mol : inert_mols_data[i].mol,
+                    qtt : inert_mols_data[i].qtt,
                     status : ko.observable("")
                 });
         }
@@ -50,8 +50,8 @@ function ActiveMolsVM(bactVM) {
 
 	    utils.ajax_get(
 		{command : "pnet_ids_from_mol",
-		 mol_desc : self.mols()[index].name,
-		 container : "bactery"}
+		 mol_desc : self.mols()[index].mol,
+		 container : self.bactVM.container_id}
 	    ).done(function(data) {
 		self.pnet_indexes(data.data);});
 	    
@@ -61,7 +61,7 @@ function ActiveMolsVM(bactVM) {
     self.remove_mol = function() {
         utils.ajax_get(
             {command:"remove_mol",
-	     container:"bactery",
+	     container:self.bactVM.container_id,
 	     mol_desc:self.current_mol_name()}
         ).done(self.bactVM.set_bact_data);
     }
@@ -69,7 +69,7 @@ function ActiveMolsVM(bactVM) {
     self.set_mol_quantity = function() {
         utils.ajax_get(
             {command:"set_mol_quantity",
-	     container:"bactery",
+	     container:self.bactVM.container_id,
 	     mol_desc:self.current_mol_name(),
 	     mol_quantity : self.mol_quantity_input}
         ).done(self.bactVM.set_bact_data);

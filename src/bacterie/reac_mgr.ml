@@ -145,7 +145,7 @@ let build_instance
 type config = { transition_rate : float;
                 grab_rate : float;
                 break_rate : float;}
-             
+                [@@ deriving yojson]       
 type t =
   { t_set :  TSet.t;
     g_set :  GSet.t;

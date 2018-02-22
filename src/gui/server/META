@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 72142e72c0720ca07100d15c1e75024a)
+# DO NOT EDIT (digest: ce90843544d9d9910d30a71d86283054)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "servers.cma"
@@ -18,6 +18,17 @@ package "web_server" (
  exists_if = "web_server.cma"
 )
 
+package "sim_req_handler" (
+ version = "0.1"
+ description = "Simulating life and stuff"
+ requires = "unix simulator yojson ppx_deriving_yojson"
+ archive(byte) = "sim_req_handler.cma"
+ archive(byte, plugin) = "sim_req_handler.cma"
+ archive(native) = "sim_req_handler.cmxa"
+ archive(native, plugin) = "sim_req_handler.cmxs"
+ exists_if = "sim_req_handler.cma"
+)
+
 package "sandbox_req_handler" (
  version = "0.1"
  description = "Simulating life and stuff"
@@ -34,24 +45,12 @@ package "bact_server" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule servers.web_server bacterie.sandbox servers.bact_req_handler servers.sandbox_req_handler logs"
+ "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule servers.web_server servers.sim_req_handler servers.sandbox_req_handler logs"
  archive(byte) = "bact_server.cma"
  archive(byte, plugin) = "bact_server.cma"
  archive(native) = "bact_server.cmxa"
  archive(native, plugin) = "bact_server.cmxs"
  exists_if = "bact_server.cma"
-)
-
-package "bact_req_handler" (
- version = "0.1"
- description = "Simulating life and stuff"
- requires =
- "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule logs"
- archive(byte) = "bact_req_handler.cma"
- archive(byte, plugin) = "bact_req_handler.cma"
- archive(native) = "bact_req_handler.cmxa"
- archive(native, plugin) = "bact_req_handler.cmxs"
- exists_if = "bact_req_handler.cma"
 )
 # OASIS_STOP
 

@@ -214,13 +214,16 @@ type t =
 
 (* *** make empty *)
 (* an empty bactery *)
-let make_empty () : t = 
+  
+let (default_rcfg : Reac_mgr.config) =
+  {transition_rate = 10.;
+   grab_rate = 1.;
+   break_rate = 0.0001}
+    
+let make_empty ?(rcfg=default_rcfg) () = 
   {inert_molecules =  MolMap.empty;
    active_molecules = MolMap.empty;
-   reac_mgr = Reac_mgr.make_new
-                {transition_rate = 10.;
-                 grab_rate = 1.;
-                 break_rate = 10.;}}
+   reac_mgr = Reac_mgr.make_new rcfg}
   
 (* *** add new molecule *)
 (* adds a new molecule inside a bactery *)
@@ -446,7 +449,7 @@ let next_reaction (bact : t)  =
 
 
 (* ** json serialisation *)
-type bact_elem = {nb : int;mol: Molecule.t} 
+type bact_elem = {qtt:int;mol: Molecule.t} 
                    [@@ deriving yojson]
 type bact_sig ={
     inert_mols : bact_elem list;
@@ -457,19 +460,21 @@ type bact_sig ={
               
 let to_json (bact : t) : Yojson.Safe.json =
   let imol_enum = MolMap.enum bact.inert_molecules in
-  let trimmed_imol_enum = Enum.map (fun (a,imd) -> {mol=a; nb= !imd.qtt}) imol_enum in
+  let trimmed_imol_enum =
+    Enum.map (fun (a,(imd : inert_md ref)) -> ({mol=a; qtt= !imd.qtt} : bact_elem))
+             imol_enum in
   let trimmed_imol_list = List.of_enum trimmed_imol_enum in
   
   let amol_enum = MolMap.enum bact.active_molecules in
   let trimmed_amol_enum =
     Enum.map (fun (a, amolset) ->
-        {mol = a; nb = ActiveMolSet.cardinal amolset;})
+        {mol = a; qtt = ActiveMolSet.cardinal amolset;})
              amol_enum
   in
   let trimmed_amol_list = List.of_enum trimmed_amol_enum
   in  
-    bact_sig_to_yojson {inert_mols = trimmed_imol_list;
-                        active_mols = trimmed_amol_list;}
+  bact_sig_to_yojson {inert_mols = trimmed_imol_list;
+                      active_mols = trimmed_amol_list;}
   
   
 let json_reset (json : Yojson.Safe.json) (bact:t): unit  =
@@ -477,7 +482,7 @@ let json_reset (json : Yojson.Safe.json) (bact:t): unit  =
   |Ok bact_sig -> 
     bact.inert_molecules <- MolMap.empty;
     List.iter
-      (fun {mol = m;nb = n} ->
+      (fun {mol = m;qtt = n} ->
         add_molecule m bact;
         set_inert_mol_quantity m n bact;
         print_endline ("added inactive mol: "^m);
@@ -485,7 +490,7 @@ let json_reset (json : Yojson.Safe.json) (bact:t): unit  =
     
     bact.active_molecules <-  MolMap.empty;
     List.iter
-      (fun {mol = m; nb = n} ->
+      (fun {mol = m; qtt = n} ->
         (*        for i = 0 to n do *)
         add_molecule m bact;
                        (*        done; *)

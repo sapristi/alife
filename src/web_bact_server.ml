@@ -14,7 +14,7 @@ let speclist = [ ("-port", Arg.Int (fun x -> port := x), "connection port");
   
   Logs.set_reporter (Logs.format_reporter ());
   Logs.set_level (Some Logs.Debug);
-    
+  
     let make_bact () : Bacterie.t =
       
       let bact = Bacterie.make_empty () in
@@ -23,7 +23,10 @@ let speclist = [ ("-port", Arg.Int (fun x -> port := x), "connection port");
       Bacterie.json_reset data_json bact;
       bact
                
-      in
-      
-       Web_server.start_srv (Bact_server.handle_req (make_bact ()) (make_bact ())) (!host, !port) 
-   
+    in
+    
+    Web_server.start_srv (Bact_server.handle_req
+                            (Simulator.make ())
+                            (make_bact ()))
+                         (!host, !port) 
+    

@@ -1,6 +1,4 @@
 
-w3.includeHTML();
-
 // semantic-ui 
 $('#tab_menu .item').tab();
 $('#mol_name_display').accordion();
@@ -11,10 +9,10 @@ $('.ui.dropdown').dropdown();
 // viewmodel
 var initVM = function() {
     var self = this;
-    self.simVM = new SimViewModel();
     self.sandboxVM = new SandboxViewModel();
-    self.molbuilderVM = new MolBuilderViewModel (self.simVM);
+    self.molbuilderVM = new MolBuilderViewModel (self.sandboxVM);
     self.molbuilderVM.init_setup();
+    self.simVM = new SimViewModel(self.sandboxVM);
     
     masterVM =	{
 	simVM : self.simVM,

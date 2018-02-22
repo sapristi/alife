@@ -10,7 +10,7 @@ function InertMolsVM(bactVM) {
     self.current_mol_name = ko.computed(
 	function() {
 	    if (self.selected_mol_index() in self.mols())
-	    {return self.mols()[self.selected_mol_index()]["mol_name"]}
+	    {return self.mols()[self.selected_mol_index()]["mol"]}
 	    else {return ""}
 	});
 
@@ -20,8 +20,8 @@ function InertMolsVM(bactVM) {
         for (var i = 0; i < inert_mols_data.length; i++) {
             self.mols.push(
                 {
-                    mol_name : inert_mols_data[i]["mol"],
-                    mol_number : inert_mols_data[i]["nb"],
+                    name : inert_mols_data[i]["mol"],
+                    qtt : inert_mols_data[i]["qtt"],
                     status : ko.observable("")
                 });
         }
