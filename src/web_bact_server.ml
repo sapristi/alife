@@ -20,7 +20,7 @@ let speclist = [ ("-port", Arg.Int (fun x -> port := x), "connection port");
       let bact = Bacterie.make_empty () in
       
       let data_json =  Yojson.Safe.from_file "bact.save" in
-      Bacterie.json_reset data_json bact;
+      Bacterie.of_yojson data_json bact;
       bact
                
     in

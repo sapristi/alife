@@ -105,14 +105,15 @@
 		<div class="ui vertical buttons">
 		  <div class="ui button tooltip" data-bind="click:sandbox_import">Import from Sandobox
 		    <span class="tooltiptext">Loads molecules from the sandbox.</span></div>
-		  <label for="bact_load" class="ui button tooltip"
-			 id="global_load_button">
-		    Load from file
-		    <span class="tooltiptext">TODO</span>
-		  </label>
-		  <input type="file"
-			 id="bact_load"
-			 style="display:none"/>
+		  <div class="ui button tooltip">
+		    <label for="sim_bact_load" id="sim_bact_load_button">
+		      Load from file
+		      <span class="tooltiptext">TODO</span>
+		    </label>
+		    <input type="file"
+			   id="sim_bact_load"
+			   style="display:none"/>
+		  </div>
 		</div>
 
 		<table class="ui table">

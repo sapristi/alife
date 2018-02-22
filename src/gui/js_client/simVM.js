@@ -82,6 +82,21 @@ function SimViewModel (sandboxVM) {
     };
 
     
+    self.load_bact_file = function(evt) {
+	var file = evt.target.files[0];
+	var reader = new FileReader();
+        reader.onload = function(e) {
+	    var data = JSON.parse(reader.result);
+	    self.config.bact_initial_state.inert_mols(
+		data.inert_mols);
+	    self.config.bact_initial_state.active_mols(
+		data.active_mols);
+	}
+	reader.readAsText(file);
+    }
+
+    document.getElementById('sim_bact_load').addEventListener('change', self.load_bact_file, false);
+    
     self.load_config_file = function(evt) {
 	var file = evt.target.files[0];
 	var reader = new FileReader();
