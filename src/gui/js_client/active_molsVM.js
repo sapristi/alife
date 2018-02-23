@@ -8,6 +8,12 @@ function ActiveMolsVM(bactVM) {
     self.pnet_indexes = ko.observableArray();
     self.selected_pnet_id = ko.observable();
 
+    self.mols_data = function() {
+	trim = function(x) {
+	    return {mol : x.mol,
+		    qtt: x.qtt}};
+	return self.mols().map(trim);};
+    
     self.selected_pnet_id.subscribe(
 	function (new_id) {
 	    console.log(new_id);

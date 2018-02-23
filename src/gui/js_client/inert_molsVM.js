@@ -6,6 +6,11 @@ function InertMolsVM(bactVM) {
     self.selected_mol_index = ko.observable();
     self.mol_quantity_input = ko.observable(0);
 
+    self.mols_data = function() {
+	trim = function(x) {
+	    return {mol : x.mol,
+		    qtt: x.qtt}};
+	return self.mols().map(trim);};
     
     self.current_mol_name = ko.computed(
 	function() {
@@ -20,7 +25,7 @@ function InertMolsVM(bactVM) {
         for (var i = 0; i < inert_mols_data.length; i++) {
             self.mols.push(
                 {
-                    name : inert_mols_data[i]["mol"],
+                    mol : inert_mols_data[i]["mol"],
                     qtt : inert_mols_data[i]["qtt"],
                     status : ko.observable("")
                 });

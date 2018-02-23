@@ -183,7 +183,8 @@ let make_empty ?(rcfg=default_rcfg) () =
   {inert_molecules =  MolMap.empty;
    active_molecules = MolMap.empty;
    reac_mgr = Reac_mgr.make_new rcfg}
-  
+
+             
 (* *** add new molecule *)
 (* adds a new molecule inside a bactery *)
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
@@ -349,6 +350,7 @@ let set_inert_mol_quantity mol n bact =
   let imd = MolMap.find mol bact.inert_molecules in
   imd := {!imd with qtt = n}
   
+              
 (* ** json serialisation *)
 type bact_elem = {qtt:int;mol: Molecule.t} 
                    [@@ deriving yojson]
@@ -358,7 +360,25 @@ type bact_sig = {
   }
                  [@@ deriving yojson]
               
-              
+let make (bact_sig : bact_sig) :t  = 
+  let bact = make_empty () in
+  bact.inert_molecules <- MolMap.empty;
+  List.iter
+    (fun {mol = m;qtt = n} ->
+      add_molecule m bact;
+      set_inert_mol_quantity m n bact;
+    ) bact_sig.inert_mols;
+  
+  bact.active_molecules <-  MolMap.empty;
+  List.iter
+    (fun {mol = m; qtt = n} ->
+      for i = 0 to n-1 do 
+        add_molecule m bact;
+      done;)
+    bact_sig.active_mols;
+  bact
+
+  
 let to_yojson (bact : t) : Yojson.Safe.json =
   let imol_enum = MolMap.enum bact.inert_molecules in
   let trimmed_imol_enum =
@@ -379,26 +399,10 @@ let to_yojson (bact : t) : Yojson.Safe.json =
 
 
 let of_yojson (json : Yojson.Safe.json) : (t,string) mresult =
-  let bact = make_empty () in
   match  bact_sig_of_yojson json with
-  |Ok bact_sig -> 
-    bact.inert_molecules <- MolMap.empty;
-    List.iter
-      (fun {mol = m;qtt = n} ->
-        add_molecule m bact;
-        set_inert_mol_quantity m n bact;
-      ) bact_sig.inert_mols;
-    
-    bact.active_molecules <-  MolMap.empty;
-    List.iter
-      (fun {mol = m; qtt = n} ->
-        for i = 0 to n-1 do 
-          add_molecule m bact;
-        done;)
-      bact_sig.active_mols;
-    Ok bact
+  | Ok bact_sig -> Ok (make bact_sig)
   | Error s -> (Error s)
-      
+             
   
 module SimControl =
   struct

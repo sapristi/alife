@@ -5,6 +5,12 @@ open Sim_req_handler
 open Logs
 open Sandbox_req_handler
 
+type req_return_type = 
+  | Message of string
+  | Error of string
+  | Bact of Bacterie.t
+
+   
 let src = Logs.Src.create "mylib.network" ~doc:"logs mylib's network events";;
   
 module Log = (val Logs.src_log src : Logs.LOG);;
@@ -118,7 +124,12 @@ let handle_req (sim : Simulator.t) (sandbox : Sandbox.t) env (cgi:Netcgi.cgi)  =
     then
       let container = cgi# argument_value "container" in
       if container = "simulation"
-      then handle_sim_req sim cgi
+      then match handle_sim_req sim cgi with
+           | Message s -> s
+           | Error s -> s
+           | Bact b ->
+              sandbox := b;
+              "sent bact to sandbox"
       else if container = "sandbox"
       then handle_sandbox_req sandbox cgi
       else handle_general_req cgi

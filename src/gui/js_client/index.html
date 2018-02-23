@@ -149,6 +149,34 @@
 	  </div>
 	  <div class="row">
 	    <h2 class="ui horizontal divider header">Simulation</h2>
+	    <div class="four wide column">
+	      <div class="ui action input">
+		<button class="ui primary button tooltip"
+			data-bind="click:simulate"
+			style="padding-left:5px;padding-right:5px">
+		  Next reactions
+		  <span class="tooltiptext">Evaluates the next reaction</span>
+		</button>
+		<input placeholder="number"
+		       type="text"
+		       size="4"
+		       data-bind="value:reac_nb_input"/>
+	      </div>
+	    </div>
+
+	    <div class="four wide column">
+	      <div class="ui form">
+		<div class="field">
+		  <label>Bacteries</label>
+		  <input name="pnet_index" type="hidden">
+		  <select data-bind="options: bact_index_list,
+				     value: selected_bact_index">
+		  </select>
+		  
+		</div>
+	      </div>
+	      <div class="ui button" data-bind="click:send_bact_to_sandbox">Send to sandbox</div>
+	    </div>
 	  </div>
 	</div>
       </div>
@@ -255,7 +283,7 @@
 		  <!-- ko foreach: mols -->
 		  <tr data-bind="css:status(), click:$parent.mol_select.bind($data,$index())">
 		    <td style="word-wrap:break-word"
-			data-bind="text:name"></td>
+			data-bind="text:mol"></td>
 		    <td data-bind="text:qtt"></td>
 		    <td>
 		      <div class="ui buttons">
