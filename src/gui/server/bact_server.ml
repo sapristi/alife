@@ -102,7 +102,7 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
 ;;
   
   
-let handle_req (sim : Simulator.t) (sandbox : Bacterie.t) env (cgi:Netcgi.cgi)  =
+let handle_req (sim : Simulator.t) (sandbox : Sandbox.t) env (cgi:Netcgi.cgi)  =
   let req_descr = List.fold_left
                     (fun res x->
                       res ^(Printf.sprintf "\t%s : %s\n" x#name x#value))
@@ -122,8 +122,8 @@ let handle_req (sim : Simulator.t) (sandbox : Bacterie.t) env (cgi:Netcgi.cgi)  
       else if container = "sandbox"
       then handle_sandbox_req sandbox cgi
       else handle_general_req cgi
-          
-        
+      
+      
     else handle_general_req cgi
   in
   Log.debug (fun m -> m "preparing to send response :%s\n" response);

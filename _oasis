@@ -23,7 +23,7 @@ Flag standalone
 
 Library "local_libs"
    Path: src/libs
-   Modules : Misc_library, Maps
+   Modules : Misc_library
    BuildDepends : batteries
 
 ####################################################################
@@ -141,20 +141,19 @@ Library "simulator"
   FindLibParent : reactors
   Path : src/reactors
   Modules : Simulator
-  BuildDepends : bacterie, logs, ppx_deriving.make, bacterie.reac_mgr, ppx_deriving_yojson
+  BuildDepends : bacterie_libs.bacterie, logs, ppx_deriving.make, bacterie.reac_mgr, ppx_deriving_yojson
 
 Library "sandbox"
   FindLibName : sandbox
   FindLibParent : reactors
   Path : src/reactors
   Modules : Sandbox
-  BuildDepends : bacterie
+  BuildDepends : bacterie_libs.bacterie
 
 Library "reactors"
   FindLibName : reactors
   Path : src/reactors
   Modules : Reactors
-  BuildDepends : 
 
 ##################################################################
 # Gui Server #
@@ -166,7 +165,6 @@ Library "web_server"
   Path: src/gui/server/
   Modules: Web_server
   BuildDepends: nethttpd
-
 
 Library "sim_req_handler"
   FindLibName : sim_req_handler

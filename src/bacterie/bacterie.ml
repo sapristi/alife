@@ -66,14 +66,14 @@ type inert_md = MolData.Inert.t = {   mol : Molecule.t;
               
 module MolMap =
   struct
-    include Batteries.Map.Make (struct type t = Molecule.t
+    include Map.Make (struct type t = Molecule.t
                              let compare = Pervasives.compare end)
                      (*   include Exceptionless *)
   end
   
 module MolSet =
   struct
-    include Batteries.Set.Make (struct type t = Molecule.t
+    include Set.Make (struct type t = Molecule.t
                              let compare = Pervasives.compare end)
                      (* include Exceptionless *)
   end
@@ -84,7 +84,7 @@ module MolSet =
 module ActiveMolSet  = struct
 
   module PnetSet =
-    Batteries.Set.Make (
+    Set.Make (
         struct
           type t = active_md ref
           let compare =
@@ -105,10 +105,10 @@ module ActiveMolSet  = struct
 
   let  get_pnet_ids amolset : int list =
     let pnet_enum = enum amolset in
-    let ids_enum = Batteries.Enum.map
+    let ids_enum = Enum.map
                      (fun (amd : active_md ref) ->
                        !amd.pnet.Petri_net.uid) pnet_enum in
-    Batteries.List.of_enum ids_enum
+    List.of_enum ids_enum
     
 
         
@@ -362,23 +362,23 @@ type bact_sig = {
 let to_yojson (bact : t) : Yojson.Safe.json =
   let imol_enum = MolMap.enum bact.inert_molecules in
   let trimmed_imol_enum =
-    Batteries.Enum.map (fun (a,(imd : inert_md ref)) -> ({mol=a; qtt= !imd.qtt} : bact_elem))
+    Enum.map (fun (a,(imd : inert_md ref)) -> ({mol=a; qtt= !imd.qtt} : bact_elem))
              imol_enum in
-  let trimmed_imol_list = Batteries.List.of_enum trimmed_imol_enum in
+  let trimmed_imol_list = List.of_enum trimmed_imol_enum in
   
   let amol_enum = MolMap.enum bact.active_molecules in
   let trimmed_amol_enum =
-    Batteries.Enum.map (fun (a, amolset) ->
+    Enum.map (fun (a, amolset) ->
         {mol = a; qtt = ActiveMolSet.cardinal amolset;})
              amol_enum
   in
-  let trimmed_amol_list = Batteries.List.of_enum trimmed_amol_enum
+  let trimmed_amol_list = List.of_enum trimmed_amol_enum
   in  
   bact_sig_to_yojson {inert_mols = trimmed_imol_list;
                       active_mols = trimmed_amol_list;}
 
 
-let of_yojson (json : Yojson.Safe.json) : (t, string) mresult  =
+let of_yojson (json : Yojson.Safe.json) : (t,string) mresult =
   let bact = make_empty () in
   match  bact_sig_of_yojson json with
   |Ok bact_sig -> 

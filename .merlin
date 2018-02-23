@@ -2,6 +2,7 @@
 
 S src
 S src/bacterie
+S src/reactors
 S src/gui
 S src/gui/server
 S src/gui/bact_simul
@@ -9,6 +10,7 @@ S src/libs
 
 B _build/src
 B _build/src/bacterie
+B _build/src/reactors
 B _build/src/gui
 B _build/src/gui/server
 B _build/src/gui/bact_simul
