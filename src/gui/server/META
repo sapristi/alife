@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: ce90843544d9d9910d30a71d86283054)
+# DO NOT EDIT (digest: fdb50842ac00d99a933522802bda28b1)
 version = "0.1"
 description = "Simulating life and stuff"
 archive(byte) = "servers.cma"
@@ -21,7 +21,7 @@ package "web_server" (
 package "sim_req_handler" (
  version = "0.1"
  description = "Simulating life and stuff"
- requires = "unix simulator yojson ppx_deriving_yojson"
+ requires = "unix yojson ppx_deriving_yojson reactors.simulator"
  archive(byte) = "sim_req_handler.cma"
  archive(byte, plugin) = "sim_req_handler.cma"
  archive(native) = "sim_req_handler.cmxa"
@@ -33,7 +33,7 @@ package "sandbox_req_handler" (
  version = "0.1"
  description = "Simulating life and stuff"
  requires =
- "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule logs"
+ "unix bacterie_libs.proteine bacterie_libs.petri_net bacterie bacterie.libs.molecule logs reactors.sandbox"
  archive(byte) = "sandbox_req_handler.cma"
  archive(byte, plugin) = "sandbox_req_handler.cma"
  archive(native) = "sandbox_req_handler.cmxa"

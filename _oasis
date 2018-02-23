@@ -18,6 +18,8 @@ Flag standalone
 
 
 ###################################################################
+# Libs #
+########
 
 Library "local_libs"
    Path: src/libs
@@ -25,6 +27,8 @@ Library "local_libs"
    BuildDepends : batteries
 
 ####################################################################
+# Bactery implementation #
+##########################
 
 Library "acid_types"
   FindLibName : acid_types
@@ -130,19 +134,31 @@ Library "bacterie_libs"
 
 
 ###################################################################
-
+# Reactors #
+############
 Library "simulator"
   FindLibName : simulator
-  Path : src
+  FindLibParent : reactors
+  Path : src/reactors
   Modules : Simulator
-  BuildDepends : bacterie, logs, ppx_deriving.make, bacterie.reac_mgr
+  BuildDepends : bacterie, logs, ppx_deriving.make, bacterie.reac_mgr, ppx_deriving_yojson
 
+Library "sandbox"
+  FindLibName : sandbox
+  FindLibParent : reactors
+  Path : src/reactors
+  Modules : Sandbox
+  BuildDepends : bacterie
 
-# Library "bact_tcp_server"
-#   Path: src/gui/bact_simul
-#   Modules: Bact_tcp_server
-#   BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule
+Library "reactors"
+  FindLibName : reactors
+  Path : src/reactors
+  Modules : Reactors
+  BuildDepends : 
 
+##################################################################
+# Gui Server #
+##############
 
 Library "web_server"
   FindLibName : web_server
@@ -157,14 +173,14 @@ Library "sim_req_handler"
   FindLibParent : servers
   Path: src/gui/server
   Modules: Sim_req_handler
-  BuildDepends: unix, simulator, yojson, ppx_deriving_yojson
+  BuildDepends: unix, yojson, ppx_deriving_yojson, reactors.simulator
 
 Library "sandbox_req_handler"
   FindLibName : sandbox_req_handler
   FindLibParent : servers
   Path: src/gui/server
   Modules: Sandbox_req_handler
-  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, logs
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie, bacterie.libs.molecule, logs, reactors.sandbox
 
 Library "bact_server"
   FindLibName : bact_server
@@ -188,16 +204,5 @@ Executable "web_bact_server"
   ByteOpt:  -g
   Custom : true
 
-# Executable "websrv_test"
-#   Path: src/gui/server/
-#   MainIs : web_server.ml
-#   BuildDepends: nethttpd
-
-
 ###################################################################
 
-
-# Executable "debug_server"
-#   Path: src/gui/server/
-#   MainIs : debug_server.ml
-#   BuildDepends : unix

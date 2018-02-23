@@ -20,6 +20,8 @@
 (* * libs *)
 open Misc_library
 open Reaction
+type ('a, 'b) mresult = ('a, 'b) result
+open Batteries
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
 
@@ -376,7 +378,7 @@ let to_yojson (bact : t) : Yojson.Safe.json =
                       active_mols = trimmed_amol_list;}
 
 
-let of_yojson (json : Yojson.Safe.json) : (t, string) result  =
+let of_yojson (json : Yojson.Safe.json) : (t, string) mresult  =
   let bact = make_empty () in
   match  bact_sig_of_yojson json with
   |Ok bact_sig -> 
