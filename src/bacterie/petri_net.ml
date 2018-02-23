@@ -27,7 +27,7 @@
 open Batteries
 open Misc_library
 open Maps
-open Random
+
 
 (* * the proteine module *)
  
@@ -37,7 +37,7 @@ type t =
   {
     mol : Molecule.t;
     transitions : Transition.t array; [@opaque]
-    places : Place.t  array; [@opaque]
+    places : Place.t array; [@opaque]
     uid : int; [@opaque]
     binders : (int*string) list; [@opaque]
     mutable launchables_nb:int;
@@ -104,7 +104,7 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
       None
   with
   | _ ->
-     print_endline "cannot build pnet";
+     (*     print_endline ("cannot build pnet for mol" ^ mol); *)
      None
      
 let make_from_mol (mol : Molecule.t) : t option =
@@ -225,7 +225,8 @@ let to_json (p : t) =
      "transitions",
      `List (Array.to_list (Array.map Transition.to_yojson p.transitions));
      "molecule",
-     Molecule.to_yojson p.mol]
+     Molecule.to_yojson p.mol;
+     "id", `Int p.uid]
   
 
 let matching_binders (b : string) (pnet : t) =
@@ -233,3 +234,11 @@ let matching_binders (b : string) (pnet : t) =
       if b' = String.rev b
       then index::res
       else res)  [] pnet.binders
+let get_tokens (pnet :t)  : Token.t list =
+  Array.fold_left
+    (fun res p ->
+      match p.Place.token with
+      | None -> res
+      | Some t -> t::res)
+    []
+    pnet.places

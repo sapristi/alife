@@ -1,7 +1,6 @@
 // * place VM
 
 function PlaceViewModel(pnetVM) {
-
 // ** data initialisation
     var self = this;
     self.data = null;
@@ -160,10 +159,13 @@ function TransitionViewModel(pnetVM) {
 
 // * PNet VM
 
-function PNetViewModel() {
+function PNetViewModel(container_id) {
     
 // ** initialisation
     var self = this;
+    
+    self.container_id = container_id
+    
     var pnet_cy;
     self.placeVM = new PlaceViewModel(self);
     self.transitionVM = new TransitionViewModel(self);
@@ -207,17 +209,19 @@ function PNetViewModel() {
 // ** data setup
 
     
-    self.request_data = function (mol_desc, data_fun) {
+    self.request_data = function (mol_desc, pnet_index, data_fun) {
         utils.ajax_get(
             {command: "pnet_from_mol",
              mol_desc: mol_desc,
-	     container: "bactery"}
+	     pnet_id : pnet_index,
+	     container: self.container_id}
         ).done(data_fun);
     }
 
-    self.initialise = function(mol_desc) {
+    self.initialise = function(mol_desc, pnet_index) {
 	self.request_data(
 	    mol_desc,
+	    pnet_index,
 	    function(data) {
 		self.placeVM.disable();
 		self.transitionVM.disable();
@@ -225,8 +229,8 @@ function PNetViewModel() {
 		self.display_cy_graph();
 	    }
 	);
-
     }
+    
     self.disable = function() {self.data(null);}
     
     
@@ -261,7 +265,7 @@ function PNetViewModel() {
 	     molecule : self.data().molecule,
 	     place_index : pindex,
              token: JSON.stringify(token),
-	     container: "bactery"}
+	     container: self.container_id}
         ).done(
 	    function (data)
 	    {	
@@ -279,7 +283,7 @@ function PNetViewModel() {
 	    {command: "launch_transition",
 	     molecule : self.data().molecule,
 	     transition_index : tindex,
-	     container: "bactery"}
+	     container: self.container_id}
         ).done(
 	    function (data)
 	    {	
@@ -292,9 +296,11 @@ function PNetViewModel() {
     
 
     self.global_sim_update = function() {
+	console.log(self.data());
 	if (self.data()) {
 	    self.request_data(
 		self.data().molecule,
+		self.data().id,
 		function(data) {
 		    self.data(data.data.pnet);
 		    self.placeVM.update();

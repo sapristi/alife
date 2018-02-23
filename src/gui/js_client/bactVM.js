@@ -3,46 +3,31 @@
 // * taskviewmodel
 // Main taskview
 
-function BactViewModel(pnetVM) {
+function BactViewModel(pnetVM, container_id) {
     var self = this;
-
+    self.container_id = container_id
 // ** variables
     self.pnetVM = pnetVM;
+    self.inertMolsVM = new InertMolsVM(self);
+    self.activeMolsVM = new ActiveMolsVM(self);
     
-    self.mols = ko.observableArray();
-    self.selected_mol_index = ko.observable();
-
-    self.mol_quantity_input = ko.observable(0);
     self.reactions_number_input = ko.observable(1);
-    
-    self.current_mol_name = ko.computed(
-	function() {
-	    if (self.selected_mol_index() in self.mols())
-	    {return self.mols()[self.selected_mol_index()]["mol_name"]}
-	    else {return ""}
-	});
     
     
     
 // ** update_bact
     self.set_bact_data = function(data){
-	self.mols.removeAll();
-        mols_data = data.data;
-        for (var i = 0; i < mols_data.length; i++) {
-            self.mols.push(
-                {
-                    mol_name : mols_data[i]["mol"],
-                    mol_number : mols_data[i]["nb"],
-                    status : ko.observable("")
-                });
-        }
+	
+	self.inertMolsVM.update(data.data.inert_mols);
+	self.activeMolsVM.update(data.data.active_mols);
+	
 	self.pnetVM.global_sim_update();
     };
     
     self.update = function() {
         utils.ajax_get(
             {command:"get_elements",
-	     container:"bactery"}
+	     container:self.container_id}
         ).done(self.set_bact_data);
     };
 
@@ -51,14 +36,14 @@ function BactViewModel(pnetVM) {
         utils.ajax_get(
             {command:"next_reactions",
 	     n : self.reactions_number_input,
-	     container:"bactery"}
+	     container:self.container_id}
         ).done(self.set_bact_data);
     };
     self.next_reaction = function() {
         utils.ajax_get(
             {command:"next_reactions",
 	     n:1,
-	     container:"bactery"}
+	     container:self.container_id}
         ).done(self.set_bact_data);
     };
 // ** init_data
@@ -76,7 +61,7 @@ function BactViewModel(pnetVM) {
 	    self.mols()[index]["status"]("active");
 	    self.selected_mol_index(index);
 
-	    var mol_name = self.mols()[index].mol_name
+	    var mol_name = self.mols()[index].mol
             self.pnetVM.initialise(mol_name);
 	}
     };
@@ -87,7 +72,7 @@ function BactViewModel(pnetVM) {
     self.remove_mol = function() {
         utils.ajax_get(
             {command:"remove_mol",
-	     container:"bactery",
+	     container:self.container_id,
 	     mol_desc:self.current_mol_name()}
         ).done(self.set_bact_data);
 	
@@ -96,7 +81,7 @@ function BactViewModel(pnetVM) {
     self.set_mol_quantity = function() {
         utils.ajax_get(
             {command:"set_mol_quantity",
-	     container:"bactery",
+	     container:self.container_id,
 	     mol_desc:self.current_mol_name(),
 	     mol_quantity : self.mol_quantity_input}
         ).done(self.set_bact_data);
@@ -107,33 +92,35 @@ function BactViewModel(pnetVM) {
     self.reset_bactery = function () {
         utils.ajax_get(
             {command:"reset_bactery",
-	     container:"bactery"}
+	     container:self.container_id}
         ).done(self.set_bact_data);
-
+	
     }
     
-    
-    self.href_for_save_bactery_local = ko.computed (function() {
-	var data = [];
+    self.save_bactery = function() {
+	var data = {active_mols:[],inert_mols:[]};
 	var textFile;
-        for (var i = 0; i < self.mols().length; i++) {
-	    data.push(
+	var inert_mols = self.inertMolsVM.mols();
+	for (var i = 0; i < inert_mols.length; i++) {
+	    data.inert_mols.push(
                 {
-		    mol : self.mols()[i]["mol_name"],
-		    nb : self.mols()[i]["mol_number"]
+		    mol : inert_mols[i]["mol"],
+		    qtt : inert_mols[i]["qtt"]
                 });
         }
-
+	var active_mols = self.activeMolsVM.mols();
+	console.log(active_mols);
+	for (var i = 0; i < active_mols.length; i++) {
+	    data.active_mols.push(
+                {
+		    mol : active_mols[i]["mol"],
+		    qtt : active_mols[i]["qtt"]
+                });
+        }
 	var str_data = JSON.stringify(data);
-	var raw_data = new Blob([str_data], {type: 'text/plain'});
-	if (textFile !== null) {
-	    window.URL.revokeObjectURL(textFile);
-	}
-	
-	textFile = window.URL.createObjectURL(raw_data);
-	return textFile;
-    });
-
+	var blob_data = new Blob([str_data], {type: 'text/plain'});
+	saveAs(blob_data, "bact.save");
+    };
     
     self.load_bact_file = function(evt) {
 	var file = evt.target.files[0];
@@ -143,7 +130,7 @@ function BactViewModel(pnetVM) {
 	    
 	    utils.ajax_get(
             {command:"set_bactery",
-	     container:"bactery",
+	     container:self.container_id,
 	     bact_desc : reader.result}
         ).done(self.set_bact_data);
         }

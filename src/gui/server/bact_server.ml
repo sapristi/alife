@@ -1,10 +1,16 @@
 (* * simulation server *)
 
 (* ** preamble*)
-open Bact_req_handler
+open Sim_req_handler
 open Logs
+open Sandbox_req_handler
 
+type req_return_type = 
+  | Message of string
+  | Error of string
+  | Bact of Bacterie.t
 
+   
 let src = Logs.Src.create "mylib.network" ~doc:"logs mylib's network events";;
   
 module Log = (val Logs.src_log src : Logs.LOG);;
@@ -102,25 +108,33 @@ let handle_general_req (cgi:Netcgi.cgi) : string =
 ;;
   
   
-let handle_req (bact : Bacterie.t) env (cgi:Netcgi.cgi)  =
+let handle_req (sim : Simulator.t) (sandbox : Sandbox.t) env (cgi:Netcgi.cgi)  =
+  let req_descr = List.fold_left
+                    (fun res x->
+                      res ^(Printf.sprintf "\t%s : %s\n" x#name x#value))
+                    ""
+                    (cgi#arguments)
+  in
+  Log.info (fun m -> m "serving GET request : \n%s" req_descr);
   
-  Log.info (fun m -> m "serving GET request : %s" (cgi # environment # cgi_query_string));
-  
-  List.iter (fun x ->
-      Log.info (fun m -> m "%s : %s" (x # name) (x#value))) (cgi # arguments);
   
   let response = 
     
     if (cgi # argument_exists "container")
     then
       let container = cgi# argument_value "container" in
-      if container = "bactery"
-      then handle_bact_req bact cgi
+      if container = "simulation"
+      then match handle_sim_req sim cgi with
+           | Message s -> s
+           | Error s -> s
+           | Bact b ->
+              sandbox := b;
+              "sent bact to sandbox"
       else if container = "sandbox"
-      then "sandbox inactive"
+      then handle_sandbox_req sandbox cgi
       else handle_general_req cgi
-          
-        
+      
+      
     else handle_general_req cgi
   in
   Log.debug (fun m -> m "preparing to send response :%s\n" response);
