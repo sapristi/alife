@@ -118,13 +118,20 @@ Library "reac_mgr"
   Modules : Reac_mgr
   BuildDepends : ppx_deriving.show, logs, ppx_deriving.ord, bacterie.reaction
 
+Library "molsets"
+  FindLibName : molsets
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Molsets
+  BuildDepends :  bacterie.reaction
+
 
 Library "bacterie"
   FindLibName : bacterie
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Bacterie
-  BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.petri_net, batteries, bacterie_libs.reac_mgr
+  BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.petri_net, batteries, bacterie_libs.reac_mgr, bacterie_libs.molsets
 
 Library "bacterie_libs"
   FindLibName : bacterie_libs

@@ -22,6 +22,7 @@ open Misc_library
 open Reaction
 type ('a, 'b) mresult = ('a, 'b) result
 open Batteries
+open Molsets
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
 
@@ -109,7 +110,7 @@ module ActiveMolSet  = struct
                      (fun (amd : active_md ref) ->
                        !amd.pnet.Petri_net.uid) pnet_enum in
     List.of_enum ids_enum
-    
+   
 
         
 (* *** update reacs with mol *)
@@ -159,9 +160,9 @@ module ActiveMolSet  = struct
           ) amolset;
       
 end
-                       
+                    
 type t =
-  {mutable inert_molecules : (inert_md ref) MolMap.t;
+  {mutable inert_molecules : (InertMolSet.t) MolMap.t;
    mutable active_molecules : (ActiveMolSet.t) MolMap.t;
    reac_mgr : Reac_mgr.t;
   }
@@ -209,34 +210,34 @@ let add_new_molecule (new_mol : Molecule.t) (bact : t) : unit =
      (* add to bactery *)
      bact.inert_molecules <-
        MolMap.add new_mol
-                  new_inert_md
+                  (new_inert_md, false)
                   bact.inert_molecules;
      
   | Some new_pnet ->
      let new_active_md = ref (MolData.Active.make_new new_pnet) in
      
-     (* adding agrabs with active molecules *)
+     (* reactions :  agrabs with active molecules *)
      MolMap.iter
        (fun mol amolset ->
          ActiveMolSet.add_reacs_with_new_pnet
            new_active_md amolset bact.reac_mgr)
        bact.active_molecules;
      
-     (* adding grabs with inert molecules *)
+     (* reactions : grabs with inert molecules *)
      MolMap.iter
-       (fun mol grabed_d ->
+       (fun mol (grabed_d,_) ->
          if Petri_net.can_grab mol new_pnet
          then
            Reac_mgr.add_grab new_active_md grabed_d bact.reac_mgr;
          
          ) bact.inert_molecules;
      
-     (* adding the transition reaction *)
+     (* reaction : transition  *)
      Reac_mgr.add_transition new_active_md bact.reac_mgr;
      
-     (* adding break reaction *)
+     (* reaction : break *)
      Reac_mgr.add_break_active new_active_md bact.reac_mgr;
-     (* adding the molecule to the bactery *)
+     (* adding to the bactery *)
      bact.active_molecules <-
        MolMap.modify_opt
          new_mol
@@ -275,7 +276,7 @@ let remove_molecule (m : Molecule.t) (bact : t) : unit =
       (fun data ->
         match data with
         | None -> failwith "container: cannot remove absent molecule"
-        | Some imd ->
+        | Some (imd,_) ->
            old_reacs := !(!imd.reacs);
            None)
       bact.inert_molecules;
@@ -287,7 +288,7 @@ let remove_molecule (m : Molecule.t) (bact : t) : unit =
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
 let add_molecule (mol : Molecule.t) (bact : t) : unit =
   match MolMap.Exceptionless.find mol bact.inert_molecules with
-  | Some imd -> imd := {!imd with qtt = !imd.qtt +1}
+  | Some ims -> InertMolSet.add_to_qtt ims 1
   | None -> add_new_molecule mol bact
 
 
