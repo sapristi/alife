@@ -98,25 +98,9 @@ function BactViewModel(pnetVM, container_id) {
     }
     
     self.save_bactery = function() {
-	var data = {active_mols:[],inert_mols:[]};
-	var textFile;
-	var inert_mols = self.inertMolsVM.mols();
-	for (var i = 0; i < inert_mols.length; i++) {
-	    data.inert_mols.push(
-                {
-		    mol : inert_mols[i]["mol"],
-		    qtt : inert_mols[i]["qtt"]
-                });
-        }
-	var active_mols = self.activeMolsVM.mols();
-	console.log(active_mols);
-	for (var i = 0; i < active_mols.length; i++) {
-	    data.active_mols.push(
-                {
-		    mol : active_mols[i]["mol"],
-		    qtt : active_mols[i]["qtt"]
-                });
-        }
+	var inert_mols = self.inertMolsVM.mols_data();
+	var active_mols = self.activeMolsVM.mols_data();
+	var data = {active_mols:active_mols,inert_mols:inert_mols};
 	var str_data = JSON.stringify(data);
 	var blob_data = new Blob([str_data], {type: 'text/plain'});
 	saveAs(blob_data, "bact.save");

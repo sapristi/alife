@@ -105,7 +105,7 @@ function SimViewModel (sandboxVM) {
 	var textFile;
 	var data = self.static_config();
 	var str_data = JSON.stringify(data);
-	var raw_data = new Blob([str_data], {type: 'text/plain'});
+	var blob_data = new Blob([str_data], {type: 'text/plain'});
 	saveAs(blob_data, "config.scfg");
     };
 
