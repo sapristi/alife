@@ -227,19 +227,21 @@ let rec execute_actions (actions : Reacs.effect list) (bact : t) : unit =
          update_rates reacset bact
       | Remove_one reactant ->
          (
-         match reactant with
-         | ImolSet ims -> ims := Reactant.ImolSet.add_to_qtt (-1) !ims
-         | Amol amol ->
-            bact.active_molecules <-
-              MolMap.modify_opt
-                (Reactant.Amol.mol !amol)
-                (fun data ->
-                  match data with
-                  | Some amolset ->
+           match reactant with
+           | ImolSet ims -> ims := Reactant.ImolSet.add_to_qtt (-1) !ims
+           | Amol amol ->
+              let old_reacs = Reactant.Amol.reacSet !amol in
+              bact.active_molecules <-
+                MolMap.modify_opt
+                  (Reactant.Amol.mol !amol)
+                  (fun data ->
+                    match data with
+                    | Some amolset ->
                      Some (ActiveMolSet.remove
                              amol amolset)
-                  | None -> None
-                ) bact.active_molecules
+                    | None -> None
+                  ) bact.active_molecules;
+              
          )
       | Release_mol mol -> add_molecule mol bact
       | Release_tokens tlist ->

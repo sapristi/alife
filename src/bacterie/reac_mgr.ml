@@ -227,15 +227,6 @@ let add_break md reac_mgr =
 (* replace to_list with to_enum ? *)
 let pick_next_reaction (reac_mgr:t) : Reaction.t option=
 
-
-  Log.info (fun m -> m "picking next reaction in\n 
-                        Grabs:\n%s\n
-                        Transitions:\n%s\n
-                        Breaks:\n%s"
-                       (GSet.show reac_mgr.g_set)
-                       (TSet.show reac_mgr.t_set)
-                       (BSet.show reac_mgr.b_set));
-  
   let total_g_rate = reac_mgr.g_set.total_rate
                      *. reac_mgr.g_set.modifier
   and total_t_rate = reac_mgr.t_set.total_rate
@@ -243,23 +234,46 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   and total_b_rate = reac_mgr.b_set.total_rate
                     *. reac_mgr.b_set.modifier
   in
+
+  
+
+  Log.info (fun m -> m "picking next reaction in\n 
+                        Grabs (total : %f):\n%s\n
+                        Transitions (total : %f):\n%s\n
+                        Breaks (total : %f):\n%s"
+                       total_g_rate
+                       (GSet.show reac_mgr.g_set)
+                       total_t_rate
+                       (TSet.show reac_mgr.t_set)
+                       total_b_rate
+                       (BSet.show reac_mgr.b_set));
+  
+  
   let a0 = (total_g_rate) +. (total_t_rate)
            +. (total_b_rate)
   in
   if a0 = 0.
-  then None
+  then
+    (
+      Log.info (fun m -> m "No reaction available");
+      None
+    )
   else
     
     let r = Random.float 1. in
     let bound = r *. a0 in
-    if bound < total_g_rate 
-    then
-      Some (Grab (ref (GSet.pick_reaction reac_mgr.g_set)))
-    else if bound < total_g_rate +. total_t_rate
-    then 
-      Some( Transition ( ref (TSet.pick_reaction reac_mgr.t_set)))
-    else 
-      Some (Break (ref (BSet.pick_reaction reac_mgr.b_set)))
+    let res = 
+      if bound < total_g_rate 
+      then
+        Reaction.Grab (ref (GSet.pick_reaction reac_mgr.g_set))
+      else if bound < total_g_rate +. total_t_rate
+      then 
+        Reaction.Transition ( ref (TSet.pick_reaction reac_mgr.t_set))
+      else 
+        Reaction.Break (ref (BSet.pick_reaction reac_mgr.b_set))
+    in
+    Log.info (fun m -> m "picked %s" (Reaction.show res));
+    Some res
     
 let rec update_reaction_rates (reac : Reaction.t) reac_mgr=
   match reac with

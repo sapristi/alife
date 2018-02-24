@@ -164,9 +164,12 @@ module ReactionsM (R : REACTANT) =
         let make (amd : build_t)  =
           { rate = calculate_rate {amd; rate = 0.}; amd; }
           
-        let eval (trans : t) : effect list= 
-          T_effects (Petri_net.launch_random_transition
-                       (R.Amol.pnet !(trans.amd))) ::
+        let eval (trans : t) : effect list=
+          let t_effects = Petri_net.launch_random_transition
+                            (R.Amol.pnet !(trans.amd))
+          in
+          Petri_net.update_launchables (R.Amol.pnet !(trans.amd));
+          T_effects (t_effects) ::
             Update_reacs (R.Amol.reacSet !(trans.amd)) ::
               []
       
