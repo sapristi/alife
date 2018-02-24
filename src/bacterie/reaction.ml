@@ -21,7 +21,8 @@ module rec
         type t = {
             mol : Molecule.t;
             qtt : int; 
-            reacs : ReacSet.t ref; 
+            reacs : ReacSet.t ref;
+            ambient:bool;
           }
         let show (imd : t) =
           let res = Printf.sprintf "Inert : %s (%i)" imd.mol imd.qtt
@@ -34,10 +35,13 @@ module rec
         let qtt ims = ims.qtt
         let reacSet ims = !(ims.reacs)
         let add_to_qtt deltaqtt ims =
-          {ims with qtt = ims.qtt + deltaqtt}
-        let set_qtt qtt ims =
+          if ims.ambient
+          then ims
+          else
+            {ims with qtt = ims.qtt + deltaqtt}
+        let set_qtt qtt (ims : t)=
           {ims with qtt = qtt}
-        let make_new mol : t = {mol; qtt=0; reacs = (ref ReacSet.empty)}
+        let make_new ?(ambient=false) mol : t = {mol; qtt=1; reacs = (ref ReacSet.empty);ambient}
         let add_reac (reac : Reaction.t) (imd : t) =
           imd.reacs := ReacSet.add reac !(imd.reacs)
         let remove_reac (reac : Reaction.t) (imd : t) =
@@ -54,7 +58,7 @@ module rec
         type t = {
             mol : Molecule.t;
             pnet : Petri_net.t;
-            reacs : ReacSet.t ref; 
+            reacs : ReacSet.t ref;
           }
         let show am = 
           let res = Printf.sprintf "Active mol : %s (id : %d)" am.mol am.pnet.uid 
@@ -66,7 +70,7 @@ module rec
         let qtt am = 1
         let reacSet am = !(am.reacs)
         let pnet am = am.pnet
-        let make_new (pnet : Petri_net.t) =
+        let make_new  (pnet : Petri_net.t) =
           {mol = pnet.mol; pnet; reacs = ref ReacSet.empty}
           
         let add_reac reac (amd : t) =

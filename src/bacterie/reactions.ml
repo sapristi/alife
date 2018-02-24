@@ -37,7 +37,7 @@ module type REACTANT =
         include (REACTANT_DEFAULT
                  with type reac := reac
                                and type reacSet := reacSet)
-        val make_new : Molecule.t -> t
+        val make_new : ?ambient:bool -> Molecule.t -> t
         val add_to_qtt : int -> t -> t
         val set_qtt : int -> t -> t
       end

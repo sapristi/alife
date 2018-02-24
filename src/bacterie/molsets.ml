@@ -84,18 +84,3 @@ module ActiveMolSet  = struct
       
 end
 
-
-module InertMolSet =
-  struct
-    type t = Reactant.ImolSet.t ref * bool
-          
-           
-    let qtt ((ims,_):t) = Reactant.ImolSet.qtt !ims
-    let mol ((ims,_):t) = Reactant.ImolSet.mol !ims
-
-    let add_to_qtt deltaqtt ((ims,c):t) =
-      if (not c) then
-        ims := Reactant.ImolSet.add_to_qtt deltaqtt !ims
-    
-    
-  end

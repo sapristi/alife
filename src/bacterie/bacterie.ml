@@ -67,7 +67,7 @@ module MolMap =
   
   
 type t =
-  {mutable inert_molecules : (InertMolSet.t) MolMap.t;
+  {mutable inert_molecules : (Reactant.ImolSet.t ref) MolMap.t;
    mutable active_molecules : (ActiveMolSet.t) MolMap.t;
    reac_mgr : Reac_mgr.t;
   }
@@ -93,35 +93,39 @@ let make_empty ?(rcfg=default_rcfg) () =
              
 (* *** add new molecule *)
 (* adds a new molecule inside a bactery *)
-(* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
+
+let add_inert_mol ?(ambient=false) (new_mol : Molecule.t) (bact : t) : unit = 
+  
+  let new_inert_md = ref (Reactant.ImolSet.make_new ~ambient:ambient new_mol) in
+  
+  (* reactions : grab  by active mols *)
+  MolMap.iter
+    (fun mol amolset ->
+      ActiveMolSet.add_reacs_with_new_reactant
+        (ImolSet new_inert_md) amolset bact.reac_mgr)
+    bact.active_molecules;
+  
+  (* reactions : break *)
+  Reac_mgr.add_break (ImolSet new_inert_md) bact.reac_mgr;
+  
+  (* add to bactery *)
+  bact.inert_molecules <-
+    MolMap.add new_mol
+               (new_inert_md, ambient)
+               bact.inert_molecules
+
+     
 let add_new_molecule (new_mol : Molecule.t) (bact : t) : unit =
   
   let new_opnet = Petri_net.make_from_mol new_mol
   in
   match new_opnet with
   | None ->
-     let new_inert_md = ref (Reactant.ImolSet.make_new new_mol) in
-     
-     (* reactions : grab  by active mols *)
-     MolMap.iter
-       (fun mol amolset ->
-         ActiveMolSet.add_reacs_with_new_reactant
-           (ImolSet new_inert_md) amolset bact.reac_mgr)
-       bact.active_molecules;
-
-     (* reactions : break *)
-     Reac_mgr.add_break (ImolSet new_inert_md) bact.reac_mgr;
-     
-     (* add to bactery *)
-     bact.inert_molecules <-
-       MolMap.add new_mol
-                  (new_inert_md, false)
-                  bact.inert_molecules;
-     
+     add_inert_mol new_mol bact
   | Some new_pnet ->
      let new_active_md = ref (Reactant.Amol.make_new new_pnet) in
      
-     (* reactions :  agrabs with active molecules *)
+     (* reactions :  grabs with active molecules *)
      MolMap.iter
        (fun mol amolset ->
          ActiveMolSet.add_reacs_with_new_reactant
@@ -185,7 +189,7 @@ let remove_molecule (m : Molecule.t) (bact : t) : unit =
       (fun data ->
         match data with
         | None -> failwith "container: cannot remove absent molecule"
-        | Some (imd,_) ->
+        | Some imd ->
            old_reacs := Reactant.ImolSet.reacSet !imd;
            None)
       bact.inert_molecules;
@@ -197,7 +201,7 @@ let remove_molecule (m : Molecule.t) (bact : t) : unit =
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
 let add_molecule (mol : Molecule.t) (bact : t) : unit =
   match MolMap.Exceptionless.find mol bact.inert_molecules with
-  | Some ims -> InertMolSet.add_to_qtt 1 ims
+  | Some ims -> ims := Reactant.ImolSet.add_to_qtt 1 !ims
   | None -> add_new_molecule mol bact
 
 
@@ -260,17 +264,19 @@ let next_reaction (bact : t)  =
      execute_actions actions bact
 
 let set_inert_mol_quantity mol n bact =
-  let (imd,_) = MolMap.find mol bact.inert_molecules in
+  let imd = MolMap.find mol bact.inert_molecules in
   imd := Reactant.ImolSet.set_qtt n !imd
 
   
               
 (* ** json serialisation *)
-type bact_elem = {qtt:int;mol: Molecule.t} 
+type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
+                     [@@ deriving yojson]
+type active_bact_elem = {qtt:int;mol: Molecule.t} 
                    [@@ deriving yojson]
 type bact_sig = {
-    inert_mols : bact_elem list;
-    active_mols : bact_elem list;
+    inert_mols : inert_bact_elem list;
+    active_mols : active_bact_elem list;
   }
                  [@@ deriving yojson]
               
@@ -278,8 +284,8 @@ let make (bact_sig : bact_sig) :t  =
   let bact = make_empty () in
   bact.inert_molecules <- MolMap.empty;
   List.iter
-    (fun {mol = m;qtt = n} ->
-      add_molecule m bact;
+    (fun {mol = m;qtt = n; ambient=a} ->
+      add_inert_mol ~ambient:a m bact;
       set_inert_mol_quantity m n bact;
     ) bact_sig.inert_mols;
   
@@ -296,7 +302,10 @@ let make (bact_sig : bact_sig) :t  =
 let to_yojson (bact : t) : Yojson.Safe.json =
   let imol_enum = MolMap.enum bact.inert_molecules in
   let trimmed_imol_enum =
-    Enum.map (fun (a,((imd: Reactant.ImolSet.t ref),_)) -> ({mol=Reactant.ImolSet.mol !imd; qtt= Reactant.ImolSet.qtt !imd} : bact_elem))
+    Enum.map (fun (a,(imd: Reactant.ImolSet.t ref)) ->
+        ({mol=Reactant.ImolSet.mol !imd;
+          qtt= Reactant.ImolSet.qtt !imd;
+          ambient=Reactant.ImolSet} : inert_bact_elem))
              imol_enum in
   let trimmed_imol_list = List.of_enum trimmed_imol_enum in
   
