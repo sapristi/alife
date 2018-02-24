@@ -111,7 +111,7 @@ let add_inert_mol ?(ambient=false) (new_mol : Molecule.t) (bact : t) : unit =
   (* add to bactery *)
   bact.inert_molecules <-
     MolMap.add new_mol
-               (new_inert_md, ambient)
+               new_inert_md
                bact.inert_molecules
 
      
@@ -134,7 +134,7 @@ let add_new_molecule (new_mol : Molecule.t) (bact : t) : unit =
      
      (* reactions : grabs with inert molecules *)
      MolMap.iter
-       (fun mol (grabed_d,_) ->
+       (fun mol grabed_d ->
          if Petri_net.can_grab mol new_pnet
          then
            Reac_mgr.add_grab new_active_md
@@ -190,7 +190,7 @@ let remove_molecule (m : Molecule.t) (bact : t) : unit =
         match data with
         | None -> failwith "container: cannot remove absent molecule"
         | Some imd ->
-           old_reacs := Reactant.ImolSet.reacSet !imd;
+           old_reacs := Reactant.ImolSet.reacs !imd;
            None)
       bact.inert_molecules;
   update_rates !old_reacs bact;
@@ -234,7 +234,7 @@ let rec execute_actions (actions : Reacs.effect list) (bact : t) : unit =
            match reactant with
            | ImolSet ims -> ims := Reactant.ImolSet.add_to_qtt (-1) !ims
            | Amol amol ->
-              let old_reacs = Reactant.Amol.reacSet !amol in
+              let old_reacs = Reactant.Amol.reacs !amol in
               bact.active_molecules <-
                 MolMap.modify_opt
                   (Reactant.Amol.mol !amol)
@@ -303,9 +303,8 @@ let to_yojson (bact : t) : Yojson.Safe.json =
   let imol_enum = MolMap.enum bact.inert_molecules in
   let trimmed_imol_enum =
     Enum.map (fun (a,(imd: Reactant.ImolSet.t ref)) ->
-        ({mol=Reactant.ImolSet.mol !imd;
-          qtt= Reactant.ImolSet.qtt !imd;
-          ambient=Reactant.ImolSet} : inert_bact_elem))
+        ({mol= !imd.mol; qtt= !imd.qtt;
+          ambient= !imd.ambient} : inert_bact_elem))
              imol_enum in
   let trimmed_imol_list = List.of_enum trimmed_imol_enum in
   
@@ -335,9 +334,9 @@ module SimControl =
     let set_inert_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
       if MolMap.mem mol bact.inert_molecules
       then
-        let (ims,_) = MolMap.find mol bact.inert_molecules in
+        let ims = MolMap.find mol bact.inert_molecules in
         ims := Reactant.ImolSet.set_qtt n !ims;
-        update_rates (Reactant.ImolSet.reacSet !ims) bact
+        update_rates (Reactant.ImolSet.reacs !ims) bact
       else
         failwith ("bacterie.ml : update_mol_quantity :  target molecule is not present\n"  ^mol)
       

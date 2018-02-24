@@ -27,13 +27,13 @@ module rec
         let show (imd : t) =
           let res = Printf.sprintf "Inert : %s (%i)" imd.mol imd.qtt
           in Bytes.of_string res
-           
         let pp (f : Format.formatter) (imd : t) =
           Format.pp_print_string f (show imd)
-               
+        let compare (imd1 : t) (imd2 : t) =
+          String.compare imd1.mol imd2.mol
         let mol ims = ims.mol
         let qtt ims = ims.qtt
-        let reacSet ims = !(ims.reacs)
+        let reacs ims = !(ims.reacs)
         let add_to_qtt deltaqtt ims =
           if ims.ambient
           then ims
@@ -41,14 +41,12 @@ module rec
             {ims with qtt = ims.qtt + deltaqtt}
         let set_qtt qtt (ims : t)=
           {ims with qtt = qtt}
-        let make_new ?(ambient=false) mol : t = {mol; qtt=1; reacs = (ref ReacSet.empty);ambient}
+        let make_new ?(ambient=false) mol : t =
+          {mol; qtt=1; reacs = (ref ReacSet.empty);ambient}
         let add_reac (reac : Reaction.t) (imd : t) =
           imd.reacs := ReacSet.add reac !(imd.reacs)
         let remove_reac (reac : Reaction.t) (imd : t) =
           imd.reacs := ReacSet.remove reac !(imd.reacs)
-          
-        let compare (imd1 : t) (imd2 : t) =
-          String.compare imd1.mol imd2.mol
 
       end
       
@@ -68,7 +66,7 @@ module rec
           
         let mol am =  am.mol
         let qtt am = 1
-        let reacSet am = !(am.reacs)
+        let reacs am = !(am.reacs)
         let pnet am = am.pnet
         let make_new  (pnet : Petri_net.t) =
           {mol = pnet.mol; pnet; reacs = ref ReacSet.empty}
@@ -131,10 +129,10 @@ module rec
       match reactant with
       | Amol amol -> Amol.mol !amol
       | ImolSet ims -> ImolSet.mol !ims
-    let reacSet reactant =
+    let reacs reactant =
       match reactant with
-      | Amol amol -> Amol.reacSet !amol
-      | ImolSet ims -> ImolSet.reacSet !ims
+      | Amol amol -> Amol.reacs !amol
+      | ImolSet ims -> ImolSet.reacs !ims
     let add_reac reaction reactant =
       match reactant with 
       | Amol amol -> Amol.add_reac reaction !amol

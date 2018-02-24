@@ -7,45 +7,63 @@ module type REACTANT =
   sig
     type reac
     type reacSet
+       
     module type REACTANT_DEFAULT =
       sig
+        type t
         type reac
         type reacSet
-        type t
         val show : t -> string
         val pp : Format.formatter -> t -> unit
         val compare : t -> t -> int
-        val qtt : t -> int
         val mol : t -> Molecule.t
-        val reacSet : t -> reacSet
-        val add_reac : reac -> t -> unit
+        val qtt : t -> int
+        val reacs : t -> reacSet
         val remove_reac : reac -> t -> unit
+        val add_reac : reac -> t -> unit
       end
-
-      
-    module Amol :
+    module ImolSet :
     sig
-      include (REACTANT_DEFAULT
-               with type reac := reac
-                             and type reacSet := reacSet)
-      val pnet : t -> Petri_net.t
-      val make_new : Petri_net.t -> t
+      type t =
+        private {
+            mol : Molecule.t;
+            qtt : int; 
+            reacs : reacSet ref;
+            ambient:bool;
+          }
+      val make_new : ?ambient:bool -> Molecule.t -> t
+      val add_to_qtt : int -> t -> t
+      val set_qtt : int ->  t -> t
+      include REACTANT_DEFAULT
+              with type t := t
+              and type reac := reac
+              and type reacSet := reacSet
     end
          
-    module ImolSet :
-      sig
-        include (REACTANT_DEFAULT
-                 with type reac := reac
-                               and type reacSet := reacSet)
-        val make_new : ?ambient:bool -> Molecule.t -> t
-        val add_to_qtt : int -> t -> t
-        val set_qtt : int -> t -> t
-      end
+    module Amol :
+    sig
+      type t =
+        private {
+            mol : Molecule.t;
+            pnet : Petri_net.t;
+            reacs : reacSet ref;
+          }
+      val make_new : Petri_net.t -> t
+      include REACTANT_DEFAULT
+              with type t := t
+              and type reac := reac
+              and type reacSet := reacSet
+    end
+
          
     type t =
       | Amol of Amol.t ref
       | ImolSet of ImolSet.t ref
-    include REACTANT_DEFAULT with type t := t and type reac := reac and type reacSet := reacSet
+
+    include REACTANT_DEFAULT
+            with type t := t
+            and type reac := reac
+            and type reacSet := reacSet
   end
   
 
@@ -108,7 +126,7 @@ module ReactionsM (R : REACTANT) =
           and qtt = R.qtt grabed_data in
           float_of_int (Petri_net.grab_factor
              mol
-             (R.Amol.pnet !graber_data)) *.
+             (!graber_data.pnet)) *.
             (float_of_int qtt) 
           
         let rate ({rate;_} : t) : float=
@@ -126,10 +144,10 @@ module ReactionsM (R : REACTANT) =
         let eval (g : t) : effect list =
           ignore( asymetric_grab
             (R.mol (g.grabed_data))
-            (R.Amol.pnet !(g.graber_data)));
+            (!(g.graber_data).pnet));
           Remove_one (g.grabed_data):: 
-            Update_reacs (R.Amol.reacSet !(g.graber_data)) ::
-              Update_reacs (R.reacSet g.grabed_data) ::
+            Update_reacs (R.Amol.reacs !(g.graber_data)) ::
+              Update_reacs (R.reacs g.grabed_data) ::
                 []
         let remove_reac_from_reactants reac g =
           R.Amol.remove_reac reac !(g.graber_data);
@@ -151,7 +169,7 @@ module ReactionsM (R : REACTANT) =
         type build_t = R.Amol.t ref
                      
         let calculate_rate (t :t)  =
-          float_of_int (R.Amol.pnet !(t.amd)).launchables_nb
+          float_of_int (!(t.amd).pnet).launchables_nb
           
         let rate (t : t)  =
           t.rate
@@ -166,11 +184,11 @@ module ReactionsM (R : REACTANT) =
           
         let eval (trans : t) : effect list=
           let t_effects = Petri_net.launch_random_transition
-                            (R.Amol.pnet !(trans.amd))
+                            (!(trans.amd).pnet)
           in
-          Petri_net.update_launchables (R.Amol.pnet !(trans.amd));
+          Petri_net.update_launchables (!(trans.amd).pnet);
           T_effects (t_effects) ::
-            Update_reacs (R.Amol.reacSet !(trans.amd)) ::
+            Update_reacs (R.Amol.reacs !(trans.amd)) ::
               []
       
       
@@ -207,7 +225,7 @@ module ReactionsM (R : REACTANT) =
           let mol = R.mol (ba.reactant)  in
           let (m1, m2) = Molecule.break mol in
           Remove_one (ba.reactant) ::
-            Update_reacs (R.reacSet ba.reactant) ::
+            Update_reacs (R.reacs ba.reactant) ::
               Release_mol m1 ::
                 Release_mol m2 ::
                   []
