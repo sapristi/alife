@@ -81,6 +81,7 @@ end
 module GSet = MakeReacSet(Reacs.Grab)
 module TSet = MakeReacSet(Reacs.Transition)
 module BSet = MakeReacSet(Reacs.Break)
+module RCSet = MakeReacSet(Reacs.RandomCollision)
 (* ** too complicated stuff *)
   
 (*
@@ -142,18 +143,21 @@ let build_instance
 
 type config = { transition_rate : float;
                 grab_rate : float;
-                break_rate : float;}
+                break_rate : float;
+                random_collision_rate:float}
                 [@@ deriving yojson]       
 type t =
   { t_set :  TSet.t;
     g_set :  GSet.t;
     b_set :  BSet.t;
+    rc_set : RCSet.t;
   }
 
 let make_new (config : config) =
   {t_set = TSet.make_empty config.transition_rate;
    g_set = GSet.make_empty config.grab_rate;
-   b_set = BSet.make_empty config.break_rate;}
+   b_set = BSet.make_empty config.break_rate;
+   rc_set = RCSet.make_empty config.random_collision_rate;}
   
 let remove_reactions reactions reac_mgr =
   ReacSet.iter
@@ -168,7 +172,8 @@ let remove_reactions reactions reac_mgr =
 
       | Break b ->
          BSet.remove !b reac_mgr.b_set;
-
+      | RandomCollision rc ->
+         RCSet.remove !rc reac_mgr.rc_set;
     ) reactions
 
 (* **** collision *)
@@ -211,7 +216,7 @@ let add_transition amd reac_mgr  =
   Reactant.Amol.add_reac rt !amd
 
 
-(* ** BreakInert *)
+(* ** Break *)
 let add_break md reac_mgr =
   let b = Reacs.Break.make md in
   Log.debug (fun m -> m "added new break : %s"
@@ -220,7 +225,10 @@ let add_break md reac_mgr =
   BSet.add b reac_mgr.b_set;
   Reactant.add_reac rb md
 
-
+let add_random_collision tmq reac_mgr =
+  let rc = Reacs.RandomCollision.make tmq in
+  Log.debug (fun m -> m "added new RandomCollision");
+  RCSet.add rc reac_mgr.rc_set
   
   
 (* ** pick next reaction *)
@@ -232,7 +240,9 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   and total_t_rate = reac_mgr.t_set.total_rate
                      *. reac_mgr.t_set.modifier
   and total_b_rate = reac_mgr.b_set.total_rate
-                    *. reac_mgr.b_set.modifier
+                     *. reac_mgr.b_set.modifier
+  and total_rc_rate = reac_mgr.rc_set.total_rate
+                    *. reac_mgr.rc_set.modifier
   in
 
   
@@ -240,17 +250,21 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   Log.info (fun m -> m "picking next reaction in\n 
                         Grabs (total : %f):\n%s\n
                         Transitions (total : %f):\n%s\n
-                        Breaks (total : %f):\n%s"
+                        Breaks (total : %f):\n%s\n
+                        RandomCollision (total :%f)\n%s"
                        total_g_rate
                        (GSet.show reac_mgr.g_set)
                        total_t_rate
                        (TSet.show reac_mgr.t_set)
                        total_b_rate
-                       (BSet.show reac_mgr.b_set));
+                       (BSet.show reac_mgr.b_set)
+                       total_rc_rate
+                       (RCSet.show reac_mgr.rc_set)
+           );
   
   
   let a0 = (total_g_rate) +. (total_t_rate)
-           +. (total_b_rate)
+           +. (total_b_rate) +.  total_rc_rate
   in
   if a0 = 0.
   then
@@ -269,8 +283,11 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       else if bound < total_g_rate +. total_t_rate
       then 
         Reaction.Transition ( ref (TSet.pick_reaction reac_mgr.t_set))
-      else 
+      else if  bound < total_g_rate +. total_t_rate +. total_b_rate
+      then
         Reaction.Break (ref (BSet.pick_reaction reac_mgr.b_set))
+      else
+        Reaction.RandomCollision (ref (RCSet.pick_reaction reac_mgr.rc_set))
     in
     Log.info (fun m -> m "picked %s" (Reaction.show res));
     Some res
@@ -283,3 +300,5 @@ let rec update_reaction_rates (reac : Reaction.t) reac_mgr=
      TSet.update_rate !t reac_mgr.t_set
   | Break b ->
      BSet.update_rate !b reac_mgr.b_set
+  | RandomCollision rc ->
+     RCSet.update_rate !rc reac_mgr.rc_set

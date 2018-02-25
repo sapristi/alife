@@ -84,15 +84,11 @@ module ReactionsM (R : REACTANT) =
   struct
     type effect =
       | T_effects of Place.transition_effect list
-                              (* handles the side effects of removing
-                                 an element, e.g. removing a pnet
-                                 will release the tokens
-                                 (this means the tokens won't interact
-                                 with the grabing molecule ? *)
       | Remove_one of R.t
       | Update_reacs of R.reacSet
       | Release_mol of Molecule.t
       | Release_tokens of Token.t list
+      | RandomCollision
                      
     module type REAC =
       sig
@@ -234,5 +230,40 @@ module ReactionsM (R : REACTANT) =
         let remove_reac_from_reactants reac g =
           ()
       end
-      
+
+    module RandomCollision:
+    (REAC with type build_t = (int ref))
+      =
+      struct
+        type t = {mutable rate : float;
+                  total_mol_qtt : int ref}
+
+        let compare rc1 rc2 = 0
+        type build_t = int ref
+        let show (rc : t) =
+          Printf.sprintf "RandomCollision (rate = %f)" rc.rate
+        let pp f rc =
+          Format.pp_print_string f (show rc)
+
+        let calculate_rate (total_mol_qtt:build_t) =
+          float_of_int (!total_mol_qtt
+                        * !total_mol_qtt)
+        let rate rc =
+          rc.rate
+
+        let update_rate rc = 
+          let old_rate = rc.rate in
+          rc.rate <- calculate_rate rc.total_mol_qtt;
+          rc.rate -. old_rate
+
+        let make (total_mol_qtt : int ref) =
+          {rate = calculate_rate total_mol_qtt;
+           total_mol_qtt}
+
+        let eval rc =
+          [RandomCollision]
+
+        let remove_reac_from_reactants reac rc = ()
+          
+      end
   end

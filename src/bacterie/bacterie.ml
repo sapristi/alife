@@ -70,6 +70,8 @@ type t =
   {mutable inert_molecules : (Reactant.ImolSet.t ref) MolMap.t;
    mutable active_molecules : (ActiveMolSet.t) MolMap.t;
    reac_mgr : Reac_mgr.t;
+   total_mol_qtt : int ref;
+   randomCollision : Reaction.t
   }
   
 (* ** interface *)
@@ -83,12 +85,18 @@ type t =
 let (default_rcfg : Reac_mgr.config) =
   {transition_rate = 10.;
    grab_rate = 1.;
-   break_rate = 0.0001}
+   break_rate = 0.0000001;
+   random_collision_rate = 0.0000001}
   
-let make_empty ?(rcfg=default_rcfg) () = 
+let make_empty ?(rcfg=default_rcfg) () =
+  let total_mol_qtt = ref 0 in
+  let rc = Reacs.RandomCollision.make total_mol_qtt in
   {inert_molecules =  MolMap.empty;
    active_molecules = MolMap.empty;
-   reac_mgr = Reac_mgr.make_new rcfg}
+   reac_mgr = Reac_mgr.make_new rcfg;
+   total_mol_qtt;
+   randomCollision = Reaction.RandomCollision (ref rc);
+  }
 
              
 (* *** add new molecule *)
@@ -139,8 +147,8 @@ let add_new_molecule (new_mol : Molecule.t) (bact : t) : unit =
          then
            Reac_mgr.add_grab new_active_md
                              (ImolSet grabed_d)
-                             bact.reac_mgr;
-         ) bact.inert_molecules;
+                               bact.reac_mgr;
+       ) bact.inert_molecules;
      
      (* reaction : transition  *)
      Reac_mgr.add_transition new_active_md bact.reac_mgr;
@@ -162,9 +170,8 @@ let add_new_molecule (new_mol : Molecule.t) (bact : t) : unit =
               Some (ActiveMolSet.singleton new_active_md))
          bact.active_molecules;
      print_endline "mol added"
-
      
-
+       
            
 (* *** update reaction rates *)
 
@@ -182,6 +189,7 @@ let update_rates (reactions : ReacSet.t) bact =
 
 let remove_molecule (m : Molecule.t) (bact : t) : unit =
   let old_reacs = ref ReacSet.empty
+  and old_qtt = ref 0
   in
   bact.inert_molecules <-
     MolMap.modify_opt
@@ -191,20 +199,44 @@ let remove_molecule (m : Molecule.t) (bact : t) : unit =
         | None -> failwith "container: cannot remove absent molecule"
         | Some imd ->
            old_reacs := Reactant.ImolSet.reacs !imd;
+           old_qtt := Reactant.ImolSet.qtt !imd;
            None)
       bact.inert_molecules;
   update_rates !old_reacs bact;
-  Reac_mgr.remove_reactions !old_reacs bact.reac_mgr
+  Reac_mgr.remove_reactions !old_reacs bact.reac_mgr;
+  bact.total_mol_qtt := !(bact.total_mol_qtt) - !old_qtt;
+  Reac_mgr.update_reaction_rates bact.randomCollision bact.reac_mgr
   
 (* *** add_molecule *)
 (* adds a molecule inside a bactery *)
 (* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
 let add_molecule (mol : Molecule.t) (bact : t) : unit =
-  match MolMap.Exceptionless.find mol bact.inert_molecules with
-  | Some ims -> ims := Reactant.ImolSet.add_to_qtt 1 !ims
-  | None -> add_new_molecule mol bact
+  (match MolMap.Exceptionless.find mol bact.inert_molecules with
+   | Some ims -> ims := Reactant.ImolSet.add_to_qtt 1 !ims
+   | None -> add_new_molecule mol bact);
+  incr bact.total_mol_qtt;
+  Reac_mgr.update_reaction_rates bact.randomCollision bact.reac_mgr
 
-
+let remove_one_reactant (reactant : Reactant.t) (bact : t) : unit =
+  (
+    match reactant with
+    | ImolSet ims -> ims := Reactant.ImolSet.add_to_qtt (-1) !ims
+    | Amol amol ->
+       let old_reacs = Reactant.Amol.reacs !amol in
+       bact.active_molecules <-
+         MolMap.modify_opt
+           (Reactant.Amol.mol !amol)
+           (fun data ->
+             match data with
+             | Some amolset ->
+                Some (ActiveMolSet.remove
+                        amol amolset)
+             | None -> None
+           ) bact.active_molecules;
+  );
+  decr bact.total_mol_qtt;
+  Reac_mgr.update_reaction_rates bact.randomCollision bact.reac_mgr
+  
 (* **** execute_actions *)
 (* after a transition from a proteine has occured, *)
 (*    some actions may need to be performed by the bactery *)
@@ -230,27 +262,12 @@ let rec execute_actions (actions : Reacs.effect list) (bact : t) : unit =
       | Update_reacs reacset ->
          update_rates reacset bact
       | Remove_one reactant ->
-         (
-           match reactant with
-           | ImolSet ims -> ims := Reactant.ImolSet.add_to_qtt (-1) !ims
-           | Amol amol ->
-              let old_reacs = Reactant.Amol.reacs !amol in
-              bact.active_molecules <-
-                MolMap.modify_opt
-                  (Reactant.Amol.mol !amol)
-                  (fun data ->
-                    match data with
-                    | Some amolset ->
-                     Some (ActiveMolSet.remove
-                             amol amolset)
-                    | None -> None
-                  ) bact.active_molecules;
-              
-         )
+         remove_one_reactant reactant bact
       | Release_mol mol -> add_molecule mol bact
       | Release_tokens tlist ->
          List.iter (fun (n,mol) ->
              add_new_molecule mol bact) tlist
+      | RandomCollision -> ()
     )
     actions
   

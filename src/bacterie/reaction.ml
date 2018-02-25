@@ -157,6 +157,7 @@ module rec
              | Update_reacs of Reactant.reacSet
              | Release_mol of Molecule.t
              | Release_tokens of Token.t list
+             | RandomCollision
            module type REAC =
              sig
                type t
@@ -182,6 +183,9 @@ module rec
              
            module Break :
            (REAC with type build_t = (Reactant.t))
+
+           module RandomCollision :
+           (REAC with type build_t = (int ref))
          end)
      = struct
      include ReactionsM(Reactant) 
@@ -194,6 +198,7 @@ module rec
           | Grab of Reacs.Grab.t ref
           | Transition of Reacs.Transition.t ref
           | Break of Reacs.Break.t ref
+          | RandomCollision of Reacs.RandomCollision.t ref
                    
         val treat_reaction : t -> Reacs.effect list
         val compare : t -> t -> int
@@ -208,6 +213,7 @@ module rec
       | Grab of Grab.t ref
       | Transition of Transition.t ref
       | Break of Break.t ref
+      | RandomCollision of Reacs.RandomCollision.t ref
                          [@@ deriving ord, show]    
                
     let rate r =
@@ -215,18 +221,23 @@ module rec
       | Transition t -> Transition.rate (!t)
       | Grab g -> Grab.rate (!g)
       | Break ba -> Break.rate !ba
+      | RandomCollision rc -> RandomCollision.rate !rc
                   
     let treat_reaction r  : effect list=
       match r with
       | Transition t -> Transition.eval !t
       | Grab g -> Grab.eval !g
       | Break ba -> Break.eval !ba
+      | RandomCollision rc -> RandomCollision.eval !rc
                   
     let unlink r = 
       match r with
       | Transition t -> Transition.remove_reac_from_reactants r !t
       | Grab g -> Grab.remove_reac_from_reactants r !g
       | Break ba -> Break.remove_reac_from_reactants r !ba
+      | RandomCollision rc ->
+         RandomCollision.remove_reac_from_reactants r !rc
+      
                      
   end
      
