@@ -22,7 +22,7 @@ open Misc_library
 open Reaction
 type ('a, 'b) mresult = ('a, 'b) result
 open Batteries
-open Molsets
+open Reactant_mgrs
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
 
@@ -67,15 +67,12 @@ module MolMap =
   
   
 type t =
-  {mutable inert_molecules : (Reactant.ImolSet.t ref) MolMap.t;
-   mutable active_molecules : (ActiveMolSet.t) MolMap.t;
+  {inert : InertReactantsMgr.t;
+   active : ActiveReactantsMgr.t;
    reac_mgr : Reac_mgr.t;
    total_mol_qtt : int ref;
    randomCollision : Reaction.t
   }
-
-
-
   
 (* ** interface *)
   
@@ -94,8 +91,8 @@ let (default_rcfg : Reac_mgr.config) =
 let make_empty ?(rcfg=default_rcfg) () =
   let total_mol_qtt = ref 0 in
   let rc = Reacs.RandomCollision.make total_mol_qtt in
-  {inert_molecules =  MolMap.empty;
-   active_molecules = MolMap.empty;
+  {inert =  InertReactantsMgr.empty;
+   active = ActiveReactantsMgr.empty;
    reac_mgr = Reac_mgr.make_new rcfg;
    total_mol_qtt;
    randomCollision = Reaction.RandomCollision (ref rc);
@@ -114,7 +111,7 @@ let add_inert_mol ?(ambient=false) (new_mol : Molecule.t) (bact : t) : unit =
     (fun mol amolset ->
       ActiveMolSet.add_reacs_with_new_reactant
         (ImolSet new_inert_md) amolset bact.reac_mgr)
-    bact.active_molecules;
+    bact.active;
   
   (* reactions : break *)
   Reac_mgr.add_break (ImolSet new_inert_md) bact.reac_mgr;

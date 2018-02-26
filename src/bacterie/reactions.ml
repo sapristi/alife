@@ -275,39 +275,4 @@ module ReactionsM (R : REACTANT) =
          The reaction is initialised with functions provided by the bactery
          to fetch a random reactant. 
        *) 
-    module RandomCollisionBis:
-    (REAC with type build_t = (int ref))
-      =
-      struct
-        type t = {mutable rate : float;
-                  total_mol_qtt : int ref}
-
-        let compare rc1 rc2 = 0
-        type build_t = int ref
-        let show (rc : t) =
-          Printf.sprintf "RandomCollision (rate = %f)" rc.rate
-        let pp f rc =
-          Format.pp_print_string f (show rc)
-
-        let calculate_rate (total_mol_qtt:build_t) =
-          float_of_int (!total_mol_qtt
-                        * !total_mol_qtt)
-        let rate rc =
-          rc.rate
-
-        let update_rate rc = 
-          let old_rate = rc.rate in
-          rc.rate <- calculate_rate rc.total_mol_qtt;
-          rc.rate -. old_rate
-
-        let make (total_mol_qtt : int ref) =
-          {rate = calculate_rate total_mol_qtt;
-           total_mol_qtt}
-
-        let eval rc =
-          [RandomCollision]
-
-        let remove_reac_from_reactants reac rc = ()
-          
-      end
   end
