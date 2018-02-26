@@ -23,6 +23,9 @@ module ActiveMolSet  = struct
               !amd1 !amd2
         end)
   include PnetSet
+
+  let qtt amolset = PnetSet.cardinal amolset
+        
   let find_by_pnet_id pid amolset : Petri_net.t= 
     let (dummy_pnet : Petri_net.t) ={
         mol = ""; transitions = [||];places = [||];
@@ -40,7 +43,9 @@ module ActiveMolSet  = struct
                        (!amd).pnet.uid) pnet_enum in
     List.of_enum ids_enum
     
-
+  let random_pick amolset =
+    let c = cardinal amolset in
+    let n = Random.int c in at_rank_exn n amolset
         
 (* *** update reacs with new reactant *)
 (* Calculates the possible reactions with a reactant *)
@@ -87,4 +92,48 @@ module ActiveMolSet  = struct
       
       
 end
+module MolMap = Map.Make (struct type t = Molecule.t
+                                 let compare = Pervasives.compare end)
 
+module ActiveReactants =
+  struct
+    include MolMap
+    type elt = ActiveMolSet.t
+    
+    let random_AR_pick (areactants : elt t)=
+      let total_qtt =
+        float_of_int (
+            fold
+              (fun _ (amolset :elt) (res:int) ->
+                (ActiveMolSet.qtt amolset) + res)
+              areactants 0)
+      in
+      let b = Random.float total_qtt in
+      let amolset = 
+        Misc_library.pick_from_enum
+        b 
+        (fun amols -> float_of_int (ActiveMolSet.qtt amols))
+        (values areactants)
+      in ActiveMolSet.random_pick amolset
+  end
+  
+module InertReactants =
+  struct
+    include MolMap
+    type elt = Reactant.ImolSet.t ref
+
+    let random_pick (ireactants : elt t) =
+      let total_qtt =
+        float_of_int (
+            fold
+              (fun _ (imolset :elt) (res:int) ->
+                (Reactant.ImolSet.qtt !imolset) + res)
+              ireactants 0)
+      in
+      let b = Random.float total_qtt in
+          Misc_library.pick_from_enum
+            b
+            (fun imols -> float_of_int (Reactant.ImolSet.qtt !imols))
+            (values ireactants)
+             
+  end

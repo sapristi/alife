@@ -63,18 +63,10 @@ module MakeReacSet (Reac : Reacs.REAC) =
       RSet.fold (fun (e : elt) desc ->
           (Reac.show e)^"\n"^desc) s.set ""
       
-    let rec pick_reaction_aux (b : float) (c : float)
-                          (l : Reac.t list)  = 
-      match l with
-      | h::t ->
-         let c' = c +. Reac.rate h in
-         if c' > b then h
-         else pick_reaction_aux b c' t
-      | [] -> failwith "pick_reaction @ reactions.ml : can't find reaction"
-            
     let pick_reaction (s : t) =
-      pick_reaction_aux (Random.float s.total_rate) 0.
-                        (RSet.elements s.set)
+      Misc_library.pick_from_list (Random.float s.total_rate) 0.
+                                  Reac.rate
+                                  (RSet.elements s.set)
       
 end
 

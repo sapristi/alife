@@ -105,3 +105,27 @@ let common_elements l1 l2 =
       
     | _ -> res
   in common_elements_aux l1 l2 []
+
+      
+let rec pick_from_list (bound : float) (c : float)
+                       (value : 'a -> float)
+                       (l : 'a list)  = 
+      match l with
+      | h::t ->
+         let c' = c +. value h in
+         if c' > bound then h
+         else pick_from_list bound c' value t
+      | [] -> failwith "pick_from_list @ misc_library.ml : bound too high"
+
+            
+let pick_from_enum (bound : float)
+                   (value : 'a -> float)
+                   (enum : 'a Enum.t) : 'a  =
+  let c = ref 0. in
+  let find_f (e : 'a) =
+    c := !c +. value e;
+    if !c >= bound
+    then true
+    else false
+  in
+  Enum.find find_f enum

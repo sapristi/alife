@@ -73,6 +73,9 @@ type t =
    total_mol_qtt : int ref;
    randomCollision : Reaction.t
   }
+
+
+
   
 (* ** interface *)
   
@@ -268,6 +271,15 @@ let rec execute_actions (actions : Reacs.effect list) (bact : t) : unit =
          List.iter (fun (n,mol) ->
              add_new_molecule mol bact) tlist
       | RandomCollision -> ()
+    (* Possible effects : 
+       - forced grab : a molecule is fitted into a pnet
+         even though a grab could not possibly occur
+         (this could be parameterized with
+         some kind of bind probability)
+      - mix : the molecules are mixed together,
+      or one is put into the other one
+      - both break
+     *)
     )
     actions
   
