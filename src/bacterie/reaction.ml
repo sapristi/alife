@@ -41,13 +41,14 @@ module rec
             {ims with qtt = ims.qtt + deltaqtt}
         let set_qtt qtt (ims : t)=
           {ims with qtt = qtt}
-        let make_new ?(ambient=false) mol : t =
-          {mol; qtt=1; reacs = (ref ReacSet.empty);ambient}
+        let make_new mol : t =
+          {mol; qtt=1; reacs = (ref ReacSet.empty);ambient=false}
         let add_reac (reac : Reaction.t) (imd : t) =
           imd.reacs := ReacSet.add reac !(imd.reacs)
         let remove_reac (reac : Reaction.t) (imd : t) =
           imd.reacs := ReacSet.remove reac !(imd.reacs)
-
+        let set_ambient ambient ims =
+          {ims with ambient = ambient}
       end
       
 (* *** active mol data *)

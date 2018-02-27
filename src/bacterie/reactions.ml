@@ -31,9 +31,10 @@ module type REACTANT =
             reacs : reacSet ref;
             ambient:bool;
           }
-      val make_new : ?ambient:bool -> Molecule.t -> t
+      val make_new : Molecule.t -> t
       val add_to_qtt : int -> t -> t
       val set_qtt : int ->  t -> t
+      val set_ambient : bool -> t -> t
       include REACTANT_DEFAULT
               with type t := t
               and type reac := reac

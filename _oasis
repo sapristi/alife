@@ -124,11 +124,11 @@ Library "reac_mgr"
 #   Path : src/bacterie
 #   Modules : Molsets
 #   BuildDepends :  bacterie.reaction
-Library "reactant_mgrs"
-  FindLibName : reactant_mgrs
+Library "amolset"
+  FindLibName : amolset
   FindLibParent : bacterie_libs
   Path : src/bacterie
-  Modules : Reactant_mgrs
+  Modules : Amolset
   BuildDepends : ppx_deriving.show, logs, ppx_deriving.ord, bacterie.reaction
 
 
@@ -137,7 +137,7 @@ Library "bacterie"
   FindLibParent : bacterie_libs
   Path: src/bacterie
   Modules: Bacterie
-  BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.petri_net, batteries, bacterie_libs.reac_mgr, bacterie_libs.reactant_mgrs
+  BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.petri_net, batteries, bacterie_libs.reac_mgr, bacterie_libs.amolset
 
 Library "bacterie_libs"
   FindLibName : bacterie_libs

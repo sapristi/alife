@@ -35,7 +35,12 @@ module ActiveMolSet  = struct
     
   let qtt (aset :t) = PnetSet.cardinal aset.pnets
   let mol (aset :t) = aset.mol
-               
+
+  let add (areactant: Reactant.Amol.t ref) (aset : t) =
+    aset.pnets <- PnetSet.add areactant aset.pnets
+  let remove (areactant: Reactant.Amol.t ref) (aset : t) =
+    aset.pnets <- PnetSet.remove areactant aset.pnets
+                    
   let find_by_pnet_id pid (aset :t) : Petri_net.t= 
     let (dummy_pnet : Petri_net.t) ={
         mol = ""; transitions = [||];places = [||];
@@ -60,7 +65,7 @@ module ActiveMolSet  = struct
 (* *** update reacs with new reactant *)
 (* Calculates the possible reactions with a reactant *)
       
-  let add_reacs_with_new_reactant (new_reactant : Reactant.t) (aset :t) reac_mgr =
+  let add_reacs_with_new_reactant (new_reactant : Reactant.t) (aset :t) reac_mgr : unit =
     if PnetSet.is_empty aset.pnets
     then
       ()
@@ -78,7 +83,6 @@ module ActiveMolSet  = struct
                           dummy_pnet.mol
                           !new_amol.pnet  in
          
-
          PnetSet.iter
            (fun current_amd ->
              if is_graber
@@ -102,50 +106,3 @@ module ActiveMolSet  = struct
          
       
 end
-module MolMap = Map.Make (struct type t = Molecule.t
-                                 let compare = Pervasives.compare end)
-
-module ActiveReactantsMgr =
-  struct
-    type t =
-      { mutable reactants : (ActiveMolSet.t) MolMap.t;}
-
-    let empty = {reactants = MolMap.empty;}
-      
-    let qtt areacts_mgr =
-      MolMap.fold
-        (fun _ amolset res -> ActiveMolSet.qtt amolset + res)
-        areacts_mgr.reactants 0
-      
-    let random_AR_pick (areactants_mgr : t)=
-      let b = Random.float (float_of_int (qtt areactants_mgr)) in
-      let (amolset : ActiveMolSet.t) = 
-        Misc_library.pick_from_enum
-          b 
-          (fun amols -> float_of_int (ActiveMolSet.qtt amols))
-          (MolMap.values areactants_mgr.reactants)
-      in ActiveMolSet.random_pick amolset
-  end
-  
-module InertReactantsMgr =
-  struct
-    type t =
-      { mutable reactants : (Reactant.ImolSet.t ref) MolMap.t;}
-      
-    let empty = {reactants = MolMap.empty;}
-    let qtt (ireacts_mgr:t) =
-      MolMap.fold
-        (fun _ imolset res -> Reactant.ImolSet.qtt !imolset + res)
-        ireacts_mgr.reactants 0
-      
-    let random_pick (ireacs_mgr : t) =
-      
-      let b = Random.float (float_of_int (qtt ireacs_mgr)) in
-          Misc_library.pick_from_enum
-            b
-            (fun imols -> float_of_int (Reactant.ImolSet.qtt !imols))
-            (MolMap.values ireacs_mgr.reactants)
-             
-  end
-
-       

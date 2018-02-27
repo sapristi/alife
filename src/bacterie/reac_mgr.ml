@@ -284,7 +284,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
     Log.info (fun m -> m "picked %s" (Reaction.show res));
     Some res
     
-let rec update_reaction_rates (reac : Reaction.t) reac_mgr=
+let rec update_reaction_rate (reac : Reaction.t) reac_mgr=
   match reac with
   | Grab g -> 
      GSet.update_rate !g reac_mgr.g_set
@@ -294,3 +294,11 @@ let rec update_reaction_rates (reac : Reaction.t) reac_mgr=
      BSet.update_rate !b reac_mgr.b_set
   | RandomCollision rc ->
      RCSet.update_rate !rc reac_mgr.rc_set
+
+    
+let update_rates (reactions : ReacSet.t) reac_mgr =
+  ReacSet.iter
+    (fun reac ->
+      update_reaction_rate reac reac_mgr)
+    reactions
+  
