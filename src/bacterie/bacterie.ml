@@ -22,7 +22,7 @@ open Misc_library
 open Reaction
 type ('a, 'b) mresult = ('a, 'b) result
 open Batteries
-open Reactant_mgrs
+open Amolset
 (*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
 (*   et le nombre de molécules présentes. *)
 
