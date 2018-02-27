@@ -38,26 +38,61 @@ module MakeReacSet (Reac : Reacs.REAC) =
     type elt = Reac.t
     module RSet= Set.Make(Reac)  
                
-    type t = {mutable total_rate : float;
+    type t = {mutable rates_sum : float;
               mutable set : RSet.t;
               modifier : float}
+
+    let total_rate s =
+      s.rates_sum *. s.modifier
     let make_empty (modifier : float) : t =
-      {total_rate = 0.;
+      {rates_sum = 0.;
        set = RSet.empty;
        modifier;}
 
     let remove r s =
       let rate = Reac.rate r in
       s.set <- RSet.remove r s.set;
-      s.total_rate <- s.total_rate -. rate
+      s.rates_sum <- s.rates_sum -. rate
 
     let add r s =
       s.set <- RSet.add r s.set;
-      s.total_rate <- s.total_rate +. (Reac.rate r)
+      s.rates_sum <- s.rates_sum +. (Reac.rate r)
       
     let update_rate r s =
       let rate_delta = Reac.update_rate r in
-      s.total_rate <- s.total_rate +. rate_delta
+      s.rates_sum <- s.rates_sum +. rate_delta
+      
+    let show (s : t) =
+      RSet.fold (fun (e : elt) desc ->
+          (Reac.show e)^"\n"^desc) s.set ""
+      
+    let pick_reaction (s : t) =
+      Misc_library.pick_from_list (Random.float s.rates_sum) 0.
+                                  Reac.rate
+                                  (RSet.elements s.set)
+      
+end
+
+module MakeAutoUpdatingReacSet (Reac : Reacs.REAC) = 
+  struct
+    type elt = Reac.t
+    module RSet= Set.Make(Reac)  
+               
+    type t = {mutable total_rate : float;
+              mutable set : RSet.t;
+              modifier : float}
+    let make_empty (modifier : float) : t =
+      {total_rate = 0.; set = RSet.empty;  modifier;}
+
+    let remove r s = s.set <- RSet.remove r s.set
+    let add r s = s.set <- RSet.add r s.set
+    let update_rate r s = ()
+    let total_rate s =
+      s.total_rate <-
+        RSet.fold
+        (fun r res -> Reac.rate r +. res)
+        s.set 0.;
+      s.total_rate
       
     let show (s : t) =
       RSet.fold (fun (e : elt) desc ->
@@ -69,11 +104,10 @@ module MakeReacSet (Reac : Reacs.REAC) =
                                   (RSet.elements s.set)
       
 end
-
 module GSet = MakeReacSet(Reacs.Grab)
 module TSet = MakeReacSet(Reacs.Transition)
 module BSet = MakeReacSet(Reacs.Break)
-module RCSet = MakeReacSet(Reacs.RandomCollision)
+module RCSet = MakeAutoUpdatingReacSet(Reacs.RandomCollision)
 (* ** too complicated stuff *)
   
 (*
@@ -227,14 +261,10 @@ let add_random_collision tmq reac_mgr =
 (* replace to_list with to_enum ? *)
 let pick_next_reaction (reac_mgr:t) : Reaction.t option=
 
-  let total_g_rate = reac_mgr.g_set.total_rate
-                     *. reac_mgr.g_set.modifier
-  and total_t_rate = reac_mgr.t_set.total_rate
-                     *. reac_mgr.t_set.modifier
-  and total_b_rate = reac_mgr.b_set.total_rate
-                     *. reac_mgr.b_set.modifier
-  and total_rc_rate = reac_mgr.rc_set.total_rate
-                    *. reac_mgr.rc_set.modifier
+  let total_g_rate = GSet.total_rate reac_mgr.g_set
+  and total_t_rate = TSet.total_rate reac_mgr.t_set
+  and total_b_rate = BSet.total_rate reac_mgr.b_set
+  and total_rc_rate = RCSet.total_rate reac_mgr.rc_set
   in
 
   

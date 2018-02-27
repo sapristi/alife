@@ -144,7 +144,6 @@ module ReactionsM (R : REACTANT) =
             (!(g.graber_data).pnet));
           Remove_one (g.grabed_data):: 
             Update_reacs (R.Amol.reacs !(g.graber_data)) ::
-              Update_reacs (R.reacs g.grabed_data) ::
                 []
         let remove_reac_from_reactants reac g =
           R.Amol.remove_reac reac !(g.graber_data);
@@ -222,7 +221,6 @@ module ReactionsM (R : REACTANT) =
           let mol = R.mol (ba.reactant)  in
           let (m1, m2) = Molecule.break mol in
           Remove_one (ba.reactant) ::
-            Update_reacs (R.reacs ba.reactant) ::
               Release_mol m1 ::
                 Release_mol m2 ::
                   []
@@ -232,7 +230,7 @@ module ReactionsM (R : REACTANT) =
           ()
       end
 
-    module RandomCollision:
+    module RandomCollisionOld:
     (REAC with type build_t = (int ref))
       =
       struct
@@ -275,5 +273,37 @@ module ReactionsM (R : REACTANT) =
          type of a bactery.    
          The reaction is initialised with functions provided by the bactery
          to fetch a random reactant. 
-       *) 
+       *)
+    module RandomCollision:
+    (REAC with type build_t = ((unit -> int) * (unit -> R.t)))
+      =
+      struct
+        type build_t = ((unit -> int) * (unit -> R.t))
+        type t = {data : build_t; mutable rate:float}
+        let compare rc1 rc2 = 0
+
+        let show (rc : t) =
+          Printf.sprintf "RandomCollision"
+        let pp f rc =
+          Format.pp_print_string f (show rc)
+
+        let calculate_rate ((qtt,_):build_t) =
+          float_of_int (qtt () * qtt ())
+        let rate rc =
+          rc.rate
+
+        let update_rate rc = 
+          let old_rate = rate rc in
+          rc.rate <- calculate_rate rc.data;
+          rc.rate -. old_rate
+
+        let make (data:build_t) =
+          {data;rate = calculate_rate data}
+
+        let eval rc =
+          [RandomCollision]
+
+        let remove_reac_from_reactants reac rc = ()
+          
+      end
   end

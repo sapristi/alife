@@ -124,6 +124,7 @@ Library "reac_mgr"
 #   Path : src/bacterie
 #   Modules : Molsets
 #   BuildDepends :  bacterie.reaction
+
 Library "amolset"
   FindLibName : amolset
   FindLibParent : bacterie_libs

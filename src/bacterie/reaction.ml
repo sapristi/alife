@@ -186,7 +186,7 @@ module rec
            (REAC with type build_t = (Reactant.t))
 
            module RandomCollision :
-           (REAC with type build_t = (int ref))
+           (REAC with type build_t = ((unit -> int) * (unit -> Reactant.t)))
          end)
      = struct
      include ReactionsM(Reactant) 

@@ -1,33 +1,14 @@
 (* * this file *)
 
 
-(*   - on compte combien de molécules identiques de chaque type on a *)
-(*    ( ça voudrait dire qu'il faudrait bien les ranger *)
-(*    pour vite les retrouver. Mais tout ça c'est pour plus tard) *)
-
-(*   - on crée un petri-net par type de molécule, la vitesse de simulation *)
-(*    dépend du nombre de molécules (parce que à la fois c'est plus simple *)
-(*    et ça va plus vite, donc on se prive pas) *)
-
-(*   - mais bon ya aussi des molécules qui sont associées à des token *)
-(*    (donc faut se souvenir desquelles le sont), et puis aussi créer de *)
-(*    nouvelles molécules quand elles apparaissent. *)
-
-(*   - Il faudrait aussi tester rapidement si une molécule a une forme *)
-(*    protéinée qui fait quelque chose, pour pas s'embêter avec *)
-
-
 (* * libs *)
 open Misc_library
 open Reaction
 type ('a, 'b) mresult = ('a, 'b) result
 open Batteries
 open Amolset
-(*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
-(*   et le nombre de molécules présentes. *)
 
 (* * Container module *)
-
 
 (* Une bacterie est un conteneur à molecules. Elle s'occupe de fournir l'interprétation d'une molécule en tant que *)
 (* protéine (i.e. pnet), puis d'organiser la simulation des pnet *)
@@ -42,17 +23,6 @@ open Amolset
 (* Le calcul de la réaction suivante nécéssite de calculer la *)
 (* proba de chacune des réactions, ce qui se fait en N² où N *)
 (* est le NOMBRE total de molécules (c'est beaucoup trop). *)
-
-
-(* Autre idée : construire un arbre des réactions (pas complètement *)
-(* un arbre mais presque). *)
-(* Les feuilles sont les molécules. *)
-(* Pour chaque réaction, un nœud est créé comme étant un parent *)
-(* des molécules impliquées. Quand une molécule change *)
-(* (changement du pnet, changement des quantités), il suffit  *)
-(* de parcourir l'arbre vers la racine pour mettre à jour les taux de réaction. *)
-
-
 
 
 (* ** types *)
@@ -72,12 +42,10 @@ type t =
    mutable areactants : (ActiveMolSet.t) MolMap.t;
    mutable areactants_qtt : int;
    reac_mgr : Reac_mgr.t;
-   total_mol_qtt : int ref;
-   randomCollision : Reaction.t
   }
 
   
-(* ** functions to interact with the active reactants *)  
+(* ** module to interact with the active reactants *)  
 module ARMgr =
   struct
 
@@ -132,7 +100,7 @@ module ARMgr =
 
 module IRMgr =
   struct
-
+    
     let add_to_qtt ir deltaqtt bact = 
       ir := Reactant.ImolSet.add_to_qtt deltaqtt !ir;
       bact.ireactants_qtt <- bact.ireactants_qtt + deltaqtt;
@@ -193,6 +161,16 @@ module IRMgr =
 
   end
   
+
+let random_reactant_pick bact = 
+  let b = Random.int (bact.ireactants_qtt + bact.areactants_qtt) in
+  if b < bact.ireactants_qtt
+  then
+    Reactant.ImolSet (IRMgr.random_pick bact)
+  else
+    Reactant.Amol (ARMgr.random_AR_pick bact)
+
+  
 (* ** interface *)
   
 (* Whenever modifying the bactery, it should be *)
@@ -209,13 +187,15 @@ let (default_rcfg : Reac_mgr.config) =
   
 let make_empty ?(rcfg=default_rcfg) () =
   let total_mol_qtt = ref 0 in
-  let rc = Reacs.RandomCollision.make total_mol_qtt in
-  {ireactants = MolMap.empty;ireactants_qtt = 0;
-   areactants = MolMap.empty;areactants_qtt = 0;
-   reac_mgr = Reac_mgr.make_new rcfg;
-   total_mol_qtt;
-   randomCollision = Reaction.RandomCollision (ref rc);
-  }
+  let bact = {ireactants = MolMap.empty;ireactants_qtt = 0;
+              areactants = MolMap.empty;areactants_qtt = 0;
+              reac_mgr = Reac_mgr.make_new rcfg;}
+  in
+  Reac_mgr.add_random_collision 
+      ((fun () -> bact.ireactants_qtt + bact.areactants_qtt),
+       (fun () -> random_reactant_pick bact)) bact.reac_mgr;
+  bact
+    
   
   
 
@@ -233,71 +213,58 @@ let make_empty ?(rcfg=default_rcfg) () =
 (*       related reaction rates *)
 (*     + if it was not, we add the molecules and the possible reactions *)
 let add_molecule (mol : Molecule.t) (bact : t) : unit =
-  
-  (    
-   let new_opnet = Petri_net.make_from_mol mol in
-   match new_opnet with
-
-   | Some pnet ->
-      let areac = ref (Reactant.Amol.make_new pnet) in
-      (* reactions : grabs with other amols*)
-      ARMgr.add_reacs_with_new_reactant (Amol areac) bact bact.reac_mgr;
+  let new_opnet = Petri_net.make_from_mol mol in
+  match new_opnet with
+    
+  | Some pnet ->
+     let areac = ref (Reactant.Amol.make_new pnet) in
+     (* reactions : grabs with other amols*)
+     ARMgr.add_reacs_with_new_reactant (Amol areac) bact bact.reac_mgr;
       
-      (* reactions : grabs with inert mols *)
-      IRMgr.add_reacs_with_new_reactant (Amol areac) bact bact.reac_mgr;
-      
-      (* reaction : transition  *)
-      Reac_mgr.add_transition areac bact.reac_mgr;
-      
-      (* reaction : break *)
-      Reac_mgr.add_break (Amol areac) bact.reac_mgr;
-      
-      (* we add the reactant after adding reactions 
-         because it must not react with itself *)
-      ARMgr.add mol areac bact
-   | None ->
-      (
-        match MolMap.Exceptionless.find mol bact.ireactants with
-        | None -> 
-            (* this is a new inactiv mol, we
-               have to add reactions *)
-            let new_ireac = ref (Reactant.ImolSet.make_new mol) in
-            (* reactions : grabs *)
-            ARMgr.add_reacs_with_new_reactant
-              (ImolSet new_ireac) bact bact.reac_mgr;
-        
-            (* reactions : break *)
-            Reac_mgr.add_break (ImolSet new_ireac) bact.reac_mgr;
-            bact.ireactants <-
-              MolMap.add !new_ireac.mol (new_ireac)
-                         bact.ireactants;
-            bact.ireactants_qtt <- bact.ireactants_qtt +1
-            
-        |Some ireac ->
-          IRMgr.add_to_qtt ireac 1 bact;
+     (* reactions : grabs with inert mols *)
+     IRMgr.add_reacs_with_new_reactant (Amol areac) bact bact.reac_mgr;
+     
+     (* reaction : transition  *)
+     Reac_mgr.add_transition areac bact.reac_mgr;
+     
+     (* reaction : break *)
+     Reac_mgr.add_break (Amol areac) bact.reac_mgr;
+     
+     (* we add the reactant after adding reactions 
+        because it must not react with itself *)
+     ARMgr.add mol areac bact
+  | None ->
+     (
+       match MolMap.Exceptionless.find mol bact.ireactants with
+       | None -> 
+          let new_ireac = ref (Reactant.ImolSet.make_new mol) in
+          (* reactions : grabs *)
+          ARMgr.add_reacs_with_new_reactant
+            (ImolSet new_ireac) bact bact.reac_mgr;
+          
+          (* reactions : break *)
+          Reac_mgr.add_break (ImolSet new_ireac) bact.reac_mgr;
+          (* add molecule *)
+          bact.ireactants <-
+            MolMap.add !new_ireac.mol (new_ireac)
+                       bact.ireactants;
           bact.ireactants_qtt <- bact.ireactants_qtt +1
-         
-      )
-      
-  );
-  incr bact.total_mol_qtt;
-  Reac_mgr.update_reaction_rate bact.randomCollision bact.reac_mgr
-
+          
+       |Some ireac ->
+         IRMgr.add_to_qtt ireac 1 bact;
+     )
+    
   
-
+    
 (* *** remove molecule *)
 (* totally removes a molecule from a bactery *)
 
 let remove_one_reactant (reactant : Reactant.t) (bact : t) : unit =
-  (
-    match reactant with
-    | ImolSet ir ->
-       IRMgr.remove_one ir bact
-    | Amol amol ->
-       ARMgr.remove amol bact
-  );
-  decr bact.total_mol_qtt;
-  Reac_mgr.update_reaction_rate bact.randomCollision bact.reac_mgr
+  match reactant with
+  | ImolSet ir ->
+     IRMgr.remove_one ir bact
+  | Amol amol ->
+     ARMgr.remove amol bact
   
 (* **** execute_actions *)
 (* after a transition from a proteine has occured, *)
