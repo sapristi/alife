@@ -116,7 +116,7 @@ let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
 
   and remove_mol sandbox (cgi : Netcgi.cgi) = 
     let mol = cgi # argument_value "mol_desc" in
-    Bacterie.remove_molecule mol !sandbox;
+    Bacterie.IRMgr.remove_all mol !sandbox;
     get_bact_elements sandbox;
 
   and set_mol_quantity sandbox (cgi : Netcgi.cgi) = 

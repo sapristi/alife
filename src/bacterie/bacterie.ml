@@ -149,7 +149,7 @@ module IRMgr =
       let ir = MolMap.find mol bact.ireactants in
       ir := Reactant.ImolSet.set_ambient ambient !ir
       
-    let remove mol bact =
+    let remove_all mol bact =
       let old_reacs = ref ReacSet.empty
       and old_qtt = ref 0 in
       bact.ireactants <-
@@ -287,9 +287,6 @@ let add_molecule (mol : Molecule.t) (bact : t) : unit =
 
 (* *** remove molecule *)
 (* totally removes a molecule from a bactery *)
-
-let remove_molecule (mol : Molecule.t) (bact : t) : unit =
-  IRMgr.remove mol bact
 
 let remove_one_reactant (reactant : Reactant.t) (bact : t) : unit =
   (
