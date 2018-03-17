@@ -21,28 +21,28 @@ PKG yojson batteries nethttpd ppx_deriving
 
 
 PKG ocamlnet
-CMT /home/sapristi/.opam/4.04.0/build/ocamlnet.4.1.4/_build
+CMT /home/sapristi/.opam/4.06.1/build/ocamlnet.4.1.4/_build
 
 PKG yojson
-CMT /home/sapristi/.opam/4.04.0/build/yojson.1.4.0/_build
+CMT /home/sapristi/.opam/4.06.1/build/yojson.1.4.0/_build
 
 PKG ppx_deriving_yojson
-CMT /home/sapristi/.opam/4.04.0/build/ppx_deriving_yojson.3.0/_build
+CMT /home/sapristi/.opam/4.06.1/build/ppx_deriving_yojson.3.0/_build
 
 PKG ppx_deriving.show
-CMT /home/sapristi/.opam/4.04.0/build/ppx_deriving.4.2/_build
+CMT /home/sapristi/.opam/4.06.1/build/ppx_deriving.4.2/_build
 
 PKG ppx_deriving.ord
-CMT /home/sapristi/.opam/4.04.0/build/ppx_deriving.4.2/_build
+CMT /home/sapristi/.opam/4.06.1/build/ppx_deriving.4.2/_build
 
 PKG ppx_deriving.make
-CMT /home/sapristi/.opam/4.04.0/build/ppx_deriving.4.2/_build
+CMT /home/sapristi/.opam/4.06.1/build/ppx_deriving.4.2/_build
 
 PKG re
-CMT /home/sapristi/.opam/4.04.0/build/re.1.7.1/_build
+CMT /home/sapristi/.opam/4.06.1/build/re.1.7.1/_build
 
 PKG logs
-CMT /home/sapristi/.opam/4.04.0/build/logs.0.6.2/_build
+CMT /home/sapristi/.opam/4.06.1/build/logs.0.6.2/_build
 
 PKG ocamlgraph
-CMT /home/sapristi/.opam/4.04.0/build/ocamlgraph.1.8.8/_build
+CMT /home/sapristi/.opam/4.06.1/build/ocamlgraph.1.8.8/_build
