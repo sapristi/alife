@@ -25,8 +25,7 @@ module rec
             ambient:bool;
           }
         let show (imd : t) =
-          let res = Printf.sprintf "Inert : %s (%i)" imd.mol imd.qtt
-          in Bytes.of_string res
+          Printf.sprintf "Inert : %s (%i)" imd.mol imd.qtt
         let pp (f : Format.formatter) (imd : t) =
           Format.pp_print_string f (show imd)
         let compare (imd1 : t) (imd2 : t) =
@@ -59,8 +58,7 @@ module rec
             reacs : ReacSet.t ref;
           }
         let show am = 
-          let res = Printf.sprintf "Active mol : %s (id : %d)" am.mol am.pnet.uid 
-          in Bytes.of_string res
+          Printf.sprintf "Active mol : %s (id : %d)" am.mol am.pnet.uid 
         let pp f am =
           Format.pp_print_string f (show am)
           
@@ -197,7 +195,7 @@ module rec
                    
         val treat_reaction : t -> Reacs.effect list
         val compare : t -> t -> int
-        val show : t -> bytes
+        val show : t -> string
         val unlink : t -> unit
       end)
   =
@@ -245,8 +243,8 @@ and ReacSet :
     let show (rset :t) =
       fold (fun (reac : Reaction.t) desc ->
           (Reaction.show reac)^"\n"^desc)
-           rset
-           ""
+        rset
+        ""
     let pp (f : Format.formatter) (rset : t) =
       Format.pp_print_string f "reactions set"
   end
