@@ -22,9 +22,17 @@ Flag standalone
 ########
 
 Library "local_libs"
+   FindLibName:local_libs
    Path: src/libs
    Modules : Misc_library
    BuildDepends : batteries
+
+Library "reporter"
+   FindLibName : reporter
+   FindLibParent : local_libs
+   Path: src/libs
+   Modules : Reporter
+
 
 ####################################################################
 # Bactery implementation #
@@ -116,7 +124,7 @@ Library "reac_mgr"
   FindLibParent : bacterie_libs
   Path : src/bacterie
   Modules : Reac_mgr
-  BuildDepends : ppx_deriving.show, logs, ppx_deriving.ord, bacterie.reaction
+  BuildDepends : ppx_deriving.show, logs, ppx_deriving.ord, bacterie.reaction, local_libs.reporter
 
 # Library "molsets"
 #   FindLibName : molsets
