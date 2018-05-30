@@ -61,8 +61,6 @@ type output_arc =
 (* Types used by the extensions. Usefull to use custom types for easier potential changes later on. *)
 type handle_id = string
                    [@@deriving  show, yojson]
-type bind_pattern = string
-                      [@@deriving  show, yojson]
 type receive_pattern = string
                          [@@deriving show,  yojson]
 type msg_format = string
@@ -72,11 +70,6 @@ type extension =
   | Grab_ext of string
   | Release_ext
   | Init_with_token_ext
-  | Bind_ext of string     
-  | Information of string  
-  | Displace_mol of bool
-  | Handle of handle_id   
-  | Catch of bind_pattern
                [@@deriving  show, yojson]
   
      
@@ -118,7 +111,6 @@ module Examples =
         Extension (Release_ext);
         Extension (Init_with_token_ext);
         Extension (Grab_ext "AAFBFAAFF");
-        Extension (Bind_ext "AA");
       ]
 
   end;;

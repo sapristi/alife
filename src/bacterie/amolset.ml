@@ -45,7 +45,7 @@ module ActiveMolSet  = struct
     let (dummy_pnet : Petri_net.t) ={
         mol = ""; transitions = [||];places = [||];
         uid = pid;
-        binders = []; launchables_nb = 0;} in
+        launchables_nb = 0;} in
     let dummy_amd = ref (Reactant.Amol.make_new dummy_pnet)
     in
     !(PnetSet.find dummy_amd aset.pnets).pnet

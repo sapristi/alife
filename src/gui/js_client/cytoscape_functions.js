@@ -64,7 +64,24 @@ make_prot_graph = function(prot_data, container) {
 
 
 // ** pnet
+// *** pnet short names
 
+var arcs_short_names = {
+    "Regular_iarc" : "reg",
+    "Split_iarc"   : "split",
+    "Filter_iarc"  : "filter",
+    "Filter_empty_iarc" : "filter empty",
+    "Regular_oarc" : "reg",
+    "Merge_oarc"   : "merge",
+    "Move oarc"    : "move"
+}
+make_arc_short_name = function(arc_type) {
+    var short_name = arcs_short_names[arc_type[0]];
+    var args = arc_type.slice(1).reduce(
+	function(a,b) {  return a + " " + String(b);},
+	"");
+    return short_name + " " + args
+}
 // *** pnet style
 var pnet_style= [
     {
@@ -122,7 +139,8 @@ var pnet_style= [
         selector : 'edge',
         style: {
             'curve-style' : 'bezier',
-            'target-arrow-shape': 'triangle'
+            'target-arrow-shape': 'triangle',
+	    'label': 'data(label)'
         }
     },
     {
@@ -174,9 +192,8 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
         
 // ***** transition input_arcs
         t.input_arcs.forEach(function(dp) {
-	    var label = dp.iatype.reduce(
-		function(a,b) {  return a + " " + String(b);},
-		"");
+	    console.log(dp);
+	    var label = make_arc_short_name(dp.iatype);
             cy.add({
                 group: "edges",
                 data: {
@@ -189,9 +206,7 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
 	
 // ***** transition output_arcs
         t.output_arcs.forEach(function(dp) {
-	    var label = dp.oatype.reduce(
-		function(a,b) {  return a + " " + String(b);},
-		"");
+	    var label = make_arc_short_name(dp.oatype);
             cy.add({
                 group: "edges",
                 data: {

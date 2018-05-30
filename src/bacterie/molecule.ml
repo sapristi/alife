@@ -151,12 +151,12 @@ let rec mol_parser (s : t) : Proteine.t =
         let s' = Re.Group.get groups 1 in
         Extension Init_with_token_ext :: (mol_parser s')
         
-      else if Re.execp ext_bind_cre s
-      then
-        let groups  = Re.exec ext_tinit_cre s in
-        let b = Re.Group.get groups 1
-        and s' = Re.Group.get groups 2 in
-        Extension (Bind_ext b) :: (mol_parser s')
+      (* else if Re.execp ext_bind_cre s
+       * then
+       *   let groups  = Re.exec ext_tinit_cre s in
+       *   let b = Re.Group.get groups 1
+       *   and s' = Re.Group.get groups 2 in
+       *   Extension (Bind_ext b) :: (mol_parser s') *)
         
       else 
         mol_parser (Str.string_after s 1)
@@ -194,8 +194,6 @@ let rec of_proteine (p : Proteine.t) : t =
        ext_tinit_id 
     | Extension (Grab_ext g) ->
        ext_grab_id ^ g ^msg_end_id
-    | Extension (Bind_ext b) ->
-       ext_bind_id ^ b ^ msg_end_id
   in 
   match p with
   | a :: p' ->
