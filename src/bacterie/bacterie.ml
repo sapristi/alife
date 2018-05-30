@@ -4,15 +4,16 @@
 (* * libs *)
 open Misc_library
 open Reaction
+(* compatibility with yojson before loading batteries *)
 type ('a, 'b) mresult = ('a, 'b) result
 open Batteries
 open Amolset
 
 (* * Container module *)
 
-(* Une bacterie est un conteneur à molecules. Elle s'occupe de fournir l'interprétation d'une molécule en tant que *)
-(* protéine (i.e. pnet), puis d'organiser la simulation des pnet *)
-(* et de leurs interactions. *)
+(* Une bacterie est un conteneur à molecules. Elle s'occupe de fournir  *)
+(* l'interprétation d'une molécule en tant que protéine (i.e. pnet),  *)
+(* puis d'organiser la simulation des pnet et de leurs interactions. *)
 
 (* Pour organiser la simulation, il faut : *)
 (*  - organiser le lancement des transitions *)
@@ -34,8 +35,11 @@ module MolMap =
                              let compare = Pervasives.compare end)
                      (*   include Exceptionless *)
   end
+
   
-  
+(*  + ireactants : inactive reactants, molecules that do not fold into petri net. *)
+(*  + areactants : active reactants, molecules that fold into a petri net. *)
+(*     We thus have to have a distinct pnet for each present molecule *)
 type t =
   {mutable ireactants : (Reactant.ImolSet.t ref) MolMap.t;
    mutable ireactants_qtt : int;
@@ -44,8 +48,14 @@ type t =
    reac_mgr : Reac_mgr.t;
   }
 
-  
-(* ** module to interact with the active reactants *)  
+(* ** module to interact with the active reactants *)
+(*    + add, remove : *)
+(*         takes a ref to an areactant and *)
+(* 	adds it to (removes it from) the bactery *)
+(*    + add_reacs_with_new_reactant : *)
+(*         iterates through the present areactants to *)
+(* 	add the possible reactions with the new reactant *)
+
 module ARMgr =
   struct
 
@@ -67,14 +77,12 @@ module ARMgr =
       bact.areactants_qtt <- bact.areactants_qtt + 1
       
       
-    let remove (amol : Reactant.Amol.t ref) bact =
-      let amolset = MolMap.find !amol.mol bact.areactants in
-      ActiveMolSet.remove amol amolset;
+    let remove (areactant : Reactant.Amol.t ref) bact =
+      let amolset = MolMap.find !areactant.mol bact.areactants in
+      ActiveMolSet.remove areactant amolset;
       bact.areactants_qtt <- bact.areactants_qtt - 1;
-      Reac_mgr.remove_reactions !(!amol.reacs) bact.reac_mgr
+      Reac_mgr.remove_reactions !(!areactant.reacs) bact.reac_mgr
       
-           
-        
       
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
                                     (bact :t) reac_mgr : unit =
@@ -195,16 +203,13 @@ let make_empty ?(rcfg=default_rcfg) () =
       ((fun () -> bact.ireactants_qtt + bact.areactants_qtt),
        (fun () -> random_reactant_pick bact)) bact.reac_mgr;
   bact
-    
-  
-  
 
   
 
 (* *** add_molecule *)
-(* adds single molecule to a container (bactery) We have to take care :  *)
+(* adds single molecule to a container (bactery) We have to take care : *)
 (*   - if the molecule is active, we must create a new active_reactant, *)
-(*     add all possible reactions with this reactant, then add it to  *)
+(*     add all possible reactions with this reactant, then add it to *)
 (*     the bactery (whether or not other molecules of the same species *)
 (*     were already present) *)
 (*   - if the molecule is inactive, the situation depends on whether *)
@@ -212,6 +217,7 @@ let make_empty ?(rcfg=default_rcfg) () =
 (*     + if it was already present, we modify it's quatity and update *)
 (*       related reaction rates *)
 (*     + if it was not, we add the molecules and the possible reactions *)
+  
 let add_molecule (mol : Molecule.t) (bact : t) : unit =
   let new_opnet = Petri_net.make_from_mol mol in
   match new_opnet with

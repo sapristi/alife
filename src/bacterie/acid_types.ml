@@ -1,5 +1,4 @@
 
-
 (* * defining types for acids *)
 (* ** description générale :in_progress: *)
 (*    Implémentation des types différents acides. Voilà en gros l'organisation : *)
@@ -59,40 +58,38 @@ type output_arc =
 
 
 (* *** extension *)
-(* Types used by the extensions. Usefull to use custom types for easier potential changes later on.  *)
+(* Types used by the extensions. Usefull to use custom types for easier potential changes later on. *)
 type handle_id = string
-                   [@@deriving  yojson]
+                   [@@deriving  show, yojson]
 type bind_pattern = string
-                      [@@deriving  yojson]
+                      [@@deriving  show, yojson]
 type receive_pattern = string
-                         [@@deriving  yojson]
+                         [@@deriving show,  yojson]
 type msg_format = string
-                    [@@deriving  yojson]
+                    [@@deriving  show, yojson]
                 
 type extension =
   | Grab_ext of string
   | Release_ext
   | Init_with_token_ext
-  | Bind_ext of string
-          
-[@@deriving  show, yojson]
+  | Bind_ext of string     
+  | Information of string  
+  | Displace_mol of bool
+  | Handle of handle_id   
+  | Catch of bind_pattern
+               [@@deriving  show, yojson]
   
-(*      
-      | Information of string  
-      | Displace_mol of bool
-      | Handle of handle_id   
-      | Catch of bind_pattern *)
-
+     
 
   
 (* ** type definitions *)
 (* *** acid type definition *)
-(*     We define how the abstract types get combined to form functional  *)
+(*     We define how the abstract types get combined to form functional *)
 (*     types to eventually create petri net *)
 (*       + Node : used as a token placeholder in the petri net *)
-(*       + TransitionInput :  an incomming edge into a transition of the  *)
+(*       + TransitionInput :  an incomming edge into a transition of the *)
 (*       petri net *)
-(*       + a transition output : an outgoing edge into a transition of the  *)
+(*       + a transition output : an outgoing edge into a transition of the *)
 (*       petri net *)
 (*       + a piece of information : ???? *)
   
@@ -101,9 +98,8 @@ type acid =
   | InputArc of string * input_arc
   | OutputArc of string * output_arc
   | Extension of extension
-                   [@@deriving yojson]
+               [@@deriving  show, yojson]
 
-          
 (* * AcidExamples module *)
   
 module Examples = 
