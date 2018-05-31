@@ -1,0 +1,7 @@
+*.mllib
+*.mldylib
+META
+_build/
+_tags
+configure
+*~
