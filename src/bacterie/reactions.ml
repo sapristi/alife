@@ -1,8 +1,58 @@
 
 open Misc_library
 
+(* * REACTANT Module sig *)
 
+(* ** Module introduction *)
+
+(*      A reactant is a base unit from which we define reactions. *)
+(* We have two reactants for now : *)
+(*  + ImolSet :  a set of inactive molecules *)
+(*    (that is, a molecule and its quantity) *)
+(*  + Amol : an active molecule *)
+
+(* A third reactant in project would be to add *)
+(* an AmolSet, but it'd be a lot more code complexity *)
+(* for a maybe null speed gain. *)
+
+(* ** Module sig description *)
+
+(* *** REACTANT_DEFAULT *)
+(*     Base values and types shared by any reactant *)
+
+(*      + t : the type of the reactant *)
+
+(*      + The reac and reacSet types are left anonymous it'd *)
+(*      otherwise cause cyclic dependancies between a *)
+(*      reaction and a reactant. *)
      
+(*      + show, pp fonctions are here to provide compatibility with *)
+(*      ppx_deriving_show and enable print debug *)
+
+(*      + compare is a function that compares two reactants, *)
+(*      so that we can put them in a treeSet (or treeMap ?) *)
+
+(*      + mol returns the molecule *)
+
+(*      + qtt returns the qtt of reactants (number of molecule instances) *)
+
+(*      + reacs returns the set of reactions in which this reactant takes part *)
+
+(*      + remove_reac and add_reac remove and add respectively a reaction *)
+(*      to reacs, the set of reactions in which this reactant takes part *)
+
+
+(* *** ImolSet and Amolset *)
+
+(*  + make_new : makes a reactant from base ingredients *)
+
+(* *** main module *)
+
+(*     We then define the t type in REACTANT : sum type *)
+(*     of either a ref to a Amol.t or a ref to a ImolSet.t *)
+
+(* ** Module implementation *)
+
 module type REACTANT =
   sig
     type reac

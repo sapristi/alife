@@ -13,6 +13,22 @@ A + B -> AB
 ["OutputArc","A",["Merge_oarc"]]
 ]
 
+AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDF
+
 
 Grabs AB molecules and splits it :
 AB -> A+B
+
+[
+["Place"],
+["Extension",["Grab_ext","FAFB"]],
+["InputArc","A",["Split_iarc"]],
+["Place"],
+["OutputArc","A",["Regular_oarc"]],
+["Extension",["Release_ext"]],
+["Place"],
+["OutputArc","A",["Regular_oarc"]],
+["Extension",["Release_ext"]]
+]
+
+AAAABAFAFBDDFBBAADDFAAACAAADDFABBAAACAAADDFABB
