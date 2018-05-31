@@ -201,8 +201,8 @@ function PNetViewModel(container_id) {
 		self.data(),
 		document.getElementById('pnet_cy'),
 		self);
-	    update_pnet_graph(pnet_cy, self.data());
-            pnet_cy.layout({name:"cose"}).run();
+	    pnet_cy.update(self.data());
+            pnet_cy.run();
 	}
     };
     
@@ -271,7 +271,7 @@ function PNetViewModel(container_id) {
 	    {	
 		self.data(data.data.pnet);
 		self.placeVM.update();
-		update_pnet_graph(pnet_cy, self.data());
+		pnet_cy.update(self.data());
 	    });
     }
     
@@ -289,7 +289,7 @@ function PNetViewModel(container_id) {
 	    {	
 		self.data(data.data.pnet);
 		self.transitionVM.update();
-		update_pnet_graph(pnet_cy, self.data());
+		pnet_cy.update(self.data());
 	    });
 
     }
@@ -305,7 +305,7 @@ function PNetViewModel(container_id) {
 		    self.data(data.data.pnet);
 		    self.placeVM.update();
 		    self.transitionVM.update();
-		    update_pnet_graph(pnet_cy, self.data());
+		    pnet_cy.update(self.data());
 		});
 
 	}

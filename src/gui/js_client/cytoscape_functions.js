@@ -30,10 +30,10 @@ var prot_style =
 		'shape':'diamond'
 	    }
 	}
-    ]
+    ];
 
 // *** proteine graph
-make_prot_graph = function(prot_data, container) {
+var make_prot_graph = function(prot_data, container) {
     var cy = cytoscape({container:container, style:prot_style});
     
     for (var i = 0;i < prot_data.length;i++){
@@ -56,11 +56,11 @@ make_prot_graph = function(prot_data, container) {
     }
 
     cy.on('click', 'node', function(evt){
-	console.log(evt.target.data())
+	console.log(evt.target.data());
     });
     
-    return cy
-}
+    return cy;
+};
 
 
 // ** pnet
@@ -73,17 +73,23 @@ var arcs_short_names = {
     "Filter_empty_iarc" : "filter empty",
     "Regular_oarc" : "reg",
     "Merge_oarc"   : "merge",
-    "Move oarc"    : "move"
-}
-make_arc_short_name = function(arc_type) {
+    "Move_oarc"    : "move"
+};
+var make_arc_short_name = function(arc_type) {
     var short_name = arcs_short_names[arc_type[0]];
     var args = arc_type.slice(1).reduce(
 	function(a,b) {  return a + " " + String(b);},
 	"");
-    return short_name + " " + args
-}
+    return short_name + " " + args;
+};
 // *** pnet style
 var pnet_style= [
+    {
+	selector: ".compound",
+	style : {
+	    "background-opacity" : 0,
+	}
+    },
     {
         selector: '.place',
         style: {
@@ -120,6 +126,11 @@ var pnet_style= [
         style: {
             'shape' : 'rectangle',
             'height' : '20px',
+        }
+    },
+    {
+        selector: '.transition:selected',
+        style: {
 	    'label' : 'data(label)'
         }
     },
@@ -136,40 +147,151 @@ var pnet_style= [
         }
     },
     {
-        selector : 'edge',
+        selector : '.arc',
         style: {
             'curve-style' : 'bezier',
             'target-arrow-shape': 'triangle',
-	    'label': 'data(label)'
+	    'line-color' : "DarkGray",
+	    "opacity" : 0.8,
+	    "mid-source-arrow-color" : "red",
+	    "mid-target-arrow-color" : "red"
         }
     },
     {
-        selector : 'edge:selected',
+        selector : '.arc:selected',
         style: {
-	    'label': 'data(label)'
+	    "width" : "5px",
+	    'line-color' : "darkgray",
+	    'target-arrow-color' : "darkgray",
+	    "opacity" : 1
+        }
+    },
+    {
+        selector : '.arc.split',
+        style: {
+	    "mid-source-arrow-shape" : "vee",
+        }
+    },
+    {
+        selector : '.arc.merge',
+        style: {
+	    "mid-target-arrow-shape" : "vee"
+        }
+    },
+    {
+        selector : '.arc.filter',
+        style: {
+	    "mid-target-arrow-shape" : "triangle-tee",
+	    "label" : function(ele) {
+		return ele._private.data.args[0];}
+        }
+    },
+    {
+        selector : '.arc.move',
+        style: {
+	    "mid-target-arrow-shape" : "circle",
+	    "label" : function(ele) {
+		if (ele._private.data.args[0]) {return "↷";}
+		else {return "↶";}}
+        }
+    },
+    {
+        selector : '.extension',
+        style: {
+	    "width" : "5px",
+	    "height" : "5px",
+	    "background-color" : "green"
         }
     }
 ];
+// *** layout
+// called when displaying the graph
+var make_cola_layout = function(cy_graph) {
+    return {
+	name:"cola",
+	padding:10,
+	avoidOverlap:false,
+	edgeLength : function(edge) {
+	    var res = 0;
+	    if (edge._private.data.type == "extension") {res = 20;}
+	    else {res = 70;}
+	    return res;
+	},
+	infinite : true,
+	fit : false
+    };
+};
+
+var make_coseblk_layout = function(cy_graph) {
+    return {
+	name : "cose-bilkent",
+	nestingFactor : 0.001,
+	gravity : 0,
+	nodeRepulsion : 500,
+	edgeElasticity : 0.1,
+	idealEdgeLength: 30,
+	randomize: true,
+	gravityCompound:50,
+	gravityRangeCompound :50,
+	animate : "during",
+	numIter : 100
+    };
+}
 
 // *** pnet graph
-make_pnet_graph = function(pnet_data, container, eventHandler) {
+var make_pnet_graph = function(pnet_data, container, eventHandler) {
     var cy = new cytoscape(
 	{container:container,
 	 style:pnet_style,
-	 userZoomingEnabled:false
+	 userZoomingEnabled:true,
+	 wheelSensitivity:0.2
 	});
         
     var selected = 0;
     
 // **** places
+
     for (var i = 0;i < pnet_data.places.length;i++){
+	var node = pnet_data.places[i];
+	var node_id = "p"+i;
+
+	// compound
+	cy.add({
+	    group: "nodes",
+	    data : {id:node_id + "_compound"},
+	    classes : "compound"
+	});
+	// place
         cy.add({
             group: "nodes",
-            data: {id :"p"+i,
+            data: {id :node_id,
 		   type : "place",
-		   index : i
+		   index : i,
+		   parent : node_id + "_compound"
 		  },
             classes: "place"});
+	// extensions
+	for (var j=0; j< node.extensions.length; j++) {
+	    var ext = node.extensions[j];
+	    var node_ext_id = node_id + "_" + ext[0];
+	    cy.add({
+		group:"nodes",
+		data: {id: node_ext_id,
+		       parent : node_id+"_compound",
+		      },
+		classes : "extension"
+	    });
+	    cy.add({
+		group:"edges",
+		data:{
+		    source : node_id,
+		    target : node_ext_id,
+		    type : ext[0],
+		    args : ext.slice(1)
+		},
+		classes : "extension" 
+	    });
+	}
     }
 
 // **** transitions
@@ -192,28 +314,37 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
         
 // ***** transition input_arcs
         t.input_arcs.forEach(function(dp) {
-	    console.log(dp);
 	    var label = make_arc_short_name(dp.iatype);
+	    var classes = "arc " + label;
             cy.add({
                 group: "edges",
                 data: {
                     source : "p"+ dp.source_place,
                     target : tname,
                     directed : true,
-		    label: label}
+		    label: label,
+		    type : dp.iatype[0],
+		    args : dp.iatype.slice(1)
+		},
+		classes : classes
             });
         });
 	
 // ***** transition output_arcs
         t.output_arcs.forEach(function(dp) {
 	    var label = make_arc_short_name(dp.oatype);
+	    var classes = "arc " + label;
             cy.add({
                 group: "edges",
                 data: {
                     source : tname,
                     target : "p"+ dp.dest_place,
                     directed : true,
-		    label: label}
+		    label: label,
+		    type : dp.oatype[0],
+		    args : dp.oatype.slice(1)
+		},
+		classes : classes
             });
         });
 
@@ -221,7 +352,7 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
     }
 
 // *** interactions
-    cy.on('select', 'node', function(evt){
+    cy.on('select', '.place', function(evt){
     	eventHandler.set_node_selected(evt.target.data());
 	evt.target.incomers('edge')
 	    .forEach(function(edge){edge.select();});
@@ -233,30 +364,60 @@ make_pnet_graph = function(pnet_data, container, eventHandler) {
     cy.on('unselect', 'node', function(evt){
     	eventHandler.set_node_unselected();
     });
-    
-    return cy;
+
+    var layout = cy.layout(make_cola_layout(cy));
+    cy.contextMenus({
+	menuItems: [
+	    {
+		id:"start",
+		content:"start",
+                tooltipText: 'select all edges',
+                coreAsWell: true,
+		onClickFunction : function(event) {
+		    layout.run();
+		}
+	    },
+	    {
+		id:"stop",
+		content:"stop",
+                tooltipText: 'select all edges',
+                coreAsWell: true,
+		onClickFunction : function(event) {
+		    layout.stop();
+		}
+	    },
+	]});
+
+
+    var pnet_cy = {
+	cy : cy,
+	layout : layout,
+	update : function( pnet) {
+	    
+	    for (var i = 0;i < pnet.places.length;i++){
+		
+		if (pnet.places[i].token == null) {
+		    this.cy.$("#p"+i).removeClass("withToken");
+		} else {
+		    this.cy.$("#p"+i).addClass("withToken");
+		}
+	    }
+	    
+	    for (var i = 0; i < pnet.transitions.length;i++) {
+		
+		if (pnet.transitions[i].launchable) {
+		    this.cy.$("#t"+i).addClass("launchable");
+		}else {
+		    this.cy.$("#t"+i).removeClass("launchable");
+		}
+	    }
+	    
+	},
+	run : function() {
+	    // this.cy.layout(make_cola_layout(this.cy)).run()
+	    this.layout.run();
+	}
+    };
+    return pnet_cy;
 }
 
-update_pnet_graph  = function(cy, pnet) {
-    
-    // **** places
-    
-    for (var i = 0;i < pnet.places.length;i++){
-	
-	if (pnet.places[i].token == null) {
-	    cy.$("#p"+i).removeClass("withToken");
-	} else {
-	    cy.$("#p"+i).addClass("withToken");
-	}
-    }
-    
-    for (var i = 0; i < pnet.transitions.length;i++) {
-	
-	if (pnet.transitions[i].launchable) {
-	    cy.$("#t"+i).addClass("launchable");
-	}else {
-	    cy.$("#t"+i).removeClass("launchable");
-	}
-    }
-
-}
