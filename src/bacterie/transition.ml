@@ -1,5 +1,5 @@
 
-open Misc_library
+(*open Misc_library*)
    
 (* * the transition module *)
 (* Module to manage transitions :  *)

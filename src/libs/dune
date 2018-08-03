@@ -1,0 +1,4 @@
+(library
+ (name        local_libs)
+ (flags -w)
+ (libraries batteries))

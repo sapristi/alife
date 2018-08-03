@@ -1,48 +1,48 @@
 # structure of my awesome project
 
-S src
-S src/bacterie
-S src/reactors
-S src/gui
-S src/gui/server
-S src/gui/bact_simul
-S src/libs
+# S src
+# S src/bacterie
+# S src/reactors
+# S src/gui
+# S src/gui/server
+# S src/gui/bact_simul
+# S src/libs
 
-B _build/src
-B _build/src/bacterie
-B _build/src/reactors
-B _build/src/gui
-B _build/src/gui/server
-B _build/src/gui/bact_simul
-B _build/src/libs
-
-
-PKG yojson batteries nethttpd ppx_deriving
+# B _build/default/src
+# B _build/default/src/bacterie
+# B _build/default/src/reactors
+# B _build/default/src/gui
+# B _build/default/src/gui/server
+# B _build/default/src/gui/bact_simul
+# B _build/default/src/libs
 
 
-PKG ocamlnet
-CMT /home/sapristi/.opam/4.06.1/build/ocamlnet.4.1.4/_build
+# PKG yojson batteries nethttpd ppx_deriving ppx_deriving_yojson
 
-PKG yojson
-CMT /home/sapristi/.opam/4.06.1/build/yojson.1.4.0/_build
 
-PKG ppx_deriving_yojson
-CMT /home/sapristi/.opam/4.06.1/build/ppx_deriving_yojson.3.0/_build
+# PKG ocamlnet
+# CMT /home/sapristi/.opam/4.06.1/build/ocamlnet.4.1.4/_build
 
-PKG ppx_deriving.show
-CMT /home/sapristi/.opam/4.06.1/build/ppx_deriving.4.2/_build
+# PKG yojson
+# CMT /home/sapristi/.opam/4.06.1/build/yojson.1.4.0/_build
 
-PKG ppx_deriving.ord
-CMT /home/sapristi/.opam/4.06.1/build/ppx_deriving.4.2/_build
+# PKG ppx_deriving_yojson
+# CMT /home/sapristi/.opam/4.06.1/build/ppx_deriving_yojson.3.0/_build
 
-PKG ppx_deriving.make
-CMT /home/sapristi/.opam/4.06.1/build/ppx_deriving.4.2/_build
+# PKG ppx_deriving.show
+# CMT /home/sapristi/.opam/4.06.1/build/ppx_deriving.4.2/_build
 
-PKG re
-CMT /home/sapristi/.opam/4.06.1/build/re.1.7.1/_build
+# PKG ppx_deriving.ord
+# CMT /home/sapristi/.opam/4.06.1/build/ppx_deriving.4.2/_build
 
-PKG logs
-CMT /home/sapristi/.opam/4.06.1/build/logs.0.6.2/_build
+# PKG ppx_deriving.make
+# CMT /home/sapristi/.opam/4.06.1/build/ppx_deriving.4.2/_build
 
-PKG ocamlgraph
-CMT /home/sapristi/.opam/4.06.1/build/ocamlgraph.1.8.8/_build
+# PKG re
+# CMT /home/sapristi/.opam/4.06.1/build/re.1.7.1/_build
+
+# PKG logs
+# CMT /home/sapristi/.opam/4.06.1/build/logs.0.6.2/_build
+
+# PKG ocamlgraph
+# CMT /home/sapristi/.opam/4.06.1/build/ocamlgraph.1.8.8/_build

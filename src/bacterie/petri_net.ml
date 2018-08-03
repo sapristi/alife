@@ -25,8 +25,7 @@
 
 
 open Batteries
-open Misc_library
-open Maps
+open Local_libs
 
 
 (* * the proteine module *)
@@ -89,7 +88,7 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
                       | Some b -> (index, b) :: res)
                     [] places
     in
-    let uid = idProvider#get_id ()
+    let uid = Misc_library.idProvider#get_id ()
     in
     let launchables_nb = 
       Array.fold_left
@@ -128,7 +127,7 @@ let launch_random_transition (p : t)
   let launchables = Array.filter (fun (t:Transition.t) -> t.launchable) p.transitions in
   if Array.length launchables > 0
   then 
-    let t = random_pick_from_array launchables in
+    let t = Misc_library.random_pick_from_array launchables in
     Transition.apply_transition t
   else []
   

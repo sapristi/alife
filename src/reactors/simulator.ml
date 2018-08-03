@@ -1,3 +1,6 @@
+open Local_libs
+
+open Bacterie_libs
 
 type config = {
     reacs_config : Reac_mgr.config;

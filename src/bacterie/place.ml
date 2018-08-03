@@ -1,5 +1,3 @@
-open Misc_library
-
    
 (* * the place module *)
 
@@ -9,7 +7,8 @@ open Misc_library
 
 (* ** divers *)
    
-type place_exts = Acid_types.extension list;;
+type place_exts = Acid_types.extension list
+
 type t =
   {mutable token : Token.t option;
    extensions : Acid_types.extension list;

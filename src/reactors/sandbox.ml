@@ -1,3 +1,6 @@
+
+open Bacterie_libs
+
 type t = Bacterie.t ref
 
   
