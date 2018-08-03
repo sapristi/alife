@@ -1,0 +1,10 @@
+*.mllib
+*.mldylib
+
+_tags
+configure
+
+myocamlbuild.ml
+setup.ml
+
+META
