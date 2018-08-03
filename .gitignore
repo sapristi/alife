@@ -1,3 +1,4 @@
+
 *.mllib
 *.mldylib
 
@@ -13,3 +14,5 @@ setup.log
 META
 
 _build/
+
+*.byte

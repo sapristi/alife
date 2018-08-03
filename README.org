@@ -16,8 +16,11 @@
     + batteries
     + ppx\under{}deriving\under{}yojson
     + ocamlgraph
+    + re
+    + logs
+    + ocamlnet
 
-      (install with opam)
+    (install with opam)
 
 ** Install
    
