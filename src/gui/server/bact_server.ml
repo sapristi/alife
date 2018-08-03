@@ -1,9 +1,9 @@
 (* * simulation server *)
 
 (* ** preamble*)
-(* open Sim_req_handler *)
+open Sim_req_handler
 open Logs
-(* open Sandbox_req_handler *)
+open Sandbox_req_handler
 
 type req_return_type = 
   | Message of string
