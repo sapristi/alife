@@ -6,5 +6,10 @@ configure
 
 myocamlbuild.ml
 setup.ml
+setup.data
+setup.log
+
 
 META
+
+_build/
