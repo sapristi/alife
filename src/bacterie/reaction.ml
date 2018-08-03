@@ -25,7 +25,7 @@ module rec MolData :
         String.compare imd1.mol imd2.mol
       let show (imd : t) =
         let res = Printf.sprintf "Inert : %s (%i)" imd.mol imd.qtt
-        in Bytes.of_string res
+        in res
          
       let pp (f : Format.formatter)
              (imd : t)
@@ -53,7 +53,7 @@ module rec MolData :
         
       let show (amd : t) =
         let res = Printf.sprintf "Active : %s" amd.mol
-        in Bytes.of_string res
+        in res
          
       let pp (f : Format.formatter)
              (amd : t)
@@ -156,7 +156,7 @@ end
              
            val treat_reaction : t -> MolData.reaction_effect list
            val compare : t -> t -> int
-           val show : t -> bytes
+           val show : t -> string
            val unlink : t -> unit
          end)
      =
@@ -211,7 +211,7 @@ end
        
        include Set.Make (Reaction)
            
-       let show (rset :t) =
+       let show (rset :t) : string =
          fold (fun (reac : Reaction.t) desc ->
              (Reaction.show reac)^"\n"^desc)
               rset

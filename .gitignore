@@ -5,6 +5,11 @@ setup.ml
 myocamlbuild.ml
 configure
 
-_tags
+setup.data
+setup.log
 
+_tags
+_build/
 META
+
+*.byte

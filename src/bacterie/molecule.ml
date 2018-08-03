@@ -50,19 +50,19 @@ and ext_tinit_re =  "^"^ext_tinit_id^"(.*)"
 and ext_bind_re = "^"^ext_bind_id^"(.*?)"^msg_end_id^"(.*)"
 
                    
-let place_cre = Re.compile (Re_perl.re place_re)
-and ia_reg_cre = Re.compile (Re_perl.re ia_reg_re)
-and ia_split_cre = Re.compile (Re_perl.re ia_split_re)
-and ia_filter_cre = Re.compile (Re_perl.re ia_filter_re)
-and ia_filter_empty_cre = Re.compile (Re_perl.re ia_filter_empty_re)
-and oa_reg_cre = Re.compile (Re_perl.re oa_reg_re)
-and oa_merge_cre = Re.compile (Re_perl.re oa_merge_re)
-and oa_move_fw_cre = Re.compile (Re_perl.re oa_move_fw_re)
-and oa_move_bw_cre = Re.compile (Re_perl.re oa_move_bw_re)
-and ext_grab_cre = Re.compile (Re_perl.re ext_grab_re)
-and ext_rel_cre = Re.compile (Re_perl.re ext_rel_re)
-and ext_tinit_cre = Re.compile (Re_perl.re ext_tinit_re)
-and ext_bind_cre = Re.compile (Re_perl.re ext_bind_re)
+let place_cre = Re.compile (Re.Perl.re place_re)
+and ia_reg_cre = Re.compile (Re.Perl.re ia_reg_re)
+and ia_split_cre = Re.compile (Re.Perl.re ia_split_re)
+and ia_filter_cre = Re.compile (Re.Perl.re ia_filter_re)
+and ia_filter_empty_cre = Re.compile (Re.Perl.re ia_filter_empty_re)
+and oa_reg_cre = Re.compile (Re.Perl.re oa_reg_re)
+and oa_merge_cre = Re.compile (Re.Perl.re oa_merge_re)
+and oa_move_fw_cre = Re.compile (Re.Perl.re oa_move_fw_re)
+and oa_move_bw_cre = Re.compile (Re.Perl.re oa_move_bw_re)
+and ext_grab_cre = Re.compile (Re.Perl.re ext_grab_re)
+and ext_rel_cre = Re.compile (Re.Perl.re ext_rel_re)
+and ext_tinit_cre = Re.compile (Re.Perl.re ext_tinit_re)
+and ext_bind_cre = Re.compile (Re.Perl.re ext_bind_re)
                  
 let rec mol_parser (s : t) : Proteine.t =
   if s = ""
