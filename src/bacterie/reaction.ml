@@ -67,6 +67,7 @@ module rec
             reacs : ReacSet.t ref;
             ambient:bool;
           }
+
         let show (imd : t) =
           Printf.sprintf "Inert : %s (%i)" imd.mol imd.qtt
         let pp (f : Format.formatter) (imd : t) =
@@ -84,13 +85,15 @@ module rec
           
         let set_qtt qtt (ims : t)=
           {ims with qtt = qtt}
-        let make_new ?(ambient=false) mol : t =
-          {mol; qtt=1; reacs = (ref ReacSet.empty);ambient}
+        let make_new mol : t =
+          {mol; qtt=1; reacs = (ref ReacSet.empty);ambient=false}
         let add_reac (reac : Reaction.t) (imd : t) =
           imd.reacs := ReacSet.add reac !(imd.reacs)
         let remove_reac (reac : Reaction.t) (imd : t) =
           imd.reacs := ReacSet.remove reac !(imd.reacs)
-          
+        let set_ambient ambient ims =
+          {ims with ambient = ambient}
+
       end
       
 (* *** Amol :    reactant with one active molecule *)
@@ -103,6 +106,7 @@ module rec
           }
         let show am = 
           Printf.sprintf "Active mol : %s (id : %d)" am.mol am.pnet.uid 
+
         let pp f am =
           Format.pp_print_string f (show am)
 
@@ -200,6 +204,7 @@ module rec
              | Update_reacs of Reactant.reacSet
              | Release_mol of Molecule.t
              | Release_tokens of Token.t list
+             | RandomCollision
            module type REAC =
              sig
                type t
@@ -225,6 +230,9 @@ module rec
 
            module Break :
            (REAC with type build_t = (Reactant.t))
+
+           module RandomCollision :
+           (REAC with type build_t = ((unit -> int) * (unit -> Reactant.t)))
          end)
      = struct
      include ReactionsM(Reactant) 
@@ -233,6 +241,7 @@ module rec
 (* ** Reaction  *)
    and Reaction :
          (sig
+
            type t  =
              | Grab of Reacs.Grab.t ref
              | Transition of Reacs.Transition.t ref
@@ -258,8 +267,7 @@ module rec
          | Transition t -> Transition.rate (!t)
          | Grab g -> Grab.rate (!g)
          | Break ba -> Break.rate !ba
-                     
-       let treat_reaction r  : effect list=
+      let treat_reaction r  : effect list=
          match r with
          | Transition t -> Transition.eval !t
          | Grab g -> Grab.eval !g
@@ -273,6 +281,7 @@ module rec
      end
      
      
+
 (* ** ReacSet module *)
    and ReacSet :
          (sig
@@ -287,6 +296,7 @@ module rec
        let show (rset :t) =
          fold (fun (reac : Reaction.t) desc ->
              (Reaction.show reac)^"\n"^desc)
+
            rset
            ""
        let pp (f : Format.formatter) (rset : t) =

@@ -1,11 +1,13 @@
 
 
-open Logs
+
 open Batteries
 open Reaction
    
+
 let src = Logs.Src.create "reactions" ~doc:"logs reacs events"
 module Log = (val Logs.src_log src : Logs.LOG)
+
 
 (* * file overview *)
   
@@ -58,66 +60,115 @@ module MakeReacSet (Reac : Reacs.REAC) =
     type elt = Reac.t
     module RSet= Set.Make(Reac)  
                
-    type t = {mutable total_rate : float;
+    type t = {mutable rates_sum : float;
               mutable set : RSet.t;
               modifier : float}
+
+    let total_rate s =
+      s.rates_sum *. s.modifier
     let make_empty (modifier : float) : t =
-      {total_rate = 0.;
+      {rates_sum = 0.;
        set = RSet.empty;
        modifier;}
 
     let remove r s =
       let rate = Reac.rate r in
       s.set <- RSet.remove r s.set;
-      s.total_rate <- s.total_rate -. rate
+      s.rates_sum <- s.rates_sum -. rate
 
     let add r s =
       s.set <- RSet.add r s.set;
-      s.total_rate <- s.total_rate +. (Reac.rate r)
+      s.rates_sum <- s.rates_sum +. (Reac.rate r)
       
     let update_rate r s =
       let rate_delta = Reac.update_rate r in
-      s.total_rate <- s.total_rate +. rate_delta
+      s.rates_sum <- s.rates_sum +. rate_delta
       
     let show (s : t) =
       RSet.fold (fun (e : elt) desc ->
           (Reac.show e)^"\n"^desc) s.set ""
       
-    let rec pick_reaction_aux (b : float) (c : float)
-                          (l : Reac.t list)  = 
-      match l with
-      | h::t ->
-         let c' = c +. Reac.rate h in
-         if c' > b then h
-         else pick_reaction_aux b c' t
-      | [] -> failwith "pick_reaction @ reactions.ml : can't find reaction"
-            
     let pick_reaction (s : t) =
-      pick_reaction_aux (Random.float s.total_rate) 0.
-                        (RSet.elements s.set)
+      Misc_library.pick_from_list (Random.float s.rates_sum) 0.
+                                  Reac.rate
+                                  (RSet.elements s.set)
       
 end
 
+module MakeAutoUpdatingReacSet (Reac : Reacs.REAC) = 
+  struct
+    type elt = Reac.t
+    module RSet= Set.Make(Reac)  
+               
+    type t = {mutable total_rate : float;
+              mutable set : RSet.t;
+              modifier : float}
+    let make_empty (modifier : float) : t =
+      {total_rate = 0.; set = RSet.empty;  modifier;}
+
+    let remove r s = s.set <- RSet.remove r s.set
+    let add r s = s.set <- RSet.add r s.set
+    let update_rate r s = ()
+    let total_rate s =
+      s.total_rate <-
+        RSet.fold
+        (fun r res -> Reac.rate r +. res)
+        s.set 0.;
+      s.total_rate
+      
+    let show (s : t) =
+      RSet.fold (fun (e : elt) desc ->
+          (Reac.show e)^"\n"^desc) s.set ""
+      
+    let pick_reaction (s : t) =
+      Misc_library.pick_from_list (Random.float s.total_rate) 0.
+                                  Reac.rate
+                                  (RSet.elements s.set)
+      
+end
 module GSet = MakeReacSet(Reacs.Grab)
 module TSet = MakeReacSet(Reacs.Transition)
 module BSet = MakeReacSet(Reacs.Break)
+
+module RCSet = MakeAutoUpdatingReacSet(Reacs.RandomCollision)
+
 
 (* * module defs *)
 
 type config = { transition_rate : float;
                 grab_rate : float;
-                break_rate : float;}
+                break_rate : float;
+                random_collision_rate:float}
                 [@@ deriving yojson]       
 type t =
   { t_set :  TSet.t;
     g_set :  GSet.t;
     b_set :  BSet.t;
+    rc_set : RCSet.t;
+    mutable reac_nb : int;
+    mutable reporter : Reporter.reporter;
   }
 
+
+
+  
 let make_new (config : config) =
-  {t_set = TSet.make_empty config.transition_rate;
-   g_set = GSet.make_empty config.grab_rate;
-   b_set = BSet.make_empty config.break_rate;}
+  let res = 
+    {t_set = TSet.make_empty config.transition_rate;
+     g_set = GSet.make_empty config.grab_rate;
+     b_set = BSet.make_empty config.break_rate;
+     rc_set = RCSet.make_empty config.random_collision_rate;
+     reac_nb = 0;
+     reporter = Reporter.empty_reporter;
+    } in
+  res.reporter <- 
+    {
+      loggers = [Reporter.cli_logger; Reporter.make_file_logger "reactions"];
+      prefix = (fun () -> (Printf.sprintf "[%d]\n" res.reac_nb));
+      suffix = (fun () -> "");
+    };
+  res
+
   
 let remove_reactions reactions reac_mgr =
   ReacSet.iter
@@ -132,7 +183,8 @@ let remove_reactions reactions reac_mgr =
 
       | Break b ->
          BSet.remove !b reac_mgr.b_set;
-
+      | RandomCollision rc ->
+         RCSet.remove !rc reac_mgr.rc_set;
     ) reactions
 
 (* **** collision *)
@@ -151,9 +203,17 @@ let remove_reactions reactions reac_mgr =
 let add_grab (graber_d : Reactant.Amol.t ref)
              (grabed_d : Reactant.t ) (reac_mgr :t)  =
 
+
   Log.debug (fun m -> m "added new grab between : %s\n%s"
                         (Reactant.Amol.show !graber_d)
                         (Reactant.show grabed_d));
+
+  Reporter.report
+    reac_mgr.reporter
+    (Printf.sprintf "added new grab between : %s\n%s"
+       (Reactant.Amol.show !graber_d)
+       (Reactant.show grabed_d));
+
   
   let (g:Reacs.Grab.t) = Reacs.Grab.make (graber_d,grabed_d)   in
   GSet.add g reac_mgr.g_set;
@@ -167,7 +227,14 @@ let add_grab (graber_d : Reactant.Amol.t ref)
   
            
 let add_transition amd reac_mgr  =
+
   Log.debug (fun m -> m "added new transition : %s"
+
+
+  Reporter.report
+    reac_mgr.reporter
+    (Printf.sprintf "added new transition : %s"
+
                         (Reactant.Amol.show !amd));
   
   let t = Reacs.Transition.make amd   in
@@ -177,9 +244,14 @@ let add_transition amd reac_mgr  =
   Reactant.Amol.add_reac rt !amd
 
 
-(* ** BreakInert *)
+(* ** Break *)
 let add_break md reac_mgr =
+
   Log.debug (fun m -> m "added new break : %s"
+  
+  Reporter.report
+    reac_mgr.reporter
+    (Printf.sprintf "added new break : %s"
                         (Reactant.show md));
   
   let b = Reacs.Break.make md in
@@ -188,42 +260,53 @@ let add_break md reac_mgr =
   let rb = Reaction.Break (ref b) in
   Reactant.add_reac rb md
 
-
+let add_random_collision tmq reac_mgr =
+  let rc = Reacs.RandomCollision.make tmq in
+  
+  Reporter.report
+    reac_mgr.reporter
+    (Printf.sprintf "added new RandomCollision");
+  RCSet.add rc reac_mgr.rc_set
   
   
 (* ** pick next reaction *)
 (* replace to_list with to_enum ? *)
 let pick_next_reaction (reac_mgr:t) : Reaction.t option=
 
-  let total_g_rate = reac_mgr.g_set.total_rate
-                     *. reac_mgr.g_set.modifier
-  and total_t_rate = reac_mgr.t_set.total_rate
-                     *. reac_mgr.t_set.modifier
-  and total_b_rate = reac_mgr.b_set.total_rate
-                    *. reac_mgr.b_set.modifier
+  let total_g_rate = GSet.total_rate reac_mgr.g_set
+  and total_t_rate = TSet.total_rate reac_mgr.t_set
+  and total_b_rate = BSet.total_rate reac_mgr.b_set
+  and total_rc_rate = RCSet.total_rate reac_mgr.rc_set
   in
 
   
-
-  Log.info (fun m -> m "picking next reaction in\n 
+  Reporter.report
+    reac_mgr.reporter
+    (Printf.sprintf "picking next reaction in\n 
                         Grabs (total : %f):\n%s\n
                         Transitions (total : %f):\n%s\n
-                        Breaks (total : %f):\n%s"
+                        Breaks (total : %f):\n%s\n
+                        RandomCollision (total :%f)\n%s"
                        total_g_rate
                        (GSet.show reac_mgr.g_set)
                        total_t_rate
                        (TSet.show reac_mgr.t_set)
                        total_b_rate
-                       (BSet.show reac_mgr.b_set));
+                       (BSet.show reac_mgr.b_set)
+                       total_rc_rate
+                       (RCSet.show reac_mgr.rc_set)
+           );
   
   
   let a0 = (total_g_rate) +. (total_t_rate)
-           +. (total_b_rate)
+           +. (total_b_rate) +.  total_rc_rate
   in
   if a0 = 0.
   then
     (
-      Log.info (fun m -> m "No reaction available");
+  Reporter.report
+    reac_mgr.reporter
+    (Printf.sprintf "No reaction available");
       None
     )
   else
@@ -237,15 +320,20 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       else if bound < total_g_rate +. total_t_rate
       then 
         Reaction.Transition ( ref (TSet.pick_reaction reac_mgr.t_set))
-      else 
+      else if  bound < total_g_rate +. total_t_rate +. total_b_rate
+      then
         Reaction.Break (ref (BSet.pick_reaction reac_mgr.b_set))
+      else
+        Reaction.RandomCollision (ref (RCSet.pick_reaction reac_mgr.rc_set))
     in
-    Log.info (fun m -> m "picked %s" (Reaction.show res));
+  Reporter.report
+    reac_mgr.reporter
+    (Printf.sprintf "picked %s" (Reaction.show res));
     Some res
 
 (* ** update_reaction_rates *)
     
-let rec update_reaction_rates (reac : Reaction.t) reac_mgr=
+let rec update_reaction_rate (reac : Reaction.t) reac_mgr=
   match reac with
   | Grab g -> 
      GSet.update_rate !g reac_mgr.g_set
@@ -254,6 +342,13 @@ let rec update_reaction_rates (reac : Reaction.t) reac_mgr=
   | Break b ->
      BSet.update_rate !b reac_mgr.b_set
 
+
+    
+let update_rates (reactions : ReacSet.t) reac_mgr =
+  ReacSet.iter
+    (fun reac ->
+      update_reaction_rate reac reac_mgr)
+    reactions
 
 
 (* ** too complicated stuff *)

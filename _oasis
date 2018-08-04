@@ -1,0 +1,221 @@
+
+Name: alife
+Version: 0.1
+Synopsis: Simulating life and stuff
+Authors: Mathias Millet <mathiasmillet@gmail.com>
+License: LGPL with OCaml linking exception
+
+
+Homepage: http://127.0.0.1
+
+
+OASISFormat: 0.4
+BuildTools: ocamlbuild
+Plugins: META (0.4), DevFiles (0.4)
+
+Flag standalone
+     Description : "builds a standalone executable"
+
+
+###################################################################
+# Libs #
+########
+
+Library "local_libs"
+   FindLibName:local_libs
+   Path: src/libs
+   Modules : Misc_library
+   BuildDepends : batteries
+
+Library "reporter"
+   FindLibName : reporter
+   FindLibParent : local_libs
+   Path: src/libs
+   Modules : Reporter
+
+
+####################################################################
+# Bactery implementation #
+##########################
+
+Library "acid_types"
+  FindLibName : acid_types
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Acid_types
+  BuildDepends: 
+
+
+Library "graber"	
+  FindLibName : graber
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Graber
+  BuildDepends: 
+
+
+Library "molecule"	
+  FindLibName : molecule
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Molecule
+  BuildDepends: local_libs, yojson, ppx_deriving_yojson, re, re.perl
+
+
+Library "proteine"	
+  FindLibName : proteine
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Proteine
+  BuildDepends: local_libs, yojson, ppx_deriving_yojson,  bacterie_libs.molecule
+
+Library "token"
+  FindLibName : token
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Token
+  BuildDepends : local_libs,  bacterie_libs.molecule, bacterie_libs.proteine, yojson, ppx_deriving_yojson
+
+Library "place"
+  FindLibName : place
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Place
+  BuildDepends : local_libs, bacterie_libs.proteine, bacterie_libs.token, yojson, ppx_deriving_yojson
+
+Library "transition"
+  FindLibName : transition
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Transition
+  BuildDepends : local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, yojson, ppx_deriving_yojson
+
+Library "petri_net"
+  FindLibName : petri_net
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Petri_net
+  BuildDepends: batteries, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, local_libs, yojson, ppx_deriving_yojson
+
+Library "reactions"
+  FindLibName : reactions
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Reactions
+  BuildDepends : ppx_deriving.show, logs, ppx_deriving.ord
+
+Library "reaction"
+  FindLibName : reaction
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Reaction
+  BuildDepends : ppx_deriving.show, logs, ppx_deriving.ord, bacterie_libs.reactions
+
+
+Library "reac_mgr"
+  FindLibName : reac_mgr
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Reac_mgr
+  BuildDepends : ppx_deriving.show, logs, ppx_deriving.ord, bacterie_libs.reaction, local_libs.reporter
+
+# Library "molsets"
+#   FindLibName : molsets
+#   FindLibParent : bacterie_libs
+#   Path : src/bacterie
+#   Modules : Molsets
+#   BuildDepends :  bacterie_libs.reaction
+
+Library "amolset"
+  FindLibName : amolset
+  FindLibParent : bacterie_libs
+  Path : src/bacterie
+  Modules : Amolset
+  BuildDepends : ppx_deriving.show, logs, ppx_deriving.ord, bacterie_libs.reaction
+
+
+Library "bacterie"
+  FindLibName : bacterie
+  FindLibParent : bacterie_libs
+  Path: src/bacterie
+  Modules: Bacterie
+  BuildDepends: local_libs, bacterie_libs.proteine, bacterie_libs.token, bacterie_libs.place, bacterie_libs.transition, bacterie_libs.petri_net, batteries, bacterie_libs.reac_mgr, bacterie_libs.amolset
+
+Library "bacterie_libs"
+  FindLibName : bacterie_libs
+  Path : src/bacterie
+  Modules : Bacterie_libs
+
+
+
+###################################################################
+# Reactors #
+############
+Library "simulator"
+  FindLibName : simulator
+  FindLibParent : reactors
+  Path : src/reactors
+  Modules : Simulator
+  BuildDepends : bacterie_libs.bacterie, logs, ppx_deriving.make, bacterie_libs.reac_mgr, ppx_deriving_yojson
+
+Library "sandbox"
+  FindLibName : sandbox
+  FindLibParent : reactors
+  Path : src/reactors
+  Modules : Sandbox
+  BuildDepends : bacterie_libs.bacterie
+
+Library "reactors"
+  FindLibName : reactors
+  Path : src/reactors
+  Modules : Reactors
+
+##################################################################
+# Gui Server #
+##############
+
+Library "web_server"
+  FindLibName : web_server
+  FindLibParent : servers
+  Path: src/gui/server/
+  Modules: Web_server
+  BuildDepends: nethttpd
+
+Library "sim_req_handler"
+  FindLibName : sim_req_handler
+  FindLibParent : servers
+  Path: src/gui/server
+  Modules: Sim_req_handler
+  BuildDepends: unix, yojson, ppx_deriving_yojson, reactors.simulator
+
+Library "sandbox_req_handler"
+  FindLibName : sandbox_req_handler
+  FindLibParent : servers
+  Path: src/gui/server
+  Modules: Sandbox_req_handler
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie_libs.bacterie, bacterie_libs.molecule, logs, reactors.sandbox
+
+Library "bact_server"
+  FindLibName : bact_server
+  FindLibParent : servers
+  Path: src/gui/server
+  Modules: Bact_server
+  BuildDepends: unix, bacterie_libs.proteine, bacterie_libs.petri_net, bacterie_libs.bacterie, bacterie_libs.molecule,  servers.web_server, servers.sim_req_handler, servers.sandbox_req_handler, logs
+
+
+Library "servers"
+  FindLibName : servers
+  Path : src/gui/server
+  Modules : Servers
+###################################################################
+
+
+Executable "web_bact_server"
+  Path : src/
+  MainIs : web_bact_server.ml
+  BuildDepends : bacterie_libs.bacterie, bacterie_libs.proteine, bacterie_libs.molecule,  batteries,  servers.bact_server, logs
+  ByteOpt:  -g
+  Custom : true
+
+###################################################################
+

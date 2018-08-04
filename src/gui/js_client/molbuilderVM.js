@@ -30,11 +30,12 @@ function MolBuilderViewModel (simVM) {
 	
 	self.pnet_cy = new make_pnet_graph(
 	    self.data.pnet,
-	    document.getElementById("molbuilder_pnet_cy"),
-	    self
-	);
+	    document.getElementById('molbuilder_pnet_cy'),
+	    self);
+	self.pnet_cy.update(self.data.pnet);
+        self.pnet_cy.run();
+
 	
-        self.pnet_cy.layout({name:"cose"}).run();
     };
 
     

@@ -14,25 +14,26 @@ type t =
    extensions : Acid_types.extension list;
    index : int;
    graber : Graber.t option;
-   binder : string option;
   }
     [@@deriving show, yojson]
 (* **** make a place *)
 
-let make_binders_grabers extensions = 
+(*    Filters valid grab extensions from the *)
+(* extensions list. Could be rewriten with a  *)
+(* filter *)
+  
+let make_grabers extensions = 
     List.fold_left
-      (fun (gl,bl) acide ->
+      (fun gl acide ->
         match acide with
         | Acid_types.Grab_ext g ->
            (
              match Graber.make g with
-             | Some g' -> (g'::gl,bl)
-             | None -> gl,bl
+             | Some g' -> g'::gl
+             | None -> gl
            )
-        | Acid_types.Bind_ext b ->
-           gl, b :: bl
-        | _ -> gl, bl)
-      ([],[]) extensions
+        | _ -> gl)
+      [] extensions
   
 let make (exts_list : place_exts) (index : int)
     : t =
@@ -45,18 +46,14 @@ let make (exts_list : place_exts) (index : int)
     else
       None
     
-  and graber,binder =
-    match make_binders_grabers extensions with
-    | [], [] -> None, None
-    | g::_, [] -> Some g, None
-    | [], b::_ -> None, Some b
-    | g::_, b::_ -> Some g, Some b
-  in
+  and graber =
+    match make_grabers extensions with
+    | [] -> None
+    | g::_ -> Some g  in
   {token;
    extensions;
    index;
-   graber;
-   binder}
+   graber;}
   
 let pop_token (p : t) : Token.t =
   match p.token with
@@ -78,6 +75,7 @@ let set_token (token : Token.t) (p : t) : unit =
 type transition_effect =
   | Message_effect of string
   | Release_effect of Molecule.t
+
 (* ** Token reçu d'une transition. *)
 (* **** TODO ajouter les effets de bords générés par les extensions *)
 let add_token_from_transition (inputToken : Token.t) (place : t) =

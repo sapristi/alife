@@ -1,6 +1,7 @@
 
 open Local_libs.Misc_library
 
+
 (* * file overview *)
 
 (*   Defines a functor that takes a Reactant module and makes reactions out *)
@@ -45,6 +46,7 @@ open Local_libs.Misc_library
 
 (* * REACTANT signature *)
   
+
 module type REACTANT =
   sig
     type reac
@@ -73,9 +75,10 @@ module type REACTANT =
             reacs : reacSet ref;
             ambient:bool;
           }
-      val make_new : ?ambient:bool -> Molecule.t -> t
+      val make_new : Molecule.t -> t
       val add_to_qtt : int -> t -> t
       val set_qtt : int ->  t -> t
+      val set_ambient : bool -> t -> t
       include REACTANT_DEFAULT
               with type t := t
               and type reac := reac
@@ -129,11 +132,6 @@ module ReactionsM (R : REACTANT) =
   struct
     type effect =
       | T_effects of Place.transition_effect list
-                              (* handles the side effects of removing
-                                 an element, e.g. removing a pnet
-                                 will release the tokens
-                                 (this means the tokens won't interact
-                                 with the grabing molecule ? *)
       | Remove_one of R.t
       | Update_reacs of R.reacSet
       | Release_mol of Molecule.t
@@ -192,7 +190,6 @@ module ReactionsM (R : REACTANT) =
             (!(g.graber_data).pnet));
           Remove_one (g.grabed_data):: 
             Update_reacs (R.Amol.reacs !(g.graber_data)) ::
-              Update_reacs (R.reacs g.grabed_data) ::
                 []
         let remove_reac_from_reactants reac g =
           R.Amol.remove_reac reac !(g.graber_data);
@@ -273,7 +270,6 @@ module ReactionsM (R : REACTANT) =
           let mol = R.mol (ba.reactant)  in
           let (m1, m2) = Molecule.break mol in
           Remove_one (ba.reactant) ::
-            Update_reacs (R.reacs ba.reactant) ::
               Release_mol m1 ::
                 Release_mol m2 ::
                   []
@@ -282,5 +278,81 @@ module ReactionsM (R : REACTANT) =
         let remove_reac_from_reactants reac g =
           ()
       end
-      
+
+    module RandomCollisionOld:
+    (REAC with type build_t = (int ref))
+      =
+      struct
+        type t = {mutable rate : float;
+                  total_mol_qtt : int ref}
+
+        let compare rc1 rc2 = 0
+        type build_t = int ref
+        let show (rc : t) =
+          Printf.sprintf "RandomCollision (rate = %f)" rc.rate
+        let pp f rc =
+          Format.pp_print_string f (show rc)
+
+        let calculate_rate (total_mol_qtt:build_t) =
+          float_of_int (!total_mol_qtt
+                        * !total_mol_qtt)
+        let rate rc =
+          rc.rate
+
+        let update_rate rc = 
+          let old_rate = rc.rate in
+          rc.rate <- calculate_rate rc.total_mol_qtt;
+          rc.rate -. old_rate
+
+        let make (total_mol_qtt : int ref) =
+          {rate = calculate_rate total_mol_qtt;
+           total_mol_qtt}
+
+        let eval rc =
+          [RandomCollision]
+
+        let remove_reac_from_reactants reac rc = ()
+          
+      end
+      (* another idea for random collisions : 
+         they take as build_t int ref * (unit -> R.t) * (unit -> R.t)
+         so that when the reaction happens they will fetch a random 
+         reactant from the bactery
+         This allows to define everything in the module without knowing the
+         type of a bactery.    
+         The reaction is initialised with functions provided by the bactery
+         to fetch a random reactant. 
+       *)
+    module RandomCollision:
+    (REAC with type build_t = ((unit -> int) * (unit -> R.t)))
+      =
+      struct
+        type build_t = ((unit -> int) * (unit -> R.t))
+        type t = {data : build_t; mutable rate:float}
+        let compare rc1 rc2 = 0
+
+        let show (rc : t) =
+          Printf.sprintf "RandomCollision"
+        let pp f rc =
+          Format.pp_print_string f (show rc)
+
+        let calculate_rate ((qtt,_):build_t) =
+          float_of_int (qtt () * qtt ())
+        let rate rc =
+          rc.rate
+
+        let update_rate rc = 
+          let old_rate = rate rc in
+          rc.rate <- calculate_rate rc.data;
+          rc.rate -. old_rate
+
+        let make (data:build_t) =
+          {data;rate = calculate_rate data}
+
+        let eval rc =
+          [RandomCollision]
+
+        let remove_reac_from_reactants reac rc = ()
+          
+      end
   end

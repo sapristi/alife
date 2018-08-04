@@ -1,11 +1,16 @@
+
+
 open Reactors
 open Bacterie_libs
+
+   
+
 let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
 
   let pnet_ids_from_mol  (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
     let mol = cgi # argument_value "mol_desc" in
-    let amolset =  Bacterie.MolMap.find mol (!sandbox).active_molecules in
-    let pnet_ids = Molsets.ActiveMolSet.get_pnet_ids amolset in
+    let amolset =  Bacterie.MolMap.find mol (!sandbox).areactants in
+    let pnet_ids = ActiveMolSet.get_pnet_ids amolset in
     let pnet_ids_json =
       `List (List.map (fun i -> `Int i) pnet_ids) in
     let to_send_json =
@@ -19,8 +24,8 @@ let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
   and pnet_from_mol (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
     let mol = cgi # argument_value "mol_desc"
     and pnet_id = int_of_string (cgi# argument_value "pnet_id") in
-    let amolset =  Bacterie.MolMap.find mol !sandbox.active_molecules in
-    let pnet = Molsets.ActiveMolSet.find_by_pnet_id pnet_id amolset
+    let amolset =  Bacterie.MolMap.find mol !sandbox.areactants in
+    let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset
     in
     let pnet_json = Petri_net.to_json pnet
     in
@@ -65,8 +70,8 @@ let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
          let place_index_str = cgi # argument_value "place_index" in
          let place_index = int_of_string place_index_str in
          
-         let amolset =  Bacterie.MolMap.find mol !sandbox.active_molecules in
-         let pnet = Molsets.ActiveMolSet.find_by_pnet_id pnet_id amolset in
+         let amolset =  Bacterie.MolMap.find mol !sandbox.areactants in
+         let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset in
          (
            match token_o with
            | Some token -> 
@@ -95,8 +100,8 @@ let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
     let trans_index = int_of_string trans_index_str in
     
          
-    let amolset =  Bacterie.MolMap.find mol !sandbox.active_molecules in
-    let pnet = Molsets.ActiveMolSet.find_by_pnet_id pnet_id amolset in
+    let amolset =  Bacterie.MolMap.find mol !sandbox.areactants in
+    let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset in
     
     Petri_net.launch_transition_by_id trans_index pnet;
     Petri_net.update_launchables pnet;
@@ -116,13 +121,13 @@ let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
 
   and remove_mol sandbox (cgi : Netcgi.cgi) = 
     let mol = cgi # argument_value "mol_desc" in
-    Bacterie.remove_molecule mol !sandbox;
+    Bacterie.IRMgr.remove_all mol !sandbox;
     get_bact_elements sandbox;
 
   and set_mol_quantity sandbox (cgi : Netcgi.cgi) = 
     let mol = cgi # argument_value "mol_desc"
     and n = cgi # argument_value "mol_quantity" in
-    Bacterie.SimControl.set_inert_mol_quantity mol (int_of_string n) !sandbox;
+    Bacterie.IRMgr.set_qtt  (int_of_string n) mol !sandbox;
     get_bact_elements sandbox;
 
     (*
