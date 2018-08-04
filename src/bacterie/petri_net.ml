@@ -81,13 +81,6 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
 
     in
 
-    let binders = Array.fold_lefti
-                    (fun res index place   ->
-                      match place.Place.binder with
-                      |None -> res
-                      | Some b -> (index, b) :: res)
-                    [] places
-    in
     let uid = Misc_library.idProvider#get_id ()
 
     in

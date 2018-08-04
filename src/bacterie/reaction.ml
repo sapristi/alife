@@ -204,7 +204,6 @@ module rec
              | Update_reacs of Reactant.reacSet
              | Release_mol of Molecule.t
              | Release_tokens of Token.t list
-             | RandomCollision
            module type REAC =
              sig
                type t
@@ -231,8 +230,7 @@ module rec
            module Break :
            (REAC with type build_t = (Reactant.t))
 
-           module RandomCollision :
-           (REAC with type build_t = ((unit -> int) * (unit -> Reactant.t)))
+           
          end)
      = struct
      include ReactionsM(Reactant) 

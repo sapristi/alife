@@ -2,7 +2,7 @@
 
 
 (* * libs *)
-open Local_libs.Misc_library
+open Local_libs
 open Reaction
 (* compatibility with yojson before loading batteries *)
 type ('a, 'b) mresult = ('a, 'b) result
@@ -179,7 +179,7 @@ let random_reactant_pick bact =
   else
     Reactant.Amol (ARMgr.random_AR_pick bact)
 
->>>>>>> feature/random_binds
+
   
 (* ** interface *)
   
@@ -196,14 +196,12 @@ let (default_rcfg : Reac_mgr.config) =
    random_collision_rate = 0.0000001}
   
 let make_empty ?(rcfg=default_rcfg) () =
-  let total_mol_qtt = ref 0 in
+  
   let bact = {ireactants = MolMap.empty;ireactants_qtt = 0;
               areactants = MolMap.empty;areactants_qtt = 0;
               reac_mgr = Reac_mgr.make_new rcfg;}
   in
-  Reac_mgr.add_random_collision 
-      ((fun () -> bact.ireactants_qtt + bact.areactants_qtt),
-       (fun () -> random_reactant_pick bact)) bact.reac_mgr;
+  
   bact
 
   
@@ -304,7 +302,6 @@ let rec execute_actions (actions : Reacs.effect list) (bact : t) : unit =
       | Release_tokens tlist ->
          List.iter (fun (n,mol) ->
              add_molecule mol bact) tlist
-      | RandomCollision -> ()
     (* Possible effects : 
        - forced grab : a molecule is fitted into a pnet
          even though a grab could not possibly occur

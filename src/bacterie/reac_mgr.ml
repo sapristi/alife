@@ -3,7 +3,7 @@
 
 open Batteries
 open Reaction
-   
+open Local_libs
 
 let src = Logs.Src.create "reactions" ~doc:"logs reacs events"
 module Log = (val Logs.src_log src : Logs.LOG)
@@ -130,7 +130,7 @@ module GSet = MakeReacSet(Reacs.Grab)
 module TSet = MakeReacSet(Reacs.Transition)
 module BSet = MakeReacSet(Reacs.Break)
 
-module RCSet = MakeAutoUpdatingReacSet(Reacs.RandomCollision)
+
 
 
 (* * module defs *)
@@ -144,7 +144,7 @@ type t =
   { t_set :  TSet.t;
     g_set :  GSet.t;
     b_set :  BSet.t;
-    rc_set : RCSet.t;
+
     mutable reac_nb : int;
     mutable reporter : Reporter.reporter;
   }
@@ -157,8 +157,7 @@ let make_new (config : config) =
     {t_set = TSet.make_empty config.transition_rate;
      g_set = GSet.make_empty config.grab_rate;
      b_set = BSet.make_empty config.break_rate;
-     rc_set = RCSet.make_empty config.random_collision_rate;
-     reac_nb = 0;
+      reac_nb = 0;
      reporter = Reporter.empty_reporter;
     } in
   res.reporter <- 
@@ -183,8 +182,7 @@ let remove_reactions reactions reac_mgr =
 
       | Break b ->
          BSet.remove !b reac_mgr.b_set;
-      | RandomCollision rc ->
-         RCSet.remove !rc reac_mgr.rc_set;
+
     ) reactions
 
 (* **** collision *)
@@ -229,6 +227,7 @@ let add_grab (graber_d : Reactant.Amol.t ref)
 let add_transition amd reac_mgr  =
 
   Log.debug (fun m -> m "added new transition : %s"
+                        (Reactant.Amol.show !amd));
 
 
   Reporter.report
@@ -248,6 +247,7 @@ let add_transition amd reac_mgr  =
 let add_break md reac_mgr =
 
   Log.debug (fun m -> m "added new break : %s"
+                        (Reactant.show md));
   
   Reporter.report
     reac_mgr.reporter
@@ -260,14 +260,6 @@ let add_break md reac_mgr =
   let rb = Reaction.Break (ref b) in
   Reactant.add_reac rb md
 
-let add_random_collision tmq reac_mgr =
-  let rc = Reacs.RandomCollision.make tmq in
-  
-  Reporter.report
-    reac_mgr.reporter
-    (Printf.sprintf "added new RandomCollision");
-  RCSet.add rc reac_mgr.rc_set
-  
   
 (* ** pick next reaction *)
 (* replace to_list with to_enum ? *)
@@ -276,7 +268,6 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   let total_g_rate = GSet.total_rate reac_mgr.g_set
   and total_t_rate = TSet.total_rate reac_mgr.t_set
   and total_b_rate = BSet.total_rate reac_mgr.b_set
-  and total_rc_rate = RCSet.total_rate reac_mgr.rc_set
   in
 
   
@@ -285,21 +276,19 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
     (Printf.sprintf "picking next reaction in\n 
                         Grabs (total : %f):\n%s\n
                         Transitions (total : %f):\n%s\n
-                        Breaks (total : %f):\n%s\n
-                        RandomCollision (total :%f)\n%s"
+                        Breaks (total : %f):\n%s\n"
                        total_g_rate
                        (GSet.show reac_mgr.g_set)
                        total_t_rate
                        (TSet.show reac_mgr.t_set)
                        total_b_rate
                        (BSet.show reac_mgr.b_set)
-                       total_rc_rate
-                       (RCSet.show reac_mgr.rc_set)
+  
            );
   
   
   let a0 = (total_g_rate) +. (total_t_rate)
-           +. (total_b_rate) +.  total_rc_rate
+           +. (total_b_rate)
   in
   if a0 = 0.
   then
@@ -320,11 +309,9 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       else if bound < total_g_rate +. total_t_rate
       then 
         Reaction.Transition ( ref (TSet.pick_reaction reac_mgr.t_set))
-      else if  bound < total_g_rate +. total_t_rate +. total_b_rate
-      then
+      else 
         Reaction.Break (ref (BSet.pick_reaction reac_mgr.b_set))
-      else
-        Reaction.RandomCollision (ref (RCSet.pick_reaction reac_mgr.rc_set))
+      
     in
   Reporter.report
     reac_mgr.reporter
