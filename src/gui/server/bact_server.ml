@@ -13,66 +13,64 @@ type req_return_type =
   | Bact of Bacterie.t
 
    
-let src = Logs.Src.create "mylib.network" ~doc:"logs mylib's network events";;
+let src = Logs.Src.create "mylib.network" ~doc:"logs mylib's network events"
   
-module Log = (val Logs.src_log src : Logs.LOG);;
+module Log = (val Logs.src_log src : Logs.LOG)
                 
    
 let handle_general_req (cgi:Netcgi.cgi) : string =
 (* *** prot_from_mol *)
   let prot_from_mol (cgi:Netcgi.cgi) : string =
+
+    let prot_json =
+      cgi # argument_value "mol_desc"
+      |> Molecule.to_proteine
+      |> Proteine.to_yojson
     
-    let mol = cgi # argument_value "mol_desc" in
-    let prot = Molecule.to_proteine mol in
-    let prot_json = Proteine.to_yojson prot
     in
-    let to_send_json =
-      `Assoc
-       ["purpose", `String "prot_from_mol";
-        "data", `Assoc ["prot", prot_json]] 
-    in
-    Yojson.Safe.to_string to_send_json
+    `Assoc  ["purpose", `String "prot_from_mol";
+             "data", `Assoc ["prot", prot_json]] 
+    |> Yojson.Safe.to_string
     
   and build_all_from_mol (cgi : Netcgi.cgi) : string =
+
     let mol = cgi # argument_value "mol_desc" in
-    let prot = Molecule.to_proteine mol in
-    let  prot_json = Proteine.to_yojson prot
+    let prot_json = mol
+      |> Molecule.to_proteine
+      |> Proteine.to_yojson
+      
     in
     match Petri_net.make_from_mol mol with
     | Some pnet -> let pnet_json = Petri_net.to_json pnet
                    in
-                   let to_send_json =
                      `Assoc
                       ["purpose", `String "build_all_from_mol";
                        "data", `Assoc ["prot", prot_json;
                                        "pnet", pnet_json]]
-                   in
-                   Yojson.Safe.to_string to_send_json
+                   |> Yojson.Safe.to_string
     | None -> "cannot build pnet"
             
   and build_all_from_prot (cgi : Netcgi.cgi) : string =
-    let prot_desc = cgi # argument_value "prot_desc" in
-    let prot_json = Yojson.Safe.from_string prot_desc in
-    print_endline (Yojson.Safe.pretty_to_string prot_json);
-    let prot_or_error = Proteine.of_yojson prot_json in
-    match prot_or_error with
+
+    match 
+      cgi # argument_value "prot_desc"
+      |> Yojson.Safe.from_string
+      |> Proteine.of_yojson 
+    with
     | Ok prot ->
-       let mol = Molecule.of_proteine prot in
-       let mol_json = `String mol in
-       (
-         match Petri_net.make_from_mol mol with
-           | Some pnet ->  let pnet_json = Petri_net.to_json pnet in
-                           let to_send_json =
-                             `Assoc
-                              ["purpose", `String "build_all_from_prot";
-                               "data",
-                               `Assoc ["mol", mol_json; "pnet", pnet_json]]
-                             
-                           in
-                           Yojson.Safe.to_string to_send_json
-         | None -> "cannot build pnet"
-         )
-       | Error s -> 
+       let mol = Molecule.of_proteine prot
+       in let  mol_json = `String mol in
+          (
+            match Petri_net.make_from_mol mol with
+            | Some pnet ->  let pnet_json = Petri_net.to_json pnet in
+                            `Assoc
+                             ["purpose", `String "build_all_from_prot";
+                              "data",
+                              `Assoc ["mol", mol_json; "pnet", pnet_json]]
+                            |>  Yojson.Safe.to_string
+            | None -> "cannot build pnet"
+          )
+    | Error s -> 
        "error decoding proteine from json : "^s
       
   and list_acids () : string =
@@ -146,5 +144,4 @@ let handle_req (sim : Simulator.t) (sandbox : Sandbox.t) env (cgi:Netcgi.cgi)  =
   cgi # out_channel # commit_work();
   Log.info (fun m -> m "response sent");
   
-;;
-  
+

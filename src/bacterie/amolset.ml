@@ -11,7 +11,7 @@ module MolSet =
 
 (* ** ActiveMolSet *)
 (* An active mol set manages the molecules with an attached pnet. *)
-(* this should eventually be moved to reactant.ml *)
+(* this should eventually be moved to reaction.ml *)
 module ActiveMolSet  = struct
 
   module PnetSet =

@@ -156,7 +156,7 @@ module IRMgr =
              if Petri_net.can_grab mol !new_amol.pnet
              then Reac_mgr.add_grab new_amol new_reactant reac_mgr)
            bact.ireactants
-              
+        
       | ImolSet _ -> ()
       
     let random_pick (bact : t) =
@@ -167,7 +167,7 @@ module IRMgr =
             (fun imols -> float_of_int (Reactant.ImolSet.qtt !imols))
             (MolMap.values bact.ireactants)
              
-
+        
   end
   
 
@@ -256,7 +256,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : unit =
                        bact.ireactants;
           bact.ireactants_qtt <- bact.ireactants_qtt +1
           
-       |Some ireac ->
+       | Some ireac ->
          IRMgr.add_to_qtt ireac 1 bact;
      )
     
