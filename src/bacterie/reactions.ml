@@ -3,7 +3,7 @@ open Local_libs.Misc_library
 
 (* * file overview *)
 
-(*   Defines a functor that takes a Reactant module and makes reactions out  *)
+(*   Defines a functor that takes a Reactant module and makes reactions out *)
 (*   of it. Possible reactions are : *)
   
 (*   + Grab : *)
@@ -12,10 +12,37 @@ open Local_libs.Misc_library
 (*   + Transition : *)
 (*     launches a transition in an active molecule *)
     
-(*   + Break :  *)
+(*   + Break : *)
 (*     a molecules breaks in two pieces *)
 
-    
+(* ** Reaction general *)
+
+(*    A reaction is a record with : *)
+(*    + for each reactant, a field with a reference to this reactant *)
+(*    + a mutable rate field to store the rate *)
+   
+(*    In a reaction module, the following functions are defined *)
+     
+(*    + calculate_rate (not public) : *)
+(*      calculates the rate at which the reaction takes place *)
+
+(*    + rate : *)
+(*      returns the value in rate field *)
+     
+(*    + update_rate : *)
+(*      modifies rate field with a newly calculated value *)
+(*      and returns the difference between old and new rate *)
+(*      (for easy update of global rate) *)
+
+(*    + make : creates the reaction from references to the reactants *)
+
+(*    + eval : performs the reaction on the reactants and returns a list *)
+(*      of actions to be performed at higher level *)
+
+(* *** TODO tasks *)
+(*     + clearly define what is to be done in eval *)
+(*       and what is to be returned higher, and why *)
+
 (* * REACTANT signature *)
   
 module type REACTANT =

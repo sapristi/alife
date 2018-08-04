@@ -4,35 +4,55 @@ open Logs
 open Batteries
 open Reaction
    
-let src = Logs.Src.create "reactions" ~doc:"logs reacs events";;
-module Log = (val Logs.src_log src : Logs.LOG);;
+let src = Logs.Src.create "reactions" ~doc:"logs reacs events"
+module Log = (val Logs.src_log src : Logs.LOG)
 
-
-(* * Reaction module *)
-(* Manages reactions at the higher level. *)
-(* Contains a set for each of the reaction types, and  *)
-(* will randomly select a reaction from them. *)
-(* Also handles the add of new reactions (when new molecules *)
-(* are added) and the removing of reactions (when molecules *)
-(* disappear) *)
-
-
-(* ** REACSet functor *)
-(*module type REACSET =
-  sig
-    type elt
-    module RSet :
-    sig
-        include Set.S with type elt = elt
-        val show : t -> string
-    end
-    type t = {mutable total_rate : float;
-              mutable set : RSet.t;
-              modifier : float}
-
-    val make_empty : float -> t
-  end*)
+(* * file overview *)
   
+
+(* ** MakeReacsSet functor  *)
+  
+(*    MakeReacSet is a functor that takes a Reacs.REAC and defines : *)
+  
+(*    type t : a record that contains  *)
+(*      + a set of reactions *)
+(*      + the  current sum of the rates of the reactions  *)
+(*      + a modifier field which is a parameter to tune reaction rates  *)
+(*        depending on their type. *)
+
+(*    Various wrappers around the set *)
+  
+
+
+
+(* ** Reac_mgr module *)
+
+(*    We then define : *)
+
+(*    + type t : a record with a field containing a ReacsSet.t for each kind of reaction *)
+   
+(*    + various wrappers that take a reaction as argument, unwrap them *)
+(*      and dispatch them to the right ReacsSet according to their kind *)
+
+(*    + add_kind : adds a new reaction, for each kind *)
+
+(*    + pick_next_reaction : picks a random reaction from one of the sets *)
+(*      depending on the reaction rates *)
+
+(* ** TODO Why separate reactions *)
+
+(*    It would be much easier to put all the reactions in the same set,  *)
+(*    but by separating them we can easily dinamically tune the rate depending on *)
+(*    reaction type. *)
+
+(*    Maybe we should put the parameters directly in the reaction,  *)
+(*    then we could put all the reactions in the same set, which would greatly reduce  *)
+(*    boilerplate in this file, especially if the number of reactions kind grows. *)
+
+
+           
+(* * MakeReacSet functor *)
+
 module MakeReacSet (Reac : Reacs.REAC) = 
   struct
     type elt = Reac.t
@@ -81,64 +101,8 @@ end
 module GSet = MakeReacSet(Reacs.Grab)
 module TSet = MakeReacSet(Reacs.Transition)
 module BSet = MakeReacSet(Reacs.Break)
-(* ** too complicated stuff *)
-  
-(*
-let build_reac_set
-      (type a)
-      (module Reac : Reactions.REAC with type t = a)
-  = 
-  (module struct
-     
-     module RSet =
-       struct
-         include Set.Make(Reac)
-         let show (s : t) =
-           fold (fun (e : elt) desc ->
-               (Reac.show e)^"\n"^desc) s ""
-       end
 
-     type elt = RSet.elt
-     type t = {mutable total_rate : float;
-               mutable set : RSet.t;
-               modifier : float}
-     let make_empty (modifier : float) : t =
-       {total_rate = 0.;
-        set = RSet.empty;
-        modifier;}
-   end : REACSET with type elt = Reac.t)
-
-
-let grabRSet = (module MakeReacSet(Grab) :
-                REACSET with type elt = Grab.t)
-let agrabRSet = (module MakeReacSet(AGrab) :
-                 REACSET with type elt = AGrab.t)
-let transitionRSet = (module MakeReacSet(Transition) :
-                      REACSET with type elt = Transition.t)
-
-module type ReacSetInstance = sig
-  type elt
-  module ReacSet : REACSET with type elt = elt
-  val this : ReacSet.t
-  val add : elt -> unit
-  val remove : elt -> unit
-end;;
-
-let build_instance
-      (type a)
-      (module RS : REACSET with type elt = a)
-      modifier
-  =
-  (module struct
-     module ReacSet = RS 
-     let this = RS.make_empty modifier
-     type elt = a
-     let add e = this.set <- RS.RSet.add e this.set
-     let remove e = this.set <- RS.RSet.remove e this.set
-   end : ReacSetInstance)
-   *)
-
-(* ** module defs *)
+(* * module defs *)
 
 type config = { transition_rate : float;
                 grab_rate : float;
@@ -186,14 +150,15 @@ let remove_reactions reactions reac_mgr =
 
 let add_grab (graber_d : Reactant.Amol.t ref)
              (grabed_d : Reactant.t ) (reac_mgr :t)  =
-  let (g:Reacs.Grab.t) = Reacs.Grab.make (graber_d,grabed_d)   in
-  
+
   Log.debug (fun m -> m "added new grab between : %s\n%s"
                         (Reactant.Amol.show !graber_d)
                         (Reactant.show grabed_d));
   
-  let r = Reaction.Grab (ref g) in
+  let (g:Reacs.Grab.t) = Reacs.Grab.make (graber_d,grabed_d)   in
   GSet.add g reac_mgr.g_set;
+  
+  let r = Reaction.Grab (ref g) in
   Reactant.Amol.add_reac r !graber_d;
   Reactant.add_reac r grabed_d
  
@@ -202,22 +167,25 @@ let add_grab (graber_d : Reactant.Amol.t ref)
   
            
 let add_transition amd reac_mgr  =
-  let t = Reacs.Transition.make amd   in
   Log.debug (fun m -> m "added new transition : %s"
                         (Reactant.Amol.show !amd));
   
-  let rt = Reaction.Transition (ref t) in
+  let t = Reacs.Transition.make amd   in
   TSet.add t reac_mgr.t_set;
+  
+  let rt = Reaction.Transition (ref t) in
   Reactant.Amol.add_reac rt !amd
 
 
 (* ** BreakInert *)
 let add_break md reac_mgr =
-  let b = Reacs.Break.make md in
   Log.debug (fun m -> m "added new break : %s"
                         (Reactant.show md));
-  let rb = Reaction.Break (ref b) in
+  
+  let b = Reacs.Break.make md in
   BSet.add b reac_mgr.b_set;
+
+  let rb = Reaction.Break (ref b) in
   Reactant.add_reac rb md
 
 
@@ -274,6 +242,8 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
     in
     Log.info (fun m -> m "picked %s" (Reaction.show res));
     Some res
+
+(* ** update_reaction_rates *)
     
 let rec update_reaction_rates (reac : Reaction.t) reac_mgr=
   match reac with
@@ -283,3 +253,79 @@ let rec update_reaction_rates (reac : Reaction.t) reac_mgr=
      TSet.update_rate !t reac_mgr.t_set
   | Break b ->
      BSet.update_rate !b reac_mgr.b_set
+
+
+
+(* ** too complicated stuff *)
+
+
+(* ** REACSet functor *)
+(*module type REACSET =
+  sig
+    type elt
+    module RSet :
+    sig
+        include Set.S with type elt = elt
+        val show : t -> string
+    end
+    type t = {mutable total_rate : float;
+              mutable set : RSet.t;
+              modifier : float}
+
+    val make_empty : float -> t
+  end*)
+    
+(*
+let build_reac_set
+      (type a)
+      (module Reac : Reactions.REAC with type t = a)
+  = 
+  (module struct
+     
+     module RSet =
+       struct
+         include Set.Make(Reac)
+         let show (s : t) =
+           fold (fun (e : elt) desc ->
+               (Reac.show e)^"\n"^desc) s ""
+       end
+
+     type elt = RSet.elt
+     type t = {mutable total_rate : float;
+               mutable set : RSet.t;
+               modifier : float}
+     let make_empty (modifier : float) : t =
+       {total_rate = 0.;
+        set = RSet.empty;
+        modifier;}
+   end : REACSET with type elt = Reac.t)
+
+
+let grabRSet = (module MakeReacSet(Grab) :
+                REACSET with type elt = Grab.t)
+let agrabRSet = (module MakeReacSet(AGrab) :
+                 REACSET with type elt = AGrab.t)
+let transitionRSet = (module MakeReacSet(Transition) :
+                      REACSET with type elt = Transition.t)
+
+module type ReacSetInstance = sig
+  type elt
+  module ReacSet : REACSET with type elt = elt
+  val this : ReacSet.t
+  val add : elt -> unit
+  val remove : elt -> unit
+end;;
+
+let build_instance
+      (type a)
+      (module RS : REACSET with type elt = a)
+      modifier
+  =
+  (module struct
+     module ReacSet = RS 
+     let this = RS.make_empty modifier
+     type elt = a
+     let add e = this.set <- RS.RSet.add e this.set
+     let remove e = this.set <- RS.RSet.remove e this.set
+   end : ReacSetInstance)
+   *)
