@@ -1,7 +1,49 @@
 open Reactions
 
+
+
+(* * file overview *)
+
+(*   A reaction is defined as an action that can be performed on one or *)
+(*   more reactants. *)
+(*   Since  reactants  hold themselves a set of reactions (whom rates have to be *)
+(*   updated at a change in the reactant), the modules Reaction, ReacSet *)
+(*   and Reactant are mutally dependant and have to be defined together. *)
+  
+(* ** Reactant module *)
+
+(*    Reactant.t is defined as a sum type of various possible reactants, *)
+(*    Reactants can be : *)
    
+(*     + ImolSet contains inactive molecules, that is molecules that could not *)
+(*       be folded into a petri net (or possible molecules with degenerate petri nets) *)
+      
+(*     + Amol contains a unique active molecule, with the associated petri net *)
+      
+(*     + ASet (work in progress) is intended to hold a set of active molecules. *)
+(*       (the molecule would be unique, but petri nets in various states could be *)
+(*       present). It is still unknown if a good implementation is possible, because *)
+(*       we would need to know about the rates of this set in a reaction, which *)
+(*       depends on the internal state of the contained petri nets. *)
+
+(* ** Reacs module *)
+   
+(*    Application of the functor defined in reactions.ml to the Reactant module. *)
+
+(* ** Reaction module *)
+
+(*    Reaction.t is a sum type, each case represents an action, and the paremeters *)
+(*    hold references to the reactants. *)
+
+(* ** ReacSet module *)
+
+(*    Simply a Set of reactions *)
+
+(* * modules definitions*)
 module rec
+
+(* ** Reactant : contains a reactant (ImolSet or Amol or Aset) *)
+    
     Reactant :
       (sig 
         include REACTANT with type reac = Reaction.t
@@ -15,7 +57,8 @@ module rec
     module type REACTANT_DEFAULT =
       (Reactant.REACTANT_DEFAULT)
       
-(* *** inert mol data *)
+(* *** ImolSet : reactant with inert molecules *)
+      
     module ImolSet =
       struct
         type t = {
@@ -38,6 +81,7 @@ module rec
           then ims
           else
             {ims with qtt = ims.qtt + deltaqtt}
+          
         let set_qtt qtt (ims : t)=
           {ims with qtt = qtt}
         let make_new ?(ambient=false) mol : t =
@@ -46,10 +90,10 @@ module rec
           imd.reacs := ReacSet.add reac !(imd.reacs)
         let remove_reac (reac : Reaction.t) (imd : t) =
           imd.reacs := ReacSet.remove reac !(imd.reacs)
-
+          
       end
       
-(* *** active mol data *)
+(* *** Amol :    reactant with one active molecule *)
     module Amol = 
       struct
         type t = {
@@ -61,64 +105,64 @@ module rec
           Printf.sprintf "Active mol : %s (id : %d)" am.mol am.pnet.uid 
         let pp f am =
           Format.pp_print_string f (show am)
-          
+
         let mol am =  am.mol
         let qtt am = 1
         let reacs am = !(am.reacs)
         let pnet am = am.pnet
         let make_new  (pnet : Petri_net.t) =
           {mol = pnet.mol; pnet; reacs = ref ReacSet.empty}
-          
+
         let add_reac reac (amd : t) =
           amd.reacs := ReacSet.add reac !(amd.reacs) 
-          
+
         let remove_reac (reac : Reaction.t) (amd : t) =
           amd.reacs := ReacSet.remove reac !(amd.reacs)
         let compare
               (amd1 : t) (amd2 : t) =
           Pervasives.compare amd1.pnet.Petri_net.uid amd2.pnet.Petri_net.uid
-                
+
       end
-(* *** active mol set *)
+(* *** (ASet) :    reactant with active molecules set *)
     (*
-  module ASet = Batteries.Set.Make(struct type t = Active.t ref
-                                          let compare a1 a2 =
-                                            Active.compare !a1 !a2 end)
-  module ActiveSet =
-    struct
-      type t = {  mol : Molecule.t;
-                  qtt : int;
-                  reacs : ReacSet.t ref;
-                  pnets : ASet.t; }
-             
-      let make mol (pnets : ASet.t) reacs : t =
-        {mol; pnets; reacs; qtt = ASet.cardinal pnets}
-        
-      let make_new mol =
-        {mol = mol; pnets=ASet.empty; qtt = 0;
-         reacs = ref ReacSet.empty}
-        
-      let add_reac reac (amsd : t) =
-        amsd.reacs := ReacSet.add reac !(amsd.reacs) 
-        
-      let compare
-            (amsd1 : t) (amsd2 : t) =
-        Pervasives.compare amsd1.mol amsd2.mol
-        
-      let show (amd : t) =
-        let res = Printf.sprintf "Active Set : %s" amd.mol
-        in Bytes.of_string res
-         
-      let pp (f : Format.formatter)
-             (amd : t)
-        = Format.pp_print_string f (show amd)
-    end
- *)
-(* *** General *)   
+ module ASet = Batteries.Set.Make(struct type t = Active.t ref
+                                         let compare a1 a2 =
+                                           Active.compare !a1 !a2 end)
+ module ActiveSet =
+   struct
+     type t = {  mol : Molecule.t;
+                 qtt : int;
+                 reacs : ReacSet.t ref;
+                 pnets : ASet.t; }
+
+     let make mol (pnets : ASet.t) reacs : t =
+       {mol; pnets; reacs; qtt = ASet.cardinal pnets}
+
+     let make_new mol =
+       {mol = mol; pnets=ASet.empty; qtt = 0;
+        reacs = ref ReacSet.empty}
+
+     let add_reac reac (amsd : t) =
+       amsd.reacs := ReacSet.add reac !(amsd.reacs) 
+
+     let compare
+           (amsd1 : t) (amsd2 : t) =
+       Pervasives.compare amsd1.mol amsd2.mol
+
+     let show (amd : t) =
+       let res = Printf.sprintf "Active Set : %s" amd.mol
+       in Bytes.of_string res
+
+     let pp (f : Format.formatter)
+            (amd : t)
+       = Format.pp_print_string f (show amd)
+   end
+     *)
+(* *** Reactant functions *)
     type t =
       | Amol of Amol.t ref
       | ImolSet of ImolSet.t ref
-                             [@@ deriving show, ord]
+                     [@@ deriving show, ord]
     let qtt reactant =
       match reactant with
       | Amol amol -> Amol.qtt !amol
@@ -141,16 +185,17 @@ module rec
       | ImolSet ims -> ImolSet.remove_reac reaction !ims
   end
   
+(* ** Reacs : implementation of the reactions *)
+
+(*    We need to copy the entire signature because we use the recursively *)
+(*    defined Reactant. *)
+(*    See reactions.ml for more details. *)
+  
    and Reacs :
          (sig
            
            type effect =
              | T_effects of Place.transition_effect list
-             (* handles the side effects of removing
-                an element, e.g. removing a pnet
-                will release the tokens
-                (this means the tokens won't interact
-                with the grabing molecule ? *)
              | Remove_one of Reactant.t
              | Update_reacs of Reactant.reacSet
              | Release_mol of Molecule.t
@@ -167,85 +212,84 @@ module rec
                val make : build_t -> t
                val eval : t -> effect list
                val remove_reac_from_reactants : Reaction.t -> t -> unit
-           
+
              end
-              
+
            module Grab :
            (REAC with type build_t = (Reactant.Amol.t ref *
                                         Reactant.t ))
-                
+
            module Transition  :
            (REAC with type build_t = Reactant.Amol.t ref)
-                
-             
+
+
            module Break :
            (REAC with type build_t = (Reactant.t))
          end)
      = struct
      include ReactionsM(Reactant) 
    end
-     
-(* * General reaction module *)
+
+(* ** Reaction  *)
    and Reaction :
          (sig
-        type t  =
-          | Grab of Reacs.Grab.t ref
-          | Transition of Reacs.Transition.t ref
-          | Break of Reacs.Break.t ref
-                   
-        val treat_reaction : t -> Reacs.effect list
-        val compare : t -> t -> int
-        val show : t -> string
-        val unlink : t -> unit
-      end)
-  =
-  struct
-(* ** module definition *)
-    open Reacs
-    type t =
-      | Grab of Grab.t ref
-      | Transition of Transition.t ref
-      | Break of Break.t ref
-                         [@@ deriving ord, show]    
-               
-    let rate r =
-      match r with
-      | Transition t -> Transition.rate (!t)
-      | Grab g -> Grab.rate (!g)
-      | Break ba -> Break.rate !ba
+           type t  =
+             | Grab of Reacs.Grab.t ref
+             | Transition of Reacs.Transition.t ref
+             | Break of Reacs.Break.t ref
+                      
+           val treat_reaction : t -> Reacs.effect list
+           val compare : t -> t -> int
+           val show : t -> string
+           val unlink : t -> unit
+         end)
+     =
+(* *** module definition *)
+     struct
+       open Reacs
+       type t =
+         | Grab of Grab.t ref
+         | Transition of Transition.t ref
+         | Break of Break.t ref
+                      [@@ deriving ord, show]    
                   
-    let treat_reaction r  : effect list=
-      match r with
-      | Transition t -> Transition.eval !t
-      | Grab g -> Grab.eval !g
-      | Break ba -> Break.eval !ba
-                  
-    let unlink r = 
-      match r with
-      | Transition t -> Transition.remove_reac_from_reactants r !t
-      | Grab g -> Grab.remove_reac_from_reactants r !g
-      | Break ba -> Break.remove_reac_from_reactants r !ba
+       let rate r =
+         match r with
+         | Transition t -> Transition.rate (!t)
+         | Grab g -> Grab.rate (!g)
+         | Break ba -> Break.rate !ba
                      
-  end
+       let treat_reaction r  : effect list=
+         match r with
+         | Transition t -> Transition.eval !t
+         | Grab g -> Grab.eval !g
+         | Break ba -> Break.eval !ba
+                     
+       let unlink r = 
+         match r with
+         | Transition t -> Transition.remove_reac_from_reactants r !t
+         | Grab g -> Grab.remove_reac_from_reactants r !g
+         | Break ba -> Break.remove_reac_from_reactants r !ba          
+     end
      
      
-(* * ReacSet module *)
-and ReacSet :
-      (sig
-        include Set.S with type elt =  Reaction.t
-        val show : t -> string
-      end)
-  =
-  struct
-    
-    include Set.Make (Reaction)
-          
-    let show (rset :t) =
-      fold (fun (reac : Reaction.t) desc ->
-          (Reaction.show reac)^"\n"^desc)
-        rset
-        ""
-    let pp (f : Format.formatter) (rset : t) =
-      Format.pp_print_string f "reactions set"
+(* ** ReacSet module *)
+   and ReacSet :
+         (sig
+           include Set.S with type elt =  Reaction.t
+           val show : t -> string
+         end)
+     =
+     struct
+       
+       include Set.Make (Reaction)
+             
+       let show (rset :t) =
+         fold (fun (reac : Reaction.t) desc ->
+             (Reaction.show reac)^"\n"^desc)
+           rset
+           ""
+       let pp (f : Format.formatter) (rset : t) =
+         Format.pp_print_string f "reactions set"
   end
 

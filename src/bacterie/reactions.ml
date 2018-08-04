@@ -1,8 +1,23 @@
 
 open Local_libs.Misc_library
 
+(* * file overview *)
 
-     
+(*   Defines a functor that takes a Reactant module and makes reactions out  *)
+(*   of it. Possible reactions are : *)
+  
+(*   + Grab : *)
+(*     grab between an active molecule and another reactant *)
+
+(*   + Transition : *)
+(*     launches a transition in an active molecule *)
+    
+(*   + Break :  *)
+(*     a molecules breaks in two pieces *)
+
+    
+(* * REACTANT signature *)
+  
 module type REACTANT =
   sig
     type reac
@@ -67,6 +82,9 @@ module type REACTANT =
   end
   
 
+(* * asymetric_grab auxiliary function *)
+(*  Why is it not in the functor ?  *)
+
 let asymetric_grab mol pnet = 
   let grabs = Petri_net.get_possible_mol_grabs mol pnet
   in
@@ -78,7 +96,7 @@ let asymetric_grab mol pnet =
   else
     false
   
-
+(* * ReactionsM functor *)
   
 module ReactionsM (R : REACTANT) =
   struct
@@ -93,7 +111,7 @@ module ReactionsM (R : REACTANT) =
       | Update_reacs of R.reacSet
       | Release_mol of Molecule.t
       | Release_tokens of Token.t list
-                     
+                        
     module type REAC =
       sig
         type t
@@ -108,7 +126,7 @@ module ReactionsM (R : REACTANT) =
         val remove_reac_from_reactants : R.reac -> t -> unit
       end
       
-                    
+(* ** Grab reaction *)                    
     module Grab :
     (REAC with type build_t = (R.Amol.t ref * R.t)) =
       struct
@@ -155,6 +173,7 @@ module ReactionsM (R : REACTANT) =
       end
 
 
+(* **  Transition reaction *)                    
       
     module Transition  :
     (REAC with type build_t = R.Amol.t ref)
@@ -195,6 +214,8 @@ module ReactionsM (R : REACTANT) =
         let remove_reac_from_reactants reac g =
           ()
       end
+      
+(* **  Break reaction *)  
       
     module Break :
     (REAC with type build_t = (R.t)) =

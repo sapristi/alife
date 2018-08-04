@@ -69,8 +69,7 @@ module MolMap =
 type t =
   {mutable inert_molecules : (Reactant.ImolSet.t ref) MolMap.t;
    mutable active_molecules : (ActiveMolSet.t) MolMap.t;
-   reac_mgr : Reac_mgr.t;
-  }
+   reac_mgr : Reac_mgr.t;}
   
 (* ** interface *)
   
