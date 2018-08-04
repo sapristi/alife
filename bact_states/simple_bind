@@ -1,0 +1,4 @@
+{"active_mols" : [
+{"mol":"AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB","qtt":1}],
+"inert_mols" : 
+[{"mol":"A","qtt":50,"ambient":false},{"mol":"B","qtt":50,"ambient":false}]}
