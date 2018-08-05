@@ -8,7 +8,7 @@ open Nethttpd_kernel
 open Nethttpd_services
 open Nethttpd_engine
 open Nethttpd_types
-open Nethttpd_reactor;;
+open Nethttpd_reactor
 
 
 let fs_spec =
@@ -28,7 +28,7 @@ let fs_spec =
 
   
 let get_my_addr () =
-  (Unix.gethostbyname(Unix.gethostname())).Unix.h_addr_list.(0) ;;
+  (Unix.gethostbyname(Unix.gethostname())).Unix.h_addr_list.(0) 
 
    
 let make_srv req_processor (conn_attr : (string * int)) =
@@ -38,13 +38,7 @@ let make_srv req_processor (conn_attr : (string * int)) =
       uri_distributor
         [ "*", (options_service());
           "/", (file_service fs_spec);
-          "/sim_commands/", (dynamic_service
-                               { dyn_handler = req_processor;
-                                 dyn_activation = std_activation `Std_activation_buffered;
-                                 dyn_uri = None;
-                                 dyn_translator = (fun _ -> "");
-                                 dyn_accept_all_conditionals = false
-                            });
+          "/sim_commands/", req_processor;
         ]
     ] 
 
@@ -72,7 +66,7 @@ let serve_connection ues fd req_processor (conn_attr)=
            fd
            ues
            (make_srv req_processor conn_attr))
-;;
+
 
 let rec accept req_processor (conn_attr) ues srv_sock_acc =
   (* This function accepts the next connection using the [acc_engine]. After the   
@@ -90,9 +84,7 @@ let rec accept req_processor (conn_attr) ues srv_sock_acc =
       ) else
         srv_sock_acc # shut_down())
     ~is_error:(fun _ -> srv_sock_acc # shut_down())
-    acc_engine;
-;;
-
+    acc_engine
 
 
 
@@ -101,8 +93,7 @@ let start_srv req_processor (conn_attr) =
   let (host_name, port) = conn_attr in
   
   let ues = Unixqueue.create_unix_event_system () in
-  let opts = { Uq_server.default_listen_options with
-               Uq_server.lstn_backlog = 20;
+  let opts = { Uq_server.lstn_backlog = 20;
                Uq_server.lstn_reuseaddr = true } in
   let lstn_engine =
     Uq_server.listener
@@ -113,5 +104,3 @@ let start_srv req_processor (conn_attr) =
   flush stdout;
   
   Unixqueue.run ues
-;;
-
