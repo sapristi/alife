@@ -27,12 +27,8 @@
 * architecture
 
 ** TODO split the web client in multiple pages
-** TODO switch to opium / rest API for the webserver
-   maybe it would be easier at start to leave the ocamlhttp 
-   as a content server, and put opium on another port
-   to serve the REST API
 
-
+** TODO switch to a rest API for the webserver
 ** TODO global reaction coefficient : 
    put in the reactant module, so that
    we can put all reactions in the same set
@@ -57,7 +53,7 @@
 
 * optional
 
-** TODO swith to ocsigen for the web client/server (will never happen)
+** TODO swith to ocsigen (or opium ?) for the web client/server (will never happen)
 
 ** TODO simple reactions to test against
 
