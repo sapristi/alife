@@ -96,7 +96,7 @@ let server_functions =
    "list_acids", list_acids]
     
   
-let make_dyn_service prefix url f  =
+let make_dyn_service  f  =
   Nethttpd_services.dynamic_service
     { dyn_handler =
         (fun env (cgi:Netcgi.cgi)  ->
@@ -126,16 +126,17 @@ let make_req_handler simulator sandbox =
 
   let main_redirects =
     (List.map
-       (fun (name, f) ->  name, make_dyn_service "main" name f)
+       (fun (name, f) ->  "/sim_commands/main/"^name, make_dyn_service f)
        server_functions)
   and sandbox_redirects = 
     (List.map
-       (fun (name, f) ->  name, make_dyn_service "sandbox" name (f sandbox))
+       (fun (name, f) ->  "/sim_commands/sandbox/"^name, make_dyn_service (f sandbox))
        Sandbox_req_handler.server_functions)
   and simulator_redirect = 
     (List.map
-       (fun (name, f) ->  name, make_dyn_service "simulator" name (f simulator))
+       (fun (name, f) ->  "/sim_commands/simulator/"^name, make_dyn_service  (f simulator))
        Sim_req_handler.server_functions)
+
   in 
 
     Nethttpd_services.uri_distributor
