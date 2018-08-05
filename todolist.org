@@ -1,0 +1,92 @@
+* general
+
+** TODO use the todolist
+
+* bugfixes/improvements
+
+** TODO change « send to bact » to « send to sandbox » 
+   in the molbuilder tab, and change behaviour accordingly
+
+** TODO reporter service
+   - [ ] log folder
+   - [ ] display some logs on the terminal
+
+** STARTED revert amolset to a simpler state
+   we will modify ARMgr to be a wrapper over 
+   PnetSet.t Map, and same thing with IRMgr
+
+
+** TODO sanitize the use mutable/immutable structures
+   - [ ] in amolset
+   - [ ] everywhere ?
+
+* architecture
+
+** TODO split the web client in multiple pages
+** TODO switch to opium / rest API for the webserver
+   maybe it would be easier at start to leave the ocamlhttp 
+   as a content server, and put opium on another port
+   to serve the REST API
+
+
+** TODO global reaction coefficient : 
+   put in the reactant module, so that
+   we can put all reactions in the same set
+   - [ ] feature
+   - [ ] interface to modify coefficients dynamically
+     (is it possible ?)
+
+** TODO implement tests
+
+
+
+
+* features
+
+** TODO random binds
+   - [ ] clean feature/random-binds branch
+   - [ ] finalise feature
+
+** TODO extended pnets (as graphs)
+
+
+
+* optional
+
+** TODO swith to ocsigen for the web client/server (will never happen)
+
+** TODO simple reactions to test against
+
+
+
+
+
+
+
+   
+* org mode cheat sheet
+
+** checklist :
+ - [X] switch with C-c C-c
+ - [ ]  
+
+** STATES
+
+*** TODO 
+*** STARTED 
+*** CURRENT 
+*** DONE 
+*** CANCELED 
+
+
+
+(setq org-todo-keywords
+      '((sequence "TODO" "STARTED" "CURRENT"  "|" "DONE" "CANCELED")))
+
+
+(setq org-todo-keyword-faces
+      '(("TODO" . "yellow")
+        ("STARTED" . "orange")
+        ("CURRENT" .  (:foreground "red" :weight bold))
+        ("DONE"    .  "lime green")
+        ("CANCELED" .  "deep blue sky")))

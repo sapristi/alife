@@ -94,12 +94,11 @@ let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
    
     
   and launch_transition (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
-    let mol = cgi # argument_value "molecule" in
-    let pnet_id = int_of_string (cgi # argument_value "pnet_id") in
-    let trans_index_str = cgi # argument_value "transition_index" in
-    let trans_index = int_of_string trans_index_str in
-    
-         
+    let mol = cgi # argument_value "molecule" 
+    and pnet_id = int_of_string (cgi # argument_value "pnet_id") 
+    and trans_index = cgi # argument_value "transition_index"
+                      |> int_of_string in
+
     let amolset =  Bacterie.MolMap.find mol !sandbox.areactants in
     let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset in
     
@@ -108,11 +107,10 @@ let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
     
     let pnet_json = Petri_net.to_json pnet
     in
-    let to_send_json =
       `Assoc
        ["purpose", `String "pnet_update";
-        "data",  `Assoc ["pnet", pnet_json]] in  
-    Yojson.Safe.to_string to_send_json
+        "data",  `Assoc ["pnet", pnet_json]]  
+      |> Yojson.Safe.to_string 
     
   and add_mol sandbox (cgi : Netcgi.cgi) = 
     let mol = cgi # argument_value "mol_desc" in
@@ -187,5 +185,5 @@ let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
   then set_state sandbox cgi
   
   else ("did not recognize command : "^command)
-;;
+
   
