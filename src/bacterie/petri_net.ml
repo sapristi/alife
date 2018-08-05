@@ -200,7 +200,7 @@ let to_json (p : t) =
      "places",
      `List (Array.to_list (Array.map Place.to_yojson p.places));
      "transitions",
-     `List (Array.to_list (Array.map Transition.to_yojson p.transitions));
+     `List (Array.to_list (Array.map Transition.to_json p.transitions));
      "molecule",
      Molecule.to_yojson p.mol;
      "id", `Int p.uid]

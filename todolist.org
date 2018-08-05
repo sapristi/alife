@@ -19,16 +19,25 @@
    qui modifie un état interne renvoie la liste
    des actions à effectuer à plus haut niveau
 
-
 ** TODO sanitize the use mutable/immutable structures
    - [ ] in amolset
    - [ ] everywhere ?
+
+** TODO places in transitions
+   transitions contains a place array
+   does is work as a reference ?
+** TODO mol quantity go under 0
+** TODO petri net display inconsistencies
+   the first time display works, but the next ones fail
+
+** TODO sandbox pnet id
+   when requesting pnet_from_mol, pnet_id is sometimes missing
 
 * architecture
 
 ** TODO split the web client in multiple pages
 
-** TODO switch to a rest API for the webserver
+** DONE switch to a rest API for the webserver
 ** TODO global reaction coefficient : 
    put in the reactant module, so that
    we can put all reactions in the same set
