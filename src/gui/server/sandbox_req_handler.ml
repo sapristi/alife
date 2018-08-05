@@ -107,18 +107,21 @@ let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
     
   and add_mol sandbox (cgi : Netcgi.cgi) = 
     let mol = cgi # argument_value "mol_desc" in
-    Bacterie.add_molecule mol !sandbox;
+    Bacterie.add_molecule mol !sandbox
+    |> Bacterie.execute_actions !sandbox;
     get_bact_elements sandbox;
 
-  and remove_mol sandbox (cgi : Netcgi.cgi) = 
+  and remove_mol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
     let mol = cgi # argument_value "mol_desc" in
-    Bacterie.IRMap.remove_all mol !sandbox;
+    Bacterie.IRMap.remove_all mol !sandbox.ireactants
+    |> Bacterie.execute_actions !sandbox;
     get_bact_elements sandbox;
 
-  and set_mol_quantity sandbox (cgi : Netcgi.cgi) = 
+  and set_mol_quantity (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
     let mol = cgi # argument_value "mol_desc"
     and n = cgi # argument_value "mol_quantity" in
-    Bacterie.IRMgr.set_qtt  (int_of_string n) mol !sandbox;
+    Bacterie.IRMap.set_qtt  (int_of_string n) mol !sandbox.ireactants
+    |> Bacterie.execute_actions !sandbox;
     get_bact_elements sandbox;
 
     (*
