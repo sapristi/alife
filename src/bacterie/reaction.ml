@@ -202,6 +202,7 @@ module rec
              | T_effects of Place.transition_effect list
              | Remove_one of Reactant.t
              | Update_reacs of Reactant.reacSet
+             | Remove_reacs of Reactant.reacSet
              | Release_mol of Molecule.t
              | Release_tokens of Token.t list
            module type REAC =

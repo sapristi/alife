@@ -14,15 +14,6 @@ module MolSet =
 (* this should eventually be moved to reaction.ml *)
 module ActiveMolSet  = struct
 
-  module PnetSet =
-    Set.Make (
-        struct
-          type t = Reactant.Amol.t ref
-          let compare =
-            fun (amd1 :t) (amd2:t) ->
-            Reactant.Amol.compare
-              !amd1 !amd2
-        end)
 
   type t =
     { mutable pnets : PnetSet.t;
@@ -65,7 +56,7 @@ module ActiveMolSet  = struct
 (* *** update reacs with new reactant *)
 (* Calculates the possible reactions with a reactant *)
       
-  let add_reacs_with_new_reactant (new_reactant : Reactant.t) (aset :t) reac_mgr : unit =
+  let add_reacs_with_new_reactant (new_reactant : Reactant.t) (aset :t)  : unit =
     if PnetSet.is_empty aset.pnets
     then
       ()

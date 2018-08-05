@@ -2,39 +2,34 @@
 
 open Reactors
 open Bacterie_libs
-open Amolset
+
    
 
 let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
 
   let pnet_ids_from_mol  (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
     let mol = cgi # argument_value "mol_desc" in
-    let amolset =  Bacterie.MolMap.find mol (!sandbox).areactants in
-    let pnet_ids = ActiveMolSet.get_pnet_ids amolset in
+    let pnet_ids = Bacterie.ARMap.get_pnet_ids mol !sandbox.areactants in
     let pnet_ids_json =
-      `List (List.map (fun i -> `Int i) pnet_ids) in
-    let to_send_json =
-      `Assoc
+      `List (List.map (fun i -> `Int i) pnet_ids)
+    in
+    `Assoc
        ["purpose", `String "pnet_ids";
         "data", pnet_ids_json]
-    in
-    Yojson.Safe.to_string to_send_json
+    |> Yojson.Safe.to_string
     
   
   and pnet_from_mol (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
     let mol = cgi # argument_value "mol_desc"
     and pnet_id = int_of_string (cgi# argument_value "pnet_id") in
-    let amolset =  Bacterie.MolMap.find mol !sandbox.areactants in
-    let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset
+    let pnet =  Bacterie.ARMap.find_pnet mol pnet_id !sandbox.areactants
     in
     let pnet_json = Petri_net.to_json pnet
     in
-    let to_send_json =
-      `Assoc
-       ["purpose", `String "pnet_from_mol";
-        "data",  `Assoc ["pnet", pnet_json]] 
-    in
-       Yojson.Safe.to_string to_send_json
+    `Assoc
+     ["purpose", `String "pnet_from_mol";
+      "data",  `Assoc ["pnet", pnet_json]] 
+    |>  Yojson.Safe.to_string
 (* *** get_bact_elements *)
     
   and get_bact_elements sandbox =
@@ -70,8 +65,7 @@ let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
          let place_index_str = cgi # argument_value "place_index" in
          let place_index = int_of_string place_index_str in
          
-         let amolset =  Bacterie.MolMap.find mol !sandbox.areactants in
-         let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset in
+         let pnet = Bacterie.ARMap.find_pnet mol pnet_id !sandbox.areactants in
          (
            match token_o with
            | Some token -> 
@@ -99,8 +93,7 @@ let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
     and trans_index = cgi # argument_value "transition_index"
                       |> int_of_string in
 
-    let amolset =  Bacterie.MolMap.find mol !sandbox.areactants in
-    let pnet = ActiveMolSet.find_by_pnet_id pnet_id amolset in
+    let pnet = Bacterie.ARMap.find_pnet mol pnet_id !sandbox.areactants in
     
     Petri_net.launch_transition_by_id trans_index pnet;
     Petri_net.update_launchables pnet;
@@ -119,7 +112,7 @@ let handle_sandbox_req (sandbox : Sandbox.t) (cgi:Netcgi.cgi) :string  =
 
   and remove_mol sandbox (cgi : Netcgi.cgi) = 
     let mol = cgi # argument_value "mol_desc" in
-    Bacterie.IRMgr.remove_all mol !sandbox;
+    Bacterie.IRMap.remove_all mol !sandbox;
     get_bact_elements sandbox;
 
   and set_mol_quantity sandbox (cgi : Netcgi.cgi) = 
