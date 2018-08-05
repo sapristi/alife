@@ -57,7 +57,7 @@ function ActiveMolsVM(bactVM) {
 	    utils.ajax_get(
 		{command : "pnet_ids_from_mol",
 		 mol_desc : self.mols()[index].mol,
-		 container : self.bactVM.container_id}
+		 target : self.bactVM.container_id}
 	    ).done(function(data) {
 		self.pnet_indexes(data.data);});
 	    
@@ -67,7 +67,7 @@ function ActiveMolsVM(bactVM) {
     self.remove_mol = function() {
         utils.ajax_get(
             {command:"remove_mol",
-	     container:self.bactVM.container_id,
+	     target:self.bactVM.container_id,
 	     mol_desc:self.current_mol_name()}
         ).done(self.bactVM.set_bact_data);
     }
@@ -75,7 +75,7 @@ function ActiveMolsVM(bactVM) {
     self.set_mol_quantity = function() {
         utils.ajax_get(
             {command:"set_mol_quantity",
-	     container:self.bactVM.container_id,
+	     target:self.bactVM.container_id,
 	     mol_desc:self.current_mol_name(),
 	     mol_quantity : self.mol_quantity_input}
         ).done(self.bactVM.set_bact_data);

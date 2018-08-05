@@ -113,7 +113,7 @@ let make_dyn_service  f  =
           cgi # set_header ~content_type:"application/json" ();
           cgi # out_channel # output_string response;
           cgi # out_channel # commit_work();
-          Log.debug (fun m -> m "sent response :%s\n" response);
+          Log.info (fun m -> m "sent response :%s\n" response);
         );
       dyn_activation = Nethttpd_services.std_activation `Std_activation_buffered;
       dyn_uri = None;
@@ -126,7 +126,7 @@ let make_req_handler simulator sandbox =
 
   let main_redirects =
     (List.map
-       (fun (name, f) ->  "/sim_commands/main/"^name, make_dyn_service f)
+       (fun (name, f) ->  "/sim_commands/general/"^name, make_dyn_service f)
        server_functions)
   and sandbox_redirects = 
     (List.map

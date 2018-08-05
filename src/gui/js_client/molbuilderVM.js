@@ -43,7 +43,7 @@ function MolBuilderViewModel (simVM) {
         utils.ajax_get(
             {command: "build_all_from_mol",
              mol_desc: mol_desc,
-    	     container: "general"}
+    	     target: "general"}
         ).done(
     	    function (data)
     	    {
@@ -72,7 +72,7 @@ function MolBuilderViewModel (simVM) {
     self.init_setup = function() {
 	utils.ajax_get(
             {command: "list_acids",
-	     container: "general"}
+	     target: "general"}
 	).done(
 	    function (data)
 	    {
@@ -86,7 +86,7 @@ function MolBuilderViewModel (simVM) {
 	
 	utils.ajax_get(
             {command: "build_all_from_prot",
-	     container: "general",
+	     target: "general",
 	     prot_desc : JSON.stringify(prot)}
 	).done(
 	    function (data)
@@ -102,10 +102,10 @@ function MolBuilderViewModel (simVM) {
 	self.set_data_from_mol(mol);
     }
 
-    self.send_prot_to_bactery = function() {
+    self.send_prot_to_sandbox = function() {
 	utils.ajax_get(
             {command: "add_mol",
-	     container: "bactery",
+	     target: "sandbox",
 	     mol_desc : self.data.mol}
 	).done(
 	    function (data)
@@ -114,10 +114,10 @@ function MolBuilderViewModel (simVM) {
 	    });
 
     }
-    self.send_mol_to_bactery = function() {
+    self.send_mol_to_sandbox = function() {
 	utils.ajax_get(
             {command: "add_mol",
-	     container: "bactery",
+	     target: "sandbox",
 	     mol_desc : self.mol_text()}
 	).done(
 	    function (data)

@@ -214,7 +214,7 @@ function PNetViewModel(container_id) {
             {command: "pnet_from_mol",
              mol_desc: mol_desc,
 	     pnet_id : pnet_index,
-	     container: self.container_id}
+	     target: self.container_id}
         ).done(data_fun);
     }
 
@@ -265,7 +265,7 @@ function PNetViewModel(container_id) {
 	     molecule : self.data().molecule,
 	     place_index : pindex,
              token: JSON.stringify(token),
-	     container: self.container_id}
+	     target: self.container_id}
         ).done(
 	    function (data)
 	    {	
@@ -283,7 +283,7 @@ function PNetViewModel(container_id) {
 	    {command: "launch_transition",
 	     molecule : self.data().molecule,
 	     transition_index : tindex,
-	     container: self.container_id}
+	     target: self.container_id}
         ).done(
 	    function (data)
 	    {	

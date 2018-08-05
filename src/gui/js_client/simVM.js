@@ -67,7 +67,7 @@ function SimViewModel (sandboxVM) {
     self.simulate = function() {
 	utils.ajax_get(
 	    {command:"simulate",
-	     container:self.container_id,
+	     target:self.container_id,
 	     reac_nb: self.reac_nb_input()}
 	).done(function(data) {console.log(data);});}
 
@@ -76,7 +76,7 @@ function SimViewModel (sandboxVM) {
     self.commit_init = function() {
 	utils.ajax_get(
 	    {command:"init",
-	     container:self.container_id,
+	     target:self.container_id,
 	     config: JSON.stringify(self.static_config())}
 	).done(function(data){
 	    self.bact_nb(data.bact_nb);
@@ -86,7 +86,7 @@ function SimViewModel (sandboxVM) {
     self.send_bact_to_sandbox= function() {
 	utils.ajax_get(
 	    {command:"send_bact_to_sandbox",
-	     container: self.container_id,
+	     target: self.container_id,
 	     bact_index : self.selected_bact_index()}
 	).done(function(data){console.log(data);})
     };

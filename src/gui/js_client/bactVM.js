@@ -27,7 +27,7 @@ function BactViewModel(pnetVM, container_id) {
     self.update = function() {
         utils.ajax_get(
             {command:"get_elements",
-	     container:self.container_id}
+	     target:self.container_id}
         ).done(self.set_bact_data);
     };
 
@@ -36,14 +36,14 @@ function BactViewModel(pnetVM, container_id) {
         utils.ajax_get(
             {command:"next_reactions",
 	     n : self.reactions_number_input,
-	     container:self.container_id}
+	     target:self.container_id}
         ).done(self.set_bact_data);
     };
     self.next_reaction = function() {
         utils.ajax_get(
             {command:"next_reactions",
 	     n:1,
-	     container:self.container_id}
+	     target:self.container_id}
         ).done(self.set_bact_data);
     };
 // ** init_data
@@ -72,7 +72,7 @@ function BactViewModel(pnetVM, container_id) {
     self.remove_mol = function() {
         utils.ajax_get(
             {command:"remove_mol",
-	     container:self.container_id,
+	     target:self.container_id,
 	     mol_desc:self.current_mol_name()}
         ).done(self.set_bact_data);
 	
@@ -81,7 +81,7 @@ function BactViewModel(pnetVM, container_id) {
     self.set_mol_quantity = function() {
         utils.ajax_get(
             {command:"set_mol_quantity",
-	     container:self.container_id,
+	     target:self.container_id,
 	     mol_desc:self.current_mol_name(),
 	     mol_quantity : self.mol_quantity_input}
         ).done(self.set_bact_data);
@@ -92,7 +92,7 @@ function BactViewModel(pnetVM, container_id) {
     self.reset_bactery = function () {
         utils.ajax_get(
             {command:"reset_bactery",
-	     container:self.container_id}
+	     target:self.container_id}
         ).done(self.set_bact_data);
 	
     }
@@ -114,7 +114,7 @@ function BactViewModel(pnetVM, container_id) {
 	    
 	    utils.ajax_get(
             {command:"set_bactery",
-	     container:self.container_id,
+	     target:self.container_id,
 	     bact_desc : reader.result}
         ).done(self.set_bact_data);
         }
