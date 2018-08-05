@@ -134,6 +134,7 @@ module ReactionsM (R : REACTANT) =
       | T_effects of Place.transition_effect list
       | Remove_one of R.t
       | Update_reacs of R.reacSet
+      | Remove_reacs of R.reacSet
       | Release_mol of Molecule.t
       | Release_tokens of Token.t list
                         

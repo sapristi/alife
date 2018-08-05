@@ -3,7 +3,7 @@
  (flags -w)
  (preprocess
            (pps ppx_deriving_yojson ppx_deriving.show ppx_deriving.ord ))
- (modules Bacterie Molecule Proteine Acid_types Reaction Reactions Petri_net Transition Graber Place Token Reac_mgr Amolset)
+ (modules Bacterie Molecule Proteine Acid_types Reaction Reactions Petri_net Transition Graber Place Token Reac_mgr)
  (libraries
         local_libs
         batteries
