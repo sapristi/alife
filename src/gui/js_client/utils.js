@@ -5,7 +5,14 @@ var utils = {
     ajax_get : function(req_data) {
 	console.log("sending:");
 	console.log(req_data);
-	var connect_uri = window.location.origin + "/sim_commands/";
+        
+        
+	var connect_uri =
+            window.location.origin +
+            "/sim_commands/" +
+            req_data.target + "/" +
+            req_data.command;
+        
 	var request = {
             url: connect_uri,
             dataType: 'json',
