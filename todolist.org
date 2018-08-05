@@ -11,7 +11,7 @@
    - [ ] log folder
    - [ ] display some logs on the terminal
 
-** STARTED revert amolset to a simpler state
+** DONE revert amolset to a simpler state
    we will modify ARMgr to be a wrapper over 
    PnetSet.t Map, and same thing with IRMgr
 
