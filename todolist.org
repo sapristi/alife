@@ -27,7 +27,7 @@
    transitions contains a place array
    does is work as a reference ?
 ** TODO mol quantity go under 0
-** CURRENT petri net display inconsistencies
+** DONE petri net display inconsistencies
    the first time display works, but the next ones fail
 
 ** TODO sandbox pnet id

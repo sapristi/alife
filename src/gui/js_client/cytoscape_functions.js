@@ -302,13 +302,7 @@ var make_coseblk_layout = function(cy_graph) {
 // *** pnet graph
 var make_pnet_graph = function(pnet_data, container, eventHandler) {
     var cy = null;
-    console.log("displaying new pnet graph with data")
-    console.log(pnet_data)
-    console.log(container)
-    console.log(eventHandler)
-
-
-    console.log("current cy:", cy)
+    
     if (cy != null) {cy.destroy();}
     
     cy = new cytoscape(
@@ -392,7 +386,6 @@ var make_pnet_graph = function(pnet_data, container, eventHandler) {
 		type : dp.iatype[0],
 		args : dp.iatype.slice(1)
 	    }
-            console.log(data);
             cy.add({
                 group: "edges",
                 data: data,
