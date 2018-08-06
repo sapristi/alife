@@ -1,3 +1,5 @@
+"use strict";
+
 // * cytoscape functions
 
 // ** proteine
@@ -202,7 +204,11 @@ var pnet_style= [
         style: {
 	    "mid-target-arrow-shape" : "triangle-tee",
 	    "label" : function(ele) {
-		return ele._private.data.args[0];}
+                if (ele._private.data.args.length > 0)
+                {
+		    return ele._private.data.args[0];
+                } else {return "∅";}
+            }
         }
     },
     {
@@ -295,11 +301,22 @@ var make_coseblk_layout = function(cy_graph) {
 
 // *** pnet graph
 var make_pnet_graph = function(pnet_data, container, eventHandler) {
-    var cy = new cytoscape(
-	{container:container,
-	 style:pnet_style,
-	 userZoomingEnabled:true,
-	 wheelSensitivity:0.2
+    var cy = null;
+    console.log("displaying new pnet graph with data")
+    console.log(pnet_data)
+    console.log(container)
+    console.log(eventHandler)
+
+
+    console.log("current cy:", cy)
+    if (cy != null) {cy.destroy();}
+    
+    cy = new cytoscape(
+	{
+            container:container,
+	    style:pnet_style,
+	    userZoomingEnabled:true,
+	    wheelSensitivity:0.2
 	});
         
     var selected = 0;
@@ -322,7 +339,6 @@ var make_pnet_graph = function(pnet_data, container, eventHandler) {
 	for (var j=0; j< node.extensions.length; j++) {
 	    
 	    var ext = node.extensions[j];
-	    console.log(ext);
 	    var node_ext_id = node_id + "_" + ext[0];
 	    cy.add({
 		group:"nodes",
@@ -368,16 +384,18 @@ var make_pnet_graph = function(pnet_data, container, eventHandler) {
         t.input_arcs.forEach(function(dp) {
 	    var label = make_arc_short_name(dp.iatype);
 	    var classes = "arc " + label;
+            var data = {
+                source : "p"+ dp.source_place,
+                target : tname,
+                directed : true,
+		label: label,
+		type : dp.iatype[0],
+		args : dp.iatype.slice(1)
+	    }
+            console.log(data);
             cy.add({
                 group: "edges",
-                data: {
-                    source : "p"+ dp.source_place,
-                    target : tname,
-                    directed : true,
-		    label: label,
-		    type : dp.iatype[0],
-		    args : dp.iatype.slice(1)
-		},
+                data: data,
 		classes : classes
             });
         });

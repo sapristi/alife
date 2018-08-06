@@ -39,6 +39,7 @@ var utils = {
             contentType: "application/json; charset=utf-8",
 	    method:'post',
             success : function(json) {
+		console.log("received :"); 
                 console.log(json);
             },
             error: function(jqXHR) {

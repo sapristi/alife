@@ -11,6 +11,8 @@ function MolBuilderViewModel (simVM) {
 	prot : "",
 	mol : ""
     };
+
+    self.pnet_cy = null;
     
     self.initialised = ko.observable(false);
     self.active = ko.observable(false);
@@ -27,7 +29,7 @@ function MolBuilderViewModel (simVM) {
     
     
     self.display_cy_graph = function() {
-	
+        
 	self.pnet_cy = new make_pnet_graph(
 	    self.data.pnet,
 	    document.getElementById('molbuilder_pnet_cy'),
