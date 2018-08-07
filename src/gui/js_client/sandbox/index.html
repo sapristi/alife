@@ -41,9 +41,7 @@
 			 style="max-width:100px;position:fixed;top:100px" id="left_sim_sticky">
 			<div class="ui segment"
 			     style="max-width:100px; padding-left:0; padding-right:0">
-			    <h4 class="ui horizontal divider header">
-				Simulation
-			    </h4>
+			    <h4 class="ui horizontal divider header">Simulation</h4>
 
 			    <button class="ui primary button tooltip"
 				    data-bind="click:bactVM.next_reaction"
@@ -70,7 +68,13 @@
 
 
 		<div class="ui divided grid">
-		    <div class ="row"><h2 class="ui horizontal divider header">
+                  
+                  <div class="centered row">
+                    <h1 class="ui header" style="margin-top:5px">SandBox</h1>
+                  </div>
+
+                  
+		    <div class="row"><h2 class="ui horizontal divider header">
 			Bactery view
 		    </h2></div>
 
@@ -393,7 +397,7 @@
     <!-- ** scripts loading  -->
     <script src="/js-libs/FileSaver.min.js"> </script>
     <script src="/utils.js"> </script>
-    <script src="/cytoscape_functions.js"> </script>
+    <script src="/pnet_cytoscape.js"> </script>
     
     <script src="active_molsVM.js"> </script>
     <script src="inert_molsVM.js"> </script>
