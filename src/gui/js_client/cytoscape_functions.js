@@ -1,72 +1,8 @@
 "use strict";
 
-// * cytoscape functions
+// * cytoscape petri net
 
-// ** proteine
-
-// *** proteine style
-var prot_style =
-    [
-	{
-	    selector: ".Node",
-	    style: {
-	    }
-	},
-	{
-	    selector: ".TransitionInput",
-	    style: {
-		'shape':'polygon',
-		'shape-polygon-points':'-1 0.5 1 0 -1 -0.5'
-	    }
-	},
-	{
-	    selector: ".TransitionOutput",
-	    style: {
-		'shape':'polygon',
-		'shape-polygon-points':'1 0.5 -1 0 1 -0.5'
-	    }
-	},
-	{
-	    selector: ".Extension",
-	    style: {
-		'shape':'diamond'
-	    }
-	}
-    ];
-
-// *** proteine graph
-var make_prot_graph = function(prot_data, container) {
-    var cy = cytoscape({container:container, style:prot_style});
-    
-    for (var i = 0;i < prot_data.length;i++){
-	
-	cy.add({
-            group: "nodes",
-            data: {id:"n"+i,
-		   type : prot_data[i]["atype"],
-		   option : prot_data[i]["options"],
-		   raw_data: prot_data[i]},
-            classes: prot_data[i]["atype"]
-        });
-        
-        if (i>0) {
-            cy.add({
-                group:"edges",
-                data: {source: "n"+(i-1), target:"n"+i}
-            });
-        }
-    }
-
-    cy.on('click', 'node', function(evt){
-	console.log(evt.target.data());
-    });
-    
-    return cy;
-};
-
-
-// ** pnet
-// *** pnet short names
+// ** pnet short names
 
 // from http://www.mulinblog.com/a-color-palette-optimized-for-data-visualization/
 var pnet_colors = {
@@ -97,7 +33,7 @@ var make_arc_short_name = function(arc_type) {
 	"");
     return short_name + " " + args;
 };
-// *** pnet style
+// ** pnet style
 var pnet_style= [
     {
 	selector: ".compound",
@@ -265,7 +201,7 @@ var pnet_style= [
         }
     },
 ];
-// *** layout
+// ** layouts
 // called when displaying the graph
 var make_cola_layout = function(cy_graph) {
     return {
@@ -299,7 +235,7 @@ var make_coseblk_layout = function(cy_graph) {
     };
 }
 
-// *** pnet graph
+// ** main function : make pnet graph
 var make_pnet_graph = function(pnet_data, container, eventHandler) {
     var cy = null;
     
@@ -315,7 +251,7 @@ var make_pnet_graph = function(pnet_data, container, eventHandler) {
         
     var selected = 0;
     
-// **** places
+// *** places
 
     for (var i = 0;i < pnet_data.places.length;i++){
 	var node = pnet_data.places[i];
@@ -356,7 +292,7 @@ var make_pnet_graph = function(pnet_data, container, eventHandler) {
 	}
     }
 
-// **** transitions
+// *** transitions
     for (var i = 0; i < pnet_data.transitions.length;i++) {
         var t = pnet_data.transitions[i];
         var tname = "t" + i;
@@ -427,7 +363,7 @@ var make_pnet_graph = function(pnet_data, container, eventHandler) {
     cy.on('unselect', 'node', function(evt){
     	eventHandler.set_node_unselected();
     });
-
+// *** layout
     var layout = cy.layout(make_cola_layout(cy));
     cy.contextMenus({
 	menuItems: [
@@ -451,7 +387,7 @@ var make_pnet_graph = function(pnet_data, container, eventHandler) {
 	    },
 	]});
 
-
+// *** return value
     var pnet_cy = {
 	cy : cy,
 	layout : layout,

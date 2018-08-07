@@ -46,6 +46,7 @@
    - [ ] feature
    - [ ] interface to modify coefficients dynamically
      (is it possible ?)
+   - [ ] web interface
 
 ** TODO implement tests
 
