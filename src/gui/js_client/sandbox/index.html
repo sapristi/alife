@@ -1,7 +1,8 @@
 
+<!doctype html>
 <html>
     <head>
-	<title>Bact Simul Demo</title>
+	<title>Sandbox - YAACS</title>
 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta charset="UTF-8">
@@ -165,7 +166,7 @@
 				       data-bind="value:mol_quantity_input"/>
 			    </div>
 
-			    <button class="ui icon button tooltip" data-bind="click:$root.molbuilderVM.init_from_mol">
+			    <button class="ui icon button tooltip" data-bind="click:$root.send_mol_to_molbuilder">
 				Send to Mol Builder
 				<span class="big tooltiptext">Initiate the Mol Builder with the selected molecule.<br> Use this to see how a particular Petri net is designed</span>
 			    </button>
@@ -233,7 +234,7 @@
 				<span class="tooltiptext">Definitely removes the molecule from the bactery</span>
 			    </button>
 
-			    <button class="ui icon button tooltip" data-bind="click:$root.molbuilderVM.init_from_mol">
+			    <button class="ui icon button tooltip" data-bind="click:$root.send_to_molbuilder">
 				Send to Mol Builder
 				<span class="big tooltiptext">Initiate the Mol Builder with the selected molecule.<br> Use this to see how a particular Petri net is designed</span>
 			    </button>
@@ -395,11 +396,10 @@
     <script src="/js-libs/FileSaver.min.js"> </script>
     <script src="/utils.js"> </script>
     <script src="/cytoscape_functions.js"> </script>
-    <script src="/inert_molsVM.js"> </script>
-    <script src="/active_molsVM.js"> </script>
-    <script src="/sandboxVM.js"> </script>
+    
+    <script src="active_molsVM.js"> </script>
+    <script src="inert_molsVM.js"> </script>
     <script src="/pnetVM.js"> </script>
-    <script src="/protVM.js"> </script>
-    <script src="/bactVM.js"> </script>
-    <script src="/client.js"> </script>
+    <script src="bactVM.js"> </script>
+    <script src="sandboxVM.js"> </script>
 </html>

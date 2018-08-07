@@ -1,6 +1,6 @@
-function MolBuilderViewModel (simVM) {
+function MolBuilderViewModel () {
     var self = this;
-    self.simVM = simVM;
+    self.simVM = "missing";
     
     self.prot_text = ko.observable("");
     self.mol_text = ko.observable("");
@@ -139,4 +139,17 @@ function MolBuilderViewModel (simVM) {
     };
     self.set_node_unselected = function() {
     };
+
+
+    return self;
+        
 }
+
+
+var vm = MolBuilderViewModel();
+vm.init_setup()
+
+
+ko.applyBindings({
+    molbuilderVM : vm 
+});

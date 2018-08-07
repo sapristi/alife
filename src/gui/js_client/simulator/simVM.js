@@ -1,7 +1,7 @@
 
-function SimViewModel (sandboxVM) {
+function SimViewModel () {
     var self = this;
-    self.sandboxVM = sandboxVM;
+    self.sandboxVM = "sandboxVM : missing" ;
     self.container_id = "simulation"
     // for the configuration before running
     self.config =
@@ -145,5 +145,12 @@ function SimViewModel (sandboxVM) {
 	reader.readAsText(file);
     };
     document.getElementById('sim_cfg_load').addEventListener('change', self.load_config_file, false);
-    
+
+    return self;
 }
+
+var vm = SimViewModel()
+
+ko.applyBindings({
+    simVM : vm
+});
