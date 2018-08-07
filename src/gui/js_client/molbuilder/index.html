@@ -1,0 +1,165 @@
+
+<!-- * preambule -->
+
+<!doctype html>
+<html>
+  <head>
+    <title>Bact Simul Demo</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <!-- ** external libs -->
+    <link href="/css-libs/semantic.css" Rel="stylesheet">
+    <script src="/js-libs/jquery-3.2.1.min.js"></script>
+    <script src="/js-libs/knockout-debug.js"></script>
+    <script src="/js-libs/semantic.js"></script>
+    <script src="/js-libs/cytoscape.js"></script>
+    <script src="/js-libs/rhill-voronoi-core.js"></script>
+    <script src="/js-libs/cytoscape-spread.js"></script>
+    <script src="/js-libs/cytoscape-cose-bilkent.js"></script>
+    <script src="/js-libs/cola.v3.min.js"></script>
+    <script src="/js-libs/cytoscape-cola.js"></script>
+
+    <script src="/js-libs/cytoscape-context-menus.js"></script>
+    <script src="/js-libs/cytoscape-automove.js"></script>
+    
+    <!-- ** personnal css -->
+    <link href="/custom_styles.css" rel="stylesheet">
+    <link href="/css-libs/cytoscape-context-menus.css" rel="stylesheet">
+
+  </head>
+
+  <!-- * body -->
+
+  <body>
+
+    <!-- ** tab switch -->
+    <div class="ui container"
+         data-bind="with:molbuilderVM">
+
+      <div class="ui grid" >
+
+	<div class="row">
+	  <div class="six wide column">
+	    <h4 class="ui horizontal divider header">
+	      Petri Net view
+	    </h4>
+
+	    <button class="ui labeled icon button tooltip" data-bind="click:reset_graph_view">
+	      <i class="refresh icon"></i> Refresh graph
+	      <span class="tooltiptext">Doesn't need to be used</span>
+	    </button>
+	    <div id="molbuilder_pnet_cy"  class="cy small">
+	    </div>
+
+	  </div>
+	  <div class="four wide column tooltip">
+
+	    <span class="big tooltiptext">
+	      Select an acid to add it to the proteine.<br>
+	      The text should form a comma separated list, for example : <br>
+	      <span class="special-text">
+		[ <br>
+		["Node"], <br>
+		["InputArc","A",["Regular_iarc"]], <br>
+		["Node"], <br>
+		["OutputArc","A",["Regular_oarc"]] <br>
+		]<br>
+	      </span>
+	      (linebreaks don't matter)
+	    </span>
+	    <h4 class="ui horizontal divider header">
+	      Acids
+	    </h4>
+
+	    <div class="ui segments">
+	      <!-- ko foreach :acid_examples -->
+	      <div class="ui segment" data-bind="text:type"></div>
+
+	      <div class="ui vertical buttons">
+		<!-- ko foreach :$data.acids -->
+		<button class="ui button" data-bind="text:JSON.stringify($data), click:$parents[1].insert_acid_in_prot"></button>
+		<!-- /ko -->
+	      </div>
+
+	      <!-- /ko -->
+	    </div>
+	  </div>
+	  <div class="six wide column">
+	    <h4 class="ui horizontal divider header">
+	      Proteine
+	    </h4>
+	    <div class="ui buttons">
+	      <button class="ui button tooltip" data-bind="click:commit_prot">
+		Compile prot
+		<span class="tooltiptext">Calculates associated Petri Net and Molecule</span>
+	      </button>
+	      <button class="ui button tooltip" data-bind="">
+		Restore prot
+		<span class="tooltiptext">Revert changes</span>
+	      </button>
+	      <button class="ui button tooltip" data-bind="click:send_prot_to_sandbox">
+		Send to Sandbox
+		<span class="tooltiptext">Add to the sandbox (compile before using this)</span>
+	      </button>
+	    </div>
+	    <div class="ui form">
+	      <div class="field">
+		<textarea style="resize : both"
+			  rows="25"
+			  data-bind="textInput:prot_text"
+			  id="molbuilder_prot_text"></textarea>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	<div class="row">
+
+	  <div class="eight wide column">
+	    <h4 class="ui horizontal divider header">
+	      Molecule
+	    </h4>
+	    <div class="ui buttons">
+	      <button class="ui button tooltip" data-bind="click:commit_mol">
+		Compile mol
+		<span class="tooltiptext">Calculates associated Proteine and Petri Net</span>
+	      </button>
+	      <button class="ui button tooltip" data-bind="">
+		Restore mol
+		<span class="tooltiptext">Revert changes</span>
+	      </button>
+	      <button class="ui button tooltip" data-bind="click:send_mol_to_sandbox">
+		Send to Sandbox
+		<span class="tooltiptext">Add the current molecule to the sandbox</span>
+	      </button>
+	    </div>
+	    <div class="ui form">
+	      <div class="field">
+		<textarea style="resize : both"
+			  rows="15"
+			  data-bind="value:mol_text"
+			  id="molbuilder_prot_text"></textarea>
+	      </div>
+	    </div>
+	  </div>
+
+
+
+	</div>
+      </div>
+
+    </div>
+
+  </body>
+
+
+  <!-- ** scripts loading  -->
+  <script src="/js-libs/FileSaver.min.js"> </script>
+  <script src="/utils.js"> </script>
+  <script src="/cytoscape_functions.js"> </script>
+  <script src="/sandboxVM.js"> </script>
+  <script src="/pnetVM.js"> </script>
+  <script src="/protVM.js"> </script>
+  <script src="/molbuilderVM.js"> </script>
+  <script src="/client.js"> </script>
+</html>
