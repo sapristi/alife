@@ -5,8 +5,8 @@ open Batteries
 open Reaction
 open Local_libs
 
-let src = Logs.Src.create "reactions" ~doc:"logs reacs events"
-module Log = (val Logs.src_log src : Logs.LOG)
+(* let src = Logs.Src.create "reactions" ~doc:"logs reacs events"
+ * module Log = (val Logs.src_log src : Logs.LOG) *)
 
 
 (* * file overview *)
@@ -146,7 +146,7 @@ type t =
     b_set :  BSet.t;
 
     mutable reac_nb : int;
-    mutable reporter : Reporter.reporter;
+    mutable reporter : Reporter.t;
   }
 
 
@@ -202,9 +202,9 @@ let add_grab (graber_d : Reactant.Amol.t ref)
              (grabed_d : Reactant.t ) (reac_mgr :t)  =
 
 
-  Log.debug (fun m -> m "added new grab between : %s\n%s"
-                        (Reactant.Amol.show !graber_d)
-                        (Reactant.show grabed_d));
+  (* Log.debug (fun m -> m "added new grab between : %s\n%s"
+   *                       (Reactant.Amol.show !graber_d)
+   *                       (Reactant.show grabed_d)); *)
 
   Reporter.report
     reac_mgr.reporter
@@ -226,8 +226,8 @@ let add_grab (graber_d : Reactant.Amol.t ref)
            
 let add_transition amd reac_mgr  =
 
-  Log.debug (fun m -> m "added new transition : %s"
-                        (Reactant.Amol.show !amd));
+  (* Log.debug (fun m -> m "added new transition : %s"
+   *                       (Reactant.Amol.show !amd)); *)
 
 
   Reporter.report
@@ -246,8 +246,8 @@ let add_transition amd reac_mgr  =
 (* ** Break *)
 let add_break md reac_mgr =
 
-  Log.debug (fun m -> m "added new break : %s"
-                        (Reactant.show md));
+  (* Log.debug (fun m -> m "added new break : %s"
+   *                       (Reactant.show md)); *)
   
   Reporter.report
     reac_mgr.reporter

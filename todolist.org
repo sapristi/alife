@@ -4,10 +4,13 @@
 
 * bugfixes/improvements
 
+** TODO break reaction 
+   broken pnet : only one piece is added, and pnet is not removed
 
 ** STARTED reporter service
-   - [ ] log folder
-   - [ ] display some logs on the terminal
+   - [X] log folder
+   - [ ] better logs
+   - [ ] use logs as a backend for reporter
 
 ** TODO sanitize the use mutable/immutable structures
    - [ ] in amolset
@@ -49,9 +52,8 @@
    - [ ] web interface
 
 ** TODO implement tests
-
-
-
+   describe bacteria where only one kind of reaction can happen to
+   be able to predict results
 
 ** DONE switch to a rest API for the webserver
 
@@ -70,12 +72,6 @@
 ** TODO swith to ocsigen (or opium ?) for the web client/server (will never happen)
 
 ** TODO simple reactions to test against
-
-
-
-
-
-
 
    
 * org mode cheat sheet

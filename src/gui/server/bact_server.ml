@@ -2,21 +2,17 @@
 
 (* ** preamble*)
 open Sim_req_handler
-open Logs
 open Sandbox_req_handler
 open Bacterie_libs
 open Reactors
    
-type req_return_type = 
-  | Message of string
-  | Error of string
-  | Bact of Bacterie.t
 
-   
-let src = Logs.Src.create "mylib.network" ~doc:"logs mylib's network events"
+(* open Logs
+ * let src = Logs.Src.create "mylib.network" ~doc:"logs mylib's network events"  
+ * module Log = (val Logs.src_log src : Logs.LOG) *)
+           
+open Local_libs
   
-module Log = (val Logs.src_log src : Logs.LOG)
-                
            
 let prot_from_mol (cgi:Netcgi.cgi) : string =
   
@@ -97,6 +93,11 @@ let server_functions =
     
   
 let make_dyn_service  f  =
+  let reporter : Reporter.t ={
+      Reporter.loggers = [Reporter.cli_logger; Reporter.make_file_logger "server"];
+      Reporter.prefix = (fun () -> "");
+      Reporter.suffix = (fun () -> "");
+    } in 
   Nethttpd_services.dynamic_service
     { dyn_handler =
         (fun env (cgi:Netcgi.cgi)  ->
@@ -106,14 +107,21 @@ let make_dyn_service  f  =
                     ""
                     (cgi#arguments)
           in
-          Log.info (fun m -> m "serving GET request : \n%s" req_descr);
+
+          (*Log.info (fun m -> m "serving GET request : \n%s" req_descr); *)
+          Reporter.report reporter (Printf.sprintf
+                                      "serving GET request : \n%s" req_descr);
           
           let response = f cgi in
           
           cgi # set_header ~content_type:"application/json" ();
           cgi # out_channel # output_string response;
           cgi # out_channel # commit_work();
-          Log.info (fun m -> m "sent response :%s\n" response);
+
+          Reporter.report reporter (Printf.sprintf
+                                      "sent response : \n%s" response);
+          
+          (* Log.info (fun m -> m "sent response :%s\n" response); *)
         );
       dyn_activation = Nethttpd_services.std_activation `Std_activation_buffered;
       dyn_uri = None;

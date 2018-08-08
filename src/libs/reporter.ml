@@ -2,7 +2,7 @@ open Batteries
 open BatFile
 type logger = string -> unit
     
-type reporter = {
+type t = {
     loggers : logger list;
     prefix : unit -> string;
     suffix : unit -> string;
@@ -24,7 +24,8 @@ let make_file_logger filename : logger =
   (fun s ->
     
     let p = perm [user_read; user_write; group_read; group_write] in
-    let oc = open_out ~mode:[`create ; `append] ~perm:p filename in
+    print_string "reporter";
+    let oc = open_out ~mode:[`create ; `append] ~perm:p ("logs/"^filename) in
     
     Printf.fprintf oc "%s\n" s;
     close_out oc;
