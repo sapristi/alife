@@ -38,7 +38,7 @@
 
 * architecture
 
-** CURRENT split the web client in multiple pages
+** DONE split the web client in multiple pages
 
 ** TODO global reaction coefficient : 
    put in the reactant module, so that
