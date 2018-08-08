@@ -62,4 +62,21 @@ function InertMolsVM(bactVM) {
 	     mol_quantity : self.mol_quantity_input}
         ).done(self.bactVM.set_bact_data);
     }
+
+    /* 
+     * self.send_to_molbuilder = function(test) {
+     *     console.log(test)
+     *     var mol = self.current_mol_name();
+     *     if (mol == "") {return;}
+
+     *     var bc_chan = new BroadcastChannel("to_molbuilder");
+     *     bc_chan.postMessage({
+     *         command : "set data",
+     *         data : mol
+     *     });
+     *     bc_chan.close();
+       
+     *     console.log("bc : ");
+     *     console.log(mol);
+     * } */
 }

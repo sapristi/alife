@@ -80,4 +80,17 @@ function ActiveMolsVM(bactVM) {
 	     mol_quantity : self.mol_quantity_input}
         ).done(self.bactVM.set_bact_data);
     }
+
+    self.send_to_molbuilder = function() {
+        var bc_chan = new BroadcastChannel("to_molbuilder");
+        bc_chan.postMessage({
+            command : "set data",
+            data : self.mols()[self.selected_mol_index()]
+        });
+        bc_chan.close();
+        
+        console.log("bc : ");
+        console.log(self.mols()[self.selected_mol_index()]);
+        
+    }
 }
