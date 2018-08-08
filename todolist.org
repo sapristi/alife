@@ -5,7 +5,7 @@
 * bugfixes/improvements
 
 
-** TODO reporter service
+** STARTED reporter service
    - [ ] log folder
    - [ ] display some logs on the terminal
 
