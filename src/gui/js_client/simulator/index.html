@@ -1,0 +1,170 @@
+<html>
+    <head>
+	<title>Simulator - YAACS</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="UTF-8">
+	<!-- ** external libs -->
+	<link href="/css-libs/semantic.css" Rel="stylesheet">
+	<script src="/js-libs/jquery-3.2.1.min.js"></script>
+	<script src="/js-libs/knockout-debug.js"></script>
+	<script src="/js-libs/semantic.js"></script>
+
+	<!-- ** personnal css -->
+	<link href="/custom_styles.css" rel="stylesheet">
+
+    </head>
+
+    <!-- * body -->
+
+    <body>
+
+        <div class="ui container"
+             data-bind="with:simVM"
+             id="sim_tab">
+
+	    <div class="ui divided grid">
+
+
+                <div class="centered row">
+                    <h1 class="ui header" style="margin-top:5px">Simulator</h1>
+                </div>
+	        <!-- *** première ligne : paramètres-->
+	        <div class = "row">
+	            <h2 class="ui horizontal divider header">Initial setup</h2>
+	            <!-- load/save global config -->
+	            <div class="four wide column center aligned">
+	                <h3 class="ui horizontal divider header">Global</h3>
+	                <div class="ui vertical buttons">
+		            <div class="ui button tooltip">
+		                <label for="sim_cfg_load" id="sim_cfg_load_button">
+		                    Load from file
+		                    <span class="tooltiptext">Load configuration from a local text file</span>
+		                </label>
+		                <input type="file"
+			               id="sim_cfg_load"
+			               style="display:none"/>
+		            </div>
+		            <div class="ui button tooltip" data-bind="click:save_sim_config">
+		                Save to file</div>
+	                </div>
+	            </div>
+	            <!-- numeric values -->
+	            <div class="four wide column ">
+	                <h3 class="ui horizontal divider header">Configuration</h3>
+	                <h5 class="ui horizontal divider header">Simulator</h5>
+	                <div class="ui labeled input">
+		            <input type="text" size=8 data-bind="textInput: config.bact_nb">
+		            <div class="ui basic label">
+		                Nb of bacteries
+		            </div>
+	                </div>
+	                <h5 class="ui horizontal divider header">Reaction rates</h5>
+	                <div class="ui labeled input">
+		            <input type="text" size=8 data-bind="textInput: config.reacs_config.transition_rate">
+		            <div class="ui basic label">
+		                Transition
+		            </div>
+	                </div>
+	                <div class="ui labeled input">
+		            <input type="text" size=8 data-bind="textInput: config.reacs_config.grab_rate">
+		            <div class="ui basic label">
+		                Grab
+		            </div>
+	                </div>
+	                <div class="ui labeled input">
+		            <input type="text" size=8 data-bind="textInput: config.reacs_config.break_rate">
+		            <div class="ui basic label">
+		                Break
+		            </div>
+	                </div>
+	            </div>
+	            <!-- initial bactery state : import, load or save-->
+	            <div class="four wide column center aligned">
+	                <h3 class="ui horizontal divider header">Initial state</h3>
+	                <h5 class="ui horizontal divider header">Molecules</h5>
+                        <div class="ui vertical buttons">
+                            <div class="ui button tooltip" data-bind="click:sandbox_import">Import from Sandobox
+                                <span class="tooltiptext">Loads molecules from the sandbox.</span></div>
+                            <div class="ui button tooltip">
+                                <label for="sim_bact_load" id="sim_bact_load_button">
+                                    Load from file
+                                    <span class="tooltiptext">TODO</span>
+                                </label>
+                                <input type="file"
+	                               id="sim_bact_load"
+	                               style="display:none"/>
+                            </div>
+                        </div>
+
+                        <table class="ui table">
+                            <tbody>
+                                <tr>
+                                    <td data-bind="text:config.bact_initial_state.inert_mols().length"></td>
+                                    <td>Inert molecules</td>
+                                </tr>
+                                <tr>
+                                    <td data-bind="text:config.bact_initial_state.active_mols().length"></td>
+                                    <td>Active molecules</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- init simulation -->
+                    <div class="four wide column center aligned">
+                        <table class="ui table">
+                            <tbody>
+                                <tr>
+	                            <td><div class="ui empty circular label" data-bind="css:valid_config"></div></td>
+	                            <td>Configuration</td>
+                                </tr>
+                                <tr>
+	                            <td><div class="ui empty circular label" data-bind="css:valid_init_state"></div></td>
+	                            <td>Initial molecules</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="ui huge green button"
+                             data-bind="css:{disabled : (valid_config()=='red' || valid_init_state()=='red')}, click:commit_init">Init simulation</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h2 class="ui horizontal divider header">Simulation</h2>
+                    <div class="four wide column">
+                        <div class="ui action input">
+                            <button class="ui primary button tooltip"
+	                            data-bind="click:simulate"
+	                            style="padding-left:5px;padding-right:5px">
+	                        Next reactions
+	                        <span class="tooltiptext">Evaluates the next reaction</span>
+                            </button>
+                            <input placeholder="number"
+	                           type="text"
+	                           size="4"
+	                           data-bind="value:reac_nb_input"/>
+                        </div>
+                    </div>
+
+                    <div class="four wide column">
+                        <div class="ui form">
+                            <div class="field">
+	                        <label>Bacteries</label>
+	                        <input name="pnet_index" type="hidden">
+	                        <select data-bind="options: bact_index_list,
+			                           value: selected_bact_index">
+	                        </select>
+
+                            </div>
+                        </div>
+                        <div class="ui button" data-bind="click:send_bact_to_sandbox">Send to sandbox</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+    <!-- ** scripts loading  -->
+    <script src="/js-libs/FileSaver.min.js"> </script>
+    <script src="/utils.js"> </script>
+    <script src="simVM.js"> </script>
+</html>

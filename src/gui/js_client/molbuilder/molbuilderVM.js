@@ -1,6 +1,7 @@
-function MolBuilderViewModel (simVM) {
+function MolBuilderViewModel () {
     var self = this;
-    self.simVM = simVM;
+
+    self.bc_receive = new BroadcastChannel("to_molbuilder")
     
     self.prot_text = ko.observable("");
     self.mol_text = ko.observable("");
@@ -42,6 +43,7 @@ function MolBuilderViewModel (simVM) {
 
     
     self.set_data_from_mol = function(mol_desc) {
+        self.mol_text(mol_desc);
         utils.ajax_get(
             {command: "build_all_from_mol",
              mol_desc: mol_desc,
@@ -112,7 +114,12 @@ function MolBuilderViewModel (simVM) {
 	).done(
 	    function (data)
 	    {
-		self.simVM.bactVM.set_bact_data(data);
+                var bc = new BroadcastChannel("to_sandbox");
+                bc.postMessage({
+                    command : "update"});
+                bc.close();
+
+                //self.simVM.bactVM.set_bact_data(data);
 	    });
 
     }
@@ -124,7 +131,11 @@ function MolBuilderViewModel (simVM) {
 	).done(
 	    function (data)
 	    {
-		self.simVM.bactVM.set_bact_data(data);
+                var bc = new BroadcastChannel("to_sandbox");
+                bc.postMessage({
+                    command : "update"});
+                bc.close();
+
 	    });
 
     }
@@ -139,4 +150,26 @@ function MolBuilderViewModel (simVM) {
     };
     self.set_node_unselected = function() {
     };
+
+
+    self.bc_receive.onmessage = function(msg) {
+
+        switch (msg.data.command) {
+            case "set data" :
+                self.set_data_from_mol(msg.data.data);
+                alert("update");
+                break;
+                
+            default : console.log("did not recognize command" + msg.data.command)
+        }};
+    
 }
+
+
+var vm = new MolBuilderViewModel();
+vm.init_setup()
+
+
+ko.applyBindings({
+    molbuilderVM : vm 
+});

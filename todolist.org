@@ -4,20 +4,10 @@
 
 * bugfixes/improvements
 
-** TODO change « send to bact » to « send to sandbox » 
-   in the molbuilder tab, and change behaviour accordingly
 
 ** TODO reporter service
    - [ ] log folder
    - [ ] display some logs on the terminal
-
-** DONE revert amolset to a simpler state
-   we will modify ARMgr to be a wrapper over 
-   PnetSet.t Map, and same thing with IRMgr
-
-   Pour rendre les choses propres, toute action 
-   qui modifie un état interne renvoie la liste
-   des actions à effectuer à plus haut niveau
 
 ** TODO sanitize the use mutable/immutable structures
    - [ ] in amolset
@@ -27,28 +17,43 @@
    transitions contains a place array
    does is work as a reference ?
 ** TODO mol quantity go under 0
-** DONE petri net display inconsistencies
-   the first time display works, but the next ones fail
-
 ** TODO sandbox pnet id
    when requesting pnet_from_mol, pnet_id is sometimes missing
 
+
+** DONE revert amolset to a simpler state
+   we will modify ARMgr to be a wrapper over 
+   PnetSet.t Map, and same thing with IRMgr
+
+   Pour rendre les choses propres, toute action 
+   qui modifie un état interne renvoie la liste
+   des actions à effectuer à plus haut niveau
+
+** DONE petri net display inconsistencies
+   the first time display works, but the next ones fail
+
+** DONE change « send to bact » to « send to sandbox » 
+   in the molbuilder tab, and change behaviour accordingly
+
+
 * architecture
 
-** TODO split the web client in multiple pages
+** CURRENT split the web client in multiple pages
 
-** DONE switch to a rest API for the webserver
 ** TODO global reaction coefficient : 
    put in the reactant module, so that
    we can put all reactions in the same set
    - [ ] feature
    - [ ] interface to modify coefficients dynamically
      (is it possible ?)
+   - [ ] web interface
 
 ** TODO implement tests
 
 
 
+
+** DONE switch to a rest API for the webserver
 
 * features
 

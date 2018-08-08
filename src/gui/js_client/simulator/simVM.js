@@ -1,7 +1,7 @@
 
-function SimViewModel (sandboxVM) {
+function SimViewModel () {
     var self = this;
-    self.sandboxVM = sandboxVM;
+    self.sandboxVM = "sandboxVM : missing" ;
     self.container_id = "simulation"
     // for the configuration before running
     self.config =
@@ -15,6 +15,10 @@ function SimViewModel (sandboxVM) {
 		    inert_mols : ko.observableArray(),
 		    active_mols : ko.observableArray()}
 	    };
+
+    self.bc_to_sandbox = new BroadcastChannel("to_sandbox");
+    self.bc_receive = new BroadcastChannel("to_simulator");
+    
     // after the simulation is launched
     self.bact_nb = ko.observable();
     self.bact_index_list = ko.computed(function () {
@@ -89,15 +93,23 @@ function SimViewModel (sandboxVM) {
 	     target: self.container_id,
 	     bact_index : self.selected_bact_index()}
 	).done(function(data){console.log(data);})
+
+        self.bc_to_sandbox.postMessage(
+             {command : "update"})
     };
 
     
 // ** import from sandbox
     self.sandbox_import = function() {
-	self.config.bact_initial_state.inert_mols(
-	    self.sandboxVM.bactVM.inertMolsVM.mols_data());
-	self.config.bact_initial_state.active_mols(
-	    self.sandboxVM.bactVM.activeMolsVM.mols_data());
+
+        self.bc_to_sandbox.postMessage(
+            {command : "send data",
+             target : "sim"})
+        
+	/* self.config.bact_initial_state.inert_mols(
+	   self.sandboxVM.bactVM.inertMolsVM.mols_data());
+	   self.config.bact_initial_state.active_mols(
+	   self.sandboxVM.bactVM.activeMolsVM.mols_data()); */
     }
 
 // ** load and save
@@ -106,7 +118,7 @@ function SimViewModel (sandboxVM) {
 	var data = self.static_config();
 	var str_data = JSON.stringify(data);
 	var blob_data = new Blob([str_data], {type: 'text/plain'});
-	saveAs(blob_data, "config.scfg");
+	saveAs(blob_data, "config.cfg");
     };
 
     
@@ -145,5 +157,12 @@ function SimViewModel (sandboxVM) {
 	reader.readAsText(file);
     };
     document.getElementById('sim_cfg_load').addEventListener('change', self.load_config_file, false);
-    
+
+    return self;
 }
+
+var vm = new SimViewModel()
+
+ko.applyBindings({
+    simVM : vm
+});
