@@ -1,39 +1,39 @@
 
 # Table of Contents
 
-1.  [Description](#orgb5ea693)
-2.  [Setting up](#orgfb35a01)
-    1.  [OCaml libs dependancies](#org2787841)
-    2.  [Install](#org16b46a1)
-3.  [Run](#org84907c0)
-4.  [Usefull stuff](#org8a5ad16)
-5.  [todo](#org1e4a0e5)
+1.  [Description](#org4a509e6)
+2.  [Setting up](#org7fc668f)
+    1.  [OCaml libs dependancies](#orga9e77e6)
+    2.  [Install](#org195421f)
+3.  [Run](#org26734a9)
+4.  [Usefull stuff](#org17caa74)
 
 
-<a id="orgb5ea693"></a>
+<a id="org4a509e6"></a>
 
 # Description
 
-YAA is an artificial chemistry, centered around petri nets.
+YAACS is an artificial chemistry simulator, centered around petri nets.
 
 The project also includes a webserver that can interact 
 with the simulation, and a web interface
 
 
-<a id="orgfb35a01"></a>
+<a id="org7fc668f"></a>
 
 # Setting up
 
 You will need a working OCaml developping environment, 
-ideally set-up with opam.
+ideally set-up with opam. Dune is used as a build system.
 
 
-<a id="org2787841"></a>
+<a id="orga9e77e6"></a>
 
 ## OCaml libs dependancies
 
 -   oasis
 -   batteries
+-   ppx<sub>deriving</sub>
 -   ppx_deriving_yojson
 -   ocamlgraph
 -   re
@@ -43,24 +43,23 @@ ideally set-up with opam.
 (install with opam)
 
 
-<a id="org16b46a1"></a>
+<a id="org195421f"></a>
 
 ## Install
 
-    oasis-setup
-    make
+    dune build
 
 
-<a id="org84907c0"></a>
+<a id="org26734a9"></a>
 
 # Run
 
-`web_bact_server [-port port]`
+`yaacs_server [-port port]`
 
 Then visit `localhost:port`
 
 
-<a id="org8a5ad16"></a>
+<a id="org17caa74"></a>
 
 # Usefull stuff
 
@@ -68,20 +67,10 @@ ocaml tools (Installed with opam) :
 
 -   merlin (completion and errors detection in emacs)
 -   utop (advanced top-level)
+-   dune
 
 emacs tools (installed with melpa) : 
 
 -   outshine / outorg
 -   tuareg-mode
--   graphviz-dot mode
-
-
-<a id="org1e4a0e5"></a>
-
-# todo
-
--   implement a graph to manage reactions and reaction rates
--   logging system
--   errors to allow evolution
--   extended pnets and membranes
 

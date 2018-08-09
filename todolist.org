@@ -43,7 +43,7 @@
 
 ** DONE split the web client in multiple pages
 
-** STARTED global reaction coefficient : 
+** CURRENT global reaction coefficient : 
    The idea is to put these parameters in an environment module,
    that could be subject to dynamic changes. This would also allow 
    changes set by user input.

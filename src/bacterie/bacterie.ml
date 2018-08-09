@@ -253,17 +253,17 @@ type t =
 (* *** make empty *)
 (* an empty bactery *)
   
-let (default_rcfg : Reac_mgr.config) =
+let (default_env : Environment.t) =
   {transition_rate = 10.;
    grab_rate = 1.;
    break_rate = 0.0000001;
    random_collision_rate = 0.0000001}
   
-let make_empty ?(rcfg=default_rcfg) () =
+let make_empty ?(env=default_env) () =
   
   let bact = {ireactants = ref MolMap.empty;
               areactants = ref MolMap.empty;
-              reac_mgr = Reac_mgr.make_new rcfg;}
+              reac_mgr = Reac_mgr.make_new env;}
   in
   
   bact

@@ -1,5 +1,5 @@
 (executable
-    (name web_bact_server)
+    (name yaacs_server)
     (flags -w)
     (libraries bacterie_libs logs server nethttpd))
 

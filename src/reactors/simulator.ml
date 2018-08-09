@@ -1,9 +1,8 @@
 open Local_libs
-
 open Bacterie_libs
 
 type config = {
-    reacs_config : Reac_mgr.config;
+    environment : Environment.t;
     bact_nb : int;
     bact_initial_state : Bacterie.bact_sig;
   }
