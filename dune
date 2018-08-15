@@ -1,12 +1,40 @@
 (alias
-    (name default)
-    (deps ./src/bin/yaacs_server.exe)
-    (action (bash "cp ./src/bin/yaacs_server.exe ../../yaacs_server"))
-)
+ (name default)
+ (deps ./src/bin/yaacs_server.exe)
+ (action
+  (bash "cp ./src/bin/yaacs_server.exe ../../yaacs_server"))
+ )
 
 (alias
-    (name readme)
-    (deps (file README.org))
-    (action (progn
-            (bash "emacs README.org --load ~/.emacs.d/init.el --batch -f org-md-export-to-markdown")
-            (bash "cp ./README.md ../../README.md"))))
+ (name readme)
+ (deps (file README.org))
+ (action (progn
+           (bash "emacs README.org --load ~/.emacs.d/init.el --batch -f org-md-export-to-markdown")
+           (bash "cp ./README.md ../../README.md")))
+ )
+
+
+
+(alias
+ (name dl_web_deps)
+ (action
+  (progn
+
+    
+    (bash "wget https://raw.githubusercontent.com/cytoscape/cytoscape.js/master/dist/cytoscape.min.js -O ../../src/gui/js_client/js-libs/cytoscape.min.js")
+    (bash "wget https://raw.githubusercontent.com/cytoscape/cytoscape.js-automove/master/cytoscape-automove.js -O ../../src/gui/js_client/js-libs/cytoscape-automove.js")
+    
+    (bash "wget https://raw.githubusercontent.com/iVis-at-Bilkent/cytoscape.js-context-menus/master/cytoscape-context-menus.js -O ../../src/gui/js_client/js-libs/cytoscape-context-menus.js")
+
+    (bash "wget https://raw.githubusercontent.com/iVis-at-Bilkent/cytoscape.js-context-menus/master/cytoscape-context-menus.css -O ../../src/gui/js_client/css-libs/cytoscape-context-menus.css")
+    (bash "wget https://raw.githubusercontent.com/eligrey/FileSaver.js/master/src/FileSaver.js -O ../../src/gui/js_client/js-libs/FileSaver.js")
+    (bash "wget http://ialab.it.monash.edu/webcola/cola.v3.min.js -O ../../src/gui/js_client/js-libs/cola.v3.min.js")
+    (bash "wget https://raw.githubusercontent.com/cytoscape/cytoscape.js-cola/master/cytoscape-cola.js -O ../../src/gui/js_client/js-libs/cytoscape-cola.js")
+    (bash "wget https://raw.githubusercontent.com/cytoscape/cytoscape.js-cose-bilkent/master/cytoscape-cose-bilkent.js -O ../../src/gui/js_client/js-libs/cytoscape-cose-bilkent.js")
+    (bash "wget https://code.jquery.com/jquery-3.3.1.slim.min.js -O ../../src/gui/js_client/js-libs/jquery-3.3.1.slim.min.js")
+    (bash "wget http://knockoutjs.com/downloads/knockout-3.4.2.debug.js -O ../../src/gui/js_client/js-libs/knockout-3.4.2.debug.js")
+    (bash "wget https://raw.githubusercontent.com/Semantic-Org/Semantic-UI-CSS/master/semantic.min.js -O ../../src/gui/js_client/js-libs/semantic.min.js")
+    (bash "wget https://raw.githubusercontent.com/Semantic-Org/Semantic-UI-CSS/master/semantic.min.css  -O ../../src/gui/js_client/css-libs/semantic.min.css")
+    )
+  )
+ )

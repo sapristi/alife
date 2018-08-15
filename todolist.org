@@ -43,7 +43,7 @@
 
 ** DONE split the web client in multiple pages
 
-** CURRENT global reaction coefficient : 
+** DONE global reaction coefficient (in environment) : 
    The idea is to put these parameters in an environment module,
    that could be subject to dynamic changes. This would also allow 
    changes set by user input.
@@ -51,10 +51,10 @@
    coefficient directly, or using it later in reac_mgr.
    A better abstraction in reac_mgr would allow to avoid too much boilerplate.
 
-   - [ ] feature
-   - [ ] interface to modify coefficients dynamically
+   - [X] feature
+   - [X] interface to modify coefficients dynamically
      (is it possible ?)
-   - [ ] web interface
+   - [X] web interface
 
 ** TODO implement tests
    describe bacteria where only one kind of reaction can happen to
