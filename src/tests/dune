@@ -1,0 +1,6 @@
+(test
+ (deps bact_states/simple_bind.json)
+ (name reacs1)
+ (libraries bacterie_libs oUnit)
+ (flags -w)
+ )
