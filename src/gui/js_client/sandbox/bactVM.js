@@ -12,16 +12,25 @@ function BactViewModel(pnetVM, container_id) {
     self.activeMolsVM = new ActiveMolsVM(self);
     
     self.reactions_number_input = ko.observable(1);
+
+    self.env_keys = ko.observableArray();
+    self.env = {
+        transition_rate : ko.observable(),
+        grab_rate : ko.observable(),
+        break_rate : ko.observable()
+    }
     
-    
-    
-// ** update_bact
+    // ** update_bact
     self.set_bact_data = function(data){
 	
 	self.inertMolsVM.update(data.data.inert_mols);
 	self.activeMolsVM.update(data.data.active_mols);
 	
 	self.pnetVM.global_sim_update();
+        
+        for (var k in self.env) {
+            self.env[k](
+                data.data.env[k]);}
     };
     
     self.update = function() {
@@ -103,7 +112,7 @@ function BactViewModel(pnetVM, container_id) {
 	var data = {active_mols:active_mols,inert_mols:inert_mols};
 	var str_data = JSON.stringify(data);
 	var blob_data = new Blob([str_data], {type: 'text/plain'});
-	saveAs(blob_data, "bact.save");
+	saveAs(blob_data, "bact.json");
     };
     
     self.load_bact_file = function(evt) {
@@ -123,6 +132,20 @@ function BactViewModel(pnetVM, container_id) {
 	
     }
     document.getElementById('bact_load').addEventListener('change', self.load_bact_file, false);
+
+    self.commit_env = function(evt) {
+
+        env_to_send = {}
+        for (var k in self.env) {
+            env_to_send[k] = self.env[k]();
+        }
+        utils.ajax_get(
+            {command:"set_environment",
+	     target:self.container_id,
+             env : env_to_send
+            }
+        ).done(console.log("ok"));
+    }
 }
 
 

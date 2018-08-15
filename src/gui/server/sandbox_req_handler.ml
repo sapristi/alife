@@ -3,7 +3,7 @@
 open Reactors
 open Bacterie_libs
 
-   
+  
 
 let pnet_ids_from_mol  (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let mol = cgi # argument_value "mol_desc" in
@@ -127,11 +127,11 @@ let set_mol_quantity (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
 (*
   and save_state bact =
     let data_json = Bacterie.to_json bact in
-    Yojson.Safe.to_file "bact.save" data_json;
+    Yojson.Safe.to_file "bact.json" data_json;
     "state saved"
  *)
 let reset_state sandbox (cgi : Netcgi.cgi) : string=
-  let data_json =  Yojson.Safe.from_file "bact.save" in
+  let data_json =  Yojson.Safe.from_file "bact.json" in
   Sandbox.json_reset data_json sandbox;
   get_bact_elements sandbox cgi
 
@@ -142,6 +142,34 @@ let set_state sandbox (cgi : Netcgi.cgi) =
   get_bact_elements sandbox cgi
 
 
+let set_environment (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
+  (* make something clean of this later on *)
+
+  let tr = cgi # argument_value "env[transition_rate]"
+         |> float_of_string
+  and gr = cgi # argument_value "env[grab_rate]"
+         |> float_of_string
+  and br = cgi # argument_value "env[break_rate]"
+           |> float_of_string
+
+  in
+  let new_env : Environment.t = {transition_rate =tr;
+                                 grab_rate=gr;
+                                 break_rate=br;random_collision_rate=0.}
+  in
+  !sandbox.env := new_env;
+  (* match cgi # argument_value "env"
+   *       |> Yojson.Safe.from_string 
+   *       |> Environment.of_yojson
+   * with
+   * | Ok env -> 
+   *    !sandbox.env := env;
+   *    "done"
+   * | Error s ->
+   *    "error decoding env from json " ^ s *)
+  
+  "tesqt sqdqsd"
+  
 let server_functions =
   [
     "pnet_ids_from_mol", pnet_ids_from_mol;
@@ -154,7 +182,8 @@ let server_functions =
     "remove_mol", remove_mol;
     "set_mol_quantity", set_mol_quantity;
     "reset_bactery", reset_state;
-    "set_bactery",set_state
+    "set_bactery",set_state;
+    "set_environment", set_environment
   ]
     
    

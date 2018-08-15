@@ -80,7 +80,7 @@
 
 		<!-- *** première ligne : contrôles généraux-->
 		<div class = "row"  id="bactVM" data-bind="with:bactVM">
-		    <div class="sixteen wide column">
+		    <div class="six wide column">
 
 			<div class="ui horizontal buttons">
 			    <button class="ui icon button tooltip" data-bind="click : init_data"><i class="refresh icon"></i>
@@ -106,7 +106,23 @@
 			    </div>
 			</div>
 		    </div>
-		</div>
+
+                    <div class="six wide column">
+                        <div class="ui list" data-bind="foreach : Object.keys(env)">
+                            <div class="item">
+                                <div class="ui label" data-bind="text:$data"> </div>
+                                <input type="text" data-bind="textInput : $parent.env[$data]">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="two wide column">
+                        <div class="ui button tooltip"
+			     data-bind="click:commit_env">
+			    Commit env.
+			    <span class="tooltiptext">Send modified env constants to the sandbox</span>
+			</div>
+                    </div>
+                </div>
 
 		<!-- *** deuxième ligne : molécules inertes-->
 		<div class="row"

@@ -1,5 +1,4 @@
 (library
  (name        local_libs)
  (flags -w)
- (modules maps misc_library reporter)
  (libraries batteries))

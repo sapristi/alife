@@ -243,6 +243,7 @@ type t =
   {mutable ireactants : IRMap.t;
    mutable areactants : ARMap.t;
    reac_mgr : Reac_mgr.t;
+   env : Environment.t ref;
   }
   
 (* ** interface *)
@@ -253,17 +254,19 @@ type t =
 (* *** make empty *)
 (* an empty bactery *)
   
-let (default_rcfg : Reac_mgr.config) =
+let (default_env : Environment.t) =
   {transition_rate = 10.;
    grab_rate = 1.;
    break_rate = 0.0000001;
    random_collision_rate = 0.0000001}
   
-let make_empty ?(rcfg=default_rcfg) () =
+let make_empty ?(env=default_env) () =
+  let renv = ref env in 
   
   let bact = {ireactants = ref MolMap.empty;
               areactants = ref MolMap.empty;
-              reac_mgr = Reac_mgr.make_new rcfg;}
+              env = renv;
+              reac_mgr = Reac_mgr.make_new renv;}
   in
   
   bact
@@ -406,6 +409,7 @@ type active_bact_elem = {qtt:int;mol: Molecule.t}
 type bact_sig = {
     inert_mols : inert_bact_elem list;
     active_mols : active_bact_elem list;
+    env : Environment.t;
   }
                  [@@ deriving yojson]
               
@@ -448,7 +452,8 @@ let to_yojson (bact : t) : Yojson.Safe.json =
   let trimmed_amol_list = List.of_enum trimmed_amol_enum
   in  
   bact_sig_to_yojson {inert_mols = trimmed_imol_list;
-                      active_mols = trimmed_amol_list;}
+                      active_mols = trimmed_amol_list;
+                      env = !(bact.env)}
 
 
 let of_yojson (json : Yojson.Safe.json) : (t,string) mresult =

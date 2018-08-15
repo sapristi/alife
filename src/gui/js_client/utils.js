@@ -12,6 +12,9 @@ var utils = {
             "/sim_commands/" +
             req_data.target + "/" +
             req_data.command;
+
+        delete req_data.target;
+        delete req_data.command;
         
 	var request = {
             url: connect_uri,

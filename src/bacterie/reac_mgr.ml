@@ -19,8 +19,6 @@ open Local_libs
 (*    type t : a record that contains  *)
 (*      + a set of reactions *)
 (*      + the  current sum of the rates of the reactions  *)
-(*      + a modifier field which is a parameter to tune reaction rates  *)
-(*        depending on their type. *)
 
 (*    Various wrappers around the set *)
   
@@ -61,15 +59,14 @@ module MakeReacSet (Reac : Reacs.REAC) =
     module RSet= Set.Make(Reac)  
                
     type t = {mutable rates_sum : float;
-              mutable set : RSet.t;
-              modifier : float}
+              mutable set : RSet.t;}
 
-    let total_rate s =
-      s.rates_sum *. s.modifier
-    let make_empty (modifier : float) : t =
+    let empty  : t =
       {rates_sum = 0.;
-       set = RSet.empty;
-       modifier;}
+       set = RSet.empty;}
+      
+    let total_rate s =
+      s.rates_sum
 
     let remove r s =
       let rate = Reac.rate r in
@@ -94,17 +91,16 @@ module MakeReacSet (Reac : Reacs.REAC) =
                                   (RSet.elements s.set)
       
 end
-
+(* for binding reactions ? *)
 module MakeAutoUpdatingReacSet (Reac : Reacs.REAC) = 
   struct
     type elt = Reac.t
     module RSet= Set.Make(Reac)  
                
     type t = {mutable total_rate : float;
-              mutable set : RSet.t;
-              modifier : float}
-    let make_empty (modifier : float) : t =
-      {total_rate = 0.; set = RSet.empty;  modifier;}
+              mutable set : RSet.t;}
+    let make_empty () : t =
+      {total_rate = 0.; set = RSet.empty;}
 
     let remove r s = s.set <- RSet.remove r s.set
     let add r s = s.set <- RSet.add r s.set
@@ -135,30 +131,27 @@ module BSet = MakeReacSet(Reacs.Break)
 
 (* * module defs *)
 
-type config = { transition_rate : float;
-                grab_rate : float;
-                break_rate : float;
-                random_collision_rate:float}
-                [@@ deriving yojson]       
+
 type t =
   { t_set :  TSet.t;
     g_set :  GSet.t;
     b_set :  BSet.t;
-
     mutable reac_nb : int;
     mutable reporter : Reporter.t;
+    env : Environment.t ref;
   }
 
 
 
   
-let make_new (config : config) =
+let make_new (env : Environment.t ref) =
   let res = 
-    {t_set = TSet.make_empty config.transition_rate;
-     g_set = GSet.make_empty config.grab_rate;
-     b_set = BSet.make_empty config.break_rate;
-      reac_nb = 0;
+    {t_set = TSet.empty;
+     g_set = GSet.empty;
+     b_set = BSet.empty;
+     reac_nb = 0;
      reporter = Reporter.empty_reporter;
+     env = env;
     } in
   res.reporter <- 
     {
@@ -265,9 +258,15 @@ let add_break md reac_mgr =
 (* replace to_list with to_enum ? *)
 let pick_next_reaction (reac_mgr:t) : Reaction.t option=
 
-  let total_g_rate = GSet.total_rate reac_mgr.g_set
-  and total_t_rate = TSet.total_rate reac_mgr.t_set
-  and total_b_rate = BSet.total_rate reac_mgr.b_set
+  let total_g_rate =
+    !(reac_mgr.env).grab_rate *.
+      GSet.total_rate reac_mgr.g_set
+  and total_t_rate = 
+    !(reac_mgr.env).transition_rate *.
+      TSet.total_rate reac_mgr.t_set
+  and total_b_rate = 
+    !(reac_mgr.env).break_rate *.
+      BSet.total_rate reac_mgr.b_set
   in
 
   
@@ -283,8 +282,8 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
                        (TSet.show reac_mgr.t_set)
                        total_b_rate
                        (BSet.show reac_mgr.b_set)
-  
-           );
+    
+    );
   
   
   let a0 = (total_g_rate) +. (total_t_rate)

@@ -43,9 +43,14 @@
 
 ** DONE split the web client in multiple pages
 
-** TODO global reaction coefficient : 
-   put in the reactant module, so that
-   we can put all reactions in the same set
+** CURRENT global reaction coefficient : 
+   The idea is to put these parameters in an environment module,
+   that could be subject to dynamic changes. This would also allow 
+   changes set by user input.
+   There still lies the tradeoff between having reactions use this
+   coefficient directly, or using it later in reac_mgr.
+   A better abstraction in reac_mgr would allow to avoid too much boilerplate.
+
    - [ ] feature
    - [ ] interface to modify coefficients dynamically
      (is it possible ?)
