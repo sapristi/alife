@@ -12,16 +12,23 @@ function BactViewModel(pnetVM, container_id) {
     self.activeMolsVM = new ActiveMolsVM(self);
     
     self.reactions_number_input = ko.observable(1);
+
+    self.env_keys = ko.observableArray();
+    self.env = {}
     
-    
-    
-// ** update_bact
+    // ** update_bact
     self.set_bact_data = function(data){
 	
 	self.inertMolsVM.update(data.data.inert_mols);
 	self.activeMolsVM.update(data.data.active_mols);
 	
 	self.pnetVM.global_sim_update();
+
+        self.env_keys(Object.keys(data.data.env));
+        self.env = data.data.env;
+
+        console.log(data.data.env);
+        console.log(Object.keys(self.env));
     };
     
     self.update = function() {
