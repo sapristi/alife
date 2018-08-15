@@ -103,7 +103,7 @@ function BactViewModel(pnetVM, container_id) {
 	var data = {active_mols:active_mols,inert_mols:inert_mols};
 	var str_data = JSON.stringify(data);
 	var blob_data = new Blob([str_data], {type: 'text/plain'});
-	saveAs(blob_data, "bact.save");
+	saveAs(blob_data, "bact.json");
     };
     
     self.load_bact_file = function(evt) {

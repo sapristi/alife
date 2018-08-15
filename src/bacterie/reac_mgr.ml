@@ -138,13 +138,13 @@ type t =
     b_set :  BSet.t;
     mutable reac_nb : int;
     mutable reporter : Reporter.t;
-    env : Environment.t;
+    env : Environment.t ref;
   }
 
 
 
   
-let make_new (env : Environment.t) =
+let make_new (env : Environment.t ref) =
   let res = 
     {t_set = TSet.empty;
      g_set = GSet.empty;
@@ -259,13 +259,13 @@ let add_break md reac_mgr =
 let pick_next_reaction (reac_mgr:t) : Reaction.t option=
 
   let total_g_rate =
-    reac_mgr.env.grab_rate *.
+    !(reac_mgr.env).grab_rate *.
       GSet.total_rate reac_mgr.g_set
   and total_t_rate = 
-    reac_mgr.env.transition_rate *.
+    !(reac_mgr.env).transition_rate *.
       TSet.total_rate reac_mgr.t_set
   and total_b_rate = 
-    reac_mgr.env.break_rate *.
+    !(reac_mgr.env).break_rate *.
       BSet.total_rate reac_mgr.b_set
   in
 

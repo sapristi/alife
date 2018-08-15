@@ -12,6 +12,6 @@ let json_reset json_data sandbox : unit =
 
 let make_default () =
   let sandbox = ref (Bacterie.make_empty ()) in
-  let data_json =  Yojson.Safe.from_file "bact.save" in
+  let data_json =  Yojson.Safe.from_file "bact.json" in
   json_reset data_json sandbox;
   sandbox
