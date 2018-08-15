@@ -18,10 +18,8 @@
 (alias
  (name dl_web_deps)
  (action
-  (progn
-
-    
-    (bash "wget https://raw.githubusercontent.com/cytoscape/cytoscape.js/master/dist/cytoscape.min.js -O ../../src/gui/js_client/js-libs/cytoscape.min.js")
+  (progn        
+     (bash "wget https://raw.githubusercontent.com/cytoscape/cytoscape.js/master/dist/cytoscape.min.js -O ../../src/gui/js_client/js-libs/cytoscape.min.js")
     (bash "wget https://raw.githubusercontent.com/cytoscape/cytoscape.js-automove/master/cytoscape-automove.js -O ../../src/gui/js_client/js-libs/cytoscape-automove.js")
     
     (bash "wget https://raw.githubusercontent.com/iVis-at-Bilkent/cytoscape.js-context-menus/master/cytoscape-context-menus.js -O ../../src/gui/js_client/js-libs/cytoscape-context-menus.js")
