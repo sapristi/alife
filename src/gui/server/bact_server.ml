@@ -7,9 +7,9 @@ open Bacterie_libs
 open Reactors
    
 
-(* open Logs
- * let src = Logs.Src.create "mylib.network" ~doc:"logs mylib's network events"  
- * module Log = (val Logs.src_log src : Logs.LOG) *)
+open Logs
+let src = Logs.Src.create "mylib.network" ~doc:"logs mylib's network events"  
+module Log = (val Logs.src_log src : Logs.LOG)
            
 open Local_libs
   
@@ -108,7 +108,7 @@ let make_dyn_service  f  =
                     (cgi#arguments)
           in
 
-          (*Log.info (fun m -> m "serving GET request : \n%s" req_descr); *)
+          Log.info (fun m -> m "serving GET request : \n%s" req_descr); 
           Reporter.report reporter (Printf.sprintf
                                       "serving GET request : \n%s" req_descr);
           
@@ -121,7 +121,7 @@ let make_dyn_service  f  =
           Reporter.report reporter (Printf.sprintf
                                       "sent response : \n%s" response);
           
-          (* Log.info (fun m -> m "sent response :%s\n" response); *)
+          Log.info (fun m -> m "sent response :%s\n" response);
         );
       dyn_activation = Nethttpd_services.std_activation `Std_activation_buffered;
       dyn_uri = None;
