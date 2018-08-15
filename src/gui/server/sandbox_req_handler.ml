@@ -7,7 +7,7 @@ open Bacterie_libs
 
 let pnet_ids_from_mol  (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let mol = cgi # argument_value "mol_desc" in
-  let pnet_ids = Bacterie.ARMap.get_pnet_ids mol !sandbox.areactants in
+  let pnet_ids = Reactants.ARMap.get_pnet_ids mol !sandbox.areactants in
   let pnet_ids_json =
     `List (List.map (fun i -> `Int i) pnet_ids)
   in
@@ -21,7 +21,7 @@ let pnet_from_mol (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let mol = cgi # argument_value "mol_desc"
   and pnet_id = int_of_string (cgi# argument_value "pnet_id") in
   let pnet_json =
-    Bacterie.ARMap.find_pnet mol pnet_id !sandbox.areactants
+    Reactants.ARMap.find_pnet mol pnet_id !sandbox.areactants
     |> Petri_net.to_json
   in
   `Assoc
@@ -65,7 +65,7 @@ let commit_token_edit (sandbox : Sandbox.t) (cgi : Netcgi.cgi)
                          |> int_of_string
        in
        
-       let pnet = Bacterie.ARMap.find_pnet mol pnet_id !sandbox.areactants in
+       let pnet = Reactants.ARMap.find_pnet mol pnet_id !sandbox.areactants in
        (
          match token_o with
          | Some token -> 
@@ -91,7 +91,7 @@ let launch_transition (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   and trans_index = cgi # argument_value "transition_index"
                     |> int_of_string in
 
-  let pnet = Bacterie.ARMap.find_pnet mol pnet_id !sandbox.areactants in
+  let pnet = Reactants.ARMap.find_pnet mol pnet_id !sandbox.areactants in
   
   Petri_net.launch_transition_by_id trans_index pnet;
   Petri_net.update_launchables pnet;
@@ -111,7 +111,7 @@ let add_mol sandbox (cgi : Netcgi.cgi) : string=
   
 let remove_mol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
   let mol = cgi # argument_value "mol_desc" in
-  Bacterie.IRMap.remove_all mol !sandbox.ireactants
+  Reactants.IRMap.remove_all mol !sandbox.ireactants
   |> Bacterie.execute_actions !sandbox;
   get_bact_elements sandbox cgi
 
@@ -120,7 +120,7 @@ let set_mol_quantity (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   and n = cgi # argument_value "mol_quantity"
           |> int_of_string
   in
-  Bacterie.IRMap.set_qtt  n mol !sandbox.ireactants
+  Reactants.IRMap.set_qtt  n mol !sandbox.ireactants
   |> Bacterie.execute_actions !sandbox;
   get_bact_elements sandbox cgi
   
