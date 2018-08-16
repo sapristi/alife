@@ -42,7 +42,7 @@
 
 
 * architecture
-** TODO implement tests
+** STARTED implement tests
    describe bacteria where only one kind of reaction can happen to
    be able to predict results
 
