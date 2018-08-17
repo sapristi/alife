@@ -4,8 +4,11 @@ open Local_libs
 
 let reporter : Reporter.t = 
     {
-      loggers = [Reporter.cli_logger; Reporter.make_file_logger "reactions"];
-      prefix = (fun () -> ("[Reac_mgr]"));
+      loggers = [Reporter.cli_logger;
+                 Reporter.make_file_logger "reactions";
+                 (* Reporter.log_logger*)
+                ];
+      prefix = (fun () -> ("\n[Reac_mgr]"));
       suffix = (fun () -> "");
     };;
    
