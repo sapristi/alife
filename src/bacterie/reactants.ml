@@ -43,7 +43,7 @@ module ARMap =
           in
           !(find dummy_amd amolset).pnet
           
-              
+          
         let add_reacs_with_new_reactant (new_reactant : Reactant.t) (amolset :t) reac_mgr : unit =
           if is_empty amolset
           then
@@ -73,7 +73,6 @@ module ARMap =
                      Reac_mgr.add_grab current_amd new_reactant reac_mgr;
                  ) amolset;
                
-               
             | ImolSet _ -> 
                if Petri_net.can_grab (Reactant.mol new_reactant) dummy_pnet
                then 
@@ -83,7 +82,6 @@ module ARMap =
                      Reac_mgr.add_grab current_amol new_reactant reac_mgr)
                    amolset
                
-      
       end
 
       

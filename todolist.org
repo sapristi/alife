@@ -3,14 +3,12 @@
 ** TODO use the todolist
 
 * bugfixes/improvements
-
+  
+** STARTED reactions initialisation seems broken :
+    - grabs happen between the same pnet (same id), and are added six times !
 ** TODO break reaction 
    broken pnet : only one piece is added, and pnet is not removed
 
-** DONE reporter service
-   - [X] log folder
-   - [ ] better logs
-   - [ ] use logs as a backend for reporter
 
 ** TODO sanitize the use mutable/immutable structures
    - [ ] in amolset
@@ -23,7 +21,11 @@
 ** TODO sandbox pnet id
    when requesting pnet_from_mol, pnet_id is sometimes missing
 
-
+** DONE reporter service
+   - [X] log folder
+   - [ ] better logs
+   - [X] use logs as a backend for reporter
+   - [X] cli reporter works
 ** DONE revert amolset to a simpler state
    we will modify ARMgr to be a wrapper over 
    PnetSet.t Map, and same thing with IRMgr

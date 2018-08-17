@@ -32,13 +32,12 @@ open Reactants
 (*  + ireactants : inactive reactants, molecules that do not fold into petri net. *)
 (*  + areactants : active reactants, molecules that fold into a petri net. *)
 (*     We thus have to have a distinct pnet for each present molecule *)
-type t =
-
-  {mutable ireactants : IRMap.t;
-   mutable areactants : ARMap.t;
-   reac_mgr : Reac_mgr.t;
-   env : Environment.t ref;
-  
+type t ={
+    mutable ireactants : IRMap.t;
+    mutable areactants : ARMap.t;
+    reac_mgr : Reac_mgr.t;
+    env : Environment.t ref;
+    reporter : Reporter.t;
   }
 type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
                      [@@ deriving yojson]
@@ -248,13 +247,17 @@ let empty_sig : bact_sig = {
     inert_mols = [];
     active_mols = []}
   
-let make ?(env=Environment.default_env) ?(bact_sig=empty_sig) ?(reporter=Reporter.empty_reporter) () :t =
+let make ?(env=Environment.default_env)
+         ?(bact_sig=empty_sig)
+         ?(reacs_reporter=Reporter.empty_reporter)
+         ?(bact_reporter=Reporter.empty_reporter) () :t =
   let renv = ref env in 
   
   let bact = {ireactants = ref MolMap.empty;
               areactants = ref MolMap.empty;
               env = renv;
-              reac_mgr = Reac_mgr.make_new renv ~reporter:reporter;}
+              reac_mgr = Reac_mgr.make_new renv ~reporter:reacs_reporter;
+              reporter = bact_reporter}
   in
   from_sig bact_sig bact
 
