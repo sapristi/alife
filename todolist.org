@@ -7,7 +7,7 @@
 ** TODO break reaction 
    broken pnet : only one piece is added, and pnet is not removed
 
-** STARTED reporter service
+** CURRENT reporter service
    - [X] log folder
    - [ ] better logs
    - [ ] use logs as a backend for reporter
@@ -49,7 +49,7 @@
    - put external libs in an archive to clean git repo
 ** DONE split the web client in multiple pages
 
-** DONE global reaction coefficient (in environment) : 
+** CURRENT global reaction coefficient (in environment) : 
    The idea is to put these parameters in an environment module,
    that could be subject to dynamic changes. This would also allow 
    changes set by user input.
@@ -63,6 +63,7 @@
    - [X] web interface
 
 ** DONE switch to a rest API for the webserver
+
 
 * features
 

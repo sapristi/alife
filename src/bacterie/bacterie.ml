@@ -29,12 +29,6 @@ open Reactants
 
 (* ** types *)
 
-              
-
-
-  
-
-
 (*  + ireactants : inactive reactants, molecules that do not fold into petri net. *)
 (*  + areactants : active reactants, molecules that fold into a petri net. *)
 (*     We thus have to have a distinct pnet for each present molecule *)
@@ -44,32 +38,24 @@ type t =
    mutable areactants : ARMap.t;
    reac_mgr : Reac_mgr.t;
    env : Environment.t ref;
-  }
   
+  }
+type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
+                     [@@ deriving yojson]
+type active_bact_elem = {qtt:int;mol: Molecule.t} 
+                   [@@ deriving yojson]
+type bact_sig = {
+    inert_mols : inert_bact_elem list;
+    active_mols : active_bact_elem list;
+  }
+                 [@@ deriving yojson]
+              
+
+
 (* ** interface *)
   
 (* Whenever modifying the bactery, it should be *)
 (* done through these functions alone *)
-
-(* *** make empty *)
-(* an empty bactery *)
-  
-let (default_env : Environment.t) =
-  {transition_rate = 10.;
-   grab_rate = 1.;
-   break_rate = 0.0000001;
-   random_collision_rate = 0.0000001}
-  
-let make_empty ?(env=default_env) () =
-  let renv = ref env in 
-  
-  let bact = {ireactants = ref MolMap.empty;
-              areactants = ref MolMap.empty;
-              env = renv;
-              reac_mgr = Reac_mgr.make_new renv;}
-  in
-  
-  bact
 
   
 
@@ -202,20 +188,9 @@ let next_reaction (bact : t)  =
   
               
 (* ** json serialisation *)
-type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
-                     [@@ deriving yojson]
-type active_bact_elem = {qtt:int;mol: Molecule.t} 
-                   [@@ deriving yojson]
-type bact_sig = {
-    inert_mols : inert_bact_elem list;
-    active_mols : active_bact_elem list;
-    env : Environment.t;
-  }
-                 [@@ deriving yojson]
-              
-let make (bact_sig : bact_sig) :t  = 
-  let bact = make_empty () in
-    List.iter
+let from_sig (bact_sig : bact_sig) (bact : t): t  = 
+  
+  List.iter
     (fun {mol = m;qtt = n; ambient=a} ->
       add_molecule m bact
       |> execute_actions bact;
@@ -234,7 +209,8 @@ let make (bact_sig : bact_sig) :t  =
   bact
 
   
-let to_yojson (bact : t) : Yojson.Safe.json =
+  
+let to_sig (bact : t) : bact_sig =
   let imol_enum = MolMap.enum !(bact.ireactants) in
   let trimmed_imol_enum =
     Enum.map (fun (a,(imd: Reactant.ImolSet.t )) ->
@@ -251,16 +227,35 @@ let to_yojson (bact : t) : Yojson.Safe.json =
   in
   let trimmed_amol_list = List.of_enum trimmed_amol_enum
   in  
-  bact_sig_to_yojson {inert_mols = trimmed_imol_list;
-                      active_mols = trimmed_amol_list;
-                      env = !(bact.env)}
+  {inert_mols = trimmed_imol_list;
+   active_mols = trimmed_amol_list;}
 
 
-let of_yojson (json : Yojson.Safe.json) : (t,string) mresult =
+let load_yojson_sig (json : Yojson.Safe.json) (bact :t ): (t,string) mresult =
   match  bact_sig_of_yojson json with
-  | Ok bact_sig -> Ok (make bact_sig)
+  | Ok bact_sig -> Ok (from_sig bact_sig bact)
   | Error s -> (Error s)
+
+
              
+(* *** make empty *)
+(* an empty bactery *)
+  
+  
+let empty_state : bact_sig = {
+    inert_mols = [];
+    active_mols = []}
+  
+let make ?(env=Environment.default_env) ?(initial_state=empty_state) ?(reporter=Reporter.empty_reporter) () :t =
+  let renv = ref env in 
+  
+  let bact = {ireactants = ref MolMap.empty;
+              areactants = ref MolMap.empty;
+              env = renv;
+              reac_mgr = Reac_mgr.make_new renv ~reporter:reporter;}
+  in
+  from_sig initial_state bact
+
   
 module SimControl =
   struct
