@@ -1,5 +1,6 @@
 open Batteries
 open BatFile
+open Logs
 type logger = string -> unit
     
 type t = {
@@ -30,7 +31,8 @@ let make_file_logger filename : logger =
     Printf.fprintf oc "%s\n" s;
     close_out oc;
   )
-  
+
+let make_log_logger 
 
 let report reporter log =
   List.iter (fun logger -> logger (Printf.sprintf "%s%s%s" (reporter.prefix ()) log (reporter.suffix ()))) reporter.loggers

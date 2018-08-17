@@ -145,21 +145,14 @@ type t =
 
   
 let make_new (env : Environment.t ref) ?(reporter=Reporter.empty_reporter) =
-  let res = 
-    {t_set = TSet.empty;
-     g_set = GSet.empty;
-     b_set = BSet.empty;
-     reac_nb = 0;
-     reporter = reporter;
-     env = env;
-    } in
+  {t_set = TSet.empty;
+   g_set = GSet.empty;
+   b_set = BSet.empty;
+   reac_nb = 0;
+   reporter = reporter;
+   env = env;
+  }
 
-    (* {
-     *   loggers = [Reporter.cli_logger; Reporter.make_file_logger "reactions"];
-     *   prefix = (fun () -> (Printf.sprintf "[%d]\n" res.reac_nb));
-     *   suffix = (fun () -> "");
-     * }; *)
-  res
 
   
 let remove_reactions reactions reac_mgr =
