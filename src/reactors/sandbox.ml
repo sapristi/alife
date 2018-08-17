@@ -1,6 +1,14 @@
 
 open Bacterie_libs
 open Local_libs
+
+let reporter : Reporter.t = 
+    {
+      loggers = [Reporter.cli_logger; Reporter.make_file_logger "reactions"];
+      prefix = (fun () -> ("[Reac_mgr]"));
+      suffix = (fun () -> "");
+    };;
+   
 type t =
   {
     bact : Bacterie.t ref;
@@ -15,12 +23,6 @@ let to_yojson (sandbox : t) =
           "env", Environment.to_yojson !(sandbox.env)]
 
 let of_yojson json : t =
-  let reporter : Reporter.t = 
-    {
-      loggers = [Reporter.cli_logger; Reporter.make_file_logger "reactions"];
-      prefix = (fun () -> ("[Reac_mgr]"));
-      suffix = (fun () -> "");
-    } in
 
   let json_safe = Yojson.Safe.from_file "bact.json" in
   let env_json = Yojson.Safe.Util.member "env" json_safe
@@ -28,7 +30,7 @@ let of_yojson json : t =
   in
   match (Environment.of_yojson env_json, Bacterie.bact_sig_of_yojson bact_sig_json) with
   | (Ok env, Ok bact_sig) -> 
-     let bact = ref (Bacterie.make ~env:env ~reporter:reporter ~initial_state:bact_sig ())
+     let bact = ref (Bacterie.make ~env:env ~reporter:reporter ~bact_sig:bact_sig ())
      and renv = ref env in
      {bact = bact; env = renv}
   | _ -> failwith "error loading sandbox json" 

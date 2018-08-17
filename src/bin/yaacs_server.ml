@@ -19,6 +19,6 @@ Logs.set_level (Some Logs.Info);
   
 Web_server.start_srv (Bact_server.make_req_handler
                         (Simulator.make ())
-                        (Sandbox.make_default ()))
+                        (Sandbox.of_yojson (Yojson.Safe.from_file "bact.json")))
                      (!host, !port) 
   

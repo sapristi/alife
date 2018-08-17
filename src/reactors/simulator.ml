@@ -11,10 +11,9 @@ type config = {
 type simulator =
   | Uninitialised
   | Initialised of (Bacterie.t array)
-                     [@@deriving yojson]
+
 type t =
   {mutable simulator : simulator;}
-    [@@ deriving yojson]
   
 let make (): t =
   {simulator = Uninitialised;}
@@ -28,7 +27,7 @@ let init (c : config) (sim : t) =
         suffix = (fun () -> "");
       } in
     
-    Bacterie.make_empty c.bact_initial_state reporter in
+    Bacterie.make ~env:c.environment ~bact_sig:c.bact_initial_state ~reporter:reporter () in
   
   let b_array = Array.init c.bact_nb make_bact
   in sim.simulator <- Initialised (b_array)

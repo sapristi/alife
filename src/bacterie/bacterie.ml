@@ -230,7 +230,9 @@ let to_sig (bact : t) : bact_sig =
   {inert_mols = trimmed_imol_list;
    active_mols = trimmed_amol_list;}
 
-
+let to_sig_yojson bact =
+  bact_sig_to_yojson (to_sig bact)
+  
 let load_yojson_sig (json : Yojson.Safe.json) (bact :t ): (t,string) mresult =
   match  bact_sig_of_yojson json with
   | Ok bact_sig -> Ok (from_sig bact_sig bact)
@@ -242,11 +244,11 @@ let load_yojson_sig (json : Yojson.Safe.json) (bact :t ): (t,string) mresult =
 (* an empty bactery *)
   
   
-let empty_state : bact_sig = {
+let empty_sig : bact_sig = {
     inert_mols = [];
     active_mols = []}
   
-let make ?(env=Environment.default_env) ?(initial_state=empty_state) ?(reporter=Reporter.empty_reporter) () :t =
+let make ?(env=Environment.default_env) ?(bact_sig=empty_sig) ?(reporter=Reporter.empty_reporter) () :t =
   let renv = ref env in 
   
   let bact = {ireactants = ref MolMap.empty;
@@ -254,7 +256,7 @@ let make ?(env=Environment.default_env) ?(initial_state=empty_state) ?(reporter=
               env = renv;
               reac_mgr = Reac_mgr.make_new renv ~reporter:reporter;}
   in
-  from_sig initial_state bact
+  from_sig bact_sig bact
 
   
 module SimControl =
