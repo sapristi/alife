@@ -95,7 +95,7 @@ let server_functions =
 let make_dyn_service  f  =
   let reporter : Reporter.t ={
       Reporter.loggers = [Reporter.cli_logger; Reporter.make_file_logger "server"];
-      Reporter.prefix = (fun () -> "");
+      Reporter.prefix = (fun () -> "\n[server]");
       Reporter.suffix = (fun () -> "");
     } in 
   Nethttpd_services.dynamic_service
