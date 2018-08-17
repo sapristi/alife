@@ -17,17 +17,34 @@ type t =
   
 let make (): t =
   {simulator = Uninitialised;}
+
+
+
+let reacs_reporter = Reporter.report
+                       {
+                         loggers = [Reporter.cli_logger;
+                                    Reporter.make_file_logger "sim-reactions";
+                                    (* Reporter.log_logger*)
+                                   ];
+                         prefix = (fun () -> ("\n[Reac_mgr]"));
+                         suffix = (fun () -> "");
+                       };;
+let bact_reporter = Reporter.report 
+                      {
+                        loggers = [Reporter.cli_logger;
+                                   Reporter.make_file_logger "sim-bacteries";
+                                   (* Reporter.log_logger*)
+                                  ];
+                        prefix = (fun () -> ("\n[Bactery]"));
+                        suffix = (fun () -> "");
+                      };;
   
 let init (c : config) (sim : t) =
   let make_bact i =
-    let reporter : Reporter.t = 
-      {
-        loggers = [Reporter.cli_logger; Reporter.make_file_logger "reactions"];
-        prefix = (fun () -> ("[Reac_mgr]"));
-        suffix = (fun () -> "");
-      } in
-    
-    Bacterie.make ~env:c.environment ~bact_sig:c.bact_initial_state ~reporter:reporter () in
+    Bacterie.make ~env:c.environment
+                  ~bact_sig:c.bact_initial_state
+                  ~reacs_reporter:reacs_reporter
+                  ~bact_reporter:bact_reporter () in
   
   let b_array = Array.init c.bact_nb make_bact
   in sim.simulator <- Initialised (b_array)

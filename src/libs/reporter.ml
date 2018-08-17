@@ -2,13 +2,15 @@ open Batteries
 open BatFile
 open Logs
 type logger = string -> unit
-    
-type t = {
+
+            
+type reporter = {
     loggers : logger list;
     prefix : unit -> string;
     suffix : unit -> string;
   }
-
+type t = string -> unit
+              
 let empty_reporter = {
     loggers = [];
     prefix = (fun () -> "");
@@ -38,6 +40,12 @@ module Log = (val Logs.src_log src : Logs.LOG)
 let log_logger s =
   Log.info (fun m -> m "%s" s)
 
-let report reporter log =
+    
+let report (reporter :reporter) log =
   List.iter (fun logger -> logger (Printf.sprintf "%s %s %s" (reporter.prefix ()) log (reporter.suffix ()))) reporter.loggers
 
+  
+let dummy : t = report empty_reporter
+
+
+            

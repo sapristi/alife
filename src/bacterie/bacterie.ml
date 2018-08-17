@@ -249,8 +249,8 @@ let empty_sig : bact_sig = {
   
 let make ?(env=Environment.default_env)
          ?(bact_sig=empty_sig)
-         ?(reacs_reporter=Reporter.empty_reporter)
-         ?(bact_reporter=Reporter.empty_reporter) () :t =
+         ?(reacs_reporter=Reporter.dummy)
+         ?(bact_reporter=Reporter.dummy) () :t =
   let renv = ref env in 
   
   let bact = {ireactants = ref MolMap.empty;

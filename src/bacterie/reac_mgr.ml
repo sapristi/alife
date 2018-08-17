@@ -135,14 +135,14 @@ type t =
     g_set :  GSet.t;
     b_set :  BSet.t;
     mutable reac_nb : int;
-    mutable reporter : Reporter.t;
+    reporter : Reporter.t;
     env : Environment.t ref;
   }
 
 
 
   
-let make_new (env : Environment.t ref) ?(reporter=Reporter.empty_reporter) =
+let make_new (env : Environment.t ref) ?(reporter=Reporter.dummy) =
   {t_set = TSet.empty;
    g_set = GSet.empty;
    b_set = BSet.empty;
@@ -189,12 +189,12 @@ let add_grab (graber_d : Reactant.Amol.t ref)
   (* Log.debug (fun m -> m "added new grab between : %s\n%s"
    *                       (Reactant.Amol.show !graber_d)
    *                       (Reactant.show grabed_d)); *)
-
-  Reporter.report
-    reac_mgr.reporter
+  
+  
+  reac_mgr.reporter
     (Printf.sprintf "added new grab between : \n%s\n%s"
-       (Reactant.Amol.show !graber_d)
-       (Reactant.show grabed_d));
+                    (Reactant.Amol.show !graber_d)
+                    (Reactant.show grabed_d));
 
   
   let (g:Reacs.Grab.t) = Reacs.Grab.make (graber_d,grabed_d)   in
@@ -209,13 +209,7 @@ let add_grab (graber_d : Reactant.Amol.t ref)
   
            
 let add_transition amd reac_mgr  =
-
-  (* Log.debug (fun m -> m "added new transition : %s"
-   *                       (Reactant.Amol.show !amd)); *)
-
-
-  Reporter.report
-    reac_mgr.reporter
+  reac_mgr.reporter
     (Printf.sprintf "added new transition : %s"
                     (Reactant.Amol.show !amd));
   
@@ -228,12 +222,7 @@ let add_transition amd reac_mgr  =
 
 (* ** Break *)
 let add_break md reac_mgr =
-
-  (* Log.debug (fun m -> m "added new break : %s"
-   *                       (Reactant.show md)); *)
-  
-  Reporter.report
-    reac_mgr.reporter
+  reac_mgr.reporter
     (Printf.sprintf "added new break : %s"
                     (Reactant.show md));
   
@@ -259,9 +248,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       BSet.total_rate reac_mgr.b_set
   in
 
-  
-  Reporter.report
-    reac_mgr.reporter
+  reac_mgr.reporter
     (Printf.sprintf "picking next reaction in\n 
                      Grabs (total : %f):\n%s\n
                      Transitions (total : %f):\n%s\n
@@ -282,8 +269,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   if a0 = 0.
   then
     (
-      Reporter.report
-        reac_mgr.reporter
+      reac_mgr.reporter
         (Printf.sprintf "No reaction available");
       None
     )
@@ -302,8 +288,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
         Reaction.Break (ref (BSet.pick_reaction reac_mgr.b_set))
       
     in
-    Reporter.report
-      reac_mgr.reporter
+    reac_mgr.reporter
       (Printf.sprintf "picked %s" (Reaction.show res));
     Some res
     

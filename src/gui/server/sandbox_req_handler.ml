@@ -143,7 +143,10 @@ let set_state (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
         |> Yojson.Safe.from_string
         |> Bacterie.bact_sig_of_yojson with
   | Ok bact_sig -> 
-     sandbox.bact := Bacterie.make ~env:!(sandbox.env) ~bact_sig:bact_sig ~reporter:Sandbox.reporter ();
+     sandbox.bact := Bacterie.make ~env:!(sandbox.env)
+                                   ~bact_sig:bact_sig
+                                   ~reacs_reporter:Sandbox.reacs_reporter
+                                   ~bact_reporter:Sandbox.bact_reporter ();
      get_bact_elements sandbox cgi
   | Error s -> s
 
