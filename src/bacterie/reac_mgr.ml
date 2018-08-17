@@ -5,8 +5,6 @@ open Batteries
 open Reaction
 open Local_libs
 
-(* let src = Logs.Src.create "reactions" ~doc:"logs reacs events"
- * module Log = (val Logs.src_log src : Logs.LOG) *)
 
 
 (* * file overview *)

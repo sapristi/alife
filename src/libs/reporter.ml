@@ -32,7 +32,12 @@ let make_file_logger filename : logger =
     close_out oc;
   )
 
-let make_log_logger 
+
+let src = Logs.Src.create "reactions" ~doc:"logs reacs events"
+module Log = (val Logs.src_log src : Logs.LOG) 
+  
+let log_logger s =
+  Log.info (fun m -> m s)
 
 let report reporter log =
   List.iter (fun logger -> logger (Printf.sprintf "%s%s%s" (reporter.prefix ()) log (reporter.suffix ()))) reporter.loggers
