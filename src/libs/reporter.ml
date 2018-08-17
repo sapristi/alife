@@ -9,17 +9,17 @@ type reporter = {
     prefix : unit -> string;
     suffix : unit -> string;
   }
-type t = string -> unit
-              
+
 let empty_reporter = {
     loggers = [];
     prefix = (fun () -> "");
     suffix = (fun () -> "");
   }
-              
+
+type t = string -> unit
+       
 let cli_logger s  =
   print_endline s
-
 
   (* not very efficient since we open and close the file each time a log is written,
      but this will do for now *)
@@ -39,13 +39,8 @@ module Log = (val Logs.src_log src : Logs.LOG)
   
 let log_logger s =
   Log.info (fun m -> m "%s" s)
-
     
 let report (reporter :reporter) log =
   List.iter (fun logger -> logger (Printf.sprintf "%s %s %s" (reporter.prefix ()) log (reporter.suffix ()))) reporter.loggers
 
-  
 let dummy : t = report empty_reporter
-
-
-            

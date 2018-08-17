@@ -1,7 +1,7 @@
 
 open Batteries
 open Reaction
-
+open Local_libs
 
 module MolMap =
   struct
@@ -25,14 +25,22 @@ module ARMap =
     module AmolSet =
       struct
         include Set.Make (
-                 struct
-                   type t = Reactant.Amol.t ref
-                   let compare =
-                     fun (amd1 :t) (amd2:t) ->
-                     Reactant.Amol.compare
-                       !amd1 !amd2
-                 end)
-           
+                    struct
+                      type t = Reactant.Amol.t ref
+                      let compare =
+                        fun (amd1 :t) (amd2:t) ->
+                        Reactant.Amol.compare
+                          !amd1 !amd2
+                    end)
+              
+        let make mol =
+          empty
+          
+        let reporter =
+          Reporter.report {
+              loggers = [Reporter.cli_logger; Reporter.make_file_logger "amolset" ];
+              prefix = (fun () -> "[Amolset]");
+              suffix = (fun () -> "")}
 
         let find_by_id pnet_id amolset  =
           let (dummy_pnet : Petri_net.t) ={
@@ -66,19 +74,24 @@ module ARMap =
                  (fun current_amd ->
                    if is_graber
                    then
-                     Reac_mgr.add_grab new_amol (Amol current_amd) reac_mgr;
-                   
+                     (
+                       Reac_mgr.add_grab new_amol (Amol current_amd) reac_mgr;
+                       reporter (Printf.sprintf "[%s] grabing %s" (Reactant.show (Amol current_amd)) (Reactant.show new_reactant));
+                     );
                    if is_grabed
-                   then 
-                     Reac_mgr.add_grab current_amd new_reactant reac_mgr;
+                   then
+                     (
+                       Reac_mgr.add_grab current_amd new_reactant reac_mgr;
+                       reporter (Printf.sprintf "[%s] grabed by %s"  (Reactant.show (Amol current_amd)) (Reactant.show new_reactant));
+                     );
                  ) amolset;
                
             | ImolSet _ -> 
                if Petri_net.can_grab (Reactant.mol new_reactant) dummy_pnet
                then 
-                 
                  iter
                    (fun current_amol ->
+                     reporter (Printf.sprintf "[%s] grabing %s" (Reactant.show (Amol current_amol)) (Reactant.mol new_reactant));
                      Reac_mgr.add_grab current_amol new_reactant reac_mgr)
                    amolset
                
@@ -86,8 +99,17 @@ module ARMap =
 
       
     type t = AmolSet.t MolMap.t ref
+
+           
+    let reporter =
+      Reporter.report {
+          loggers = [Reporter.cli_logger; Reporter.make_file_logger "ARMap" ];
+          prefix = (fun () -> "[ARmap]");
+          suffix = (fun () -> "")}
            
     let add (areactant :Reactant.Amol.t ref)  (armap : t) : Reacs.effect list =
+      reporter (Printf.sprintf "add %s" (Reactant.Amol.show !areactant));
+
       armap :=
         MolMap.modify_opt
           !areactant.mol
@@ -127,6 +149,7 @@ module ARMap =
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
                                     (armap :t)  reac_mgr: unit =
       
+      reporter (Printf.sprintf "adding reactions with %s" (Reactant.show new_reactant));
       MolMap.iter 
         (fun _ areac -> 
           AmolSet.add_reacs_with_new_reactant
@@ -143,6 +166,11 @@ module IRMap =
   struct
     type t = (Reactant.ImolSet.t) MolMap.t ref
 
+    let reporter =
+      Reporter.report {
+          loggers = [Reporter.cli_logger; Reporter.make_file_logger "IRMap" ];
+          prefix = (fun () -> "[IRmap]");
+          suffix = (fun () -> "")}
            
     let add_to_qtt (ir : Reactant.ImolSet.t) deltaqtt (irmap : t)
         : Reacs.effect list =
@@ -197,7 +225,13 @@ module IRMap =
          MolMap.iter
            (fun mol ireactant ->
              if Petri_net.can_grab mol !new_amol.pnet
-             then Reac_mgr.add_grab new_amol new_reactant reac_mgr)
+             then
+               (
+                 let rireac = ref ireactant in 
+                 Reac_mgr.add_grab new_amol (ImolSet rireac) reac_mgr;
+                 reporter (Printf.sprintf "[%s] grabed by %s" ireactant.mol (Reactant.show new_reactant));
+               )
+           )
            !irmap
         
       | ImolSet _ -> ()

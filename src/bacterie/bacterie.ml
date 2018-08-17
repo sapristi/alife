@@ -75,6 +75,8 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
   match new_opnet with
     
   | Some pnet ->
+     bact.reporter (Printf.sprintf "adding active molecule  : %s" mol);
+     
      let ar = ref (Reactant.Amol.make_new pnet) in
      (* reactions : grabs with other amols*)
      ARMap.add_reacs_with_new_reactant (Amol ar) bact.areactants bact.reac_mgr;
@@ -93,6 +95,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
      ARMap.add ar bact.areactants
   | None ->
      (
+     bact.reporter (Printf.sprintf "adding inactive molecule  : %s" mol);
        match MolMap.Exceptionless.find mol !(bact.ireactants) with
        | None -> 
           let new_ireac = ref (Reactant.ImolSet.make_new mol) in
