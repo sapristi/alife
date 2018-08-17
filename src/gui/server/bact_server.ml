@@ -95,7 +95,7 @@ let server_functions =
 let make_dyn_service  f  =
   let reporter : Reporter.t ={
       Reporter.loggers = [Reporter.cli_logger; Reporter.make_file_logger "server"];
-      Reporter.prefix = (fun () -> "");
+      Reporter.prefix = (fun () -> "\n[server]");
       Reporter.suffix = (fun () -> "");
     } in 
   Nethttpd_services.dynamic_service
@@ -108,7 +108,8 @@ let make_dyn_service  f  =
                     (cgi#arguments)
           in
 
-          Log.info (fun m -> m "serving GET request : \n%s" req_descr); 
+          (* Log.info (fun m -> m "serving GET request : \n%s" req_descr);  *)
+
           Reporter.report reporter (Printf.sprintf
                                       "serving GET request : \n%s" req_descr);
           
@@ -121,7 +122,7 @@ let make_dyn_service  f  =
           Reporter.report reporter (Printf.sprintf
                                       "sent response : \n%s" response);
           
-          Log.info (fun m -> m "sent response :%s\n" response);
+          (* Log.info (fun m -> m "sent response :%s\n" response); *)
         );
       dyn_activation = Nethttpd_services.std_activation `Std_activation_buffered;
       dyn_uri = None;

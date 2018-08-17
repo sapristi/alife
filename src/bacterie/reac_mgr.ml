@@ -5,8 +5,6 @@ open Batteries
 open Reaction
 open Local_libs
 
-(* let src = Logs.Src.create "reactions" ~doc:"logs reacs events"
- * module Log = (val Logs.src_log src : Logs.LOG) *)
 
 
 (* * file overview *)
@@ -144,22 +142,15 @@ type t =
 
 
   
-let make_new (env : Environment.t ref) =
-  let res = 
-    {t_set = TSet.empty;
-     g_set = GSet.empty;
-     b_set = BSet.empty;
-     reac_nb = 0;
-     reporter = Reporter.empty_reporter;
-     env = env;
-    } in
-  res.reporter <- 
-    {
-      loggers = [Reporter.cli_logger; Reporter.make_file_logger "reactions"];
-      prefix = (fun () -> (Printf.sprintf "[%d]\n" res.reac_nb));
-      suffix = (fun () -> "");
-    };
-  res
+let make_new (env : Environment.t ref) ?(reporter=Reporter.empty_reporter) =
+  {t_set = TSet.empty;
+   g_set = GSet.empty;
+   b_set = BSet.empty;
+   reac_nb = 0;
+   reporter = reporter;
+   env = env;
+  }
+
 
   
 let remove_reactions reactions reac_mgr =
@@ -201,7 +192,7 @@ let add_grab (graber_d : Reactant.Amol.t ref)
 
   Reporter.report
     reac_mgr.reporter
-    (Printf.sprintf "added new grab between : %s\n%s"
+    (Printf.sprintf "added new grab between : \n%s\n%s"
        (Reactant.Amol.show !graber_d)
        (Reactant.show grabed_d));
 
@@ -212,7 +203,7 @@ let add_grab (graber_d : Reactant.Amol.t ref)
   let r = Reaction.Grab (ref g) in
   Reactant.Amol.add_reac r !graber_d;
   Reactant.add_reac r grabed_d
- 
+  
   
 (* ** Transitions *)
   
@@ -226,8 +217,7 @@ let add_transition amd reac_mgr  =
   Reporter.report
     reac_mgr.reporter
     (Printf.sprintf "added new transition : %s"
-
-                        (Reactant.Amol.show !amd));
+                    (Reactant.Amol.show !amd));
   
   let t = Reacs.Transition.make amd   in
   TSet.add t reac_mgr.t_set;
@@ -245,7 +235,7 @@ let add_break md reac_mgr =
   Reporter.report
     reac_mgr.reporter
     (Printf.sprintf "added new break : %s"
-                        (Reactant.show md));
+                    (Reactant.show md));
   
   let b = Reacs.Break.make md in
   BSet.add b reac_mgr.b_set;
@@ -273,15 +263,15 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   Reporter.report
     reac_mgr.reporter
     (Printf.sprintf "picking next reaction in\n 
-                        Grabs (total : %f):\n%s\n
-                        Transitions (total : %f):\n%s\n
-                        Breaks (total : %f):\n%s\n"
-                       total_g_rate
-                       (GSet.show reac_mgr.g_set)
-                       total_t_rate
-                       (TSet.show reac_mgr.t_set)
-                       total_b_rate
-                       (BSet.show reac_mgr.b_set)
+                     Grabs (total : %f):\n%s\n
+                     Transitions (total : %f):\n%s\n
+                     Breaks (total : %f):\n%s\n"
+                    total_g_rate
+                    (GSet.show reac_mgr.g_set)
+                    total_t_rate
+                    (TSet.show reac_mgr.t_set)
+                    total_b_rate
+                    (BSet.show reac_mgr.b_set)
     
     );
   
@@ -292,9 +282,9 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   if a0 = 0.
   then
     (
-  Reporter.report
-    reac_mgr.reporter
-    (Printf.sprintf "No reaction available");
+      Reporter.report
+        reac_mgr.reporter
+        (Printf.sprintf "No reaction available");
       None
     )
   else
@@ -312,11 +302,11 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
         Reaction.Break (ref (BSet.pick_reaction reac_mgr.b_set))
       
     in
-  Reporter.report
-    reac_mgr.reporter
-    (Printf.sprintf "picked %s" (Reaction.show res));
+    Reporter.report
+      reac_mgr.reporter
+      (Printf.sprintf "picked %s" (Reaction.show res));
     Some res
-
+    
 (* ** update_reaction_rates *)
     
 let rec update_reaction_rate (reac : Reaction.t) reac_mgr=
