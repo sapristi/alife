@@ -35,9 +35,8 @@ let to_yojson (sandbox : t) =
 
 let of_yojson json : t =
 
-  let json_safe = Yojson.Safe.from_file "bact.json" in
-  let env_json = Yojson.Safe.Util.member "env" json_safe
-  and bact_sig_json = Yojson.Safe.Util.member "bact" json_safe
+  let env_json = Yojson.Safe.Util.member "env" json
+  and bact_sig_json = Yojson.Safe.Util.member "bact" json
   in
   match (Environment.of_yojson env_json, Bacterie.bact_sig_of_yojson bact_sig_json) with
   | (Ok env, Ok bact_sig) -> 
