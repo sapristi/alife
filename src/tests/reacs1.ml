@@ -1,32 +1,23 @@
 open Bacterie_libs;;
 open OUnit2;;
+open Reactors;;
 
-let b = ref (Bacterie.make_empty ());;
+let b = ref (Bacterie.make ());;
      
 
 let test1 test_ctx =
   assert_equal (
       
-      let bact_json = Yojson.Safe.from_file "bact_states/simple_bind.json" in
-      match Bacterie.of_yojson bact_json  with
-      | Ok bact ->
-         b := bact;
-         "ok"
-      | Error s -> s) "ok"
-
-
-
-
-
-               
-let env :Environment.t = {transition_rate = 1.;
-                          grab_rate = 1.;
-                          break_rate = 0.;
-                          random_collision_rate = 0.};;
-
-
-
-let bact = Bacterie.make_empty ~env:env;;
+      let sandbox = Sandbox.of_yojson
+                      ( Yojson.Safe.from_file "bact_states/simple_bind.json" ) 
+      in
+      Bacterie.next_reaction !(sandbox.bact);
+      Bacterie.next_reaction !(sandbox.bact);
+      Bacterie.next_reaction !(sandbox.bact);
+      Bacterie.to_sig !(sandbox.bact))
+               {active_mols = [{mol="AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";qtt=1}];
+                inert_mols = [{mol="AB"; qtt=1; ambient=false}]}
+      
 
 let suite =
   "suite">:::
