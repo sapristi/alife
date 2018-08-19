@@ -24,6 +24,11 @@ let cli_logger s  =
   (* not very efficient since we open and close the file each time a log is written,
      but this will do for now *)
 let make_file_logger filename : logger =
+  (* print_endline (Unix.getcwd ());*)
+  if not (Sys.file_exists "logs")
+  then 
+    Unix.mkdir "logs" 0o777;
+
   (fun s ->
     
     let p = perm [user_read; user_write; group_read; group_write] in

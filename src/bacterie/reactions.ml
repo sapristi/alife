@@ -132,6 +132,7 @@ module ReactionsM (R : REACTANT) =
   struct
     type effect =
       | T_effects of Place.transition_effect list
+      | Update_launchables of R.Amol.t ref
       | Remove_one of R.t
       | Update_reacs of R.reacSet
       | Remove_reacs of R.reacSet
@@ -189,8 +190,9 @@ module ReactionsM (R : REACTANT) =
           ignore( asymetric_grab
             (R.mol (g.grabed_data))
             (!(g.graber_data).pnet));
-          Remove_one (g.grabed_data):: 
-            Update_reacs (R.Amol.reacs !(g.graber_data)) ::
+          Remove_one (g.grabed_data)::
+            Update_launchables g.graber_data :: 
+              Update_reacs (R.Amol.reacs !(g.graber_data)) ::
                 []
         let remove_reac_from_reactants reac g =
           R.Amol.remove_reac reac !(g.graber_data);
@@ -230,10 +232,11 @@ module ReactionsM (R : REACTANT) =
           let t_effects = Petri_net.launch_random_transition
                             (!(trans.amd).pnet)
           in
-          Petri_net.update_launchables (!(trans.amd).pnet);
+          (*          Petri_net.update_launchables (!(trans.amd).pnet);*)
           T_effects (t_effects) ::
-            Update_reacs (R.Amol.reacs !(trans.amd)) ::
-              []
+            Update_launchables trans.amd ::
+              Update_reacs (R.Amol.reacs !(trans.amd)) ::
+                []
       
       
         let remove_reac_from_reactants reac g =

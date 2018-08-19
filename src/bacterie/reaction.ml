@@ -200,6 +200,7 @@ module rec
            
            type effect =
              | T_effects of Place.transition_effect list
+             | Update_launchables of Reactant.Amol.t ref
              | Remove_one of Reactant.t
              | Update_reacs of Reactant.reacSet
              | Remove_reacs of Reactant.reacSet

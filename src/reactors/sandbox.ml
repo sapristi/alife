@@ -33,7 +33,8 @@ let to_yojson (sandbox : t) =
                   |> Bacterie.bact_sig_to_yojson;
           "env", Environment.to_yojson !(sandbox.env)]
 
-let of_yojson json : t =
+let of_yojson  ?(bact_reporter=bact_reporter)
+              ?(reacs_reporter=reacs_reporter) json : t=
 
   let env_json = Yojson.Safe.Util.member "env" json
   and bact_sig_json = Yojson.Safe.Util.member "bact" json
