@@ -14,6 +14,7 @@ let test1 test_ctx =
       Bacterie.next_reaction !(sandbox.bact);
       Bacterie.next_reaction !(sandbox.bact);
       Bacterie.next_reaction !(sandbox.bact);
+      Bacterie.next_reaction !(sandbox.bact);
       Bacterie.to_sig !(sandbox.bact))
                {active_mols = [{mol="AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";qtt=1}];
                 inert_mols = [{mol="AB"; qtt=1; ambient=false}]}
