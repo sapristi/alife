@@ -6,16 +6,19 @@
   
 ** TODO break reaction 
    broken pnet : only one piece is added, and pnet is not removed
-   -> does it still happen
+   -> does it still happen ?
 
 ** TODO sanitize the use mutable/immutable structures
    - [ ] in amolset
    - [ ] everywhere ?
 
 ** TODO mol quantity go under 0
+   I thought this was fixed (problem with references)
+   maybe changes were not commited to dev
 ** TODO sandbox pnet id
-   when requesting pnet_from_mol, pnet_id is sometimes missing
-
+   - when requesting pnet_from_mol, pnet_id is sometimes missing
+   - when deleting pnet, id is not provided
+** TODO links to other pages in web interface
 ** DONE reporter service
    - [X] log folder
    - [ ] better logs
@@ -40,8 +43,9 @@
 ** DONE reactions initialisation seems broken :
    grabs happen between the same pnet (same id), and are added six times !
    -> problem solved, there was an error whan adding reactions to IRMap
+
 * architecture
-** CURRENT implement tests
+** STARTED implement tests
    describe bacteria where only one kind of reaction can happen to
    be able to predict results
 
