@@ -12,9 +12,6 @@
    - [ ] in amolset
    - [ ] everywhere ?
 
-** TODO mol quantity go under 0
-   I thought this was fixed (problem with references)
-   maybe changes were not commited to dev
 ** TODO sandbox pnet id
    - when requesting pnet_from_mol, pnet_id is sometimes missing
    - when deleting pnet, id is not provided
@@ -69,7 +66,8 @@
 
 ** DONE switch to a rest API for the webserver
 
-
+** DONE mol quantity go under 0
+   -> problem with references
 * features
 
 ** TODO random binds

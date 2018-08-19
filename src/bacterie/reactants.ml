@@ -164,7 +164,7 @@ module ARMap =
 
 module IRMap =
   struct
-    type t = (Reactant.ImolSet.t) MolMap.t ref
+    type t = (Reactant.ImolSet.t ref) MolMap.t ref
 
     let reporter =
       Reporter.report {
@@ -177,24 +177,30 @@ module IRMap =
       irmap :=
         MolMap.modify
           ir.mol
-          (fun  imolset -> Reactant.ImolSet.add_to_qtt deltaqtt imolset)
+          (fun rimolset ->
+            rimolset := Reactant.ImolSet.add_to_qtt deltaqtt !rimolset;
+            rimolset)
           !irmap;
       [Reacs.Update_reacs !(ir.reacs)]
       
     let set_qtt qtt mol (irmap : t)  : Reacs.effect list= 
-      let ir = MolMap.find mol !irmap in
+      let rir = MolMap.find mol !irmap in
       irmap :=
         MolMap.modify
-          ir.mol
-          (fun  imolset -> Reactant.ImolSet.set_qtt qtt imolset)
+          !rir.mol
+          (fun rimolset ->
+            rimolset := Reactant.ImolSet.set_qtt qtt !rimolset;
+            rimolset)
           !irmap;
-      [ Reacs.Update_reacs !(ir.reacs)]
+      [ Reacs.Update_reacs !(!rir.reacs)]
       
-    let set_ambient ambient mol irmap =
+    let set_ambient ambient mol (irmap :t) =
       irmap :=
         MolMap.modify
           mol
-          (fun  imolset -> Reactant.ImolSet.set_ambient ambient imolset)
+          (fun rimolset ->
+            rimolset := Reactant.ImolSet.set_ambient ambient !rimolset;
+            rimolset)
           !irmap
       
       
@@ -207,9 +213,9 @@ module IRMap =
           (fun data ->
             match data with
             | None -> failwith "container: cannot remove absent molecule"
-            | Some imd ->
-               old_reacs := Reactant.ImolSet.reacs imd;
-               old_qtt := Reactant.ImolSet.qtt imd;
+            | Some rimolset ->
+               old_reacs := Reactant.ImolSet.reacs !rimolset;
+               old_qtt := Reactant.ImolSet.qtt !rimolset;
                None)
           !irmap;
       
@@ -223,13 +229,12 @@ module IRMap =
       match new_reactant with
       | Amol new_amol -> 
          MolMap.iter
-           (fun mol ireactant ->
+           (fun mol rireactant ->
              if Petri_net.can_grab mol !new_amol.pnet
              then
                (
-                 let rireac = ref ireactant in 
-                 Reac_mgr.add_grab new_amol (ImolSet rireac) reac_mgr;
-                 reporter (Printf.sprintf "[%s] grabed by %s" ireactant.mol (Reactant.show new_reactant));
+                 Reac_mgr.add_grab new_amol (ImolSet rireactant) reac_mgr;
+                 reporter (Printf.sprintf "[%s] grabed by %s" !rireactant.mol (Reactant.show new_reactant));
                )
            )
            !irmap

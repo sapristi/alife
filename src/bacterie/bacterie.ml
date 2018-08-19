@@ -98,20 +98,20 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
      bact.reporter (Printf.sprintf "adding inactive molecule  : %s" mol);
        match MolMap.Exceptionless.find mol !(bact.ireactants) with
        | None -> 
-          let new_ireac = ref (Reactant.ImolSet.make_new mol) in
+          let new_rireac = ref (Reactant.ImolSet.make_new mol) in
           (* reactions : grabs *)
           ARMap.add_reacs_with_new_reactant
-            (ImolSet new_ireac) bact.areactants bact.reac_mgr;
+            (ImolSet new_rireac) bact.areactants bact.reac_mgr;
           
           (* reactions : break *)
-          Reac_mgr.add_break (ImolSet new_ireac) bact.reac_mgr;
+          Reac_mgr.add_break (ImolSet new_rireac) bact.reac_mgr;
           (* add molecule *)
-          bact.ireactants := MolMap.add !new_ireac.mol (!new_ireac)
+          bact.ireactants := MolMap.add !new_rireac.mol new_rireac
                                         !(bact.ireactants);
-          [ Reacs.Update_reacs !(!new_ireac.reacs) ]
+          [ Reacs.Update_reacs !(!new_rireac.reacs) ]
           
-       | Some ireac ->
-         IRMap.add_to_qtt ireac 1 bact.ireactants
+       | Some rireac ->
+         IRMap.add_to_qtt !rireac 1 bact.ireactants
      )
     
   
@@ -217,9 +217,9 @@ let from_sig (bact_sig : bact_sig) (bact : t): t  =
 let to_sig (bact : t) : bact_sig =
   let imol_enum = MolMap.enum !(bact.ireactants) in
   let trimmed_imol_enum =
-    Enum.map (fun (a,(imd: Reactant.ImolSet.t )) ->
-        ({mol= imd.mol; qtt= imd.qtt;
-          ambient= imd.ambient} : inert_bact_elem))
+    Enum.map (fun (a,(imd: Reactant.ImolSet.t ref)) ->
+        ({mol = !imd.mol; qtt= !imd.qtt;
+          ambient = !imd.ambient} : inert_bact_elem))
              imol_enum in
   let trimmed_imol_list = List.of_enum trimmed_imol_enum in
   
