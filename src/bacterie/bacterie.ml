@@ -151,6 +151,8 @@ let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
              (* bact.message_queue <- m :: bact.message_queue; *)
                 ()
            ) tel
+      | Update_launchables ramol ->
+         Petri_net.update_launchables !ramol.pnet
       | Update_reacs reacset ->
          Reac_mgr.update_rates reacset bact.reac_mgr
       | Remove_reacs reacset -> 

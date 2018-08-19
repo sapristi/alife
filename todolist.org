@@ -4,19 +4,14 @@
 
 * bugfixes/improvements
   
-** STARTED reactions initialisation seems broken :
-    - grabs happen between the same pnet (same id), and are added six times !
 ** TODO break reaction 
    broken pnet : only one piece is added, and pnet is not removed
-
+   -> does it still happen
 
 ** TODO sanitize the use mutable/immutable structures
    - [ ] in amolset
    - [ ] everywhere ?
 
-** TODO places in transitions
-   transitions contains a place array
-   does is work as a reference ?
 ** TODO mol quantity go under 0
 ** TODO sandbox pnet id
    when requesting pnet_from_mol, pnet_id is sometimes missing
@@ -36,13 +31,17 @@
 
 ** DONE petri net display inconsistencies
    the first time display works, but the next ones fail
+   -> the problem was with cytoscape : empty_filter was not rcognised 
+   and caused a bug
 
 ** DONE change « send to bact » to « send to sandbox » 
    in the molbuilder tab, and change behaviour accordingly
 
-
+** DONE reactions initialisation seems broken :
+   grabs happen between the same pnet (same id), and are added six times !
+   -> problem solved, there was an error whan adding reactions to IRMap
 * architecture
-** TODO implement tests
+** CURRENT implement tests
    describe bacteria where only one kind of reaction can happen to
    be able to predict results
 
