@@ -96,6 +96,25 @@ function SandboxViewModel () {
             }
         );   
     }
+
+    self.load_sandbox_file = function(evt) {
+	var file = evt.target.files[0];
+	var reader = new FileReader();
+	
+        reader.onload = function(e) {
+	    
+	    utils.ajax_get(
+                {command:"set_sandbox",
+	         target:self.container_id,
+	         sandbox_desc : reader.result}
+            ).done(self.set_bact_data);
+        }
+	
+	reader.readAsText(file);
+	
+    }
+    document.getElementById('sandbox_load').addEventListener('change', self.load_sandbox_file, false);
+
 }
 
 sandboxVM = new SandboxViewModel();

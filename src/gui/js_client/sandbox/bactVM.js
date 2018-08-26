@@ -94,24 +94,7 @@ function BactViewModel(pnetVM, container_id) {
     }
 
     
-    self.load_bact_file = function(evt) {
-	var file = evt.target.files[0];
-	var reader = new FileReader();
-	
-        reader.onload = function(e) {
-	    
-	    utils.ajax_get(
-            {command:"set_bactery",
-	     target:self.container_id,
-	     bact_desc : reader.result}
-        ).done(self.set_bact_data);
-        }
-	
-	reader.readAsText(file);
-	
-    }
-    document.getElementById('bact_load').addEventListener('change', self.load_bact_file, false);
-
+ 
     /* 
      * self.save_bactery = function() {
        var inert_mols = self.inertMolsVM.mols_data();
