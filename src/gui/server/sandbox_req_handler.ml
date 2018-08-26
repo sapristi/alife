@@ -35,8 +35,13 @@ let get_bact_elements (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
     "data", (Bacterie.to_sig_yojson !(sandbox.bact))]
   |> Yojson.Safe.to_string 
   
-  
+let get_sandbox_data (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
+ `Assoc
+   ["purpose", `String "sandbox_data";
+    "data", (Sandbox.to_yojson sandbox)]
+  |> Yojson.Safe.to_string 
 
+  
 let next_reactions (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let n = cgi # argument_value "n"
           |> int_of_string
@@ -182,6 +187,7 @@ let server_functions =
     "pnet_ids_from_mol", pnet_ids_from_mol;
     "pnet_from_mol" , pnet_from_mol;
     "get_elements", get_bact_elements;
+    "get_sandbox_data",  get_sandbox_data; 
     "next_reactions", next_reactions;
     "commit token edit", commit_token_edit;
     "launch_transition",launch_transition;

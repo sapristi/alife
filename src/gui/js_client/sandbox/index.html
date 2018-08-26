@@ -31,9 +31,6 @@
     <!-- * body -->
 
     <body>
-
-
-
         <div class="ui container"
              data-bind="with:sandboxVM"
              id="sandbox_tab">
@@ -82,15 +79,15 @@
 		</h2></div>
 
 		<!-- *** première ligne : contrôles généraux-->
-		<div class = "row"  id="bactVM" data-bind="with:bactVM">
+		<div class = "row"  id="sandbox_main">
 		    <div class="six wide column">
 
 			<div class="ui horizontal buttons">
-			    <button class="ui icon button tooltip" data-bind="click : init_data"><i class="refresh icon"></i>
+			    <button class="ui icon button tooltip" data-bind="click : update"><i class="refresh icon"></i>
 				<span class="tooltiptext">Use this button after adding a molecule from the MolBuilder</span>
 			    </button>
 			    <div class="ui button tooltip"
-				 data-bind="click:reset_bactery">
+				 data-bind="click:bactVM.reset_bactery">
 				Reset
 				<span class="tooltiptext">Reset bactery to initial state</span>
 			    </div>
@@ -104,7 +101,7 @@
 				       id="bact_load"
 				       style="display:none"/>
 			    </div>
-			    <div class="ui button" data-bind="click:save_bactery">
+			    <div class="ui button" data-bind="click:save_sandbox">
 				Save to file
 			    </div>
 			</div>
