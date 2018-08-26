@@ -1,36 +1,20 @@
 (* * this file *)
 
 
-(*   - on compte combien de molécules identiques de chaque type on a *)
-(*    ( ça voudrait dire qu'il faudrait bien les ranger *)
-(*    pour vite les retrouver. Mais tout ça c'est pour plus tard) *)
-
-(*   - on crée un petri-net par type de molécule, la vitesse de simulation *)
-(*    dépend du nombre de molécules (parce que à la fois c'est plus simple *)
-(*    et ça va plus vite, donc on se prive pas) *)
-
-(*   - mais bon ya aussi des molécules qui sont associées à des token *)
-(*    (donc faut se souvenir desquelles le sont), et puis aussi créer de *)
-(*    nouvelles molécules quand elles apparaissent. *)
-
-(*   - Il faudrait aussi tester rapidement si une molécule a une forme *)
-(*    protéinée qui fait quelque chose, pour pas s'embêter avec *)
-
-
 (* * libs *)
-open Misc_library
+open Local_libs
 open Reaction
+(* compatibility with yojson before loading batteries *)
 type ('a, 'b) mresult = ('a, 'b) result
 open Batteries
-(*   Table d'association où les clés sont des molécule  Permet de stoquer efficacement la protéine associée *)
-(*   et le nombre de molécules présentes. *)
 
+open Reactants
+   
 (* * Container module *)
 
-
-(* Une bacterie est un conteneur à molecules. Elle s'occupe de fournir l'interprétation d'une molécule en tant que *)
-(* protéine (i.e. pnet), puis d'organiser la simulation des pnet *)
-(* et de leurs interactions. *)
+(* Une bacterie est un conteneur à molecules. Elle s'occupe de fournir  *)
+(* l'interprétation d'une molécule en tant que protéine (i.e. pnet),  *)
+(* puis d'organiser la simulation des pnet et de leurs interactions. *)
 
 (* Pour organiser la simulation, il faut : *)
 (*  - organiser le lancement des transitions *)
@@ -43,254 +27,106 @@ open Batteries
 (* est le NOMBRE total de molécules (c'est beaucoup trop). *)
 
 
-(* Autre idée : construire un arbre des réactions (pas complètement *)
-(* un arbre mais presque). *)
-(* Les feuilles sont les molécules. *)
-(* Pour chaque réaction, un nœud est créé comme étant un parent *)
-(* des molécules impliquées. Quand une molécule change *)
-(* (changement du pnet, changement des quantités), il suffit  *)
-(* de parcourir l'arbre vers la racine pour mettre à jour les taux de réaction. *)
-
-
-
-
 (* ** types *)
 
-type active_md = MolData.Active.t = { mol : Molecule.t;
-                                      pnet : Petri_net.t;
-                                      reacs : ReacSet.t ref; }
-type inert_md = MolData.Inert.t = {   mol : Molecule.t;
-                                      qtt : int ; 
-                                      reacs : ReacSet.t ref; }
-
-              
-module MolMap =
-  struct
-    include Map.Make (struct type t = Molecule.t
-                             let compare = Pervasives.compare end)
-                     (*   include Exceptionless *)
-  end
-  
-module MolSet =
-  struct
-    include Set.Make (struct type t = Molecule.t
-                             let compare = Pervasives.compare end)
-                     (* include Exceptionless *)
-  end
-
-(* ** ActiveMolSet *)
-(* An active mol set manages the molecules with an attached pnet. *)
-   
-module ActiveMolSet  = struct
-
-  module PnetSet =
-    Set.Make (
-        struct
-          type t = active_md ref
-          let compare =
-            fun (amd1 :t) (amd2:t) ->
-            Pervasives.compare
-              !amd1.pnet.uid !amd2.pnet.uid
-        end)
-  include PnetSet
-  let find_by_pnet_id pid amolset : Petri_net.t= 
-    let (dummy_pnet : Petri_net.t) ={
-        mol = ""; transitions = [||];places = [||];
-        uid = pid;
-        binders = []; launchables_nb = 0;} in
-    let dummy_amd = ref (MolData.Active.make_new dummy_pnet)
-    in
-    !(find dummy_amd amolset).pnet
-    
-
-  let  get_pnet_ids amolset : int list =
-    let pnet_enum = enum amolset in
-    let ids_enum = Enum.map
-                     (fun (amd : active_md ref) ->
-                       !amd.pnet.Petri_net.uid) pnet_enum in
-    List.of_enum ids_enum
-    
-
-        
-(* *** update reacs with mol *)
-(* Calculates the possible reactions with an *)
-(* inert molecule *)
-      
-  let add_reacs_with_new_mol (new_inert_md : inert_md ref) amolset reac_mgr =
-    if is_empty amolset
-    then
-      ()
-    else
-      let (any_amd : active_md ref) = any amolset in
-      let dummy_pnet = !(any_amd).pnet in
-      if Petri_net.can_grab !new_inert_md.mol dummy_pnet
-      then
-        PnetSet.iter
-          (fun graber_d ->
-            Reac_mgr.add_grab graber_d new_inert_md reac_mgr)
-          amolset
-      
-
-  let add_reacs_with_new_pnet (new_active_md : active_md ref)
-                              amolset
-                              reac_mgr =
-    if is_empty amolset
-    then
-      ()
-    else
-      let (any_amd : active_md ref) = any amolset in
-      let dummy_pnet = !any_amd.pnet in
-      
-      (* the new pnet is grabed *)
-      let is_graber = Petri_net.can_grab !new_active_md.mol dummy_pnet
-      and is_grabed = Petri_net.can_grab dummy_pnet.mol !new_active_md.pnet
-      in
-      if (is_graber || is_grabed)
-      then 
-        PnetSet.iter
-          (fun current_amd ->
-            if is_graber
-            then
-              Reac_mgr.add_agrab new_active_md current_amd reac_mgr;
-            
-            if is_grabed
-            then 
-              Reac_mgr.add_agrab current_amd new_active_md reac_mgr;
-          ) amolset;
-      
-end
-                       
-type t =
-  {mutable inert_molecules : (inert_md ref) MolMap.t;
-   mutable active_molecules : (ActiveMolSet.t) MolMap.t;
-   reac_mgr : Reac_mgr.t;
+(*  + ireactants : inactive reactants, molecules that do not fold into petri net. *)
+(*  + areactants : active reactants, molecules that fold into a petri net. *)
+(*     We thus have to have a distinct pnet for each present molecule *)
+type t ={
+    mutable ireactants : IRMap.t;
+    mutable areactants : ARMap.t;
+    reac_mgr : Reac_mgr.t;
+    env : Environment.t ref;
+    reporter : Reporter.t;
   }
-  
+type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
+                     [@@ deriving yojson]
+type active_bact_elem = {qtt:int;mol: Molecule.t} 
+                   [@@ deriving yojson]
+type bact_sig = {
+    inert_mols : inert_bact_elem list;
+    active_mols : active_bact_elem list;
+  }
+                 [@@ deriving yojson]
+              
+
+
 (* ** interface *)
   
 (* Whenever modifying the bactery, it should be *)
 (* done through these functions alone *)
 
-(* *** make empty *)
-(* an empty bactery *)
   
-let (default_rcfg : Reac_mgr.config) =
-  {transition_rate = 10.;
-   grab_rate = 1.;
-   break_rate = 0.0001}
-  
-let make_empty ?(rcfg=default_rcfg) () = 
-  {inert_molecules =  MolMap.empty;
-   active_molecules = MolMap.empty;
-   reac_mgr = Reac_mgr.make_new rcfg}
 
-             
-(* *** add new molecule *)
-(* adds a new molecule inside a bactery *)
-(* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
-let add_new_molecule (new_mol : Molecule.t) (bact : t) : unit =
+(* *** add_molecule *)
+(* adds single molecule to a container (bactery) We have to take care : *)
+(*   - if the molecule is active, we must create a new active_reactant, *)
+(*     add all possible reactions with this reactant, then add it to *)
+(*     the bactery (whether or not other molecules of the same species *)
+(*     were already present) *)
+(*   - if the molecule is inactive, the situation depends on whether *)
+(*     the species was present or not : *)
+(*     + if it was already present, we modify it's quatity and update *)
+(*       related reaction rates *)
+(*     + if it was not, we add the molecules and the possible reactions *)
   
-  let new_opnet = Petri_net.make_from_mol new_mol
-  in
+let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
+  let new_opnet = Petri_net.make_from_mol mol in
   match new_opnet with
+    
+  | Some pnet ->
+     bact.reporter (Printf.sprintf "adding active molecule  : %s" mol);
+     
+     let ar = ref (Reactant.Amol.make_new pnet) in
+     (* reactions : grabs with other amols*)
+     ARMap.add_reacs_with_new_reactant (Amol ar) bact.areactants bact.reac_mgr;
+      
+     (* reactions : grabs with inert mols *)
+     IRMap.add_reacs_with_new_reactant (Amol ar) bact.ireactants bact.reac_mgr;
+     
+     (* reaction : transition  *)
+     Reac_mgr.add_transition ar bact.reac_mgr;
+     
+     (* reaction : break *)
+     Reac_mgr.add_break (Amol ar) bact.reac_mgr;
+     
+     (* we add the reactant after adding reactions 
+        because it must not react with itself *)
+     ARMap.add ar bact.areactants
   | None ->
-     let new_inert_md = ref (MolData.Inert.make_new new_mol 1) in
-     
-     (* reactions : grab  by active mols *)
-     MolMap.iter
-       (fun mol amolset ->
-         ActiveMolSet.add_reacs_with_new_mol
-           new_inert_md amolset bact.reac_mgr)
-       bact.active_molecules;
-
-     (* reactions : break *)
-     Reac_mgr.add_break_inert new_inert_md bact.reac_mgr;
-     
-     (* add to bactery *)
-     bact.inert_molecules <-
-       MolMap.add new_mol
-                  new_inert_md
-                  bact.inert_molecules;
-     
-  | Some new_pnet ->
-     let new_active_md = ref (MolData.Active.make_new new_pnet) in
-     
-     (* adding agrabs with active molecules *)
-     MolMap.iter
-       (fun mol amolset ->
-         ActiveMolSet.add_reacs_with_new_pnet
-           new_active_md amolset bact.reac_mgr)
-       bact.active_molecules;
-     
-     (* adding grabs with inert molecules *)
-     MolMap.iter
-       (fun mol grabed_d ->
-         if Petri_net.can_grab mol new_pnet
-         then
-           Reac_mgr.add_grab new_active_md grabed_d bact.reac_mgr;
-         
-         ) bact.inert_molecules;
-     
-     (* adding the transition reaction *)
-     Reac_mgr.add_transition new_active_md bact.reac_mgr;
-     
-     (* adding break reaction *)
-     Reac_mgr.add_break_active new_active_md bact.reac_mgr;
-     (* adding the molecule to the bactery *)
-     bact.active_molecules <-
-       MolMap.modify_opt
-         new_mol
-         (fun data ->
-           match data with
-           | Some amolset ->
-              Some (ActiveMolSet.add new_active_md amolset)
-           | None ->
-              Some (ActiveMolSet.singleton new_active_md))
-         bact.active_molecules
-     
-
-     
-
-           
-(* *** update reaction rates *)
-
-(* Update the rates of all the reactions implicating *)
-(* a molecule                      *)
-
-let update_rates reactions bact =
-  ReacSet.iter
-    (fun reac ->
-      Reac_mgr.update_reaction_rates reac bact.reac_mgr)
-    reactions
-
+     (
+     bact.reporter (Printf.sprintf "adding inactive molecule  : %s" mol);
+       match MolMap.Exceptionless.find mol !(bact.ireactants) with
+       | None -> 
+          let new_rireac = ref (Reactant.ImolSet.make_new mol) in
+          (* reactions : grabs *)
+          ARMap.add_reacs_with_new_reactant
+            (ImolSet new_rireac) bact.areactants bact.reac_mgr;
+          
+          (* reactions : break *)
+          Reac_mgr.add_break (ImolSet new_rireac) bact.reac_mgr;
+          (* add molecule *)
+          bact.ireactants := MolMap.add !new_rireac.mol new_rireac
+                                        !(bact.ireactants);
+          [ Reacs.Update_reacs !(!new_rireac.reacs) ]
+          
+       | Some rireac ->
+         IRMap.add_to_qtt !rireac 1 bact.ireactants
+     )
+    
+  
+    
 (* *** remove molecule *)
 (* totally removes a molecule from a bactery *)
 
-let remove_molecule (m : Molecule.t) (bact : t) : unit =
-  let old_reacs = ref ReacSet.empty
-  in
-  bact.inert_molecules <-
-    MolMap.modify_opt
-      m
-      (fun data ->
-        match data with
-        | None -> failwith "container: cannot remove absent molecule"
-        | Some imd ->
-           old_reacs := !(!imd.reacs);
-           None)
-      bact.inert_molecules;
-  update_rates !old_reacs bact;
-  Reac_mgr.remove_reactions !old_reacs bact.reac_mgr
+let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
+  match reactant with
+  | ImolSet ir ->
+     IRMap.remove_one !ir bact.ireactants
+  | Amol amol ->
+     ARMap.remove amol bact.areactants
+
   
-(* *** add_molecule *)
-(* adds a molecule inside a bactery *)
-(* on peut sûrement améliorer le bouzin, mais pour l'instant on se prends pas la tête *)
-let add_molecule (mol : Molecule.t) (bact : t) : unit =
-  match MolMap.Exceptionless.find mol bact.inert_molecules with
-  | Some imd -> imd := {!imd with qtt = !imd.qtt +1}
-  | None -> add_new_molecule mol bact
-
-
 (* **** execute_actions *)
 (* after a transition from a proteine has occured, *)
 (*    some actions may need to be performed by the bactery *)
@@ -298,9 +134,9 @@ let add_molecule (mol : Molecule.t) (bact : t) : unit =
 (*   todo later : ??? *)
 (*   il faudrait peut-être mettre dans une file les molécules à ajouter *)
 
-let rec execute_actions (actions : MolData.reaction_effect list) (bact : t) : unit =
+let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
   List.iter
-    (fun (effect : MolData.reaction_effect) ->
+    (fun (effect : Reacs.effect) ->
       match effect with
       | T_effects tel ->
          List.iter
@@ -308,32 +144,39 @@ let rec execute_actions (actions : MolData.reaction_effect list) (bact : t) : un
              match teffect with
              | Place.Release_effect mol  ->
                 if mol != ""
-                then add_molecule mol bact
+                then
+                  add_molecule mol bact
+                  |> execute_actions bact
              | Place.Message_effect m  ->
              (* bact.message_queue <- m :: bact.message_queue; *)
                 ()
            ) tel
-      | Update_reacs reacs ->
-         update_rates reacs bact
-      | Remove_pnet amd ->
-         bact.active_molecules <-
-           MolMap.modify_opt
-             !amd.pnet.mol
-             (fun data ->
-               match data with
-               | Some amolset ->
-                  Some (ActiveMolSet.remove
-                          amd amolset)
-               | None -> None
-             ) bact.active_molecules
-      (* we assume the reactions will be updated after ? *)
-      | Modify_quantity (imd, qttd) ->
-         imd := {!imd with qtt = !imd.qtt + qttd}
-      | Release_tokens tl ->
-         List.iter
-           (fun ((_,mol) : Token.t) -> add_molecule mol bact)
-           tl
-      | Release_mol mol -> add_molecule mol bact 
+      | Update_launchables ramol ->
+         Petri_net.update_launchables !ramol.pnet
+      | Update_reacs reacset ->
+         Reac_mgr.update_rates reacset bact.reac_mgr
+      | Remove_reacs reacset -> 
+         Reac_mgr.remove_reactions reacset bact.reac_mgr
+      | Remove_one reactant ->
+         remove_one_reactant reactant bact
+         |> execute_actions bact
+      | Release_mol mol ->
+         add_molecule mol bact
+         |> execute_actions bact
+      | Release_tokens tlist ->
+         List.iter (fun (n,mol) ->
+             add_molecule mol bact
+             |> execute_actions bact) tlist
+         
+    (* Possible effects : 
+       - forced grab : a molecule is fitted into a pnet
+         even though a grab could not possibly occur
+         (this could be parameterized with
+         some kind of bind probability)
+      - mix : the molecules are mixed together,
+      or one is put into the other one
+      - both break
+     *)
     )
     actions
   
@@ -344,79 +187,89 @@ let next_reaction (bact : t)  =
   | None -> failwith "next_reaction @ bacterie : no more reactions"
   | Some r ->
      let actions = Reaction.treat_reaction r in
-     execute_actions actions bact
+     execute_actions bact actions 
 
-let set_inert_mol_quantity mol n bact =
-  let imd = MolMap.find mol bact.inert_molecules in
-  imd := {!imd with qtt = n}
   
               
 (* ** json serialisation *)
-type bact_elem = {qtt:int;mol: Molecule.t} 
-                   [@@ deriving yojson]
-type bact_sig = {
-    inert_mols : bact_elem list;
-    active_mols : bact_elem list;
-  }
-                 [@@ deriving yojson]
-              
-let make (bact_sig : bact_sig) :t  = 
-  let bact = make_empty () in
-  bact.inert_molecules <- MolMap.empty;
+let from_sig (bact_sig : bact_sig) (bact : t): t  = 
+  
   List.iter
-    (fun {mol = m;qtt = n} ->
-      add_molecule m bact;
-      set_inert_mol_quantity m n bact;
+    (fun {mol = m;qtt = n; ambient=a} ->
+      add_molecule m bact
+      |> execute_actions bact;
+      IRMap.set_qtt n m bact.ireactants
+      |> execute_actions bact;
+      IRMap.set_ambient a m bact.ireactants;
     ) bact_sig.inert_mols;
   
-  bact.active_molecules <-  MolMap.empty;
-  List.iter
+    List.iter
     (fun {mol = m; qtt = n} ->
       for i = 0 to n-1 do 
-        add_molecule m bact;
+        add_molecule m bact
+        |> execute_actions bact;
       done;)
     bact_sig.active_mols;
   bact
 
   
-let to_yojson (bact : t) : Yojson.Safe.json =
-  let imol_enum = MolMap.enum bact.inert_molecules in
+  
+let to_sig (bact : t) : bact_sig =
+  let imol_enum = MolMap.enum !(bact.ireactants) in
   let trimmed_imol_enum =
-    Enum.map (fun (a,(imd : inert_md ref)) -> ({mol=a; qtt= !imd.qtt} : bact_elem))
+    Enum.map (fun (a,(imd: Reactant.ImolSet.t ref)) ->
+        ({mol = !imd.mol; qtt= !imd.qtt;
+          ambient = !imd.ambient} : inert_bact_elem))
              imol_enum in
   let trimmed_imol_list = List.of_enum trimmed_imol_enum in
   
-  let amol_enum = MolMap.enum bact.active_molecules in
+  let amol_enum = MolMap.enum !(bact.areactants) in
   let trimmed_amol_enum =
     Enum.map (fun (a, amolset) ->
-        {mol = a; qtt = ActiveMolSet.cardinal amolset;})
+        {mol = a; qtt = ARMap.AmolSet.cardinal amolset;})
              amol_enum
   in
   let trimmed_amol_list = List.of_enum trimmed_amol_enum
   in  
-  bact_sig_to_yojson {inert_mols = trimmed_imol_list;
-                      active_mols = trimmed_amol_list;}
+  {inert_mols = trimmed_imol_list;
+   active_mols = trimmed_amol_list;}
 
-
-let of_yojson (json : Yojson.Safe.json) : (t,string) mresult =
+let to_sig_yojson bact =
+  bact_sig_to_yojson (to_sig bact)
+  
+let load_yojson_sig (json : Yojson.Safe.json) (bact :t ): (t,string) mresult =
   match  bact_sig_of_yojson json with
-  | Ok bact_sig -> Ok (make bact_sig)
+  | Ok bact_sig -> Ok (from_sig bact_sig bact)
   | Error s -> (Error s)
+
+
              
+(* *** make empty *)
+(* an empty bactery *)
+  
+  
+let empty_sig : bact_sig = {
+    inert_mols = [];
+    active_mols = []}
+  
+let make ?(env=Environment.default_env)
+         ?(bact_sig=empty_sig)
+         ?(reacs_reporter=Reporter.dummy)
+         ?(bact_reporter=Reporter.dummy) () :t =
+  let renv = ref env in 
+  
+  let bact = {ireactants = ref MolMap.empty;
+              areactants = ref MolMap.empty;
+              env = renv;
+              reac_mgr = Reac_mgr.make_new renv ~reporter:reacs_reporter;
+              reporter = bact_reporter}
+  in
+  from_sig bact_sig bact
+
   
 module SimControl =
   struct
     
-(* *** set mol quantity *)
-(* changes the number of items of a particular molecule *)
-    let set_inert_mol_quantity (mol : Molecule.t) (n : int) (bact : t) =
-      if MolMap.mem mol bact.inert_molecules
-      then
-        let ({contents = {qtt; reacs; _}} as imd) = MolMap.find mol bact.inert_molecules in
-        imd := {!imd with qtt = n};
-        update_rates !reacs bact
-      else
-        failwith ("bacterie.ml : update_mol_quantity :  target molecule is not present\n"  ^mol)
       
 (* *** add_proteine *)
 (* adds the molecule corresponding to a proteine to a bactery first transforms it back to a molecule, so the *)
@@ -426,6 +279,7 @@ module SimControl =
     let add_proteine (prot : Proteine.t) (bact : t) : unit =
       let mol = Molecule.of_proteine prot in
       add_molecule mol bact
+      |> execute_actions bact
 
     
 end

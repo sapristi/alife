@@ -1,0 +1,4 @@
+(executable
+    (name yaacs_server)
+    (flags -w)
+    (libraries bacterie_libs logs server nethttpd))

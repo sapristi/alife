@@ -1,0 +1,5 @@
+(library
+  (name server)
+  (flags -w)
+  (libraries
+        bacterie_libs nethttpd reactors))

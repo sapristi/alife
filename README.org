@@ -1,6 +1,6 @@
 * Description
 
-  YAA is an artificial chemistry, centered around petri nets.
+  YAACS is an artificial chemistry simulator, centered around petri nets.
   
   The project also includes a webserver that can interact 
   with the simulation, and a web interface
@@ -9,27 +9,30 @@
 * Setting up
 
   You will need a working OCaml developping environment, 
-  ideally set-up with opam.
+  ideally set-up with opam. Dune is used as a build system.
 
 ** OCaml libs dependancies
     + oasis
     + batteries
+    + ppx_deriving
     + ppx\under{}deriving\under{}yojson
     + ocamlgraph
+    + re
+    + logs
+    + ocamlnet
 
-      (install with opam)
+    (install with opam)
 
 ** Install
    
 #+BEGIN_SRC
-   oasis-setup
-   make
+   dune build
 #+END_SRC
 
 * Run
 
 
-=web_bact_server [-port port]=
+=yaacs_server [-port port]=
 
 
 Then visit =localhost:port=
@@ -38,16 +41,12 @@ Then visit =localhost:port=
    ocaml tools (Installed with opam) :
     + merlin (completion and errors detection in emacs)
     + utop (advanced top-level)
+    + dune
 
    emacs tools (installed with melpa) : 
     + outshine / outorg
     + tuareg-mode
-    + graphviz-dot mode
+    
 
       
-* todo
 
-- implement a graph to manage reactions and reaction rates
-- logging system
-- errors to allow evolution
-- extended pnets and membranes

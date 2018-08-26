@@ -25,8 +25,7 @@
 
 
 open Batteries
-open Misc_library
-open Maps
+open Local_libs
 
 
 (* * the proteine module *)
@@ -39,7 +38,6 @@ type t =
     transitions : Transition.t array; [@opaque]
     places : Place.t array; [@opaque]
     uid : int; [@opaque]
-    binders : (int*string) list; [@opaque]
     mutable launchables_nb:int;
   } 
     [@@deriving show]
@@ -82,14 +80,9 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
           Transition.make id places ila ola index)
 
     in
-    let binders = Array.fold_lefti
-                    (fun res index place   ->
-                      match place.Place.binder with
-                      |None -> res
-                      | Some b -> (index, b) :: res)
-                    [] places
-    in
-    let uid = idProvider#get_id ()
+
+    let uid = Misc_library.idProvider#get_id ()
+
     in
     let launchables_nb = 
       Array.fold_left
@@ -99,7 +92,7 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
     (* simple filter to deactivate pnets without places *)
     if Array.length places > 0
     then 
-      Some {mol; transitions; places; binders; uid; launchables_nb;}
+      Some {mol; transitions; places; uid; launchables_nb;}
     else
       None
   with
@@ -128,7 +121,7 @@ let launch_random_transition (p : t)
   let launchables = Array.filter (fun (t:Transition.t) -> t.launchable) p.transitions in
   if Array.length launchables > 0
   then 
-    let t = random_pick_from_array launchables in
+    let t = Misc_library.random_pick_from_array launchables in
     Transition.apply_transition t
   else []
   
@@ -189,21 +182,6 @@ let grab_factor (mol : Molecule.t) (pnet : t) : int =
         res
     ) 0 pnet.places
   
-let can_bind (pnet1 : t) (pnet2 : t) : bool = 
-  Array.fold_left
-    (fun res place1 ->
-      match place1.Place.binder with
-      | None -> res
-      | Some b ->
-           Array.fold_left
-             (fun res place2 ->
-                  match place2.Place.binder with
-                  | None -> res
-                  | Some b' ->
-                     b = String.rev b'
-             ) res pnet2.places
-    )
-    false pnet1.places
 
 let can_react (mol1 : Molecule.t) (opnet1 : t option)
               (mol2 : Molecule.t) (opnet2 : t option) =
@@ -212,7 +190,6 @@ let can_react (mol1 : Molecule.t) (opnet1 : t option)
   | Some pnet1, None -> can_grab mol2 pnet1
   | None, Some pnet2 -> can_grab mol1 pnet2
   | Some pnet1, Some pnet2 ->
-     can_bind pnet1 pnet2 ||
        can_grab mol1 pnet2 ||
          can_grab mol2 pnet1
   
@@ -223,17 +200,12 @@ let to_json (p : t) =
      "places",
      `List (Array.to_list (Array.map Place.to_yojson p.places));
      "transitions",
-     `List (Array.to_list (Array.map Transition.to_yojson p.transitions));
+     `List (Array.to_list (Array.map Transition.to_json p.transitions));
      "molecule",
      Molecule.to_yojson p.mol;
      "id", `Int p.uid]
   
 
-let matching_binders (b : string) (pnet : t) =
-  List.fold_left (fun res (index,b') ->
-      if b' = String.rev b
-      then index::res
-      else res)  [] pnet.binders
 let get_tokens (pnet :t)  : Token.t list =
   Array.fold_left
     (fun res p ->

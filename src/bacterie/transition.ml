@@ -1,5 +1,5 @@
 
-open Misc_library
+(*open Misc_library*)
    
 (* * the transition module *)
 (* Module to manage transitions :  *)
@@ -36,7 +36,16 @@ type output_arc = {dest_place : int;
       index : int;
     }
                     [@@ deriving show, yojson]
-  
+
+  let to_json t =
+    `Assoc [
+       "launchable", `Bool t.launchable;
+       "id", `String t.id;
+       "input_arcs" , `List (List.map input_arc_to_yojson t.input_arcs);
+       "output_arcs", `List (List.map output_arc_to_yojson t.output_arcs);
+       "index" , `Int t.index
+     ]
+    
 (* ** launchable function *)
 (* Tells whether a given transition can be launched, *)
 (* i.e. checks whether *)
@@ -44,7 +53,7 @@ type output_arc = {dest_place : int;
 (*  - filtering input_arcs have a token with the right label *)
 (*  - arrival places are token-free *)
 
-let launchable (transition : t) =
+    let launchable (transition : t) =
   let launchable_input_arc 
         (input_arc : Acid_types.input_arc)
         (place : Place.t) =

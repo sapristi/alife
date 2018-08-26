@@ -1,0 +1,113 @@
+* general
+
+** TODO use the todolist
+
+* bugfixes/improvements
+  
+** TODO fix environment in gui
+** TODO break reaction 
+   broken pnet : only one piece is added, and pnet is not removed
+   -> does it still happen ?
+
+** TODO sandbox pnet id
+   - when requesting pnet_from_mol, pnet_id is sometimes missing
+   - when deleting pnet, id is not provided
+** TODO links to other pages in web interface
+** DONE reporter service
+   - [X] log folder
+   - [ ] better logs
+   - [X] use logs as a backend for reporter
+   - [X] cli reporter works
+** DONE revert amolset to a simpler state
+   we will modify ARMgr to be a wrapper over 
+   PnetSet.t Map, and same thing with IRMgr
+
+   Pour rendre les choses propres, toute action 
+   qui modifie un état interne renvoie la liste
+   des actions à effectuer à plus haut niveau
+
+** DONE petri net display inconsistencies
+   the first time display works, but the next ones fail
+   -> the problem was with cytoscape : empty_filter was not rcognised 
+   and caused a bug
+
+** DONE change « send to bact » to « send to sandbox » 
+   in the molbuilder tab, and change behaviour accordingly
+
+** DONE reactions initialisation seems broken :
+   grabs happen between the same pnet (same id), and are added six times !
+   -> problem solved, there was an error whan adding reactions to IRMap
+
+* improvements
+** TODO sanitize the use mutable/immutable and refs in structures
+   - [ ] in amolset
+   - [ ] everywhere ?
+
+** STARTED implement tests
+   describe bacteria where only one kind of reaction can happen to
+   be able to predict results
+
+** TODO sanitize server files :
+   - use dune to copy files to the build directory
+   - put external libs in an archive to clean git repo
+** DONE split the web client in multiple pages
+
+** DONE global reaction coefficient (in environment) : 
+   The idea is to put these parameters in an environment module,
+   that could be subject to dynamic changes. This would also allow 
+   changes set by user input.
+   There still lies the tradeoff between having reactions use this
+   coefficient directly, or using it later in reac_mgr.
+   A better abstraction in reac_mgr would allow to avoid too much boilerplate.
+
+   - [X] feature
+   - [X] interface to modify coefficients dynamically
+     (is it possible ?)
+   - [X] web interface
+
+** DONE switch to a rest API for the webserver
+
+** DONE mol quantity go under 0
+   -> problem with references
+* features
+
+** TODO random binds
+   - [ ] clean feature/random-binds branch
+   - [ ] finalise feature
+
+** TODO extended pnets (as graphs)
+
+
+
+* optional
+
+** TODO swith to ocsigen (or opium ?) for the web client/server (will never happen)
+
+** TODO simple reactions to test against
+
+* org mode cheat sheet
+
+** checklist :
+ - [X] switch with C-c C-c
+ - [ ]  
+
+** STATES
+
+*** TODO 
+*** STARTED 
+*** CURRENT 
+*** DONE 
+*** CANCELED 
+
+
+
+(setq org-todo-keywords
+      '((sequence "TODO" "STARTED" "CURRENT"  "|" "DONE" "CANCELED")))
+
+
+(setq org-todo-keyword-faces
+      '(("TODO" . "yellow")
+        ("STARTED" . "orange")
+        ("CURRENT" .  (:foreground "red" :weight bold))
+        ("DONE"    .  "lime green")
+        ("CANCELED" .  "deep blue sky")))

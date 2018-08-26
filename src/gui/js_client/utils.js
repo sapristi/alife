@@ -5,7 +5,17 @@ var utils = {
     ajax_get : function(req_data) {
 	console.log("sending:");
 	console.log(req_data);
-	var connect_uri = window.location.origin + "/sim_commands/";
+        
+        
+	var connect_uri =
+            window.location.origin +
+            "/sim_commands/" +
+            req_data.target + "/" +
+            req_data.command;
+
+        delete req_data.target;
+        delete req_data.command;
+        
 	var request = {
             url: connect_uri,
             dataType: 'json',
@@ -32,6 +42,7 @@ var utils = {
             contentType: "application/json; charset=utf-8",
 	    method:'post',
             success : function(json) {
+		console.log("received :"); 
                 console.log(json);
             },
             error: function(jqXHR) {

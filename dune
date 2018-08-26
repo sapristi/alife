@@ -1,0 +1,17 @@
+(alias
+ (name default)
+ (deps ./src/bin/yaacs_server.exe)
+ (action
+  (bash "cp ./src/bin/yaacs_server.exe ../../yaacs_server"))
+ )
+
+(alias
+ (name readme)
+ (deps (file README.org))
+ (action (progn
+           (bash "emacs README.org --load ~/.emacs.d/init.el --batch -f org-md-export-to-markdown")
+           (bash "cp ./README.md ../../README.md")))
+ )
+
+
+

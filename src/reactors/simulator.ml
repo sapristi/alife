@@ -1,6 +1,8 @@
+open Local_libs
+open Bacterie_libs
 
 type config = {
-    reacs_config : Reac_mgr.config;
+    environment : Environment.t;
     bact_nb : int;
     bact_initial_state : Bacterie.bact_sig;
   }
@@ -9,17 +11,40 @@ type config = {
 type simulator =
   | Uninitialised
   | Initialised of (Bacterie.t array)
-                     [@@deriving yojson]
+
 type t =
   {mutable simulator : simulator;}
-    [@@ deriving yojson]
   
 let make (): t =
   {simulator = Uninitialised;}
+
+
+
+let reacs_reporter = Reporter.report
+                       {
+                         loggers = [Reporter.cli_logger;
+                                    Reporter.make_file_logger "sim-reactions";
+                                    (* Reporter.log_logger*)
+                                   ];
+                         prefix = (fun () -> ("\n[Reac_mgr]"));
+                         suffix = (fun () -> "");
+                       };;
+let bact_reporter = Reporter.report 
+                      {
+                        loggers = [Reporter.cli_logger;
+                                   Reporter.make_file_logger "sim-bacteries";
+                                   (* Reporter.log_logger*)
+                                  ];
+                        prefix = (fun () -> ("\n[Bactery]"));
+                        suffix = (fun () -> "");
+                      };;
   
 let init (c : config) (sim : t) =
   let make_bact i =
-    Bacterie.make c.bact_initial_state  in
+    Bacterie.make ~env:c.environment
+                  ~bact_sig:c.bact_initial_state
+                  ~reacs_reporter:reacs_reporter
+                  ~bact_reporter:bact_reporter () in
   
   let b_array = Array.init c.bact_nb make_bact
   in sim.simulator <- Initialised (b_array)

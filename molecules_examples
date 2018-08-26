@@ -1,0 +1,34 @@
+Grabs A and B atoms and binds them :
+A + B -> AB
+
+
+[
+["Place"],
+["Extension",["Grab_ext","FAF"]],
+["InputArc","A",["Regular_iarc"]],
+["Place"],
+["Extension",["Grab_ext","FBF"]],
+["InputArc","A",["Regular_iarc"]],
+["Place"],
+["OutputArc","A",["Merge_oarc"]]
+]
+
+AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDF
+
+
+Grabs AB molecules and splits it :
+AB -> A+B
+
+[
+["Place"],
+["Extension",["Grab_ext","FAFB"]],
+["InputArc","A",["Split_iarc"]],
+["Place"],
+["OutputArc","A",["Regular_oarc"]],
+["Extension",["Release_ext"]],
+["Place"],
+["OutputArc","A",["Regular_oarc"]],
+["Extension",["Release_ext"]]
+]
+
+AAAABAFAFBDDFBBAADDFAAACAAADDFABBAAACAAADDFABB

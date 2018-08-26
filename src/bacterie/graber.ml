@@ -40,8 +40,8 @@ type t =
 let grab_location_re = "(.*?)F(.)F"
 and wildcard_re = "FF"
                 
-let grab_location_cre = Re.compile (Re_perl.re grab_location_re)
-and wildcard_cre = Re.compile (Re_perl.re wildcard_re)
+let grab_location_cre = Re.compile (Re.Perl.re grab_location_re)
+and wildcard_cre = Re.compile (Re.Perl.re wildcard_re)
                  
 let make (m : string)  =
   try 
@@ -59,7 +59,7 @@ let make (m : string)  =
       let m3 = "^"^m2^"$" in
       Some {mol_repr=m;
             str_repr=m2;
-            re = Re.compile (Re_perl.re m3)}
+            re = Re.compile (Re.Perl.re m3)}
     else
       None
   with

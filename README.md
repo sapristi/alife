@@ -1,67 +1,76 @@
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#sec-1">1. Description</a></li>
-<li><a href="#sec-2">2. Setting up</a>
-<ul>
-<li><a href="#sec-2-1">2.1. OCaml libs dependancies</a></li>
-<li><a href="#sec-2-2">2.2. Install</a></li>
-</ul>
-</li>
-<li><a href="#sec-3">3. Run</a></li>
-<li><a href="#sec-4">4. Usefull stuff</a></li>
-<li><a href="#sec-5">5. todo</a></li>
-</ul>
-</div>
-</div>
 
-# Description<a id="sec-1" name="sec-1"></a>
+# Table of Contents
 
-YAA is an artificial chemistry, centered around petri nets.
+1.  [Description](#org4a509e6)
+2.  [Setting up](#org7fc668f)
+    1.  [OCaml libs dependancies](#orga9e77e6)
+    2.  [Install](#org195421f)
+3.  [Run](#org26734a9)
+4.  [Usefull stuff](#org17caa74)
+
+
+<a id="org4a509e6"></a>
+
+# Description
+
+YAACS is an artificial chemistry simulator, centered around petri nets.
 
 The project also includes a webserver that can interact 
 with the simulation, and a web interface
 
-# Setting up<a id="sec-2" name="sec-2"></a>
+
+<a id="org7fc668f"></a>
+
+# Setting up
 
 You will need a working OCaml developping environment, 
-ideally set-up with opam.
+ideally set-up with opam. Dune is used as a build system.
 
-## OCaml libs dependancies<a id="sec-2-1" name="sec-2-1"></a>
+
+<a id="orga9e77e6"></a>
+
+## OCaml libs dependancies
 
 -   oasis
 -   batteries
+-   ppx<sub>deriving</sub>
 -   ppx_deriving_yojson
 -   ocamlgraph
-    
-    (install with opam)
+-   re
+-   logs
+-   ocamlnet
 
-## Install<a id="sec-2-2" name="sec-2-2"></a>
+(install with opam)
 
-    oasis-setup
-    make
 
-# Run<a id="sec-3" name="sec-3"></a>
+<a id="org195421f"></a>
 
-`web_bact_server [-port port]`
+## Install
+
+    dune build
+
+
+<a id="org26734a9"></a>
+
+# Run
+
+`yaacs_server [-port port]`
 
 Then visit `localhost:port`
 
-# Usefull stuff<a id="sec-4" name="sec-4"></a>
+
+<a id="org17caa74"></a>
+
+# Usefull stuff
 
 ocaml tools (Installed with opam) :
+
 -   merlin (completion and errors detection in emacs)
 -   utop (advanced top-level)
+-   dune
 
 emacs tools (installed with melpa) : 
+
 -   outshine / outorg
 -   tuareg-mode
--   graphviz-dot mode
 
-# todo<a id="sec-5" name="sec-5"></a>
-
--   implement a graph to manage reactions and reaction rates
--   logging system
--   errors to allow evolution
--   extended pnets and membranes

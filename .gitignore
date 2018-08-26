@@ -1,15 +1,25 @@
+
+.merlin
 *.mllib
 *.mldylib
 
-setup.ml
-myocamlbuild.ml
+_tags
 configure
 
+myocamlbuild.ml
+setup.ml
 setup.data
 setup.log
 
-_tags
-_build/
+
 META
 
+_build/
+logs/
+
+
 *.byte
+*~
+*#*#
+yaacs_server
+
