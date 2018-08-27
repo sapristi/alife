@@ -35,8 +35,13 @@ let get_bact_elements (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
     "data", (Bacterie.to_sig_yojson !(sandbox.bact))]
   |> Yojson.Safe.to_string 
   
-  
+let get_sandbox_data (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
+ `Assoc
+   ["purpose", `String "sandbox_data";
+    "data", (Sandbox.to_yojson sandbox)]
+  |> Yojson.Safe.to_string 
 
+  
 let next_reactions (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let n = cgi # argument_value "n"
           |> int_of_string
@@ -138,16 +143,13 @@ let reset_state (sandbox : Sandbox.t) (cgi : Netcgi.cgi) : string=
   get_bact_elements sandbox cgi
 
 let set_state (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
-  match cgi # argument_value "bact_desc" 
-        |> Yojson.Safe.from_string
-        |> Bacterie.bact_sig_of_yojson with
-  | Ok bact_sig -> 
-     sandbox.bact := Bacterie.make ~env:!(sandbox.env)
-                                   ~bact_sig:bact_sig
-                                   ~reacs_reporter:Sandbox.reacs_reporter
-                                   ~bact_reporter:Sandbox.bact_reporter ();
-     get_bact_elements sandbox cgi
-  | Error s -> s
+  let new_sandbox = cgi # argument_value "sandbox_desc" 
+                    |> Yojson.Safe.from_string
+                    |> Sandbox.of_yojson 
+  in
+  sandbox.bact := !(new_sandbox.bact);
+  sandbox.env := !(new_sandbox.env);
+  get_sandbox_data sandbox cgi
 
 let set_environment (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   (* make something clean of this later on *)
@@ -182,14 +184,15 @@ let server_functions =
     "pnet_ids_from_mol", pnet_ids_from_mol;
     "pnet_from_mol" , pnet_from_mol;
     "get_elements", get_bact_elements;
+    "get_sandbox_data",  get_sandbox_data; 
     "next_reactions", next_reactions;
     "commit token edit", commit_token_edit;
     "launch_transition",launch_transition;
     "add_mol",add_mol;
     "remove_mol", remove_mol;
     "set_mol_quantity", set_mol_quantity;
-    "reset_bactery", reset_state;
-    "set_bactery",set_state;
+    "reset_sandbox", reset_state;
+    "set_sandbox",set_state;
     "set_environment", set_environment
   ]
     
