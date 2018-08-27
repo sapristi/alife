@@ -109,9 +109,9 @@ let make_dyn_service  f  =
           in
 
           (* Log.info (fun m -> m "serving GET request : \n%s" req_descr);  *)
-
+          let url = cgi#url () in
           reporter (Printf.sprintf
-                      "serving GET request : \n%s" req_descr);
+                      "serving GET request : at %s with paramters :\n%s" url req_descr);
           
           let response = f cgi in
           

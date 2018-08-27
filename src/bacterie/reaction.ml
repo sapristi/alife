@@ -10,6 +10,7 @@ open Reactions
 (*   updated at a change in the reactant), the modules Reaction, ReacSet *)
 (*   and Reactant are mutally dependant and have to be defined together. *)
   
+
 (* ** Reactant module *)
 
 (*    Reactant.t is defined as a sum type of various possible reactants, *)
@@ -292,8 +293,8 @@ module rec
      struct
        
        include Set.Make (Reaction)
-             
-       let show (rset :t) =
+           
+       let show (rset :t) : string =
          fold (fun (reac : Reaction.t) desc ->
              (Reaction.show reac)^"\n"^desc)
 
