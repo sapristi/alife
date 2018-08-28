@@ -1,9 +1,16 @@
 (alias
  (name default)
- (deps ./src/bin/yaacs_server.exe)
+ (deps ./src/bin/yaacs_server.exe
+       (source_tree src/gui/js_client)
+       (file src/gui/js_client/js-libs/semantic.min.js)
+       )
+ 
  (action
-  (bash "cp ./src/bin/yaacs_server.exe ../../yaacs_server"))
- )
+  (progn     
+    (bash "cp ./src/bin/yaacs_server.exe ../../yaacs_server ")
+;    (bash "rm -f srv")
+;    (bash "ln -s ../../../../_build/default/src/gui/js_client/js-libs/semantic.min.js ../../src/gui/js_client/js-libs/")
+ )))
 
 (alias
  (name readme)
