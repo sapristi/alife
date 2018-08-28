@@ -4,7 +4,7 @@
 
 * bugfixes/improvements
   
-** CURRENT fix environment in gui
+** STARTED fix environment in gui
 ** TODO break reaction 
    broken pnet : only one piece is added, and pnet is not removed
    -> does it still happen ?
