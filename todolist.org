@@ -4,7 +4,7 @@
 
 * bugfixes/improvements
   
-** STARTED fix environment in gui
+
 ** TODO break reaction 
    broken pnet : only one piece is added, and pnet is not removed
    -> does it still happen ?
@@ -12,7 +12,10 @@
 ** TODO sandbox pnet id
    - when requesting pnet_from_mol, pnet_id is sometimes missing
    - when deleting pnet, id is not provided
+     -> en standby jusqu'à avoir une interface bien définie.
 ** TODO links to other pages in web interface
+
+** DONE fix environment in gui
 ** DONE reporter service
    - [X] log folder
    - [ ] better logs
