@@ -12,7 +12,7 @@ open Nethttpd_reactor
 
 
 let fs_spec =
-  { file_docroot = ("./src/gui/js_client");
+  { file_docroot = ("./_build/default/src/gui/js_client");
     file_uri = "/";
     file_suffix_types = [ "txt", "text/plain";
 			  "html", "text/html";
