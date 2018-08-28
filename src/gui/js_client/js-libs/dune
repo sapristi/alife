@@ -1,14 +1,14 @@
-(alias
- (name default)
- (deps cola.v3.min.js
-       cytoscape-automove.js
-       cytoscape-cola.js
-       cytoscape-context-menus.js
-       cytoscape-cose-bilkent.js
-       cytoscape.min.js
-       FileSaver.min.js
-       jquery-3.3.1.min.js
-       knockout-3.4.2.debug.js
-       semantic.min.js)
- (action (system "tar xvf js-libs.tar"))
+(rule
+ (deps (file js-libs.tar))
+ (targets cola.v3.min.js
+          cytoscape-automove.js
+          cytoscape-cola.js
+          cytoscape-context-menus.js
+          cytoscape-cose-bilkent.js
+          cytoscape.min.js
+          FileSaver.min.js
+          jquery-3.3.1.min.js
+          knockout-3.4.2.debug.js
+          semantic.min.js)
+ (action (bash "tar xvf js-libs.tar"))
  )
