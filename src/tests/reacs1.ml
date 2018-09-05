@@ -5,24 +5,56 @@ open Reactors;;
 let b = ref (Bacterie.make ());;
      
 
-let test1 test_ctx =
-  assert_equal (
-      
-      let sandbox = Sandbox.of_yojson
-                      ( Yojson.Safe.from_file "bact_states/simple_bind.json" ) 
-      in
-      Bacterie.next_reaction !(sandbox.bact);
-      Bacterie.next_reaction !(sandbox.bact);
-      Bacterie.next_reaction !(sandbox.bact);
-      Bacterie.next_reaction !(sandbox.bact);
-      Bacterie.to_sig !(sandbox.bact))
-               {active_mols = [{mol="AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";qtt=1}];
-                inert_mols = [{mol="AB"; qtt=1; ambient=false}]}
-      
+let simple_bind test_ctx =
+  
+  let sandbox = Sandbox.of_yojson
+                  ( Yojson.Safe.from_file "bact_states/simple_bind.json" ) 
+  in
+  Bacterie.next_reaction !(sandbox.bact);
+  Bacterie.next_reaction !(sandbox.bact);
+  Bacterie.next_reaction !(sandbox.bact);
+  
+  let result = Bacterie.to_sig !(sandbox.bact)
+               |> Bacterie.canonical_bact_sig 
+             
+  and expected_result : Bacterie.bact_sig =
+    Bacterie.canonical_bact_sig
+      {active_mols = [{mol="AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";qtt=1}];
+       inert_mols = [{mol="BA"; qtt=1; ambient=false}]}
+    
+  in
 
+  assert_equal
+    ~printer:Bacterie.show_bact_sig 
+    expected_result result
+  
+and simple_split test_ctx =
+  
+  let sandbox = Sandbox.of_yojson
+                  ( Yojson.Safe.from_file "bact_states/simple_split.json" ) 
+  in
+  Bacterie.next_reaction !(sandbox.bact);
+  Bacterie.next_reaction !(sandbox.bact);
+  
+  let result = Bacterie.to_sig !(sandbox.bact)
+               |> Bacterie.canonical_bact_sig 
+             
+  and expected_result : Bacterie.bact_sig =
+    Bacterie.canonical_bact_sig
+      {active_mols = [{mol="AAAABAAFBFDDFBBAADDFAAACAAADDFABBAAACAAADDFABB";qtt=1}];
+       inert_mols = [{mol="A"; qtt=1; ambient=false}; {mol="B"; qtt=1; ambient=false}]}
+    
+  in
+  
+  assert_equal
+    ~printer:Bacterie.show_bact_sig 
+     expected_result result
+  
+  
 let suite =
   "suite">:::
-    ["test1">::test1]
-
+    ["simple bind">::simple_bind;
+     "simple split">::simple_split]
+  
 let () =
   run_test_tt_main suite;;
