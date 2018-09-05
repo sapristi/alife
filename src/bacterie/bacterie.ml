@@ -40,15 +40,20 @@ type t ={
     reporter : Reporter.t;
   }
 type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
-                     [@@ deriving yojson]
+                     [@@ deriving yojson, ord, show]
 type active_bact_elem = {qtt:int;mol: Molecule.t} 
-                   [@@ deriving yojson]
+                   [@@ deriving yojson, ord, show]
 type bact_sig = {
     inert_mols : inert_bact_elem list;
     active_mols : active_bact_elem list;
   }
-                 [@@ deriving yojson]
-              
+                 [@@ deriving yojson, show]
+
+let canonical_bact_sig (bs : bact_sig) : bact_sig =
+  {
+    inert_mols = List.sort compare_inert_bact_elem (List.filter (fun (im : inert_bact_elem) -> im.qtt > 0) bs.inert_mols);
+    active_mols = List.sort compare_active_bact_elem (List.filter (fun (am : active_bact_elem) -> am.qtt > 0) bs.active_mols);
+  }
 
 
 (* ** interface *)

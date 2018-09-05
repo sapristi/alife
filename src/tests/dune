@@ -1,5 +1,5 @@
 (test
- (deps bact_states/simple_bind.json)
+ (deps (glob_files bact_states/*.json))
  (name reacs1)
  (libraries bacterie_libs oUnit reactors)
  (flags -w)

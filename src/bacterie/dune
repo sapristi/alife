@@ -1,14 +1,16 @@
 (library
-(name bacterie_libs)
-(flags -w)
-(preprocess
-           (pps ppx_deriving_yojson ppx_deriving.show ppx_deriving.ord ))
-(libraries
-        local_libs
-        batteries
-        re
-        ppx_deriving
-        ppx_deriving_yojson.runtime
-        yojson
-        ppx_deriving.show
-        logs))
+ (name bacterie_libs)
+ (flags -w)
+ (preprocess
+  (pps ppx_deriving.show
+       ppx_deriving_yojson
+       ppx_deriving.show
+       ppx_deriving.ord ))
+ (libraries local_libs
+            batteries
+            re
+            ppx_deriving
+            ppx_deriving_yojson.runtime
+            yojson
+            ppx_deriving.show
+            logs))

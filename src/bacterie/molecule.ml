@@ -9,7 +9,7 @@
 
     
 type t = string
-           [@@deriving show, yojson] 
+           [@@deriving show, yojson, ord] 
 
 
 let break m =
