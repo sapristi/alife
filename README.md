@@ -47,7 +47,8 @@ ideally set-up with opam. Dune is used as a build system.
 
 ## Install
 
-    dune build
+* Extract the archive `src/gui/js_client/js-libs/js-libs.tar`
+* Execute `dune build`
 
 
 <a id="org26734a9"></a>
