@@ -33,7 +33,7 @@ ideally set-up with opam. Dune is used as a build system.
 
 -   oasis
 -   batteries
--   ppx<sub>deriving</sub>
+-   ppx_deriving
 -   ppx_deriving_yojson
 -   ocamlgraph
 -   re
