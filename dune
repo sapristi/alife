@@ -1,16 +1,11 @@
 (alias
  (name default)
- (deps ./src/bin/yaacs_server.exe
-       (source_tree src/gui/js_client)
-       (file src/gui/js_client/js-libs/semantic.min.js)
-       )
+ (deps ./src/bin/yaacs_server.exe )
  
  (action
   (progn     
     (bash "cp ./src/bin/yaacs_server.exe ../../yaacs_server ")
-;    (bash "rm -f srv")
-;    (bash "ln -s ../../../../_build/default/src/gui/js_client/js-libs/semantic.min.js ../../src/gui/js_client/js-libs/")
- )))
+    )))
 
 (alias
  (name readme)
@@ -20,5 +15,20 @@
            (bash "cp ./README.md ../../README.md")))
  )
 
+
+
+(alias
+ (name publish)
+ (deps ./src/bin/yaacs_server.exe
+       (source_tree ./src/gui/js_client))
+ (action
+  (progn
+;    (bash "scp -P 51460 src/bin/yaacs_server.exe 91.121.50.14:yaacs_server")
+;    (bash "scp -P 51460 -r src/gui/js_client 91.121.50.14:./srv")
+    (bash "rsync -ae 'ssh -p 51460' src/bin/yaacs_server.exe 91.121.50.14:yaacs_server")
+    (bash "rsync -ae 'ssh -p 51460' src/gui/js_client 91.121.50.14:srv")
+    )
+  )
+ )
 
 

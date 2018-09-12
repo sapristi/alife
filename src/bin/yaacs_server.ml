@@ -2,7 +2,7 @@ open Server
 open Reactors
    
 let port = ref 1512;;
-let host = ref "localhost";;
+let host = ref "0.0.0.0";;
 let srv_folder = ref "src/gui/js_client";;
 
          
