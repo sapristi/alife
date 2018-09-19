@@ -4,7 +4,7 @@
 
 * bugfixes/improvements
   
-
+** TODO display ambiant mols
 ** TODO break reaction 
    broken pnet : only one piece is added, and pnet is not removed
    -> does it still happen ?

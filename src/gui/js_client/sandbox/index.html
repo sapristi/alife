@@ -54,9 +54,9 @@
 				    data-bind="click:bactVM.next_reactions"
 				    style="padding-left:5px;padding-right:5px">
 				Next reactions
-				<span class="tooltiptext">Evaluates the next reaction</span>
+				                <span class="tooltiptext">Evaluates the next reaction</span>
 			    </button>
-			    <input placeholder="number"
+			                <input placeholder="number"
 				   type="text"
 				   size="4"
 				   data-bind="value:bactVM.reactions_number_input"/>
@@ -64,11 +64,17 @@
 		    </div>
 
 		</div>
-	    </div>
+	            </div>
 
 
+            <div class="ui top fixed menu">
+                <a class="item" href="/simulator">Simulator</a>
+                <a class="active item">Sandbox</a>
+                <a class="item" href="/molbuilder">Molbuilder</a>
+            </div>
 	    <div class="ui divided grid">
 
+                
                 <div class="centered row">
                     <h1 class="ui header" style="margin-top:5px">SandBox</h1>
                 </div>
@@ -132,7 +138,7 @@
 			Inert molecules
 		    </h3>
 
-		    <div class="nine wide column tooltip"
+		    <div class="eleven wide column tooltip"
 			 style="max-height:320px;overflow-y:scroll">
 			<span class="tooltiptext">Click on a molecule for more </span>
 			<h4 class="ui horizontal divider header">
@@ -140,19 +146,17 @@
 			</h4>
 			<table class="ui fixed selectable table">
 			    <thead ><tr>
-				<th class="thirteen wide"> Molecule name</th>
-				<th class="three wide"> Quantity</th>
-			    </tr></thead>
+				<th class="thirteen wide">Molecule name</th>
+				<th class="two wide">Quantity</th>
+                                <th class="two wide">Ambient</th>
+                            </tr></thead>
 			    <tbody>
 				<!-- ko foreach: mols -->
 				<tr data-bind="css:status(), click:$parent.mol_select.bind($data,$index())">
 				    <td style="word-wrap:break-word"
 					data-bind="text:mol"></td>
 				    <td data-bind="text:qtt"></td>
-				    <td>
-					<div class="ui buttons">
-					</div>
-				    </td>
+                                    <td data-bind="text:ambient"></td>
 				</tr>
 				<!-- /ko -->
 			    </tbody></table>
@@ -202,7 +206,7 @@
 			Active molecules
 		    </h3>
 
-		    <div class="nine wide column tooltip"
+		    <div class="eleven wide column tooltip"
 			 style="max-height:320px;overflow-y:scroll">
 			                        <span class="tooltiptext">Click on a molecule for more </span>
 			                        <h4 class="ui horizontal divider header">
