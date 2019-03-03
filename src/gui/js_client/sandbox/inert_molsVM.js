@@ -48,16 +48,16 @@ function InertMolsVM(bactVM) {
 
     self.remove_mol = function() {
         utils.ajax_get(
-            {command:"remove_mol",
-	     target:"bactery",
+            {command:"remove_imol",
+	     target:"sandbox",
 	     mol_desc:self.current_mol_name()}
         ).done(self.bactVM.set_bact_data);
     }
 	
     self.set_mol_quantity = function() {
         utils.ajax_get(
-            {command:"set_mol_quantity",
-	     target:"bactery",
+            {command:"set_imol_quantity",
+	     target:"sandbox",
 	     mol_desc:self.current_mol_name(),
 	     mol_quantity : self.mol_quantity_input}
         ).done(self.bactVM.set_bact_data);

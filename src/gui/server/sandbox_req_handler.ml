@@ -114,13 +114,13 @@ let add_mol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) : string=
   |> Bacterie.execute_actions !(sandbox.bact);
   get_bact_elements sandbox cgi
   
-let remove_mol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
+let remove_imol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
   let mol = cgi # argument_value "mol_desc" in
   Reactants.IRMap.remove_all mol !(sandbox.bact).ireactants
   |> Bacterie.execute_actions !(sandbox.bact);
   get_bact_elements sandbox cgi
 
-let set_mol_quantity (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
+let set_imol_quantity (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
   let mol = cgi # argument_value "mol_desc"
   and n = cgi # argument_value "mol_quantity"
           |> int_of_string
@@ -189,8 +189,8 @@ let server_functions =
     "commit token edit", commit_token_edit;
     "launch_transition",launch_transition;
     "add_mol",add_mol;
-    "remove_mol", remove_mol;
-    "set_mol_quantity", set_mol_quantity;
+    "remove_imol", remove_imol;
+    "set_imol_quantity", set_imol_quantity;
     "reset_sandbox", reset_state;
     "set_sandbox",set_state;
     "set_environment", set_environment

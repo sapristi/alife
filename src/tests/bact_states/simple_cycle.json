@@ -1,11 +1,11 @@
 {
-"active_mols" : [
-{"mol" : "AAAABCBAAADDFCAABDDFAAACAAADDFBAABDDF", "qtt":1}],
-"inert_mols":  [],
- "env": {
+    "active_mols" : [
+        {"mol" : "AAAABCBAAADDFCAABDDFAAACAAADDFBAABDDF", "qtt":1}],
+    "inert_mols":  [],
+    "env": {
         "transition_rate" : 1,
         "grab_rate" : 1,
         "break_rate" : 0,
         "random_collision_rate" : 0
- }
+    }
 }
