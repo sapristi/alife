@@ -127,7 +127,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
 let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
   match reactant with
   | ImolSet ir ->
-     IRMap.remove_one !ir bact.ireactants
+     IRMap.add_to_qtt !ir (-1) bact.ireactants
   | Amol amol ->
      ARMap.remove amol bact.areactants
 

@@ -194,6 +194,7 @@ module IRMap =
             rimolset)
           !irmap;
       [ Reacs.Update_reacs !(!rir.reacs)]
+
       
     let set_ambient ambient mol (irmap :t) =
       irmap :=
@@ -222,8 +223,7 @@ module IRMap =
       
       [ Reacs.Remove_reacs !old_reacs]
 
-    let remove_one ir (irmap : t) =
-      add_to_qtt ir (-1) irmap
+
       
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
                                     (irmap :t) reac_mgr =      

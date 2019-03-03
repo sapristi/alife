@@ -39,7 +39,6 @@ module ActiveMolSet  = struct
                        (!amd).pnet.uid) pnet_enum in
     List.of_enum ids_enum
     
-
         
 (* *** update reacs with new reactant *)
 (* Calculates the possible reactions with a reactant *)

@@ -120,6 +120,10 @@ let remove_imol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   |> Bacterie.execute_actions !(sandbox.bact);
   get_bact_elements sandbox cgi
 
+let remove_amol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
+  let mol = cgi # argument_value "mol_desc" in
+  ()
+  
 let set_imol_quantity (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
   let mol = cgi # argument_value "mol_desc"
   and n = cgi # argument_value "mol_quantity"
