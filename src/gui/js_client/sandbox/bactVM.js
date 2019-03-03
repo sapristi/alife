@@ -16,7 +16,8 @@ function BactViewModel(pnetVM, container_id) {
     
     // ** update_bact
     self.set_bact_data = function(data){
-	
+        //ugly fix
+        if ('data' in data) {data = data.data;}
 	self.inertMolsVM.update(data.inert_mols);
 	self.activeMolsVM.update(data.active_mols);
 	
