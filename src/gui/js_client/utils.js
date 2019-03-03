@@ -27,7 +27,7 @@ var utils = {
             },
             error: function(jqXHR) {
                 console.log("ajax error " + jqXHR.status + " from sending :");
-		console.log(req_data);
+		console.log(req_data, "to", connect_uri);
             }
         };
         return $.ajax(request);

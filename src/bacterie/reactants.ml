@@ -49,7 +49,7 @@ module ARMap =
               launchables_nb = 0;} in
           let dummy_amd = ref (Reactant.Amol.make_new dummy_pnet)
           in
-          !(find dummy_amd amolset).pnet
+          find dummy_amd amolset
           
           
         let add_reacs_with_new_reactant (new_reactant : Reactant.t) (amolset :t) reac_mgr : unit =
@@ -142,10 +142,9 @@ module ARMap =
              (!amd).pnet.uid)
       |> List.of_enum
 
-    let find_pnet mol pnet_id (armap : t) : Petri_net.t =
-      MolMap.find mol !armap
-      |> AmolSet.find_by_id pnet_id
-      
+    let find mol pnet_id (armap : t) =
+      let amolset = MolMap.find mol !armap in
+      AmolSet.find_by_id pnet_id amolset          
       
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
                                     (armap :t)  reac_mgr: unit =

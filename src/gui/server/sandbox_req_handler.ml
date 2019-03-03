@@ -20,7 +20,7 @@ let pnet_from_mol (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let mol = cgi # argument_value "mol_desc"
   and pnet_id = int_of_string (cgi# argument_value "pnet_id") in
   let pnet_json =
-    Reactants.ARMap.find_pnet mol pnet_id !(sandbox.bact).areactants
+    !(Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet
     |> Petri_net.to_json
   in
   `Assoc
@@ -70,7 +70,7 @@ let commit_token_edit (sandbox : Sandbox.t) (cgi : Netcgi.cgi)
                          |> int_of_string
        in
        
-       let pnet = Reactants.ARMap.find_pnet mol pnet_id !(sandbox.bact).areactants in
+       let pnet = !(Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
        (
          match token_o with
          | Some token -> 
@@ -96,7 +96,7 @@ let launch_transition (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   and trans_index = cgi # argument_value "transition_index"
                     |> int_of_string in
 
-  let pnet = Reactants.ARMap.find_pnet mol pnet_id !(sandbox.bact).areactants in
+  let pnet = !(Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
   
   Petri_net.launch_transition_by_id trans_index pnet;
   Petri_net.update_launchables pnet;
@@ -121,9 +121,13 @@ let remove_imol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   get_bact_elements sandbox cgi
 
 let remove_amol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
-  let mol = cgi # argument_value "mol_desc" in
-  ()
-  
+  let mol = cgi # argument_value "mol_desc"
+  and pnet_id = cgi # argument_value "pnet_id" |> int_of_string in
+  let amol = Reactants.ARMap.find mol pnet_id  !(sandbox.bact).areactants in
+  Reactants.ARMap.remove amol !(sandbox.bact).areactants
+  |> Bacterie.execute_actions !(sandbox.bact);
+  get_bact_elements sandbox cgi
+             
 let set_imol_quantity (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
   let mol = cgi # argument_value "mol_desc"
   and n = cgi # argument_value "mol_quantity"
@@ -195,6 +199,7 @@ let server_functions =
     "add_mol",add_mol;
     "remove_imol", remove_imol;
     "set_imol_quantity", set_imol_quantity;
+    "remove_amol", remove_amol;
     "reset_sandbox", reset_state;
     "set_sandbox",set_state;
     "set_environment", set_environment
