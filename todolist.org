@@ -3,7 +3,8 @@
 ** TODO use the todolist
 
 * bugfixes/improvements
-  
+
+** STARTED fix remove/change mol quantity from interface
 ** TODO display ambiant mols
 ** TODO break reaction 
    broken pnet : only one piece is added, and pnet is not removed

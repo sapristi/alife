@@ -282,6 +282,7 @@ function PNetViewModel(container_id) {
 	utils.ajax_get(
 	    {command: "launch_transition",
 	     molecule : self.data().molecule,
+             pnet_id : 0,
 	     transition_index : tindex,
 	     target: self.container_id}
         ).done(

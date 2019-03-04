@@ -64,24 +64,17 @@ function ActiveMolsVM(bactVM) {
         console.log("selected:", index, " ;previous:", self.selected_mol_index());
         
 	if (self.selected_mol_index() in self.mols()) {
-	    self.mols()[self.selected_mol_index()]["status"]("")
-	    //self.pnet_indexes.removeAll();
+	    self.mols()[self.selected_mol_index()]["status"]("");
+	    self.pnet_indexes.removeAll();
 	}
 	if (index != self.selected_mol_index())
 	{
-	    /* self.mols()[index]["status"]("active");
-	       self.selected_mol_index(index);
-
-	       utils.ajax_get(
-	       {command : "pnet_ids_from_mol",
-	       mol_desc : self.mols()[index].mol,
-	       target : self.bactVM.container_id}
-	       ).done(function(data) {
-	       self.pnet_indexes(data.data);});
-	     */
             self.selected_mol_index(index);
             self.update_selected_mol(index);
-	} else { self.selected_mol_index(-1);}
+	} else {
+            self.selected_mol_index(-1);
+            self.bactVM.pnetVM.disable();
+        }
     }
 
     
@@ -97,15 +90,7 @@ function ActiveMolsVM(bactVM) {
                 self.update_selected_mol();}
         );
     }
-    /* 
-       self.set_mol_quantity = function() {
-     * utils.ajax_get(
-     *     {command:"set_mol_quantity",
-       target:self.bactVM.container_id,
-       mol_desc:self.current_mol_name(),
-       mol_quantity : self.mol_quantity_input}
-     * ).done(self.bactVM.set_bact_data);
-       } */
+
 
     self.send_to_molbuilder = function() {
         var bc_chan = new BroadcastChannel("to_molbuilder");
