@@ -4,12 +4,13 @@
 
 * bugfixes/improvements
 
-** DONE fix remove/change mol quantity from interface
-** DONE display ambiant mols
 ** TODO break reaction 
    broken pnet : only one piece is added, and pnet is not removed
    -> does it still happen ?
 
+** TODO stacktrace
+** DONE fix remove/change mol quantity from interface
+** DONE display ambiant mols
 ** DONE sandbox pnet id
    - when requesting pnet_from_mol, pnet_id is sometimes missing
    - when deleting pnet, id is not provided
