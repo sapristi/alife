@@ -9,6 +9,7 @@
    -> does it still happen ?
 
 ** TODO stacktrace
+** DONE repair missing execute actions
 ** DONE fix remove/change mol quantity from interface
 ** DONE display ambiant mols
 ** DONE sandbox pnet id

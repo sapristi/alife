@@ -1,7 +1,7 @@
 
 open Reactors
 open Bacterie_libs
-
+open Reaction
   
 
 let pnet_ids_from_mol  (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
@@ -98,8 +98,9 @@ let launch_transition (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
 
   let pnet = !(Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
   
-  Petri_net.launch_transition_by_id trans_index pnet;
-  Petri_net.update_launchables pnet;
+  let p_actions = Petri_net.launch_transition_by_id trans_index pnet in
+  let actions = List.map (fun x -> Reacs.T_effects x) [p_actions] in
+  Bacterie.execute_actions !(sandbox.bact) actions;
   
   let pnet_json = Petri_net.to_json pnet
   in
