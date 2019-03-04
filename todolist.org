@@ -4,18 +4,17 @@
 
 * bugfixes/improvements
 
-** STARTED fix remove/change mol quantity from interface
-** TODO display ambiant mols
+** DONE fix remove/change mol quantity from interface
+** DONE display ambiant mols
 ** TODO break reaction 
    broken pnet : only one piece is added, and pnet is not removed
    -> does it still happen ?
 
-** TODO sandbox pnet id
+** DONE sandbox pnet id
    - when requesting pnet_from_mol, pnet_id is sometimes missing
    - when deleting pnet, id is not provided
      -> en standby jusqu'à avoir une interface bien définie.
-** TODO links to other pages in web interface
-
+** DONE links to other pages in web interface
 ** DONE fix environment in gui
 ** DONE reporter service
    - [X] log folder
@@ -51,7 +50,7 @@
    describe bacteria where only one kind of reaction can happen to
    be able to predict results
 
-** TODO sanitize server files :
+** DONE sanitize server files :
    - use dune to copy files to the build directory
    - put external libs in an archive to clean git repo
 ** DONE split the web client in multiple pages
@@ -82,7 +81,7 @@
 ** TODO extended pnets (as graphs)
 
 
-
+   
 * optional
 
 ** TODO swith to ocsigen (or opium ?) for the web client/server (will never happen)
