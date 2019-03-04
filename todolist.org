@@ -5,9 +5,8 @@
 * bugfixes/improvements
 
 ** TODO break reaction 
-   broken pnet : only one piece is added, and pnet is not removed
-   -> does it still happen ?
-
+   - seems ok with imol, but not with amol
+** TODO explicit exceptions
 ** TODO stacktrace
 ** DONE repair missing execute actions
 ** DONE fix remove/change mol quantity from interface

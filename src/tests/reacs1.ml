@@ -49,12 +49,35 @@ and simple_split test_ctx =
   assert_equal
     ~printer:Bacterie.show_bact_sig 
      expected_result result
+
+and simple_break test_ctx =
+  let sandbox = Sandbox.of_yojson
+                  ( Yojson.Safe.from_file "bact_states/simple_break.json" ) 
+  in 
+  Bacterie.next_reaction !(sandbox.bact);
+
+
   
+  let result = Bacterie.to_sig !(sandbox.bact)
+               |> Bacterie.canonical_bact_sig 
+             
+  and expected_result : Bacterie.bact_sig =
+    Bacterie.canonical_bact_sig
+      {active_mols = [];
+       inert_mols = [{mol="A"; qtt=5; ambient=false};]}
+    
+  in
+  
+  assert_equal
+    ~printer:Bacterie.show_bact_sig 
+    expected_result result
+
   
 let suite =
   "suite">:::
     ["simple bind">::simple_bind;
-     "simple split">::simple_split]
+     "simple split">::simple_split;
+    "simple break">::simple_break;]
   
 let () =
   run_test_tt_main suite;;
