@@ -172,7 +172,7 @@ function PNetViewModel(container_id) {
     
 // ** observables controlling display
     self.data = ko.observable();
-	
+
 // ** data observables
     self.place_nb = ko.computed( function() {
 	if (self.data()) {
@@ -219,10 +219,11 @@ function PNetViewModel(container_id) {
     }
 
     self.initialise = function(mol_desc, pnet_index) {
-	self.request_data(
+        self.request_data(
 	    mol_desc,
 	    pnet_index,
 	    function(data) {
+                console.log("Initialising with data", data);
 		self.placeVM.disable();
 		self.transitionVM.disable();
 		self.data(data.data.pnet);
@@ -263,6 +264,7 @@ function PNetViewModel(container_id) {
 	utils.ajax_get(
             {command: "commit token edit",
 	     molecule : self.data().molecule,
+             pnet_id : self.data().id,
 	     place_index : pindex,
              token: JSON.stringify(token),
 	     target: self.container_id}
@@ -282,7 +284,7 @@ function PNetViewModel(container_id) {
 	utils.ajax_get(
 	    {command: "launch_transition",
 	     molecule : self.data().molecule,
-             pnet_id : 0,
+             pnet_id : self.data().id,
 	     transition_index : tindex,
 	     target: self.container_id}
         ).done(
@@ -299,6 +301,7 @@ function PNetViewModel(container_id) {
     self.global_sim_update = function() {
 	console.log(self.data());
 	if (self.data()) {
+            console.log("Updating with data", self.data());
 	    self.request_data(
 		self.data().molecule,
 		self.data().id,
