@@ -8,6 +8,16 @@
    - seems ok with imol, but not with amol
 ** TODO explicit exceptions
 ** TODO stacktrace
+** TODO gui:
+    - [ ] update all molecules after transition (if needs be)
+    - [ ] modify ambient 
+    - [ ] clear button
+    - [ ] examples load
+    - [ ] error with refresh when pnet is removed
+    - [ ] commit env fails
+    - [ ] refresh after loading
+    - [ ] display reactions
+** TODO reactions not removed when removing molecule
 ** DONE repair missing execute actions
 ** DONE fix remove/change mol quantity from interface
 ** DONE display ambiant mols
