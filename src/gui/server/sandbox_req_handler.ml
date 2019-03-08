@@ -187,6 +187,12 @@ let set_environment (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
    *    "error decoding env from json " ^ s *)
   
   "tesqt sqdqsd"
+
+(* let get_reactions (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = *)
+let get_reactions (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
+  !(sandbox.bact).reac_mgr
+  |> Reac_mgr.to_yojson
+  |> Yojson.Safe.to_string
   
 let server_functions =
   [
@@ -203,7 +209,8 @@ let server_functions =
     "remove_amol", remove_amol;
     "reset_sandbox", reset_state;
     "set_sandbox",set_state;
-    "set_environment", set_environment
+    "set_environment", set_environment;
+    "get_reactions", get_reactions
   ]
     
    

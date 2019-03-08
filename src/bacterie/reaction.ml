@@ -1,6 +1,6 @@
 open Reactions
-
-
+open Yojson
+open Batteries
 
 (* * file overview *)
 
@@ -71,6 +71,11 @@ module rec
 
         let show (imd : t) =
           Printf.sprintf "Inert : %s (%i)" imd.mol imd.qtt
+        let to_yojson (imd : t) : Yojson.Safe.json =
+          `Assoc [ "mol" , Molecule.to_yojson imd.mol;
+                   "qtt" , `Int imd.qtt;
+                   "ambient" , `Bool imd.ambient ]
+          
         let pp (f : Format.formatter) (imd : t) =
           Format.pp_print_string f (show imd)
         let compare (imd1 : t) (imd2 : t) =
@@ -107,7 +112,9 @@ module rec
           }
         let show am = 
           Printf.sprintf "Active mol : %s (id : %d)" am.mol am.pnet.uid 
-
+        let to_yojson am : Yojson.Safe.json =
+          `Assoc [ "mol", Molecule.to_yojson am.mol;
+                   "pnet_id", `Int am.pnet.uid]
         let pp f am =
           Format.pp_print_string f (show am)
 
@@ -168,6 +175,11 @@ module rec
       | Amol of Amol.t ref
       | ImolSet of ImolSet.t ref
                      [@@ deriving show, ord]
+                 
+    let to_yojson reactant =
+      match reactant with 
+      | Amol amol -> Amol.to_yojson !amol
+      | ImolSet ims -> ImolSet.to_yojson !ims
     let qtt reactant =
       match reactant with
       | Amol amol -> Amol.qtt !amol
@@ -212,6 +224,7 @@ module rec
                type t
                type build_t
                val show : t -> string
+               val to_yojson : t -> Yojson.Safe.json
                val pp : Format.formatter -> t -> unit
                val compare : t -> t -> int
                val rate : t -> float
@@ -219,7 +232,6 @@ module rec
                val make : build_t -> t
                val eval : t -> effect list
                val remove_reac_from_reactants : Reaction.t -> t -> unit
-
              end
 
            module Grab :
@@ -247,7 +259,8 @@ module rec
              | Grab of Reacs.Grab.t ref
              | Transition of Reacs.Transition.t ref
              | Break of Reacs.Break.t ref
-                      
+
+           val to_yojson : t -> Yojson.Safe.json
            val treat_reaction : t -> Reacs.effect list
            val compare : t -> t -> int
            val show : t -> string
@@ -261,14 +274,14 @@ module rec
          | Grab of Grab.t ref
          | Transition of Transition.t ref
          | Break of Break.t ref
-                      [@@ deriving ord, show]    
-                  
+                      [@@ deriving ord, show, to_yojson]    
+
        let rate r =
          match r with
          | Transition t -> Transition.rate (!t)
          | Grab g -> Grab.rate (!g)
          | Break ba -> Break.rate !ba
-      let treat_reaction r  : effect list=
+       let treat_reaction r  : effect list=
          match r with
          | Transition t -> Transition.eval !t
          | Grab g -> Grab.eval !g
@@ -283,11 +296,13 @@ module rec
      
      
 
-(* ** ReacSet module *)
+ (* ** ReacSet module *)
+        
    and ReacSet :
          (sig
            include Set.S with type elt =  Reaction.t
            val show : t -> string
+           val to_yojson : t -> Yojson.Safe.json
          end)
      =
      struct
@@ -300,6 +315,8 @@ module rec
 
            rset
            ""
+       let to_yojson rset =
+         `List (List.map Reaction.to_yojson (to_list rset))
        let pp (f : Format.formatter) (rset : t) =
          Format.pp_print_string f "reactions set"
   end

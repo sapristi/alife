@@ -58,7 +58,6 @@ module MakeReacSet (Reac : Reacs.REAC) =
                
     type t = {mutable rates_sum : float;
               mutable set : RSet.t;}
-
     let empty  : t =
       {rates_sum = 0.;
        set = RSet.empty;}
@@ -83,6 +82,10 @@ module MakeReacSet (Reac : Reacs.REAC) =
       RSet.fold (fun (e : elt) desc ->
           (Reac.show e)^"\n"^desc) s.set ""
       
+    let to_yojson s =
+      `Assoc [
+          "total", `Float s.rates_sum;
+          "reactions", `List (List.map Reac.to_yojson (RSet.to_list s.set)) ]
     let pick_reaction (s : t) =
       Misc_library.pick_from_list (Random.float s.rates_sum) 0.
                                   Reac.rate
@@ -139,7 +142,13 @@ type t =
     env : Environment.t ref;
   }
 
-
+let to_yojson (rmgr : t) : Yojson.Safe.json =
+  `Assoc [
+      "transitions", TSet.to_yojson rmgr.t_set;
+      "grabs", GSet.to_yojson rmgr.g_set;
+      "breaks", BSet.to_yojson rmgr.b_set;
+      "reac_nb", `Int rmgr.reac_nb;
+      "env", Environment.to_yojson !(rmgr.env)]
 
   
 let make_new (env : Environment.t ref) ?(reporter=Reporter.dummy) =

@@ -58,6 +58,7 @@ module type REACTANT =
         type reac
         type reacSet
         val show : t -> string
+        val to_yojson : t -> Yojson.Safe.json
         val pp : Format.formatter -> t -> unit
         val compare : t -> t -> int
         val mol : t -> Molecule.t
@@ -144,6 +145,7 @@ module ReactionsM (R : REACTANT) =
         type t
         type build_t
         val show : t -> string
+        val to_yojson : t -> Yojson.Safe.json
         val pp : Format.formatter -> t -> unit
         val compare : t -> t -> int
         val rate : t -> float
@@ -162,10 +164,10 @@ module ReactionsM (R : REACTANT) =
             graber_data : R.Amol.t ref;
             grabed_data : R.t;
           }
-                    [@@ deriving show, ord]
+                    [@@ deriving show, ord, to_yojson]
                 
         type build_t = (R.Amol.t ref * R.t)
-                            
+                     
         let calculate_rate ({graber_data; grabed_data;_} : t) =
           let mol = R.mol grabed_data
           and qtt = R.qtt grabed_data in
@@ -210,7 +212,7 @@ module ReactionsM (R : REACTANT) =
             mutable rate : float;
             amd : R.Amol.t ref;
           }
-                   [@@ deriving ord, show]
+                   [@@ deriving ord, show, to_yojson]
                
         type build_t = R.Amol.t ref
                      
@@ -250,7 +252,7 @@ module ReactionsM (R : REACTANT) =
       struct
         type t = {mutable rate : float;
                   reactant : R.t;}
-                   [@@ deriving show, ord]
+                   [@@ deriving show, ord, to_yojson]
                
         type build_t = R.t
                     
