@@ -81,7 +81,8 @@ module MakeReacSet (Reac : Reacs.REAC) =
     let show (s : t) =
       RSet.fold (fun (e : elt) desc ->
           (Reac.show e)^"\n"^desc) s.set ""
-      
+    let pp (f : Format.formatter) (s : t) =
+          Format.pp_print_string f (show s)
     let to_yojson s =
       `Assoc [
           "total", `Float s.rates_sum;
@@ -138,9 +139,10 @@ type t =
     g_set :  GSet.t;
     b_set :  BSet.t;
     mutable reac_nb : int;
-    reporter : Reporter.t;
-    env : Environment.t ref;
+    reporter : Reporter.t; [@opaque]
+    env : Environment.t ref; [@opaque]
   }
+  [@@ deriving show]
 
 let to_yojson (rmgr : t) : Yojson.Safe.json =
   `Assoc [
@@ -152,13 +154,15 @@ let to_yojson (rmgr : t) : Yojson.Safe.json =
 
   
 let make_new (env : Environment.t ref) ?(reporter=Reporter.dummy) =
-  {t_set = TSet.empty;
+  reporter "Making new empty reac_mgr";
+  let res = {t_set = TSet.empty;
    g_set = GSet.empty;
    b_set = BSet.empty;
    reac_nb = 0;
    reporter = reporter;
-   env = env;
-  }
+   env = env; } in
+  reporter (show res);
+  res
 
 
   

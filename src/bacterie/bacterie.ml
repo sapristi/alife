@@ -269,6 +269,8 @@ let make ?(env=Environment.default_env)
               reac_mgr = Reac_mgr.make_new renv ~reporter:reacs_reporter;
               reporter = bact_reporter}
   in
+  bact_reporter (Printf.sprintf "Creating new bactery from %s"
+              (show_bact_sig bact_sig));
   from_sig bact_sig bact
 
   
