@@ -1,6 +1,27 @@
 open Batteries
 open BatFile
 
+module Color=
+  struct
+    type t =
+      | Default | Black | Red | Green | Yellow
+      | Blue | Magenta | Cyan | White
+
+    let to_fg c =
+     match c with 
+     | Default -> "\027[39m" | Black -> "\027[30m"  | Red -> "\027[31m"
+     | Green -> "\027[32m"   | Yellow -> "\027[33m" | Blue -> "\027[34m"
+     | Magenta -> "\027[35m" | Cyan -> "\027[36m"   | White -> "\027[97m"
+    let to_bg c = 
+     match c with 
+     | Default -> "\027[49m" | Black -> "\027[40m"  | Red -> "\027[41m"
+     | Green -> "\027[42m"   | Yellow -> "\027[43m" | Blue -> "\027[44m"
+     | Magenta -> "\027[45m" | Cyan -> "\027[46m"   | White -> "\027[107m"
+
+    let colorize ?fgc:(fg=Default) ?bgc:(bg=Default) t =
+      Printf.sprintf "%s%s%s%s%s" (to_fg fg) (to_bg bg) t (to_fg Default) (to_bg Default)  
+  end
+   
 type level =
   | Flash
   | Error
@@ -22,7 +43,7 @@ let level_gt l1 l2 = match l1,l2 with
   | Info, _ -> true
   | Debug, Debug -> true
   | Debug, _ -> false
-                  
+
 
 type log_item = {
     level : level;
@@ -34,8 +55,22 @@ module Formatter =
   struct
     type t = log_item -> string
     let format_default item =
-      Printf.sprintf "[%s] [%s] %s" item.logger_name
+      Printf.sprintf "%-6.3f %-10s %-10s %s" (Sys.time ()) item.logger_name
         (show_level item.level) item.msg
+
+    let level_to_color lvl =
+      match lvl with
+      | Flash -> Color.Magenta
+      | Error -> Color.Red
+      | Warning -> Color.Yellow
+      | Info -> Color.Blue
+      | Debug -> Color.Green
+      
+    let format_color item =
+      let item_level_str = Color.colorize  ~fgc:(level_to_color item.level)  (show_level item.level) in
+        
+      Printf.sprintf "%-6.3f %-10s %-30s %s" (Sys.time ()) item.logger_name
+        item_level_str item.msg
 end
 
   
@@ -52,7 +87,7 @@ module Handler =
         h.handler (h.fmt item)
       
     let make_cli_handler level =
-      {fmt = Formatter.format_default;
+      {fmt = Formatter.format_color;
        level = level;
        handler = fun s -> print_endline s}
       
