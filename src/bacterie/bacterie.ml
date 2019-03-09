@@ -6,8 +6,6 @@ open Local_libs
 open Reaction
 (* compatibility with yojson before loading batteries *)
 type ('a, 'b) mresult = ('a, 'b) result
-open Batteries
-
 open Reactants
    
 (* * Container module *)
@@ -37,7 +35,7 @@ type t ={
     mutable areactants : ARMap.t;
     reac_mgr : Reac_mgr.t;
     env : Environment.t ref;
-    reporter : Reporter.t;
+    reporter : Logger.logger;
   }
 type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
                      [@@ deriving yojson, ord, show]
@@ -80,7 +78,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
   match new_opnet with
     
   | Some pnet ->
-     bact.reporter (Printf.sprintf "adding active molecule  : %s" mol);
+     bact.reporter#info (Printf.sprintf "adding active molecule  : %s" mol);
      
      let ar = ref (Reactant.Amol.make_new pnet) in
      (* reactions : grabs with other amols*)
@@ -100,7 +98,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
      ARMap.add ar bact.areactants
   | None ->
      (
-     bact.reporter (Printf.sprintf "adding inactive molecule  : %s" mol);
+     bact.reporter#info (Printf.sprintf "adding inactive molecule  : %s" mol);
        match MolMap.Exceptionless.find mol !(bact.ireactants) with
        | None -> 
           let new_rireac = ref (Reactant.ImolSet.make_new mol) in
@@ -220,6 +218,7 @@ let from_sig (bact_sig : bact_sig) (bact : t): t  =
   
   
 let to_sig (bact : t) : bact_sig =
+  let open Batteries in 
   let imol_enum = MolMap.enum !(bact.ireactants) in
   let trimmed_imol_enum =
     Enum.map (fun (a,(imd: Reactant.ImolSet.t ref)) ->
@@ -259,8 +258,8 @@ let empty_sig : bact_sig = {
   
 let make ?(env=Environment.default_env)
          ?(bact_sig=empty_sig)
-         ?(reacs_reporter=Reporter.dummy)
-         ?(bact_reporter=Reporter.dummy) () :t =
+         ?(reacs_reporter=Logger.dummy)
+         ?(bact_reporter=Logger.dummy) () :t =
   let renv = ref env in 
   
   let bact = {ireactants = ref MolMap.empty;
@@ -269,7 +268,7 @@ let make ?(env=Environment.default_env)
               reac_mgr = Reac_mgr.make_new renv ~reporter:reacs_reporter;
               reporter = bact_reporter}
   in
-  bact_reporter (Printf.sprintf "Creating new bactery from %s"
+  bact_reporter#info (Printf.sprintf "Creating new bactery from %s"
               (show_bact_sig bact_sig));
   from_sig bact_sig bact
 

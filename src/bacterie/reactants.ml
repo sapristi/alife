@@ -3,6 +3,7 @@ open Batteries
 open Reaction
 open Local_libs
 
+
 module MolMap =
   struct
     include Map.Make (struct type t = Molecule.t
@@ -37,10 +38,7 @@ module ARMap =
           empty
           
         let reporter =
-          Reporter.report {
-              loggers = [Reporter.cli_logger; Reporter.make_file_logger "amolset" ];
-              prefix = (fun () -> "[Amolset]");
-              suffix = (fun () -> "")}
+          new Logger.logger "Amolset" (Some Logger.Info) [Logger.Handler.Cli Logger.Debug]
 
         let find_by_id pnet_id amolset  =
           let (dummy_pnet : Petri_net.t) ={
@@ -76,13 +74,13 @@ module ARMap =
                    then
                      (
                        Reac_mgr.add_grab new_amol (Amol current_amd) reac_mgr;
-                       reporter (Printf.sprintf "[%s] grabing %s" (Reactant.show (Amol current_amd)) (Reactant.show new_reactant));
+                       reporter#debug (Printf.sprintf "[%s] grabing %s" (Reactant.show (Amol current_amd)) (Reactant.show new_reactant));
                      );
                    if is_grabed
                    then
                      (
                        Reac_mgr.add_grab current_amd new_reactant reac_mgr;
-                       reporter (Printf.sprintf "[%s] grabed by %s"  (Reactant.show (Amol current_amd)) (Reactant.show new_reactant));
+                       reporter#debug (Printf.sprintf "[%s] grabed by %s"  (Reactant.show (Amol current_amd)) (Reactant.show new_reactant));
                      );
                  ) amolset;
                
@@ -91,7 +89,7 @@ module ARMap =
                then 
                  iter
                    (fun current_amol ->
-                     reporter (Printf.sprintf "[%s] grabing %s" (Reactant.show (Amol current_amol)) (Reactant.mol new_reactant));
+                     reporter#debug (Printf.sprintf "[%s] grabing %s" (Reactant.show (Amol current_amol)) (Reactant.mol new_reactant));
                      Reac_mgr.add_grab current_amol new_reactant reac_mgr)
                    amolset
                
@@ -102,13 +100,10 @@ module ARMap =
 
            
     let reporter =
-      Reporter.report {
-          loggers = [Reporter.cli_logger; Reporter.make_file_logger "ARMap" ];
-          prefix = (fun () -> "[ARmap]");
-          suffix = (fun () -> "")}
+      new Logger.logger "ARmap" (Some Logger.Debug) [Logger.Handler.Cli Debug]
            
     let add (areactant :Reactant.Amol.t ref)  (armap : t) : Reacs.effect list =
-      reporter (Printf.sprintf "add %s" (Reactant.Amol.show !areactant));
+      reporter#info (Printf.sprintf "add %s" (Reactant.Amol.show !areactant));
 
       armap :=
         MolMap.modify_opt
@@ -149,7 +144,7 @@ module ARMap =
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
                                     (armap :t)  reac_mgr: unit =
       
-      reporter (Printf.sprintf "adding reactions with %s" (Reactant.show new_reactant));
+      reporter#info (Printf.sprintf "adding reactions with %s" (Reactant.show new_reactant));
       MolMap.iter 
         (fun _ areac -> 
           AmolSet.add_reacs_with_new_reactant
@@ -167,10 +162,7 @@ module IRMap =
     type t = (Reactant.ImolSet.t ref) MolMap.t ref
 
     let reporter =
-      Reporter.report {
-          loggers = [Reporter.cli_logger; Reporter.make_file_logger "IRMap" ];
-          prefix = (fun () -> "[IRmap]");
-          suffix = (fun () -> "")}
+      new Logger.logger "IRmap" (Some Logger.Info) [Logger.Handler.Cli Debug]
            
     let add_to_qtt (ir : Reactant.ImolSet.t) deltaqtt (irmap : t)
         : Reacs.effect list =
@@ -234,7 +226,7 @@ module IRMap =
              then
                (
                  Reac_mgr.add_grab new_amol (ImolSet rireactant) reac_mgr;
-                 reporter (Printf.sprintf "[%s] grabed by %s" !rireactant.mol (Reactant.show new_reactant));
+                 reporter#debug (Printf.sprintf "[%s] grabed by %s" !rireactant.mol (Reactant.show new_reactant));
                )
            )
            !irmap

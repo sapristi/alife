@@ -7,9 +7,6 @@ open Bacterie_libs
 open Reactors
    
 
-open Logs
-let src = Logs.Src.create "mylib.network" ~doc:"logs mylib's network events"  
-module Log = (val Logs.src_log src : Logs.LOG)
            
 open Local_libs
   
@@ -93,11 +90,11 @@ let server_functions =
     
   
 let make_dyn_service  f  =
-  let reporter = Reporter.report {
-                     Reporter.loggers = [Reporter.cli_logger; Reporter.make_file_logger "server"];
-                     Reporter.prefix = (fun () -> "\n[server]");
-                     Reporter.suffix = (fun () -> "");
-                   } in 
+  let reporter = new Logger.logger "server"
+                   (Some Logger.Debug)
+                   [Logger.Handler.Cli Debug;
+                    Logger.Handler.File ("server", Debug)]
+  in 
   Nethttpd_services.dynamic_service
     { dyn_handler =
         (fun env (cgi:Netcgi.cgi)  ->
@@ -110,7 +107,7 @@ let make_dyn_service  f  =
 
           (* Log.info (fun m -> m "serving GET request : \n%s" req_descr);  *)
           let url = cgi#url () in
-          reporter (Printf.sprintf
+          reporter#info (Printf.sprintf
                       "serving GET request : at %s with paramters :\n%s" url req_descr);
           
           let response = f cgi in
@@ -119,7 +116,7 @@ let make_dyn_service  f  =
           cgi # out_channel # output_string response;
           cgi # out_channel # commit_work();
 
-          reporter (Printf.sprintf
+          reporter#info (Printf.sprintf
                       "sent response : \n%s" response);
           
           (* Log.info (fun m -> m "sent response :%s\n" response); *)

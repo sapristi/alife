@@ -14,10 +14,6 @@ let speclist = [ ("-port", Arg.Int (fun x -> port := x), "connection port");
 
     
 
-Logs.set_reporter (Logs.format_reporter ());
-Logs.set_level (Some Logs.Info);
-
-  
 Web_server.start_srv
   !srv_folder
   (Bact_server.make_req_handler

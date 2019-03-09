@@ -2,24 +2,16 @@
 open Bacterie_libs
 open Local_libs
 
-let reacs_reporter = Reporter.report  
-                       {
-                         loggers = [Reporter.cli_logger;
-                                    Reporter.make_file_logger "reactions";
-                                    (* Reporter.log_logger*)
-                                   ];
-                         prefix = (fun () -> ("\n[Reac_mgr]"));
-                         suffix = (fun () -> "");
-                       };;
-let bact_reporter = Reporter.report
-                      {
-                        loggers = [Reporter.cli_logger;
-                                   Reporter.make_file_logger "bactery";
-                                   (* Reporter.log_logger*)
-                                  ];
-                        prefix = (fun () -> ("\n[Bactery]"));
-                        suffix = (fun () -> "");
-                      };;
+   
+let reacs_reporter = new Logger.logger "Reac_mgr"
+                       (Some Logger.Debug)
+                       [Logger.Handler.Cli Debug;
+                        Logger.Handler.File ("reactions", Debug)] 
+                   
+let bact_reporter = new Logger.logger "Bactery"
+                      (Some Logger.Debug)
+                      [Logger.Handler.Cli Debug;
+                       Logger.Handler.File ("bactery", Debug)] 
 type t =
   {
     bact : Bacterie.t ref;

@@ -139,7 +139,7 @@ type t =
     g_set :  GSet.t;
     b_set :  BSet.t;
     mutable reac_nb : int;
-    reporter : Reporter.t; [@opaque]
+    reporter : Logger.logger; [@opaque]
     env : Environment.t ref; [@opaque]
   }
   [@@ deriving show]
@@ -153,15 +153,15 @@ let to_yojson (rmgr : t) : Yojson.Safe.json =
       "env", Environment.to_yojson !(rmgr.env)]
 
   
-let make_new (env : Environment.t ref) ?(reporter=Reporter.dummy) =
-  reporter "Making new empty reac_mgr";
+let make_new (env : Environment.t ref) ?(reporter=Logger.dummy) =
+  reporter#info "Making new empty reac_mgr";
   let res = {t_set = TSet.empty;
    g_set = GSet.empty;
    b_set = BSet.empty;
    reac_nb = 0;
    reporter = reporter;
    env = env; } in
-  reporter (show res);
+  reporter#debug (show res) ;
   res
 
 
@@ -204,7 +204,7 @@ let add_grab (graber_d : Reactant.Amol.t ref)
    *                       (Reactant.show grabed_d)); *)
   
   
-  reac_mgr.reporter
+  reac_mgr.reporter#info
     (Printf.sprintf "added new grab between : \n%s\n%s"
                     (Reactant.Amol.show !graber_d)
                     (Reactant.show grabed_d));
@@ -222,7 +222,7 @@ let add_grab (graber_d : Reactant.Amol.t ref)
   
            
 let add_transition amd reac_mgr  =
-  reac_mgr.reporter
+  reac_mgr.reporter#info
     (Printf.sprintf "added new transition : %s"
                     (Reactant.Amol.show !amd));
   
@@ -235,7 +235,7 @@ let add_transition amd reac_mgr  =
 
 (* ** Break *)
 let add_break md reac_mgr =
-  reac_mgr.reporter
+  reac_mgr.reporter#info
     (Printf.sprintf "added new break : %s"
                     (Reactant.show md));
   
@@ -261,7 +261,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       BSet.total_rate reac_mgr.b_set
   in
 
-  reac_mgr.reporter
+  reac_mgr.reporter#info
     (Printf.sprintf "picking next reaction in\n 
                      Grabs (total : %f):\n%s\n
                      Transitions (total : %f):\n%s\n
@@ -282,7 +282,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   if a0 = 0.
   then
     (
-      reac_mgr.reporter
+      reac_mgr.reporter#warning
         (Printf.sprintf "No reaction available");
       None
     )
@@ -301,7 +301,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
         Reaction.Break (ref (BSet.pick_reaction reac_mgr.b_set))
       
     in
-    reac_mgr.reporter
+    reac_mgr.reporter#info
       (Printf.sprintf "picked %s" (Reaction.show res));
     Some res
     

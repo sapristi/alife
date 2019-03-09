@@ -19,25 +19,19 @@ let make (): t =
   {simulator = Uninitialised;}
 
 
-
-let reacs_reporter = Reporter.report
-                       {
-                         loggers = [Reporter.cli_logger;
-                                    Reporter.make_file_logger "sim-reactions";
-                                    (* Reporter.log_logger*)
-                                   ];
-                         prefix = (fun () -> ("\n[Reac_mgr]"));
-                         suffix = (fun () -> "");
-                       };;
-let bact_reporter = Reporter.report 
-                      {
-                        loggers = [Reporter.cli_logger;
-                                   Reporter.make_file_logger "sim-bacteries";
-                                   (* Reporter.log_logger*)
-                                  ];
-                        prefix = (fun () -> ("\n[Bactery]"));
-                        suffix = (fun () -> "");
-                      };;
+let sim_file_log_handler = Logger.Handler.make_file_handler Logger.Debug "sim";;
+Logger.Handler.register_handler "sim" sim_file_log_handler
+  
+let reacs_reporter = new Logger.logger "Reac_mgr"
+                       (Some Logger.Debug)
+                       [Logger.Handler.Cli Debug;
+                        Logger.Handler.Reg "sim"] 
+                   
+let bact_reporter = new Logger.logger "Bactery"
+                      (Some Logger.Debug)
+                      [Logger.Handler.Cli Debug;
+                      Logger.Handler.Reg "sim"] 
+                   
   
 let init (c : config) (sim : t) =
   let make_bact i =

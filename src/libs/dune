@@ -1,4 +1,8 @@
 (library
  (name        local_libs)
  (flags -w)
- (libraries batteries logs))
+ (preprocess
+  (pps ppx_deriving.show))
+ (libraries batteries
+            ppx_deriving
+            ))
