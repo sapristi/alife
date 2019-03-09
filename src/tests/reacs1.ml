@@ -55,6 +55,8 @@ and simple_break test_ctx =
                   ( Yojson.Safe.from_file "bact_states/simple_break.json" ) 
   in 
   Bacterie.next_reaction !(sandbox.bact);
+  Bacterie.next_reaction !(sandbox.bact);
+  Bacterie.next_reaction !(sandbox.bact);
 
 
   

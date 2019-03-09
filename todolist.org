@@ -4,8 +4,7 @@
 
 * bugfixes/improvements
 
-** TODO break reaction 
-   - seems ok with imol, but not with amol
+
 ** TODO explicit exceptions
 ** TODO stacktrace
 ** TODO gui:
@@ -17,7 +16,9 @@
     - [ ] commit env fails
     - [ ] refresh after loading
     - [ ] display reactions
-** TODO reactions not removed when removing molecule
+** DONE reactions not removed when removing molecule
+** DONE break reaction 
+   - seems ok with imol, but not with amol
 ** DONE repair missing execute actions
 ** DONE fix remove/change mol quantity from interface
 ** DONE display ambiant mols
