@@ -115,7 +115,9 @@ let rec pick_from_list (bound : float) (c : float)
          let c' = c +. value h in
          if c' > bound then h
          else pick_from_list bound c' value t
-      | [] -> failwith "pick_from_list @ misc_library.ml : bound too high"
+      | [] ->
+                  
+         failwith "pick_from_list @ misc_library.ml : bound  too high"
 
             
 let pick_from_enum (bound : float)

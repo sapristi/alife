@@ -1,7 +1,7 @@
 
 .merlin
-*.mllib
-*.mldylib
+#*.mllib
+#*.mldylib
 
 _tags
 configure

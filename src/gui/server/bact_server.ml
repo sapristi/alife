@@ -110,14 +110,29 @@ let make_dyn_service  f  =
           reporter#info (Printf.sprintf
                       "serving GET request : at %s with paramters :\n%s" url req_descr);
           
-          let response = f cgi in
+          let response, status =
+            try 
+              f cgi, `Ok
+            with
+            | _ as e ->
+               reporter#error (Printexc.get_backtrace ());
+               reporter#error (Printexc.to_string e);
+               
+               
+               (* Printexc.get_callstack 7
+                * |> Printexc.raw_backtrace_to_string
+                * |> reporter#error; *)
+               "error", `Internal_server_error
+          in
           
-          cgi # set_header ~content_type:"application/json" ();
+          cgi # set_header ~content_type:"application/json" ~status:status();
           cgi # out_channel # output_string response;
           cgi # out_channel # commit_work();
 
           reporter#info (Printf.sprintf
-                      "sent response : \n%s" response);
+                           "sent response : %s\n%s"
+                           (Nethttp.string_of_http_status status)
+                           response );
           
           (* Log.info (fun m -> m "sent response :%s\n" response); *)
         );

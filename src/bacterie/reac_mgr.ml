@@ -279,8 +279,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   if a0 = 0.
   then
     (
-      reac_mgr.reporter#warning
-        (Printf.sprintf "No reaction available");
+      reac_mgr.reporter#warning "No reaction available";
       None
     )
   else

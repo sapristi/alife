@@ -4,7 +4,7 @@
 
 * bugfixes/improvements
 
-
+** TODO Reaction rates : problem with floats
 ** TODO explicit exceptions
 ** TODO stacktrace
 ** TODO gui:
