@@ -58,7 +58,7 @@ module MakeReacSet (Reac : Reacs.REAC) =
                
     type t = {mutable rates_sum : float;
               mutable set : RSet.t;}
-    let empty  : t =
+    let empty () : t =
       {rates_sum = 0.;
        set = RSet.empty;}
       
@@ -154,15 +154,12 @@ let to_yojson (rmgr : t) : Yojson.Safe.json =
 
   
 let make_new (env : Environment.t ref) ?(reporter=Logger.dummy) =
-  reporter#info "Making new empty reac_mgr";
-  let res = {t_set = TSet.empty;
-   g_set = GSet.empty;
-   b_set = BSet.empty;
+  {t_set = TSet.empty ();
+   g_set = GSet.empty ();
+   b_set = BSet.empty ();
    reac_nb = 0;
    reporter = reporter;
-   env = env; } in
-  reporter#debug (show res) ;
-  res
+   env = env; } 
 
 
   
