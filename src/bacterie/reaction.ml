@@ -321,7 +321,6 @@ module rec
        let show (rset :t) : string =
          fold (fun (reac : Reaction.t) desc ->
              (Reaction.show reac)^"\n"^desc)
-
            rset
            ""
        let to_yojson rset =

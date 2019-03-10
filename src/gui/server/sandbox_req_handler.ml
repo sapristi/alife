@@ -2,7 +2,10 @@
 open Reactors
 open Bacterie_libs
 open Reaction
-  
+open Local_libs
+
+let logger = new Logger.logger "sandbox" (Some Debug)
+           [Logger.Handler.Cli Debug]
 
 let pnet_ids_from_mol  (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let mol = cgi # argument_value "mol_desc" in
@@ -46,9 +49,17 @@ let next_reactions (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let n = cgi # argument_value "n"
           |> int_of_string
   in
-  for i = 0 to n-1 do
-    Bacterie.next_reaction !(sandbox.bact);
-  done;
+  (
+    try
+      for i = 0 to n-1 do
+        Bacterie.next_reaction !(sandbox.bact);
+      done;
+    with
+    | _ as e->
+       logger#error (Printexc.get_backtrace ());
+       logger#error (Printexc.to_string e);
+       ();
+  );
   `Assoc
    ["purpose", `String "bactery_update_desc";
     "data", (Bacterie.to_sig_yojson !(sandbox.bact))]
@@ -161,32 +172,16 @@ let set_state (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   get_sandbox_data sandbox cgi
 
 let set_environment (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
-  (* make something clean of this later on *)
+  match cgi # argument_value "env"
+        |> Yojson.Safe.from_string 
+        |> Environment.of_yojson
+  with
+  | Ok env -> 
+     !(sandbox.bact).env := env;
+     "done"
+  | Error s ->
+     "error decoding env from json " ^ s
 
-  let tr = cgi # argument_value "env[transition_rate]"
-         |> float_of_string
-  and gr = cgi # argument_value "env[grab_rate]"
-         |> float_of_string
-  and br = cgi # argument_value "env[break_rate]"
-           |> float_of_string
-
-  in
-  let new_env : Environment.t = {transition_rate =tr;
-                                 grab_rate=gr;
-                                 break_rate=br;random_collision_rate=0.}
-  in
-  sandbox.env := new_env;
-  (* match cgi # argument_value "env"
-   *       |> Yojson.Safe.from_string 
-   *       |> Environment.of_yojson
-   * with
-   * | Ok env -> 
-   *    !sandbox.env := env;
-   *    "done"
-   * | Error s ->
-   *    "error decoding env from json " ^ s *)
-  
-  "tesqt sqdqsd"
 
 (* let get_reactions (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = *)
 let get_reactions (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =

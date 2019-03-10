@@ -1,5 +1,11 @@
-open Batteries
 
+
+let logger = new Logger.logger
+               "misc_library"
+               (Some Debug)
+           [Logger.Handler.Cli Debug]
+
+open Batteries
 let rec cut_list l pos =
   match l with
   | [] -> [], []
@@ -111,23 +117,30 @@ let rec pick_from_list (bound : float) (c : float)
                        (value : 'a -> float)
                        (l : 'a list)  = 
       match l with
-      | h::t ->
+      | h::t -> 
          let c' = c +. value h in
+         
+         logger#flash
+           (Printf.sprintf "Bound %f;Current %f;"
+           bound (value h)
+           );
+         
          if c' > bound then h
          else pick_from_list bound c' value t
       | [] ->
-                  
-         failwith "pick_from_list @ misc_library.ml : bound  too high"
-
+         raise Not_found
             
 let pick_from_enum (bound : float)
                    (value : 'a -> float)
                    (enum : 'a Enum.t) : 'a  =
-  let c = ref 0. in
-  let find_f (e : 'a) =
-    c := !c +. value e;
-    if !c >= bound
-    then true
-    else false
-  in
-  Enum.find find_f enum
+
+    let c = ref 0. in
+    let find_f (e : 'a) =
+      c := !c +. value e;
+      if !c >= bound
+      then true
+      else false
+    in
+    Enum.find find_f enum
+
+  

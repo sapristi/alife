@@ -29,23 +29,25 @@ open Local_libs
 
 
 (* * the proteine module *)
- 
-   
+let logger = new Logger.logger "pnet" (Some Debug)
+               [Logger.Handler.Cli Debug]
 
 type t =
   {
     mol : Molecule.t;
-    transitions : Transition.t array; [@opaque]
-    places : Place.t array; [@opaque]
-    uid : int; [@opaque]
+    transitions : Transition.t array;
+    places : Place.t array;
+    uid : int;
     mutable launchables_nb:int;
   } 
     [@@deriving show]
-
+  
   
 let update_launchables (pnet :t) : unit =
+
   pnet.launchables_nb <- 0;
   Array.iter (fun t ->
+
       Transition.update_launchable t;
       if t.launchable
       then pnet.launchables_nb <- pnet.launchables_nb +1;

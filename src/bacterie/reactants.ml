@@ -3,7 +3,8 @@ open Batteries
 open Reaction
 open Local_libs
 
-
+let logger = new Logger.logger "reactants" (Some Logger.Debug)
+           [Logger.Handler.Cli Debug]
 module MolMap =
   struct
     include Map.Make (struct type t = Molecule.t
@@ -97,7 +98,7 @@ module ARMap =
 
       
     type t = AmolSet.t MolMap.t ref
-
+            
            
     let reporter =
       new Logger.logger "ARmap" (Some Logger.Debug) [Logger.Handler.Cli Debug]
@@ -139,8 +140,15 @@ module ARMap =
       |> List.of_enum
 
     let find mol pnet_id (armap : t) =
-      let amolset = MolMap.find mol !armap in
-      AmolSet.find_by_id pnet_id amolset          
+      try
+        let amolset = MolMap.find mol !armap in
+        
+          AmolSet.find_by_id pnet_id amolset
+      with
+      | _   ->
+         logger#flash ((Printf.sprintf "Looking for %s:%d")
+                         mol pnet_id);
+         failwith "ok"
       
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
                                     (armap :t)  reac_mgr: unit =
