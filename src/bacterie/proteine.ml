@@ -23,7 +23,7 @@ let logger = new Logger.logger "proteine" Config.config.internal_log_level
 
 (* * A proteine *)                   
 type t = acid list
-              [@@deriving yojson]
+              [@@deriving show, yojson]
        
 
 (* *** transition structure type definition *)
@@ -40,10 +40,12 @@ type transition_structure =
   string * 
     (int * input_arc ) list * 
       (int * output_arc) list
+  [@@deriving show]
 (* *** place extensions definition *)
 
 type place_extensions =
   extension list
+[@@deriving show]
   
 (* ** functions definitions *)
 (* *** build_transitions function *)
@@ -141,19 +143,20 @@ let build_transitions (prot : t) :
             
             transition_structure list = 
     
-    match prot with
-    | Place :: prot' -> aux prot' (nodeN + 1) transL
-    | InputArc (s,d) :: prot' ->
+    match prot, nodeN with
+    | Place :: prot', _ -> aux prot' (nodeN + 1) transL
+    | _::prot', -1 -> aux prot' nodeN transL
+    | InputArc (s,d) :: prot',_ ->
        aux prot' nodeN (insert_new_input nodeN s d transL)
-
-    | OutputArc (s,d) :: prot' ->
+    
+    | OutputArc (s,d) :: prot',_ ->
        aux prot' nodeN (insert_new_output nodeN s d transL)
       
-    | Extension _ :: prot' -> aux prot' nodeN transL
-    | [] -> transL
+    | Extension _ :: prot' ,_-> aux prot' nodeN transL
+    | [],_ -> transL
           
-  in 
-  aux prot (-1) []
+  in aux prot (-1) []
+
 
 (* *** build_nodes_list_with_exts function *)
 (*     Construit la liste des nœuds avec les extensions associée  *)

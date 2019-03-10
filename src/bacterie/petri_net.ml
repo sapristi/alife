@@ -58,14 +58,24 @@ let update_launchables (pnet :t) : unit =
     ) pnet.transitions
   
 let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
+  
+  lazy (Printf.sprintf "Building pnet from mol %s" mol)  |> logger#ldebug;
+  lazy (Printf.sprintf "Proteine: %s" (Proteine.show prot)) |> logger#ldebug;
   try
     (* liste des signatures des transitions *)
     let transitions_signatures_list = Proteine.build_transitions prot
     (* liste des signatures des places *)
     and places_signatures_list = Proteine.build_nodes_list_with_exts prot
     in
+    lazy (Misc_library.show_list_prefix "Made transitions signature"
+            Proteine.show_transition_structure transitions_signatures_list)
+    |> logger#ldebug;
+    lazy (Misc_library.show_list_prefix "Made places signature"
+            Proteine.show_place_extensions places_signatures_list)
+    |> logger#ldebug;
+    
     (* on crée de nouvelles places à partir de la liste de types données dans la molécule *)
-    let places : Place.t array = 
+    let places : Place.t array =
       let psigs = ref places_signatures_list in
       Array.init
         (List.length !psigs)
@@ -85,24 +95,30 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
           Transition.make id places ila ola index)
 
     in
-
     let uid = Misc_library.idProvider#get_id ()
 
     in
-    let launchables_nb = 
+    let launchables_nb =
+      
       Array.fold_left
         (fun res t -> if t.Transition.launchable then res +1 else res)
         0 transitions
     in
-    (* simple filter to deactivate pnets without places *)
-    if Array.length places > 0
+    lazy (Misc_library.show_array_prefix "Made places"
+            Place.show places)
+    |> logger#ldebug;
+    
+    (* simple filter to deactivate pnets without places or transitions *)
+    if Array.length places > 0 && Array.length transitions > 0
     then 
       Some {mol; transitions; places; uid; launchables_nb;}
     else
       None
   with
-  | _ ->
-     (*     print_endline ("cannot build pnet for mol" ^ mol); *)
+  | _ as e->
+     logger#warning (Printexc.get_backtrace ());
+     logger#warning (Printexc.to_string e);
+     logger#warning "During pnet creation";
      None
      
 let make_from_mol (mol : Molecule.t) : t option =

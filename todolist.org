@@ -4,12 +4,11 @@
 
 * bugfixes/improvements
 
-** STARTED Pnet creation : negative place_id in transitions
-   Rework pnet creation, introduce variants (cyclic pnet)?
-   
+** DONE Pnet creation : negative place_id in transitions
+** TODO Rework pnet creation, introduce variants (cyclic pnet)? 
 ** STARTED Reaction rates : problem with floats
    Many problems, most immediate is reaction comparison
-   -> Can be solved by ignoring rate in RSet
+   -> Dirty fix : ignore rate to compare in RSet
 ** TODO explicit exceptions
 ** DONE stacktrace
 ** TODO gui:

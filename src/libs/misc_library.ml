@@ -144,3 +144,17 @@ let pick_from_enum (bound : float)
     Enum.find find_f enum
 
   
+let show_list show_e l =
+  List.reduce
+    (fun a -> fun b -> Printf.sprintf "%s\n%s" a b)
+    (List.map show_e l)
+
+let show_list_prefix prefix show_e l =
+  List.fold_left
+    (fun a -> fun b -> Printf.sprintf "%s\n%s" a b)
+    prefix (List.map show_e l)
+
+let show_array_prefix prefix show_e l =
+  Array.fold_left
+    (fun a -> fun b -> Printf.sprintf "%s\n%s" a b)
+    prefix (Array.map show_e l)

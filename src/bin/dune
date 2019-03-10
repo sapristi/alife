@@ -7,8 +7,8 @@
 
 
 (executables
- (names scenario1 scenario2)
+ (names scenario1 scenario2 scenario3)
  (flags -w)
  (libraries bacterie_libs local_libs)
- (modules ("scenario1" "scenario2"))
+ (modules ("scenario1" "scenario2" "scenario3"))
  )

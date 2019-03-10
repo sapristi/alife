@@ -38,7 +38,7 @@ let level_gt l1 l2 = match l1,l2 with
   | Flash, _ -> true
   | Error, _ -> true
   | Warning, Error -> false
-  | Warning, _ -> false
+  | Warning, _ -> true
   | Info, Error | Info, Warning -> false
   | Info, _ -> true
   | Debug, Debug -> true
