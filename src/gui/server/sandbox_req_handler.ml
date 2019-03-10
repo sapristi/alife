@@ -163,30 +163,29 @@ let set_state (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
 let set_environment (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   (* make something clean of this later on *)
 
-  let tr = cgi # argument_value "env[transition_rate]"
-         |> float_of_string
-  and gr = cgi # argument_value "env[grab_rate]"
-         |> float_of_string
-  and br = cgi # argument_value "env[break_rate]"
-           |> float_of_string
+  (* let tr = cgi # argument_value "env[transition_rate]"
+   *        |> float_of_string
+   * and gr = cgi # argument_value "env[grab_rate]"
+   *        |> float_of_string
+   * and br = cgi # argument_value "env[break_rate]"
+   *          |> float_of_string
+   * 
+   * in
+   * let new_env : Environment.t = {transition_rate =tr;
+   *                                grab_rate=gr;
+   *                                break_rate=br;random_collision_rate=0.}
+   * in
+   * sandbox.env := new_env; *)
+  match cgi # argument_value "env"
+        |> Yojson.Safe.from_string 
+        |> Environment.of_yojson
+  with
+  | Ok env -> 
+     !(sandbox.bact).env := env;
+     "done"
+  | Error s ->
+     "error decoding env from json " ^ s
 
-  in
-  let new_env : Environment.t = {transition_rate =tr;
-                                 grab_rate=gr;
-                                 break_rate=br;random_collision_rate=0.}
-  in
-  sandbox.env := new_env;
-  (* match cgi # argument_value "env"
-   *       |> Yojson.Safe.from_string 
-   *       |> Environment.of_yojson
-   * with
-   * | Ok env -> 
-   *    !sandbox.env := env;
-   *    "done"
-   * | Error s ->
-   *    "error decoding env from json " ^ s *)
-  
-  "tesqt sqdqsd"
 
 (* let get_reactions (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = *)
 let get_reactions (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =

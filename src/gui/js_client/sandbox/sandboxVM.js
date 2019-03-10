@@ -72,12 +72,13 @@ function SandboxViewModel () {
 
         env_to_send = {}
         for (var k in self.env) {
-            env_to_send[k] = self.env[k]();
+            env_to_send[k] = parseFloat(self.env[k]());
         }
+        env_to_send["random_collision_rate"] = 0;
         utils.ajax_get(
             {command:"set_environment",
 	     target:self.container_id,
-             env : env_to_send
+             env : JSON.stringify(env_to_send)
             }
         ).done(console.log("ok"));
     }

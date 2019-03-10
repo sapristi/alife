@@ -267,19 +267,23 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       BSet.total_rate reac_mgr.b_set
   in
 
-  reac_mgr.reporter#ldebug (lazy
-    (Printf.sprintf "picking next reaction in
-********     Grabs (total : %f)    *********\n%s
-******** Transitions (total : %f)  *********\n%s
-********    Breaks (total : %f)    *********\n%s"
-                    total_g_rate
-                    (GSet.show reac_mgr.g_set)
-                    total_t_rate
-                    (TSet.show reac_mgr.t_set)
-                    total_b_rate
-                    (BSet.show reac_mgr.b_set) 
-    ));
-
+  reac_mgr.reporter#info
+    (Printf.sprintf
+       "********     Grabs   (total : %f)  (nb_reacs : %d)  *********"
+       total_g_rate (GSet.cardinal reac_mgr.g_set));
+  reac_mgr.reporter#ldebug (lazy (GSet.show reac_mgr.g_set));
+  
+  reac_mgr.reporter#info
+    (Printf.sprintf
+       "******** Transitions (total : %f)  (nb_reacs : %d)  *********"
+       total_t_rate (TSet.cardinal reac_mgr.t_set));
+  reac_mgr.reporter#ldebug (lazy (TSet.show reac_mgr.t_set));
+  
+  reac_mgr.reporter#info
+    (Printf.sprintf
+       "********    Breaks   (total : %f)  (nb_reacs : %d)  *********"
+       total_b_rate (BSet.cardinal reac_mgr.b_set));
+  reac_mgr.reporter#ldebug (lazy (GSet.show reac_mgr.g_set));
 
                      
   let a0 = (total_g_rate) +. (total_t_rate)
