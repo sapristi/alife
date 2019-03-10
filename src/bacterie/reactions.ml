@@ -252,8 +252,8 @@ module ReactionsM (R : REACTANT) =
     module Break :
     (REAC with type build_t = (R.t)) =
       struct
-        type t = {mutable rate : float; 
-                  reactant : R.t; [@compare fun a b -> 0]
+        type t = {mutable rate : float; [@compare fun a b -> 0] 
+                  reactant : R.t; 
                  }
                    [@@ deriving show, ord, to_yojson]
                

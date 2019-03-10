@@ -22,7 +22,7 @@
 type t =
   {mol_repr : string;
    str_repr : string;
-   re : Re.re}
+   re : Re.re [@opaque]}
   [@@deriving show]
 
 (* *** build_from_atom_list *)
