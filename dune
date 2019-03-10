@@ -16,12 +16,13 @@
 )
 
 (alias
- (name scenario1)
- (deps ./src/bin/scenario1.exe)
+ (name scenarios)
+ (deps ./src/bin/scenario1.exe  ./src/bin/scenario2.exe)
  
  (action
   (progn     
-    (bash "cp ./src/bin/scenario1.exe ../../scenario1 ")))
+    (bash "cp ./src/bin/scenario1.exe ../../scenario1 ")
+    (bash "cp ./src/bin/scenario2.exe ../../scenario2 ")))
  )
 
 (alias

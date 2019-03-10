@@ -7,8 +7,8 @@ type config = {
   }
 
 let sandbox_config = {
-    bact_log_level = Some Info;
-    reacs_log_level = Some Info;
+    bact_log_level = Some Debug;
+    reacs_log_level = Some Debug;
     stats_log_level = None}
 
 
