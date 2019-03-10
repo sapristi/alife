@@ -118,10 +118,6 @@ let make_dyn_service  f  =
                reporter#error (Printexc.get_backtrace ());
                reporter#error (Printexc.to_string e);
                
-               
-               (* Printexc.get_callstack 7
-                * |> Printexc.raw_backtrace_to_string
-                * |> reporter#error; *)
                "error", `Internal_server_error
           in
           

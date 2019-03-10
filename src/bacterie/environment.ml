@@ -7,7 +7,7 @@ type t = {
     mutable break_rate : float;
     mutable random_collision_rate:float
   }
-           [@@ deriving yojson]       
+           [@@ deriving show, yojson]       
 
 let (default_env : t) =
   {transition_rate = 10.;

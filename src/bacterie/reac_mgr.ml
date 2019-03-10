@@ -139,11 +139,11 @@ type t =
     g_set :  GSet.t;
     b_set :  BSet.t;
     mutable reac_nb : int;
-    reporter : Logger.logger; [@opaque]
-    env : Environment.t ref; [@opaque]
+    reporter : Logger.logger;  [@opaque]
+    env : Environment.t ref; 
   }
-  [@@ deriving show]
-
+    [@@deriving show]
+  
 let to_yojson (rmgr : t) : Yojson.Safe.json =
   `Assoc [
       "transitions", TSet.to_yojson rmgr.t_set;
@@ -258,20 +258,18 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       BSet.total_rate reac_mgr.b_set
   in
 
-  reac_mgr.reporter#info
-    (Printf.sprintf "picking next reaction in\n 
-                     Grabs (total : %f):\n%s\n
-                     Transitions (total : %f):\n%s\n
-                     Breaks (total : %f):\n%s\n"
+  reac_mgr.reporter#debug
+    (Printf.sprintf "picking next reaction in
+********     Grabs (total : %f)    *********\n%s
+******** Transitions (total : %f)  *********\n%s
+********    Breaks (total : %f)    *********\n%s"
                     total_g_rate
                     (GSet.show reac_mgr.g_set)
                     total_t_rate
                     (TSet.show reac_mgr.t_set)
                     total_b_rate
-                    (BSet.show reac_mgr.b_set)
-    
-    );
-  
+                    (BSet.show reac_mgr.b_set) 
+    );    
   
   let a0 = (total_g_rate) +. (total_t_rate)
            +. (total_b_rate)
