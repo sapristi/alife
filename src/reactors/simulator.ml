@@ -1,6 +1,6 @@
 open Local_libs
 open Bacterie_libs
-open Yaacs_config
+open Yaac_config
 type config = {
     environment : Environment.t;
     bact_nb : int;

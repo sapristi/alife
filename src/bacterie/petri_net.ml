@@ -26,10 +26,13 @@
 
 open Batteries
 open Local_libs
+open Yaac_config
+
+
 
 
 (* * the proteine module *)
-let logger = new Logger.logger "pnet" (Some Debug)
+let logger = new Logger.logger "pnet" Config.config.internal_log_level
                [Logger.Handler.Cli Debug]
 
 type t =

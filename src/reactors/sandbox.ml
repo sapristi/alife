@@ -1,7 +1,7 @@
 
 open Bacterie_libs
 open Local_libs
-open Yaacs_config
+open Yaac_config
    
 
 let reacs_reporter = new Logger.logger "Reac_mgr"

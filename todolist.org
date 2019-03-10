@@ -4,16 +4,21 @@
 
 * bugfixes/improvements
 
-** TODO Reaction rates : problem with floats
+** STARTED Pnet creation : negative place_id in transitions
+   Rework pnet creation, introduce variants (cyclic pnet)?
+   
+** STARTED Reaction rates : problem with floats
+   Many problems, most immediate is reaction comparison
+   -> Can be solved by ignoring rate in RSet
 ** TODO explicit exceptions
-** TODO stacktrace
+** DONE stacktrace
 ** TODO gui:
     - [ ] update all molecules after transition (if needs be)
     - [ ] modify ambient 
     - [ ] clear button
     - [ ] examples load
     - [ ] error with refresh when pnet is removed
-    - [ ] commit env fails
+    - [X] commit env fails
     - [ ] refresh after loading
     - [ ] display reactions
 ** DONE reactions not removed when removing molecule

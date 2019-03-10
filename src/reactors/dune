@@ -5,7 +5,7 @@
   (libraries
         bacterie_libs
         local_libs
-        yaacs_config
+        yaac_config
         ppx_deriving
         ppx_deriving.make
         ppx_deriving_yojson.runtime))

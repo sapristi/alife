@@ -13,9 +13,13 @@
 (*open Misc_library*)
 open Batteries
 open Acid_types
+open Yaac_config
+open Local_libs
    
 (* * Proteine module *)
 
+let logger = new Logger.logger "proteine" Config.config.internal_log_level
+               [Logger.Handler.Cli Debug]
 
 (* * A proteine *)                   
 type t = acid list
@@ -65,15 +69,20 @@ type place_extensions =
 (*       buggerait *)
 
 
-(*       Problème : *)
-(*       Que se passe-t-il si plusieurs transtions input avec la même id  *)
-(*       partent d'un même nœud, en particulier  *)
-(*       pour la gestion des token ? *)
-(*       Plusieurs pistes : *)
-(*         - la transition n'est pas crée *)
-(*         - seul un des arcs est pris en compte *)
-(*         - utiliser un des arcs au hasard *)
-(*         - le programme bugge *)
+(*     Problème : *)
+(*     Que se passe-t-il si plusieurs transtions input avec la même id *)
+(*     partent d'un même nœud, en particulier *)
+(*     pour la gestion des token ? *)
+(*     Plusieurs pistes : *)
+(*       - [ ] la transition n'est pas crée *)
+(*       - [X] seul un des arcs est pris en compte *)
+(*       - [ ] le programme bugge -> *pas bon* *)
+(*       - [ ] la transition est plus probable *)
+          
+(*     Idée de variant :  *)
+(*     les arcs/extensions placés avant la première place sont associés *)
+(*     avec la dernière. *)
+   
   
 let build_transitions (prot : t) :
       transition_structure list = 
