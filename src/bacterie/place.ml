@@ -75,7 +75,7 @@ let set_token (token : Token.t) (p : t) : unit =
 type transition_effect =
   | Message_effect of string
   | Release_effect of Molecule.t
-
+[@@deriving show]
 (* ** Token reçu d'une transition. *)
 (* **** TODO ajouter les effets de bords générés par les extensions *)
 let add_token_from_transition (inputToken : Token.t) (place : t) =

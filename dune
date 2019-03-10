@@ -16,6 +16,15 @@
 )
 
 (alias
+ (name scenario1)
+ (deps ./src/bin/scenario1.exe)
+ 
+ (action
+  (progn     
+    (bash "cp ./src/bin/scenario1.exe ../../scenario1 ")))
+ )
+
+(alias
  (name readme)
  (deps (file README.org))
  (action (progn

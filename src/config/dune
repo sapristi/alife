@@ -1,0 +1,4 @@
+(library
+ (name yaacs_config)
+ (flags -w)
+ (libraries local_libs))

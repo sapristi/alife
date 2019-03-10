@@ -118,7 +118,8 @@ module ARMap =
       (* we should return the list of reactions to update *)
       [ Reacs.Update_reacs !((!areactant).reacs)]
 
-      
+    let total_nb (armap :t) =
+      MolMap.fold (fun _ amset t -> t + AmolSet.cardinal amset) !armap 0
       
     let remove (areactant : Reactant.Amol.t ref) (armap : t) : Reacs.effect list =
       armap :=

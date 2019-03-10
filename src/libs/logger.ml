@@ -54,6 +54,7 @@ type log_item = {
 module Formatter =
   struct
     type t = log_item -> string
+           
     let format_default item =
       Printf.sprintf "%-6.3f %-10s %-10s %s" (Sys.time ()) item.logger_name
         (show_level item.level) item.msg
@@ -77,39 +78,52 @@ end
 module Handler =
   struct
     type t =
-      {fmt : Formatter.t;
-       level : level;
-       handler : string -> unit}
+      {mutable fmt : Formatter.t;
+       mutable level : level;
+       output : unit IO.output}
+
+
+    let outputs : (string, unit IO.output) Hashtbl.t =  Hashtbl.create 10
       
     let handle (h : t) (item: log_item) =
       if level_gt item.level h.level
       then
-        h.handler (h.fmt item)
-      
+        (
+          IO.write_line h.output (Printf.sprintf "%s" (h.fmt item));
+          IO.flush h.output;
+        )
+              
     let make_cli_handler level =
+      Hashtbl.replace outputs "stdout" IO.stdout;
       {fmt = Formatter.format_color;
        level = level;
-       handler = fun s -> print_endline s}
+       output = IO.stdout}
       
   (* not very efficient since we open and close the file each time a log is written,
      but this will do for now *)
     let make_file_handler level filename  =
-      (* print_endline (Unix.getcwd ());*)
+
       if not (Sys.file_exists "logs")
-      then 
+      then  
         Unix.mkdir "logs" 0o777;
+
+      let oc = 
+        if Hashtbl.mem outputs filename
+        then
+          Hashtbl.find outputs filename
+        else
+          let p = perm [user_read; user_write; group_read; group_write] in
+          open_out ~mode:[`create (*; `append *)] ~perm:p ("logs/"^filename)
+      in
       {fmt = Formatter.format_default;
        level = level;
-       handler =
-         fun s ->
-
-         let p = perm [user_read; user_write; group_read; group_write] in
-         let oc = open_out ~mode:[`create ; `append] ~perm:p ("logs/"^filename) in
-         
-         Printf.fprintf oc "%s\n" s;
-         close_out oc;
+       output = oc;
       }
-      
+
+    let set_level h lvl =
+      h.level <- lvl
+    let set_formatter h fmt =
+      h.fmt <- fmt
 
     let handlers : (string, t) Hashtbl.t = Hashtbl.create 10
     let register_handler name handler =
@@ -124,7 +138,7 @@ module Handler =
          Hashtbl.find handlers n
            
   end
-  
+
   
 class logger
         (name: string)
@@ -153,6 +167,23 @@ class logger
          else
            ()                           
                        
+    method log_msg_lazy (msg_level : level) msg =
+      match levelo with
+      | None ->()
+      | Some level ->
+         if level_gt msg_level level
+         then
+           begin
+           let item = {
+               level = msg_level;
+               logger_name = name;
+               msg = Lazy.force msg} in 
+           List.iter (fun handler ->
+               Handler.handle handler item)
+             handlers
+           end
+         else
+           ()             
     method add_handler h = handlers <- h::handlers
     method set_level new_levelo = levelo <- new_levelo
                          
@@ -162,7 +193,25 @@ class logger
     method info =  self#log_msg Info
     method debug = self#log_msg Debug
 
+    method lflash = self#log_msg_lazy Flash
+    method lerror = self#log_msg_lazy Error
+    method lwarning = self#log_msg_lazy Warning
+    method linfo =  self#log_msg_lazy Info
+    method ldebug = self#log_msg_lazy Debug
+
+
 end
 
+
+let _loggers : (string, logger) Hashtbl.t = Hashtbl.create 10
+  
 let dummy = new logger "dummy" None []
 
+let get_logger name =
+  if Hashtbl.mem _loggers name
+  then
+    Hashtbl.find _loggers name
+  else
+    let l = new logger name None [] in
+    Hashtbl.add _loggers name l;
+    l

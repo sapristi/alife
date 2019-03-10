@@ -140,6 +140,8 @@ let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
 let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
   List.iter
     (fun (effect : Reacs.effect) ->
+      bact.reporter#ldebug (lazy (Printf.sprintf "Executing effect %s"
+                             (Reacs.show_effect effect)));
       match effect with
       | T_effects tel ->
          List.iter
@@ -184,14 +186,38 @@ let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
     actions
   
   
+let stats_reporter = Logger.get_logger "reacs_stats"
+                       
 let next_reaction (bact : t)  =
+  let reac_nb = lazy (Reac_mgr.get_reac_nb bact.reac_mgr) in
+  let begin_time = Sys.time () in 
   let ro = Reac_mgr.pick_next_reaction bact.reac_mgr in
+  let picked_time = Sys.time () in
   match ro with
-  | None -> failwith "next_reaction @ bacterie : no more reactions"
+  | None ->
+     bact.reporter#warning "no more reactions";
+     ()
   | Some r ->
+     let ir_card = lazy (MolMap.cardinal !(bact.ireactants))
+     and ar_card = lazy (ARMap.total_nb bact.areactants) in
      let actions = Reaction.treat_reaction r in
-     execute_actions bact actions 
+     let treated_time = Sys.time () in 
+     execute_actions bact actions;
+     let end_time = Sys.time () in
 
+     stats_reporter#linfo (
+         lazy (
+             let tnb, gnb, bnb = Lazy.force reac_nb in
+             (Printf.sprintf "%d %d %d %d %d %f %f %f"
+               (Lazy.force ir_card)
+               (Lazy.force ar_card)
+               tnb
+               gnb
+               bnb
+               (picked_time -. begin_time)
+               (treated_time -. picked_time)
+               (end_time -. treated_time))
+           ))
   
               
 (* ** json serialisation *)

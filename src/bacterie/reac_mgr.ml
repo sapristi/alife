@@ -48,6 +48,9 @@ open Local_libs
 (*    boilerplate in this file, especially if the number of reactions kind grows. *)
 
 
+
+let logger = new Logger.logger "reac_mgr" (Some Debug)
+               [Logger.Handler.File ("reac_mgr", Logger.Debug)]
            
 (* * MakeReacSet functor *)
 
@@ -58,6 +61,7 @@ module MakeReacSet (Reac : Reacs.REAC) =
                
     type t = {mutable rates_sum : float;
               mutable set : RSet.t;}
+    let cardinal r = RSet.cardinal r.set
     let empty () : t =
       {rates_sum = 0.;
        set = RSet.empty;}
@@ -88,10 +92,11 @@ module MakeReacSet (Reac : Reacs.REAC) =
           "total", `Float s.rates_sum;
           "reactions", `List (List.map Reac.to_yojson (RSet.to_list s.set)) ]
     let pick_reaction (s : t) =
-      Misc_library.pick_from_list (Random.float s.rates_sum) 0.
-                                  Reac.rate
-                                  (RSet.elements s.set)
-      
+      let bound = Random.float s.rates_sum in
+
+      Misc_library.pick_from_enum bound
+        Reac.rate
+        (RSet.enum s.set)
 end
 (* for binding reactions ? *)
 module MakeAutoUpdatingReacSet (Reac : Reacs.REAC) = 
@@ -143,6 +148,11 @@ type t =
     env : Environment.t ref; 
   }
     [@@deriving show]
+
+
+let get_reac_nb rmgr =
+  (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set,
+   BSet.cardinal rmgr.b_set)
   
 let to_yojson (rmgr : t) : Yojson.Safe.json =
   `Assoc [
@@ -206,7 +216,6 @@ let add_grab (graber_d : Reactant.Amol.t ref)
                     (Reactant.Amol.show !graber_d)
                     (Reactant.show grabed_d));
 
-  
   let (g:Reacs.Grab.t) = Reacs.Grab.make (graber_d,grabed_d)   in
   GSet.add g reac_mgr.g_set;
   
@@ -258,7 +267,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       BSet.total_rate reac_mgr.b_set
   in
 
-  reac_mgr.reporter#debug
+  reac_mgr.reporter#ldebug (lazy
     (Printf.sprintf "picking next reaction in
 ********     Grabs (total : %f)    *********\n%s
 ******** Transitions (total : %f)  *********\n%s
@@ -269,8 +278,10 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
                     (TSet.show reac_mgr.t_set)
                     total_b_rate
                     (BSet.show reac_mgr.b_set) 
-    );    
-  
+    ));
+
+
+                     
   let a0 = (total_g_rate) +. (total_t_rate)
            +. (total_b_rate)
   in
