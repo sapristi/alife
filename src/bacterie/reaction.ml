@@ -78,6 +78,9 @@ module rec
           
         let pp (f : Format.formatter) (imd : t) =
           Format.pp_print_string f (show imd)
+        let show_reacSet = ReacSet.show
+        let pp_reacSet = ReacSet.pp
+                       
         let compare (imd1 : t) (imd2 : t) =
           String.compare imd1.mol imd2.mol
         let mol ims = ims.mol
@@ -118,6 +121,8 @@ module rec
         let pp f am =
           Format.pp_print_string f (show am)
 
+        let show_reacSet = ReacSet.show
+        let pp_reacSet = ReacSet.pp
         let mol am =  am.mol
         let qtt am = 1
         let reacs am = !(am.reacs)
@@ -180,6 +185,8 @@ module rec
       match reactant with 
       | Amol amol -> Amol.to_yojson !amol
       | ImolSet ims -> ImolSet.to_yojson !ims
+    let show_reacSet = ReacSet.show
+    let pp_reacSet = ReacSet.pp
     let qtt reactant =
       match reactant with
       | Amol amol -> Amol.qtt !amol
@@ -219,6 +226,7 @@ module rec
              | Remove_reacs of Reactant.reacSet
              | Release_mol of Molecule.t
              | Release_tokens of Token.t list
+                               [@@deriving show]
            module type REAC =
              sig
                type t
@@ -303,6 +311,7 @@ module rec
            include Set.S with type elt =  Reaction.t
            val show : t -> string
            val to_yojson : t -> Yojson.Safe.json
+           val pp : Format.formatter -> t -> unit
          end)
      =
      struct

@@ -59,6 +59,8 @@ module type REACTANT =
         type reacSet
         val show : t -> string
         val to_yojson : t -> Yojson.Safe.json
+        val show_reacSet : reacSet -> string
+        val pp_reacSet : Format.formatter -> reacSet -> unit
         val pp : Format.formatter -> t -> unit
         val compare : t -> t -> int
         val mol : t -> Molecule.t
@@ -139,7 +141,7 @@ module ReactionsM (R : REACTANT) =
       | Remove_reacs of R.reacSet
       | Release_mol of Molecule.t
       | Release_tokens of Token.t list
-                        
+               [@@deriving show]         
     module type REAC =
       sig
         type t

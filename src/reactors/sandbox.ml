@@ -1,23 +1,24 @@
 
 open Bacterie_libs
 open Local_libs
-
+open Yaacs_config
    
+
 let reacs_reporter = new Logger.logger "Reac_mgr"
-                       (Some Logger.Debug)
+                       Config.sandbox_config.reacs_log_level
                        [Logger.Handler.Cli Debug;
                         Logger.Handler.File ("reactions", Debug)] 
                    
 let bact_reporter = new Logger.logger "Bactery"
-                      (Some Logger.Debug)
+                      Config.sandbox_config.bact_log_level
                       [Logger.Handler.Cli Debug;
                        Logger.Handler.File ("bactery", Debug)] 
+
 type t =
   {
     bact : Bacterie.t ref;
     env : Environment.t ref;
   }
-
 
   
 let to_yojson (sandbox : t) =

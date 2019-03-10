@@ -1,4 +1,14 @@
 (executable
     (name yaacs_server)
     (flags -w)
-    (libraries bacterie_libs logs server nethttpd))
+    (libraries bacterie_libs local_libs server nethttpd)
+    (modules ("yaacs_server"))
+    )
+
+
+(executable
+ (name scenario1)
+ (flags -w)
+ (libraries bacterie_libs local_libs)
+ (modules ("scenario1"))
+ )
