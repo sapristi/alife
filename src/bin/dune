@@ -1,7 +1,15 @@
 (executable
     (name yaacs_server)
     (flags -w)
-    (libraries bacterie_libs local_libs server nethttpd)
+    (preprocess
+     (pps ppx_deriving.show
+          ppx_deriving_cmdliner))
+    (libraries bacterie_libs
+               local_libs
+               server
+               nethttpd
+               batteries
+               ppx_deriving_cmdliner )
     (modules ("yaacs_server"))
     )
 
