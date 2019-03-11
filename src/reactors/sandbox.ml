@@ -5,12 +5,12 @@ open Yaac_config
    
 
 let reacs_reporter = new Logger.logger "Reac_mgr"
-                       Config.sandbox_config.reacs_log_level
+                       Config.config.reacs_log_level
                        [Logger.Handler.Cli Debug;
                         Logger.Handler.File ("reactions", Debug)] 
                    
 let bact_reporter = new Logger.logger "Bactery"
-                      Config.sandbox_config.bact_log_level
+                      Config.config.bact_log_level
                       [Logger.Handler.Cli Debug;
                        Logger.Handler.File ("bactery", Debug)] 
 

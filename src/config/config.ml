@@ -22,8 +22,8 @@ let simulator_config = {
     internal_log_level = None;}
 
 let config = {
-    bact_log_level = Some Debug;
-    reacs_log_level = Some Debug;
+    bact_log_level = Some Info;
+    reacs_log_level = Some Info;
     stats_log_level = None;
-    internal_log_level = Some Debug;
+    internal_log_level = Some Info;
   }

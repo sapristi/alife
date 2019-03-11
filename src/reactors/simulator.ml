@@ -23,12 +23,12 @@ let sim_file_log_handler = Logger.Handler.make_file_handler Logger.Debug "sim";;
 Logger.Handler.register_handler "sim" sim_file_log_handler
   
 let reacs_reporter = new Logger.logger "Reac_mgr"
-                       Config.simulator_config.reacs_log_level
+                       Config.config.reacs_log_level
                        [Logger.Handler.Cli Debug;
                         Logger.Handler.Reg "sim"] 
                    
 let bact_reporter = new Logger.logger "Bactery"
-                       Config.simulator_config.bact_log_level
+                       Config.config.bact_log_level
                       [Logger.Handler.Cli Debug;
                       Logger.Handler.Reg "sim"] 
                    
