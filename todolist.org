@@ -4,13 +4,12 @@
 
 * bugfixes/improvements
 
-** DONE Pnet creation : negative place_id in transitions
+
 ** TODO Rework pnet creation, introduce variants (cyclic pnet)? 
 ** STARTED Reaction rates : problem with floats
    Many problems, most immediate is reaction comparison
    -> Dirty fix : ignore rate to compare in RSet
 ** TODO explicit exceptions
-** DONE stacktrace
 ** TODO gui:
     - [ ] update all molecules after transition (if needs be)
     - [ ] modify ambient 
@@ -20,6 +19,8 @@
     - [X] commit env fails
     - [ ] refresh after loading
     - [ ] display reactions
+** DONE stacktrace
+** DONE Pnet creation : negative place_id in transitions
 ** DONE reactions not removed when removing molecule
 ** DONE break reaction 
    - seems ok with imol, but not with amol

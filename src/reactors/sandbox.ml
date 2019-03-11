@@ -4,6 +4,14 @@ open Local_libs
 open Yaac_config
    
 
+
+let logger = new Logger.logger "Sandbox"
+                      Config.config.bact_log_level
+                      [Logger.Handler.Cli Debug];;
+                      
+logger#info @@ Config.show_config Config.config;;
+                  
+   
 let reacs_reporter = new Logger.logger "Reac_mgr"
                        Config.config.reacs_log_level
                        [Logger.Handler.Cli Debug;
@@ -14,6 +22,7 @@ let bact_reporter = new Logger.logger "Bactery"
                       [Logger.Handler.Cli Debug;
                        Logger.Handler.File ("bactery", Debug)] 
 
+                  
 type t =
   {
     bact : Bacterie.t ref;

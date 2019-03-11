@@ -13,4 +13,5 @@
             ppx_deriving
             ppx_deriving_yojson.runtime
             yojson
-            ppx_deriving.show))
+            ppx_deriving.show
+            ppx_deriving.ord))

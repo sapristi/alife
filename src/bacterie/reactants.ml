@@ -2,8 +2,9 @@
 open Batteries
 open Reaction
 open Local_libs
-
-let logger = new Logger.logger "reactants" (Some Logger.Debug)
+open Yaac_config
+   
+let logger = new Logger.logger "reactants" Config.config.internal_log_level
            [Logger.Handler.Cli Debug]
 module MolMap =
   struct
@@ -39,7 +40,8 @@ module ARMap =
           empty
           
         let reporter =
-          new Logger.logger "Amolset" (Some Logger.Info) [Logger.Handler.Cli Logger.Debug]
+          new Logger.logger "Amolset" Config.config.internal_log_level
+            [Logger.Handler.Cli Logger.Debug]
 
         let find_by_id pnet_id amolset  =
           let (dummy_pnet : Petri_net.t) ={
@@ -101,7 +103,8 @@ module ARMap =
             
            
     let reporter =
-      new Logger.logger "ARmap" (Some Logger.Debug) [Logger.Handler.Cli Debug]
+      new Logger.logger "ARmap" Config.config.internal_log_level
+        [Logger.Handler.Cli Debug]
            
     let add (areactant :Reactant.Amol.t ref)  (armap : t) : Reacs.effect list =
       reporter#info (Printf.sprintf "add %s" (Reactant.Amol.show !areactant));
@@ -171,7 +174,8 @@ module IRMap =
     type t = (Reactant.ImolSet.t ref) MolMap.t ref
 
     let reporter =
-      new Logger.logger "IRmap" (Some Logger.Info) [Logger.Handler.Cli Debug]
+      new Logger.logger "IRmap" Config.config.internal_log_level
+        [Logger.Handler.Cli Debug]
            
     let add_to_qtt (ir : Reactant.ImolSet.t) deltaqtt (irmap : t)
         : Reacs.effect list =

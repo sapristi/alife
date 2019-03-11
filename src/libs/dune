@@ -2,7 +2,7 @@
  (name        local_libs)
  (flags -w)
  (preprocess
-  (pps ppx_deriving.show))
+  (pps ppx_deriving.show ppx_deriving.ord))
  (libraries batteries
             ppx_deriving
             ))

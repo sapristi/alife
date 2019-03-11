@@ -1,4 +1,6 @@
 (library
  (name yaac_config)
  (flags -w)
- (libraries local_libs))
+ (preprocess
+  (pps ppx_deriving.show))
+ (libraries local_libs ppx_deriving.show))

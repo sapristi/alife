@@ -4,7 +4,7 @@
 open Batteries
 open Reaction
 open Local_libs
-
+open Yaac_config
 
 
 (* * file overview *)
@@ -49,7 +49,7 @@ open Local_libs
 
 
 
-let logger = new Logger.logger "reac_mgr" (Some Debug)
+let logger = new Logger.logger "reac_mgr" Config.config.reacs_log_level
                [Logger.Handler.Cli Debug;
                  Logger.Handler.File ("reac_mgr", Logger.Debug)]
            

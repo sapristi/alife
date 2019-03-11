@@ -1,5 +1,4 @@
-open Server
-open Reactors
+
 open Local_libs
 open Cmdliner
 open Yaac_config
@@ -39,13 +38,16 @@ let run_yaacs p =
   if p.debug
   then
     begin
+      print_endline "DEBUG";
       Config.config.bact_log_level <- Some Debug;
       Config.config.reacs_log_level <- Some Debug;
       Config.config.internal_log_level <- Some Debug;
     end
   else
     ();
-      
+  
+  let open Server in
+  let open Reactors in
   Web_server.start_srv
     p.static_path
     (Bact_server.make_req_handler
@@ -55,7 +57,7 @@ let run_yaacs p =
   
 
 let _ = 
-
+  
   let term = Term.(const run_yaacs $ params_cmdliner_term ()) in
   let info = Term.info Sys.argv.(0) in
   Term.eval (term, info);;

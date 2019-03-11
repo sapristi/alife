@@ -28,21 +28,10 @@ type level =
   | Warning
   | Info
   | Debug
-
-let show_level lvl =
-  match lvl with
-  | Flash -> "Flash" | Error -> "Error" | Warning -> "Warning"
-  | Info -> "Info" | Debug -> "Debug"
-
-let level_gt l1 l2 = match l1,l2 with
-  | Flash, _ -> true
-  | Error, _ -> true
-  | Warning, Error -> false
-  | Warning, _ -> true
-  | Info, Error | Info, Warning -> false
-  | Info, _ -> true
-  | Debug, Debug -> true
-  | Debug, _ -> false
+[@@deriving ord, show { with_path = false }]
+  
+let level_gt l1 l2 =
+  compare_level l1 l2 <= 0
 
 
 type log_item = {
