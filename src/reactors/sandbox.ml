@@ -5,20 +5,20 @@ open Yaac_config
    
 
 
-let logger = new Logger.logger "Sandbox"
-                      Config.config.bact_log_level
+let logger = new Logger.rlogger "Sandbox"
+                      Config.logconfig.bact_log_level
                       [Logger.Handler.Cli Debug];;
                       
-logger#info @@ Config.show_config Config.config;;
+logger#info @@ Config.show_config Config.logconfig;;
                   
    
-let reacs_reporter = new Logger.logger "Reac_mgr"
-                       Config.config.reacs_log_level
+let reacs_reporter = new Logger.rlogger "Reac_mgr"
+                       Config.logconfig.reacs_log_level
                        [Logger.Handler.Cli Debug;
                         Logger.Handler.File ("reactions", Debug)] 
                    
-let bact_reporter = new Logger.logger "Bactery"
-                      Config.config.bact_log_level
+let bact_reporter = new Logger.rlogger "Bactery"
+                      Config.logconfig.bact_log_level
                       [Logger.Handler.Cli Debug;
                        Logger.Handler.File ("bactery", Debug)] 
 
@@ -28,7 +28,7 @@ type t =
     bact : Bacterie.t ref;
     env : Environment.t ref;
   }
-
+  
   
 let to_yojson (sandbox : t) =
   `Assoc ["bact", Bacterie.to_sig !(sandbox.bact)
@@ -43,12 +43,9 @@ let of_yojson  ?(bact_reporter=bact_reporter)
   in
   match (Environment.of_yojson env_json, Bacterie.bact_sig_of_yojson bact_sig_json) with
   | (Ok env, Ok bact_sig) -> 
-     let bact = ref (Bacterie.make ~env:env
-                                   ~reacs_reporter:reacs_reporter
-                                   ~bact_reporter:bact_reporter
-                                   ~bact_sig:bact_sig ())
+     let bact = ref (Bacterie.make ~env  ~bact_sig ())
      and renv = ref env in
      {bact = bact; env = renv}
-  | _ -> failwith "error loading sandbox json" 
+  | _  -> failwith  "error loading sandbox json" 
   
   

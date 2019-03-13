@@ -18,7 +18,7 @@ open Local_libs
    
 (* * Proteine module *)
 
-let logger = new Logger.logger "proteine" Config.config.internal_log_level
+let logger = new Logger.rlogger "proteine" Config.logconfig.internal_log_level
                [Logger.Handler.Cli Debug]
 
 (* * A proteine *)                   

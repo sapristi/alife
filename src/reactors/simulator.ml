@@ -19,26 +19,12 @@ let make (): t =
   {simulator = Uninitialised;}
 
 
-let sim_file_log_handler = Logger.Handler.make_file_handler Logger.Debug "sim";;
-Logger.Handler.register_handler "sim" sim_file_log_handler
-  
-let reacs_reporter = new Logger.logger "Reac_mgr"
-                       Config.config.reacs_log_level
-                       [Logger.Handler.Cli Debug;
-                        Logger.Handler.Reg "sim"] 
-                   
-let bact_reporter = new Logger.logger "Bactery"
-                       Config.config.bact_log_level
-                      [Logger.Handler.Cli Debug;
-                      Logger.Handler.Reg "sim"] 
                    
   
 let init (c : config) (sim : t) =
   let make_bact i =
     Bacterie.make ~env:c.environment
-                  ~bact_sig:c.bact_initial_state
-                  ~reacs_reporter:reacs_reporter
-                  ~bact_reporter:bact_reporter () in
+                  ~bact_sig:c.bact_initial_state () in
   
   let b_array = Array.init c.bact_nb make_bact
   in sim.simulator <- Initialised (b_array)

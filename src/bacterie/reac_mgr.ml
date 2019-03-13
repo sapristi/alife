@@ -49,7 +49,7 @@ open Yaac_config
 
 
 
-let logger = new Logger.logger "reac_mgr" Config.config.reacs_log_level
+let logger = new Logger.rlogger "reac_mgr" Config.logconfig.reacs_log_level
                [Logger.Handler.Cli Debug;
                  Logger.Handler.File ("reac_mgr", Logger.Debug)]
            
@@ -193,7 +193,6 @@ type t =
     g_set :  GSet.t;
     b_set :  BSet.t;
     mutable reac_nb : int;
-    reporter : Logger.logger;  [@opaque]
     env : Environment.t ref; 
   }
     [@@deriving show]
@@ -212,12 +211,11 @@ let to_yojson (rmgr : t) : Yojson.Safe.json =
       "env", Environment.to_yojson !(rmgr.env)]
 
   
-let make_new (env : Environment.t ref) ?(reporter=Logger.dummy) =
+let make_new (env : Environment.t ref) = 
   {t_set = TSet.empty ();
    g_set = GSet.empty ();
    b_set = BSet.empty ();
    reac_nb = 0;
-   reporter = reporter;
    env = env; } 
 
 
@@ -260,7 +258,7 @@ let add_grab (graber_d : Reactant.Amol.t ref)
    *                       (Reactant.show grabed_d)); *)
   
   
-  reac_mgr.reporter#info
+  logger#info
     (Printf.sprintf "added new grab between : \n%s\n%s"
                     (Reactant.Amol.show !graber_d)
                     (Reactant.show grabed_d));
@@ -277,7 +275,7 @@ let add_grab (graber_d : Reactant.Amol.t ref)
   
            
 let add_transition amd reac_mgr  =
-  reac_mgr.reporter#info
+  logger#info
     (Printf.sprintf "added new transition : %s"
                     (Reactant.Amol.show !amd));
   
@@ -290,7 +288,7 @@ let add_transition amd reac_mgr  =
 
 (* ** Break *)
 let add_break md reac_mgr =
-  reac_mgr.reporter#info
+  logger#info
     (Printf.sprintf "added new break : %s"
                     (Reactant.show md));
   
@@ -316,23 +314,23 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       BSet.total_rate reac_mgr.b_set
   in
 
-  reac_mgr.reporter#info
+  logger#info
     (Printf.sprintf
        "********     Grabs   (total : %f)  (nb_reacs : %d)  *********"
        total_g_rate (GSet.cardinal reac_mgr.g_set));
-  reac_mgr.reporter#ldebug (lazy (GSet.show reac_mgr.g_set));
+  logger#ldebug (lazy (GSet.show reac_mgr.g_set));
   
-  reac_mgr.reporter#info
+  logger#info
     (Printf.sprintf
        "******** Transitions (total : %f)  (nb_reacs : %d)  *********"
        total_t_rate (TSet.cardinal reac_mgr.t_set));
-  reac_mgr.reporter#ldebug (lazy (TSet.show reac_mgr.t_set));
+  logger#ldebug (lazy (TSet.show reac_mgr.t_set));
   
-  reac_mgr.reporter#info
+  logger#info
     (Printf.sprintf
        "********    Breaks   (total : %f)  (nb_reacs : %d)  *********"
        total_b_rate (BSet.cardinal reac_mgr.b_set));
-  reac_mgr.reporter#ldebug (lazy (GSet.show reac_mgr.g_set));
+  logger#ldebug (lazy (GSet.show reac_mgr.g_set));
 
                      
   let a0 = (total_g_rate) +. (total_t_rate)
@@ -341,7 +339,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   if a0 = 0.
   then
     (
-      reac_mgr.reporter#warning "No reaction available";
+      logger#warning "No reaction available";
       None
     )
   else
@@ -359,7 +357,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
         Reaction.Break (ref (BSet.pick_reaction reac_mgr.b_set))
       
     in
-    reac_mgr.reporter#info
+    logger#info
       (Printf.sprintf "picked %s" (Reaction.show res));
     Some res
     

@@ -1,29 +1,15 @@
 open Local_libs
    
 type config = {
-    mutable bact_log_level : Logger.level option;
-    mutable reacs_log_level : Logger.level option;
-    mutable stats_log_level : Logger.level option;
-    mutable internal_log_level : Logger.level option;
+    bact_log_level : Logger.level option ref;
+    reacs_log_level : Logger.level option ref;
+    stats_log_level : Logger.level option ref;
+    internal_log_level : Logger.level option ref;
   } [@@deriving show]
             
-(* let sandbox_config = {
- *     bact_log_level = Some Debug;
- *     reacs_log_level = Some Debug;
- *     stats_log_level = None;
- *     internal_log_level = Some Debug;
- *   }
- * 
- * 
- * let simulator_config = {
- *     bact_log_level = Some Warning;
- *     reacs_log_level = Some Warning;
- *     stats_log_level = None;
- *     internal_log_level = None;} *)
-
-let config = {
-    bact_log_level = Some Info;
-    reacs_log_level = Some Info;
-    stats_log_level = None;
-    internal_log_level = Some Info;
+let logconfig = {
+    bact_log_level = ref (Some Logger.Info);
+    reacs_log_level = ref (Some Logger.Info);
+    stats_log_level = ref None;
+    internal_log_level = ref (Some Logger.Info);
   }

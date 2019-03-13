@@ -59,6 +59,9 @@
    -> problem solved, there was an error whan adding reactions to IRMap
 
 * improvements
+** TODO use Zarith module for reaction rates
+** TODO use chalk for terminal colors
+** TODO use Pnet Set as reactants
 ** TODO sanitize the use mutable/immutable and refs in structures
    - [ ] in amolset
    - [ ] everywhere ?

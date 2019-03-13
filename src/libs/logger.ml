@@ -192,6 +192,70 @@ class logger
 end
 
 
+
+class rlogger
+        (name: string)
+        (levelor: level option ref)
+        (handlers_desc : Handler.desc list)  =
+  
+  object(self)
+    val mutable handlers  = List.map Handler.make handlers_desc
+    val levelo : level option ref = levelor
+
+    method log_msg (msg_level : level) msg =
+      match !levelor with
+      | None ->()
+      | Some level ->
+         if level_gt msg_level level
+         then
+           begin
+           let item = {
+               level = msg_level;
+               logger_name = name;
+               msg = msg} in 
+           List.iter (fun handler ->
+               Handler.handle handler item)
+             handlers
+           end
+         else
+           ()                           
+                       
+    method log_msg_lazy (msg_level : level) msg =
+      match !levelor with
+      | None ->()
+      | Some level ->
+         if level_gt msg_level level
+         then
+           begin
+           let item = {
+               level = msg_level;
+               logger_name = name;
+               msg = Lazy.force msg} in 
+           List.iter (fun handler ->
+               Handler.handle handler item)
+             handlers
+           end
+         else
+           ()             
+    method add_handler h = handlers <- h::handlers
+                             
+    method flash = self#log_msg Flash
+    method error = self#log_msg Error
+    method warning = self#log_msg Warning
+    method info =  self#log_msg Info
+    method debug = self#log_msg Debug
+
+    method lflash = self#log_msg_lazy Flash
+    method lerror = self#log_msg_lazy Error
+    method lwarning = self#log_msg_lazy Warning
+    method linfo =  self#log_msg_lazy Info
+    method ldebug = self#log_msg_lazy Debug
+
+
+end
+
+  
+
 let _loggers : (string, logger) Hashtbl.t = Hashtbl.create 10
   
 let dummy = new logger "dummy" None []

@@ -7,7 +7,7 @@ open Reaction
 (* compatibility with yojson before loading batteries *)
 type ('a, 'b) mresult = ('a, 'b) result
 open Reactants
-   
+open Yaac_config
 (* * Container module *)
 
 (* Une bacterie est un conteneur à molecules. Elle s'occupe de fournir  *)
@@ -30,12 +30,16 @@ open Reactants
 (*  + ireactants : inactive reactants, molecules that do not fold into petri net. *)
 (*  + areactants : active reactants, molecules that fold into a petri net. *)
 (*     We thus have to have a distinct pnet for each present molecule *)
+
+let logger = new Logger.rlogger "Bact"
+               Config.logconfig.bact_log_level
+               [Logger.Handler.Cli Debug]
+   
 type t ={
     mutable ireactants : IRMap.t;
     mutable areactants : ARMap.t;
     reac_mgr : Reac_mgr.t;
     env : Environment.t ref;
-    reporter : Logger.logger;
   }
 type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
                      [@@ deriving yojson, ord, show]
@@ -78,7 +82,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
   match new_opnet with
     
   | Some pnet ->
-     bact.reporter#info (Printf.sprintf "adding active molecule  : %s" mol);
+     logger#info (Printf.sprintf "adding active molecule  : %s" mol);
      
      let ar = ref (Reactant.Amol.make_new pnet) in
      (* reactions : grabs with other amols*)
@@ -98,7 +102,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
      ARMap.add ar bact.areactants
   | None ->
      (
-     bact.reporter#info (Printf.sprintf "adding inactive molecule  : %s" mol);
+     logger#info (Printf.sprintf "adding inactive molecule  : %s" mol);
        match MolMap.Exceptionless.find mol !(bact.ireactants) with
        | None -> 
           let new_rireac = ref (Reactant.ImolSet.make_new mol) in
@@ -140,7 +144,7 @@ let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
 let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
   List.iter
     (fun (effect : Reacs.effect) ->
-      bact.reporter#ldebug (lazy (Printf.sprintf "Executing effect %s"
+      logger#ldebug (lazy (Printf.sprintf "Executing effect %s"
                              (Reacs.show_effect effect)));
       match effect with
       | T_effects tel ->
@@ -186,7 +190,7 @@ let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
     actions
   
   
-let stats_reporter = Logger.get_logger "reacs_stats"
+let stats_logger = Logger.get_logger "reacs_stats"
                        
 let next_reaction (bact : t)  =
   let reac_nb = lazy (Reac_mgr.get_reac_nb bact.reac_mgr) in
@@ -195,7 +199,7 @@ let next_reaction (bact : t)  =
   let picked_time = Sys.time () in
   match ro with
   | None ->
-     bact.reporter#warning "no more reactions";
+     logger#warning "no more reactions";
      ()
   | Some r ->
      let ir_card = lazy (MolMap.cardinal !(bact.ireactants))
@@ -205,7 +209,7 @@ let next_reaction (bact : t)  =
      execute_actions bact actions;
      let end_time = Sys.time () in
 
-     stats_reporter#linfo (
+     stats_logger#linfo (
          lazy (
              let tnb, gnb, bnb = Lazy.force reac_nb in
              (Printf.sprintf "%d %d %d %d %d %f %f %f"
@@ -283,18 +287,15 @@ let empty_sig : bact_sig = {
     active_mols = []}
   
 let make ?(env=Environment.default_env)
-         ?(bact_sig=empty_sig)
-         ?(reacs_reporter=Logger.dummy)
-         ?(bact_reporter=Logger.dummy) () :t =
+         ?(bact_sig=empty_sig)  () :t =
   let renv = ref env in 
   
   let bact = {ireactants = ref MolMap.empty;
               areactants = ref MolMap.empty;
               env = renv;
-              reac_mgr = Reac_mgr.make_new renv ~reporter:reacs_reporter;
-              reporter = bact_reporter}
+              reac_mgr = Reac_mgr.make_new renv}
   in
-  bact_reporter#info (Printf.sprintf "Creating new bactery from %s"
+  logger#info (Printf.sprintf "Creating new bactery from %s"
               (show_bact_sig bact_sig));
   from_sig bact_sig bact
 

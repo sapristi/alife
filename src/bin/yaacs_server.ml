@@ -39,9 +39,9 @@ let run_yaacs p =
   then
     begin
       print_endline "DEBUG";
-      Config.config.bact_log_level <- Some Debug;
-      Config.config.reacs_log_level <- Some Debug;
-      Config.config.internal_log_level <- Some Debug;
+      Config.logconfig.bact_log_level := Some Debug;
+      Config.logconfig.reacs_log_level := Some Debug;
+      Config.logconfig.internal_log_level := Some Debug;
     end
   else
     ();
@@ -59,6 +59,7 @@ let run_yaacs p =
 let _ = 
   
   let term = Term.(const run_yaacs $ params_cmdliner_term ()) in
-  let info = Term.info Sys.argv.(0) in
+  let doc = "Runs the Yaac server" in
+  let info = Term.info Sys.argv.(0) ~doc in
   Term.eval (term, info);;
 
