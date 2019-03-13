@@ -32,7 +32,7 @@ open Yaac_config
 
 
 (* * the proteine module *)
-let logger = new Logger.rlogger "pnet" Config.logconfig.internal_log_level
+let logger = new Logger.logger "Yaac.pnet" (Some Warning)
                [Logger.Handler.Cli Debug]
 
 type t =

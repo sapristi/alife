@@ -5,22 +5,13 @@ open Yaac_config
    
 
 
-let logger = new Logger.rlogger "Sandbox"
-                      Config.logconfig.bact_log_level
-                      [Logger.Handler.Cli Debug];;
-                      
-logger#info @@ Config.show_config Config.logconfig;;
+let logger = Logger.make_logger "Yaac.Sandbox"
+               ~lvl:(Some Warning)
+               ~hdescs:[Logger.Handler.Cli Debug]
+
+
+let _ = logger#info @@ Config.show_config Config.logconfig
                   
-   
-let reacs_reporter = new Logger.rlogger "Reac_mgr"
-                       Config.logconfig.reacs_log_level
-                       [Logger.Handler.Cli Debug;
-                        Logger.Handler.File ("reactions", Debug)] 
-                   
-let bact_reporter = new Logger.rlogger "Bactery"
-                      Config.logconfig.bact_log_level
-                      [Logger.Handler.Cli Debug;
-                       Logger.Handler.File ("bactery", Debug)] 
 
                   
 type t =
@@ -35,8 +26,7 @@ let to_yojson (sandbox : t) =
                   |> Bacterie.bact_sig_to_yojson;
           "env", Environment.to_yojson !(sandbox.env)]
 
-let of_yojson  ?(bact_reporter=bact_reporter)
-              ?(reacs_reporter=reacs_reporter) json : t=
+let of_yojson   json : t=
 
   let env_json = Yojson.Safe.Util.member "env" json
   and bact_sig_json = Yojson.Safe.Util.member "bact" json

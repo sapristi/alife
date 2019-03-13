@@ -9,7 +9,12 @@ open Nethttpd_services
 open Nethttpd_engine
 open Nethttpd_types
 open Nethttpd_reactor
-
+open Local_libs
+   
+let logger = Logger.make_logger "Yaac.Server"
+               ~lvl:(Some Info)
+               ~hdescs:[Logger.Handler.Cli Debug]
+           
 
 let fs_spec file_root =
   { file_docroot = file_root;
@@ -100,8 +105,8 @@ let start_srv file_root req_processor (conn_attr) =
       (`Socket(`Sock_inet(Unix.SOCK_STREAM, Unix.inet_addr_any, port) ,opts)) ues 
   and srv = make_srv file_root req_processor conn_attr in
   Uq_engines.when_state ~is_done:(accept srv ues) lstn_engine;
-  
-  Printf.printf "Listening as %s on port %i\n" host_name port;
-  flush stdout;
+
+  Printf.sprintf "Listening as %s on port %i\n" host_name port
+  |> logger#info;
   
   Unixqueue.run ues

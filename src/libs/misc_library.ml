@@ -122,8 +122,7 @@ let rec pick_from_list (bound : float) (c : float)
          
          logger#flash
            (Printf.sprintf "Bound %f;Current %f;"
-           bound (value h)
-           );
+           bound (value h));
          
          if c' > bound then h
          else pick_from_list bound c' value t

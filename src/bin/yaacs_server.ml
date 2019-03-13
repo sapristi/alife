@@ -18,9 +18,8 @@ type params = {
 ;;
 
 
-
+      
 let run_yaacs p = 
-
   if p.stats
   then
     begin
@@ -37,14 +36,7 @@ let run_yaacs p =
 
   if p.debug
   then
-    begin
-      print_endline "DEBUG";
-      Config.logconfig.bact_log_level := Some Debug;
-      Config.logconfig.reacs_log_level := Some Debug;
-      Config.logconfig.internal_log_level := Some Debug;
-    end
-  else
-    ();
+    Logger.set_level "Yaac" (Some Debug);
   
   let open Server in
   let open Reactors in

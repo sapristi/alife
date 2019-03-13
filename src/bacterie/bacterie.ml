@@ -31,10 +31,11 @@ open Yaac_config
 (*  + areactants : active reactants, molecules that fold into a petri net. *)
 (*     We thus have to have a distinct pnet for each present molecule *)
 
-let logger = new Logger.rlogger "Bact"
-               Config.logconfig.bact_log_level
-               [Logger.Handler.Cli Debug]
-   
+let logger = Logger.make_logger "Yaac.Bact"
+               ~lvl:(Some Warning)
+               ~hdescs:[Logger.Handler.Cli Debug]
+
+      
 type t ={
     mutable ireactants : IRMap.t;
     mutable areactants : ARMap.t;
@@ -78,6 +79,7 @@ let canonical_bact_sig (bs : bact_sig) : bact_sig =
 (*     + if it was not, we add the molecules and the possible reactions *)
   
 let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
+  
   let new_opnet = Petri_net.make_from_mol mol in
   match new_opnet with
     

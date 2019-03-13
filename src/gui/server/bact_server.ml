@@ -9,8 +9,7 @@ open Reactors
 
            
 open Local_libs
-  
-           
+
 let prot_from_mol (cgi:Netcgi.cgi) : string =
   
   let prot_json =

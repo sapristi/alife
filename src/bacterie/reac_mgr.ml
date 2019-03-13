@@ -48,11 +48,11 @@ open Yaac_config
 (*    boilerplate in this file, especially if the number of reactions kind grows. *)
 
 
+let logger = Logger.make_logger "Yaac.reacs_mgr"
+               ~lvl:(Some Warning)
+               ~hdescs:[Logger.Handler.Cli Debug]
 
-let logger = new Logger.rlogger "reac_mgr" Config.logconfig.reacs_log_level
-               [Logger.Handler.Cli Debug;
-                 Logger.Handler.File ("reac_mgr", Logger.Debug)]
-           
+                 
 (* * MakeReacSet functor *)
 
 module MakeReacSet (Reac : Reacs.REAC) = 

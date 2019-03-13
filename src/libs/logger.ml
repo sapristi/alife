@@ -127,18 +127,19 @@ module Handler =
          Hashtbl.find handlers n
            
   end
-
   
 class logger
         (name: string)
         (levelo: level option)
         (handlers_desc : Handler.desc list)  =
-  
   object(self)
-    val mutable handlers  = List.map Handler.make handlers_desc
-    val mutable levelo : level option = levelo
+    val mutable handlers = List.map Handler.make handlers_desc
+    val mutable level = levelo
+    val name = name
 
-    method log_msg (msg_level : level) msg =
+    method log_msg
+             msg_level
+             (msg : 'a) =
       match levelo with
       | None ->()
       | Some level ->
@@ -174,14 +175,14 @@ class logger
          else
            ()             
     method add_handler h = handlers <- h::handlers
-    method set_level new_levelo = levelo <- new_levelo
+    method set_level new_levelo = level <- new_levelo
                          
     method flash = self#log_msg Flash
     method error = self#log_msg Error
     method warning = self#log_msg Warning
     method info =  self#log_msg Info
     method debug = self#log_msg Debug
-
+    
     method lflash = self#log_msg_lazy Flash
     method lerror = self#log_msg_lazy Error
     method lwarning = self#log_msg_lazy Warning
@@ -192,73 +193,16 @@ class logger
 end
 
 
-
-class rlogger
-        (name: string)
-        (levelor: level option ref)
-        (handlers_desc : Handler.desc list)  =
   
-  object(self)
-    val mutable handlers  = List.map Handler.make handlers_desc
-    val levelo : level option ref = levelor
-
-    method log_msg (msg_level : level) msg =
-      match !levelor with
-      | None ->()
-      | Some level ->
-         if level_gt msg_level level
-         then
-           begin
-           let item = {
-               level = msg_level;
-               logger_name = name;
-               msg = msg} in 
-           List.iter (fun handler ->
-               Handler.handle handler item)
-             handlers
-           end
-         else
-           ()                           
-                       
-    method log_msg_lazy (msg_level : level) msg =
-      match !levelor with
-      | None ->()
-      | Some level ->
-         if level_gt msg_level level
-         then
-           begin
-           let item = {
-               level = msg_level;
-               logger_name = name;
-               msg = Lazy.force msg} in 
-           List.iter (fun handler ->
-               Handler.handle handler item)
-             handlers
-           end
-         else
-           ()             
-    method add_handler h = handlers <- h::handlers
-                             
-    method flash = self#log_msg Flash
-    method error = self#log_msg Error
-    method warning = self#log_msg Warning
-    method info =  self#log_msg Info
-    method debug = self#log_msg Debug
-
-    method lflash = self#log_msg_lazy Flash
-    method lerror = self#log_msg_lazy Error
-    method lwarning = self#log_msg_lazy Warning
-    method linfo =  self#log_msg_lazy Info
-    method ldebug = self#log_msg_lazy Debug
-
-
-end
-
-  
-
-let _loggers : (string, logger) Hashtbl.t = Hashtbl.create 10
-  
-let dummy = new logger "dummy" None []
+let _loggers : (string, logger) Hashtbl.t =  Hashtbl.create 10
+                      
+let set_level p lvlo =
+  Hashtbl.iter
+    (fun n l  ->
+      if String.starts_with n p
+      then
+        l#set_level lvlo;)
+    _loggers
 
 let get_logger name =
   if Hashtbl.mem _loggers name
@@ -268,3 +212,98 @@ let get_logger name =
     let l = new logger name None [] in
     Hashtbl.add _loggers name l;
     l
+    
+let make_logger ?lvl:(lvl=None) ?hdescs:(hdescs=[]) name =
+  let l = new logger name lvl hdescs in
+  Hashtbl.add _loggers name l;
+  l
+
+
+let dummy = make_logger "dummy" ~lvl:None ~hdescs:[]
+
+
+
+
+
+(* module logger for maybe far later *)
+          
+  
+module type LoggerT =
+  sig
+    type t = {
+        name: string;
+        mutable handlers: Handler.t list;
+        mutable level: level option;}
+
+    val data : t
+    val log_msg : level -> ('a -> string) -> 'a -> unit
+    val add_handler : Handler.t -> unit
+    val set_level : level option -> unit
+      
+    val flash : string -> unit
+
+    val lflash : string Lazy.t -> unit
+  end
+  
+module LoggerM (
+           S:
+             sig
+               val level: level option
+               val hdescs: Handler.desc list
+               val name: string
+             end) =
+  struct
+    type t = {
+        name: string;
+        mutable handlers: Handler.t list;
+        mutable level: level option;}
+
+    let data = {
+        name = S.name;
+        handlers = List.map Handler.make S.hdescs;
+        level = S.level;
+      }
+    let log_msg  msg_level
+             (unpack : 'a -> string)
+             (msg : 'a) =
+      match data.level with
+      | None ->()
+      | Some level ->
+         if level_gt msg_level level
+         then
+           begin
+           let item = {
+               level = msg_level;
+               logger_name = data.name;
+               msg = unpack msg} in 
+           List.iter (fun handler ->
+               Handler.handle handler item)
+             data.handlers
+           end
+         else
+           ()                           
+                          
+    let add_handler h = data.handlers <- h::data.handlers
+    let set_level new_level = data.level <- new_level
+
+    let id = fun x -> x
+    let flash = log_msg Flash id 
+    let error = log_msg Error id
+    let warning = log_msg Warning id
+    let info =  log_msg Info id
+    let debug = log_msg Debug id
+
+    let lflash = log_msg Flash Lazy.force
+    let lerror = log_msg Error Lazy.force
+    let lwarning = log_msg Warning Lazy.force
+    let linfo =  log_msg Info Lazy.force
+    let ldebug = log_msg Debug Lazy.force
+
+end
+
+let make_loggerm name handlers level =
+  (module LoggerM(struct let name=name
+                         let hdescs = handlers
+                         let level = level end) : LoggerT)
+
+    
