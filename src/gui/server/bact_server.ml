@@ -5,10 +5,14 @@ open Sim_req_handler
 open Sandbox_req_handler
 open Bacterie_libs
 open Reactors
-   
+open Local_libs   
 
+let logger = new Logger.logger "Yaac.server"
+                 (Some Logger.Info)
+                 [Logger.Handler.Cli Debug;
+                  Logger.Handler.File ("server", Debug)]
            
-open Local_libs
+
 
 let prot_from_mol (cgi:Netcgi.cgi) : string =
   
@@ -89,11 +93,6 @@ let server_functions =
     
   
 let make_dyn_service  f  =
-  let reporter = new Logger.logger "server"
-                   (Some Logger.Debug)
-                   [Logger.Handler.Cli Debug;
-                    Logger.Handler.File ("server", Debug)]
-  in 
   Nethttpd_services.dynamic_service
     { dyn_handler =
         (fun env (cgi:Netcgi.cgi)  ->
@@ -106,7 +105,7 @@ let make_dyn_service  f  =
 
           (* Log.info (fun m -> m "serving GET request : \n%s" req_descr);  *)
           let url = cgi#url () in
-          reporter#info (Printf.sprintf
+          logger#info (Printf.sprintf
                       "serving GET request : at %s with paramters :\n%s" url req_descr);
           
           let response, status =
@@ -114,8 +113,8 @@ let make_dyn_service  f  =
               f cgi, `Ok
             with
             | _ as e ->
-               reporter#error (Printexc.get_backtrace ());
-               reporter#error (Printexc.to_string e);
+               logger#error (Printexc.get_backtrace ());
+               logger#error (Printexc.to_string e);
                
                "error", `Internal_server_error
           in
@@ -124,10 +123,10 @@ let make_dyn_service  f  =
           cgi # out_channel # output_string response;
           cgi # out_channel # commit_work();
 
-          reporter#info (Printf.sprintf
-                           "sent response : %s\n%s"
-                           (Nethttp.string_of_http_status status)
-                           response );
+          logger#info (Printf.sprintf "sent response : %s"
+                         (Nethttp.string_of_http_status status));
+          logger#ldebug @@ lazy response;
+                         
           
           (* Log.info (fun m -> m "sent response :%s\n" response); *)
         );

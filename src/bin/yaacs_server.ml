@@ -2,6 +2,8 @@
 open Local_libs
 open Cmdliner
 open Yaac_config
+open Server
+open Reactors
 let () = Printexc.record_backtrace true;;
 
 
@@ -17,13 +19,16 @@ type params = {
   } [@@deriving cmdliner,show]
 ;;
 
+let logger = Logger.make_logger  "Yaac.Main"
+               ~lvl:(Some Warning)
+               ~hdescs:[Logger.Handler.Cli Debug];;
 
-      
-let run_yaacs p = 
+
+let run_yaacs p : unit= 
   if p.stats
   then
     begin
-      let format_dummy : Logger.Formatter.t = fun item -> item.msg in
+      let format_dummy : Logger.log_formatter = fun item -> item.msg in
       let handler = Logger.Handler.make_file_handler Logger.Debug "stats" in
       let stats_reporter = Logger.get_logger "reacs_stats" in
       stats_reporter#add_handler handler;
@@ -37,9 +42,8 @@ let run_yaacs p =
   if p.debug
   then
     Logger.set_level "Yaac" (Some Debug);
+
   
-  let open Server in
-  let open Reactors in
   Web_server.start_srv
     p.static_path
     (Bact_server.make_req_handler
@@ -53,5 +57,5 @@ let _ =
   let term = Term.(const run_yaacs $ params_cmdliner_term ()) in
   let doc = "Runs the Yaac server" in
   let info = Term.info Sys.argv.(0) ~doc in
-  Term.eval (term, info);;
+  Term.eval (term, info)
 

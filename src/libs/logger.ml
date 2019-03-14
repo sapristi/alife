@@ -3,23 +3,40 @@ open BatFile
 
 module Color=
   struct
-    type t =
+    type color =
       | Default | Black | Red | Green | Yellow
-      | Blue | Magenta | Cyan | White
+      | Blue | Magenta | Cyan | Gray | White 
+      | LRed | LGreen | LYellow | LBlue
+      | LMagenta | LCyan | LGray
 
+    type style =
+      | Bold | Underline | Invert | NoStyle
+
+    let style_to_string s =
+      match s with
+      | Bold -> "\027[1m"   | Underline -> "\027[4m" | Invert -> "\027[7m"  
+      | NoStyle -> "\027[0m"
+                                                               
     let to_fg c =
      match c with 
      | Default -> "\027[39m" | Black -> "\027[30m"  | Red -> "\027[31m"
      | Green -> "\027[32m"   | Yellow -> "\027[33m" | Blue -> "\027[34m"
-     | Magenta -> "\027[35m" | Cyan -> "\027[36m"   | White -> "\027[97m"
+     | Magenta -> "\027[35m" | Cyan -> "\027[36m"   | Gray -> "\027[90m"
+     | White -> "\027[97m"   | LRed -> "\027[91m"   | LGreen -> "\027[92m"
+     | LYellow -> "\027[93m" | LBlue -> "\027[94m"  | LMagenta -> "\027[95m"
+     | LCyan -> "\027[96m"   | LGray -> "\027[37m"
+
     let to_bg c = 
      match c with 
      | Default -> "\027[49m" | Black -> "\027[40m"  | Red -> "\027[41m"
      | Green -> "\027[42m"   | Yellow -> "\027[43m" | Blue -> "\027[44m"
-     | Magenta -> "\027[45m" | Cyan -> "\027[46m"   | White -> "\027[107m"
+     | Magenta -> "\027[45m" | Cyan -> "\027[46m"   | Gray -> "\027[100m"
+     | White -> "\027[107m"  | LRed -> "\027[101m"  | LGreen -> "\027[102m"
+     | LYellow -> "\027[103m"| LBlue -> "\027[104m"  | LMagenta -> "\027[105m"
+     | LCyan -> "\027[106m"   | LGray -> "\027[47m"
 
-    let colorize ?fgc:(fg=Default) ?bgc:(bg=Default) t =
-      Printf.sprintf "%s%s%s%s%s" (to_fg fg) (to_bg bg) t (to_fg Default) (to_bg Default)  
+    let colorize ?fgc:(fg=Default) ?bgc:(bg=Default) ?s:(style=NoStyle) t =
+      Printf.sprintf "%s%s%s%s%s%s%s" (style_to_string style) (to_fg fg) (to_bg bg) t (to_fg Default) (to_bg Default)  (style_to_string NoStyle)
   end
    
 type level =
@@ -29,6 +46,9 @@ type level =
   | Info
   | Debug
 [@@deriving ord, show { with_path = false }]
+
+type levelo = level option
+            [@@deriving show ]
   
 let level_gt l1 l2 =
   compare_level l1 l2 <= 0
@@ -40,34 +60,52 @@ type log_item = {
     msg : string;
   }
 
-module Formatter =
-  struct
-    type t = log_item -> string
+              
+type log_formatter = log_item -> string
            
-    let format_default item =
-      Printf.sprintf "%-6.3f %-10s %-10s %s" (Sys.time ()) item.logger_name
-        (show_level item.level) item.msg
-
-    let level_to_color lvl =
-      match lvl with
-      | Flash -> Color.Magenta
-      | Error -> Color.Red
-      | Warning -> Color.Yellow
-      | Info -> Color.Blue
-      | Debug -> Color.Green
-      
-    let format_color item =
-      let item_level_str = Color.colorize  ~fgc:(level_to_color item.level)  (show_level item.level) in
-        
-      Printf.sprintf "%-6.3f %-10s %-30s %s" (Sys.time ()) item.logger_name
-        item_level_str item.msg
-end
-
+let format_default item =
+  Printf.sprintf "%-6.3f %-20s %-10s %s" (Sys.time ()) item.logger_name
+    (show_level item.level) item.msg
   
-module Handler =
+      
+let format_color item =
+  
+  let level_to_color lvl =
+    match lvl with
+    | Flash -> Color.LMagenta
+    | Error -> Color.LRed
+    | Warning -> Color.LYellow
+    | Info -> Color.LBlue
+    | Debug -> Color.Green
+  in
+  
+  let item_level_str = Color.colorize  ~fgc:(level_to_color item.level)  (show_level item.level) in
+  let item_msg_str =
+    match item.level with
+    | Flash -> Color.colorize ~fgc:Color.Black ~bgc:Color.LMagenta item.msg
+    | _ -> item.msg in
+  
+  (Printf.sprintf "%-6.3f %-20s %-30s %s" (Sys.time ()) item.logger_name
+     item_level_str item_msg_str)
+  
+   
+module type HandlersT =
+  sig
+    
+    type t =
+      {mutable fmt : log_formatter;
+       mutable level : level;
+       output : unit IO.output}
+
+    val handle : t -> log_item -> unit
+    type desc
+    val make : desc -> t
+  end
+  
+module DefaultHandlers =
   struct
     type t =
-      {mutable fmt : Formatter.t;
+      {mutable fmt : log_formatter;
        mutable level : level;
        output : unit IO.output}
 
@@ -84,7 +122,7 @@ module Handler =
               
     let make_cli_handler level =
       Hashtbl.replace outputs "stdout" IO.stdout;
-      {fmt = Formatter.format_color;
+      {fmt = format_color;
        level = level;
        output = IO.stdout}
       
@@ -104,7 +142,7 @@ module Handler =
           let p = perm [user_read; user_write; group_read; group_write] in
           open_out ~mode:[`create (*; `append *)] ~perm:p ("logs/"^filename)
       in
-      {fmt = Formatter.format_default;
+      {fmt = format_default;
        level = level;
        output = oc;
       }
@@ -125,185 +163,114 @@ module Handler =
       | File (f, lvl) -> make_file_handler lvl f
       | Reg n ->
          Hashtbl.find handlers n
-           
+
+    let handle_test h fmt =
+      List.iter  (fun x -> handle h fmt )
+        [{level=Flash; logger_name="Flash"; msg="Flash"};
+         {level=Error; logger_name="Error"; msg="Error"}; 
+         {level=Warning; logger_name="Warning"; msg="Warning"};
+         {level=Info; logger_name="Info"; msg="Info"};
+         {level=Debug; logger_name="Debug"; msg="Debug"}] 
   end
   
-class logger
-        (name: string)
-        (levelo: level option)
-        (handlers_desc : Handler.desc list)  =
-  object(self)
-    val mutable handlers = List.map Handler.make handlers_desc
-    val mutable level = levelo
-    val name = name
-
-    method log_msg
-             msg_level
-             (msg : 'a) =
-      match levelo with
-      | None ->()
-      | Some level ->
-         if level_gt msg_level level
-         then
-           begin
-           let item = {
-               level = msg_level;
-               logger_name = name;
+module Make (H : HandlersT) =
+  struct
+    class logger
+            (name: string)
+            (levelo: level option)
+            (handlers_desc : H.desc list)  =
+    object(self)
+      val mutable handlers = List.map H.make handlers_desc
+      val mutable levelo = levelo
+      val name = name
+               
+      method log_msg msg_level msg =
+        match levelo with
+        | None ->()
+        | Some level ->
+           if level_gt msg_level level
+           then
+             begin
+               let item = {
+                   level = msg_level;
+                   logger_name = name;
                msg = msg} in 
-           List.iter (fun handler ->
-               Handler.handle handler item)
-             handlers
-           end
-         else
-           ()                           
-                       
-    method log_msg_lazy (msg_level : level) msg =
-      match levelo with
-      | None ->()
-      | Some level ->
-         if level_gt msg_level level
-         then
-           begin
-           let item = {
-               level = msg_level;
-               logger_name = name;
-               msg = Lazy.force msg} in 
-           List.iter (fun handler ->
-               Handler.handle handler item)
-             handlers
-           end
-         else
-           ()             
-    method add_handler h = handlers <- h::handlers
-    method set_level new_levelo = level <- new_levelo
-                         
-    method flash = self#log_msg Flash
-    method error = self#log_msg Error
-    method warning = self#log_msg Warning
-    method info =  self#log_msg Info
-    method debug = self#log_msg Debug
-    
-    method lflash = self#log_msg_lazy Flash
-    method lerror = self#log_msg_lazy Error
-    method lwarning = self#log_msg_lazy Warning
-    method linfo =  self#log_msg_lazy Info
-    method ldebug = self#log_msg_lazy Debug
-
-
-end
+               List.iter (fun handler ->
+                   H.handle handler item)
+                 handlers
+             end
+           else
+             ()                           
+          
+      method log_msg_lazy (msg_level : level) msg =
+        match levelo with
+        | None ->()
+        | Some level ->
+           if level_gt msg_level level
+           then
+             begin
+               let item = {
+                   level = msg_level;
+                   logger_name = name;
+                   msg = Lazy.force msg} in 
+               List.iter (fun handler ->
+                   H.handle handler item)
+                 handlers
+             end
+           else
+             ()
+      method add_handler h = handlers <- h::handlers
+      method set_level new_levelo =
+        levelo <- new_levelo
+        
+      method flash = self#log_msg Flash
+      method error = self#log_msg Error
+      method warning = self#log_msg Warning
+      method info =  self#log_msg Info
+      method debug = self#log_msg Debug
+                   
+      method lflash = self#log_msg_lazy Flash
+      method lerror = self#log_msg_lazy Error
+      method lwarning = self#log_msg_lazy Warning
+      method linfo =  self#log_msg_lazy Info
+      method ldebug = self#log_msg_lazy Debug
+    end
 
 
   
-let _loggers : (string, logger) Hashtbl.t =  Hashtbl.create 10
-                      
-let set_level p lvlo =
-  Hashtbl.iter
-    (fun n l  ->
-      if String.starts_with n p
+    let _loggers : (string, logger) Hashtbl.t =  Hashtbl.create 10
+                                               
+    let set_level p lvlo =
+      Hashtbl.iter
+        (fun n l  ->
+          
+          if String.starts_with n p
+          then
+            l#set_level lvlo;)
+        _loggers
+      
+    let get_logger name =
+      if Hashtbl.mem _loggers name
       then
-        l#set_level lvlo;)
-    _loggers
+        Hashtbl.find _loggers name
+      else
+        let l = new logger name None [] in
+        Hashtbl.add _loggers name l;
+        l
+        
+    let make_logger ?lvl:(lvl=None) ?hdescs:(hdescs=[]) name =
+      let l = new logger name lvl hdescs in
+      Hashtbl.add _loggers name l;
+      l
+      
+      
+    let dummy = make_logger "dummy" ~lvl:None ~hdescs:[]
 
-let get_logger name =
-  if Hashtbl.mem _loggers name
-  then
-    Hashtbl.find _loggers name
-  else
-    let l = new logger name None [] in
-    Hashtbl.add _loggers name l;
-    l
-    
-let make_logger ?lvl:(lvl=None) ?hdescs:(hdescs=[]) name =
-  let l = new logger name lvl hdescs in
-  Hashtbl.add _loggers name l;
-  l
+    type hdesc = H.desc
+  end
 
-
-let dummy = make_logger "dummy" ~lvl:None ~hdescs:[]
-
-
-
-
+module Logger = Make(DefaultHandlers)
 
 (* module logger for maybe far later *)
           
   
-module type LoggerT =
-  sig
-    type t = {
-        name: string;
-        mutable handlers: Handler.t list;
-        mutable level: level option;}
-
-    val data : t
-    val log_msg : level -> ('a -> string) -> 'a -> unit
-    val add_handler : Handler.t -> unit
-    val set_level : level option -> unit
-      
-    val flash : string -> unit
-
-    val lflash : string Lazy.t -> unit
-  end
-  
-module LoggerM (
-           S:
-             sig
-               val level: level option
-               val hdescs: Handler.desc list
-               val name: string
-             end) =
-  struct
-    type t = {
-        name: string;
-        mutable handlers: Handler.t list;
-        mutable level: level option;}
-
-    let data = {
-        name = S.name;
-        handlers = List.map Handler.make S.hdescs;
-        level = S.level;
-      }
-    let log_msg  msg_level
-             (unpack : 'a -> string)
-             (msg : 'a) =
-      match data.level with
-      | None ->()
-      | Some level ->
-         if level_gt msg_level level
-         then
-           begin
-           let item = {
-               level = msg_level;
-               logger_name = data.name;
-               msg = unpack msg} in 
-           List.iter (fun handler ->
-               Handler.handle handler item)
-             data.handlers
-           end
-         else
-           ()                           
-                          
-    let add_handler h = data.handlers <- h::data.handlers
-    let set_level new_level = data.level <- new_level
-
-    let id = fun x -> x
-    let flash = log_msg Flash id 
-    let error = log_msg Error id
-    let warning = log_msg Warning id
-    let info =  log_msg Info id
-    let debug = log_msg Debug id
-
-    let lflash = log_msg Flash Lazy.force
-    let lerror = log_msg Error Lazy.force
-    let lwarning = log_msg Warning Lazy.force
-    let linfo =  log_msg Info Lazy.force
-    let ldebug = log_msg Debug Lazy.force
-
-end
-
-let make_loggerm name handlers level =
-  (module LoggerM(struct let name=name
-                         let hdescs = handlers
-                         let level = level end) : LoggerT)
-
-    

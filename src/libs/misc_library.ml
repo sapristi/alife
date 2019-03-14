@@ -1,9 +1,8 @@
-
-
-let logger = new Logger.logger
-               "misc_library"
-               (Some Debug)
-           [Logger.Handler.Cli Debug]
+open Logger
+let logger = Logger.make_logger
+               "Yaac.misc_library"
+               ~lvl:(Some Debug)
+               ~hdescs:[Cli Debug]
 
 open Batteries
 let rec cut_list l pos =
