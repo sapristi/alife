@@ -5,7 +5,7 @@ open Batteries
 open Reaction
 open Local_libs
 open Yaac_config
-
+open Easy_logging
 
 (* * file overview *)
   
@@ -48,9 +48,9 @@ open Yaac_config
 (*    boilerplate in this file, especially if the number of reactions kind grows. *)
 
 
-let logger = Logger.make_logger "Yaac.reacs_mgr"
-               ~lvl:(Some Warning)
-               ~hdescs:[Logger.Handler.Cli Debug]
+let logger = Logging.make_logger "Yaac.reacs_mgr"
+               (Some Warning)
+               [Cli Debug]
 
                  
 (* * MakeReacSet functor *)

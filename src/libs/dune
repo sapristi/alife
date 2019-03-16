@@ -3,6 +3,8 @@
  (flags -w)
  (preprocess
   (pps ppx_deriving.show ppx_deriving.ord))
- (libraries batteries
-            ppx_deriving
+ (libraries
+  easy_logging
+  batteries
+  ppx_deriving
             ))

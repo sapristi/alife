@@ -8,6 +8,8 @@ open Reaction
 type ('a, 'b) mresult = ('a, 'b) result
 open Reactants
 open Yaac_config
+open Easy_logging
+
 (* * Container module *)
 
 (* Une bacterie est un conteneur à molecules. Elle s'occupe de fournir  *)
@@ -31,9 +33,9 @@ open Yaac_config
 (*  + areactants : active reactants, molecules that fold into a petri net. *)
 (*     We thus have to have a distinct pnet for each present molecule *)
 
-let logger = Logger.make_logger "Yaac.Bact"
-               ~lvl:(Some Warning)
-               ~hdescs:[Logger.Handler.Cli Debug]
+let logger = Logging.make_logger "Yaac.Bact"
+               (Some Warning)
+               [Cli Debug]
 
       
 type t ={
@@ -192,7 +194,7 @@ let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
     actions
   
   
-let stats_logger = Logger.get_logger "reacs_stats"
+let stats_logger = Logging.get_logger "reacs_stats"
                        
 let next_reaction (bact : t)  =
   let reac_nb = lazy (Reac_mgr.get_reac_nb bact.reac_mgr) in

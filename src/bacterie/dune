@@ -8,6 +8,7 @@
        ppx_deriving.ord ))
  (libraries local_libs
             yaac_config
+            easy_logging
             batteries
             re
             ppx_deriving

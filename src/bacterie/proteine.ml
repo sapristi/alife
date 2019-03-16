@@ -15,11 +15,11 @@ open Batteries
 open Acid_types
 open Yaac_config
 open Local_libs
-   
+open Easy_logging
 (* * Proteine module *)
 
-let logger = new Logger.logger "Yaac.proteine" (Some Warning)
-               [Logger.Handler.Cli Debug]
+let logger = Logging.make_logger "Yaac.proteine" (Some Warning)
+               [Cli Debug]
 
 (* * A proteine *)                   
 type t = acid list

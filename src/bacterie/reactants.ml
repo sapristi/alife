@@ -3,7 +3,7 @@ open Batteries
 open Reaction
 open Local_libs
 open Yaac_config
-   
+open Easy_logging
 module MolMap =
   struct
     include Map.Make (struct type t = Molecule.t
@@ -38,9 +38,9 @@ module ARMap =
         let make mol =
           empty
           
-        let logger = Logger.make_logger "Yaac.Internal.Amolset"
-                       ~lvl:(Some Warning)
-                       ~hdescs:[Logger.Handler.Cli Debug]
+        let logger = Logging.make_logger "Yaac.Internal.Amolset"
+                       (Some Warning)
+                       [Cli Debug]
                    
 
         let find_by_id pnet_id amolset  =
@@ -102,9 +102,9 @@ module ARMap =
     type t = AmolSet.t MolMap.t ref
             
            
-    let logger = Logger.make_logger "Yaac.Internal.ARMap"
-                   ~lvl:(Some Warning)
-                   ~hdescs:[Logger.Handler.Cli Debug]
+    let logger = Logging.make_logger "Yaac.Internal.ARMap"
+                   (Some Warning)
+                   [Cli Debug]
 
     let add (areactant :Reactant.Amol.t ref)  (armap : t) : Reacs.effect list =
       logger#info (Printf.sprintf "add %s" (Reactant.Amol.show !areactant));
@@ -173,9 +173,9 @@ module IRMap =
   struct
     type t = (Reactant.ImolSet.t ref) MolMap.t ref
 
-    let logger = Logger.make_logger "Yaac.Internal.IRMap"
-                   ~lvl:(Some Warning)
-                   ~hdescs:[Logger.Handler.Cli Debug]
+    let logger = Logging.make_logger "Yaac.Internal.IRMap"
+                   (Some Warning)
+                   [Cli Debug]
 
            
     let add_to_qtt (ir : Reactant.ImolSet.t) deltaqtt (irmap : t)

@@ -27,13 +27,13 @@
 open Batteries
 open Local_libs
 open Yaac_config
-
+open Easy_logging
 
 
 
 (* * the proteine module *)
-let logger = new Logger.logger "Yaac.pnet" (Some Warning)
-               [Logger.Handler.Cli Debug]
+let logger = Logging.make_logger "Yaac.pnet" (Some Warning)
+               [Cli Debug]
 
 type t =
   {

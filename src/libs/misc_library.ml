@@ -1,8 +1,9 @@
-open Logger
-let logger = Logger.make_logger
+open Easy_logging
+   
+let logger = Logging.make_logger
                "Yaac.misc_library"
-               ~lvl:(Some Debug)
-               ~hdescs:[Cli Debug]
+               (Some Debug)
+               [Cli Debug]
 
 open Batteries
 let rec cut_list l pos =

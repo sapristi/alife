@@ -4,6 +4,8 @@ open Cmdliner
 open Yaac_config
 open Server
 open Reactors
+open Easy_logging
+
 let () = Printexc.record_backtrace true;;
 
 
@@ -19,21 +21,21 @@ type params = {
   } [@@deriving cmdliner,show]
 ;;
 
-let logger = Logger.make_logger  "Yaac.Main"
-               ~lvl:(Some Warning)
-               ~hdescs:[Logger.Handler.Cli Debug];;
+let logger = Logging.make_logger  "Yaac.Main"
+               (Some Warning)
+               [Cli Debug];;
 
 
 let run_yaacs p : unit= 
   if p.stats
   then
     begin
-      let format_dummy : Logger.log_formatter = fun item -> item.msg in
-      let handler = Logger.Handler.make_file_handler Logger.Debug "stats" in
-      let stats_reporter = Logger.get_logger "reacs_stats" in
+      let format_dummy : log_formatter = fun item -> item.msg in
+      let handler = Handlers.make (File ("stats", Debug)) in
+      let stats_reporter = Logging.get_logger "reacs_stats" in
       stats_reporter#add_handler handler;
       stats_reporter#set_level (Some Debug);
-      Logger.Handler.set_formatter handler format_dummy;
+      Handlers.set_formatter handler format_dummy;
       stats_reporter#info "ireactants areactants transitions grabs breaks  picked_dur treated_dur actions_dur";
     end
   else
@@ -41,7 +43,7 @@ let run_yaacs p : unit=
 
   if p.debug
   then
-    Logger.set_level "Yaac" (Some Debug);
+    Logging.set_level "Yaac" (Some Debug);
 
   
   Web_server.start_srv

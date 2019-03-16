@@ -6,11 +6,11 @@ open Sandbox_req_handler
 open Bacterie_libs
 open Reactors
 open Local_libs   
-
-let logger = new Logger.logger "Yaac.server"
-                 (Some Logger.Info)
-                 [Logger.Handler.Cli Debug;
-                  Logger.Handler.File ("server", Debug)]
+open Easy_logging
+let logger = Logging.make_logger "Yaac.server"
+                 (Some Info)
+                 [Cli Debug;
+                  File ("server", Debug)]
            
 
 

@@ -2,12 +2,12 @@
 open Bacterie_libs
 open Local_libs
 open Yaac_config
-   
+open Easy_logging
 
 
-let logger = Logger.make_logger "Yaac.Sandbox"
-               ~lvl:(Some Warning)
-               ~hdescs:[Logger.Handler.Cli Debug]
+let logger = Logging.make_logger "Yaac.Sandbox"
+               (Some Warning)
+               [Cli Debug]
 
 
 let _ = logger#info @@ Config.show_config Config.logconfig
