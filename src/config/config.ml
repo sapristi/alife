@@ -1,4 +1,4 @@
-open Local_libs
+
 open Easy_logging
    
 type config = {
@@ -14,3 +14,8 @@ let logconfig = {
     stats_log_level = None;
     internal_log_level = Some Info;
   }
+
+type num_choice =
+  | Sloppy | ExactZ | ExactQ
+
+let num = Sloppy

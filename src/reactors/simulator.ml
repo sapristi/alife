@@ -23,8 +23,7 @@ let make (): t =
   
 let init (c : config) (sim : t) =
   let make_bact i =
-    Bacterie.make ~env:c.environment
-                  ~bact_sig:c.bact_initial_state () in
+    Bacterie.make ~bact_sig:c.bact_initial_state c.environment in
   
   let b_array = Array.init c.bact_nb make_bact
   in sim.simulator <- Initialised (b_array)

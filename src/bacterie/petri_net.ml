@@ -28,6 +28,8 @@ open Batteries
 open Local_libs
 open Yaac_config
 open Easy_logging
+open Local_libs.Numeric.Num
+
 
 
 
@@ -41,19 +43,19 @@ type t =
     transitions : Transition.t array;
     places : Place.t array;
     uid : int;
-    mutable launchables_nb:int;
+    mutable launchables_nb:num;
   } 
     [@@deriving show]
   
   
 let update_launchables (pnet :t) : unit =
 
-  pnet.launchables_nb <- 0;
+  pnet.launchables_nb <- zero;
   Array.iter (fun t ->
 
       Transition.update_launchable t;
       if t.launchable
-      then pnet.launchables_nb <- pnet.launchables_nb +1;
+      then pnet.launchables_nb <- pnet.launchables_nb + one;
 
     ) pnet.transitions
   
@@ -101,8 +103,8 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
     let launchables_nb =
       
       Array.fold_left
-        (fun res t -> if t.Transition.launchable then res +1 else res)
-        0 transitions
+        (fun res t -> if t.Transition.launchable then res + one else res)
+        zero transitions
     in
     lazy (Misc_library.show_array_prefix "Made places"
             Place.show places)
@@ -188,7 +190,7 @@ let ocan_grab (mol : Molecule.t) (opnet : t option) : bool =
             | Some _ -> true
        ) false pnet.places
     
-let grab_factor (mol : Molecule.t) (pnet : t) : int =
+let grab_factor (mol : Molecule.t) (pnet : t) : num =
   Array.fold_left
     (fun res place ->
       if Place.is_empty place
@@ -198,10 +200,10 @@ let grab_factor (mol : Molecule.t) (pnet : t) : int =
         | Some g ->
            match Graber.get_match_pos g mol with
            | None -> res
-           | Some _ -> res + 1
+           | Some _ -> res + one
       else
         res
-    ) 0 pnet.places
+    ) zero pnet.places
   
 
 let can_react (mol1 : Molecule.t) (opnet1 : t option)

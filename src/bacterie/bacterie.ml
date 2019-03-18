@@ -9,7 +9,8 @@ type ('a, 'b) mresult = ('a, 'b) result
 open Reactants
 open Yaac_config
 open Easy_logging
-
+open Local_libs.Numeric
+   
 (* * Container module *)
 
 (* Une bacterie est un conteneur à molecules. Elle s'occupe de fournir  *)
@@ -216,9 +217,9 @@ let next_reaction (bact : t)  =
      stats_logger#linfo (
          lazy (
              let tnb, gnb, bnb = Lazy.force reac_nb in
-             (Printf.sprintf "%d %d %d %d %d %f %f %f"
+             (Printf.sprintf "%d %s %d %d %d %f %f %f"
                (Lazy.force ir_card)
-               (Lazy.force ar_card)
+               (Num.show_num (Lazy.force ar_card))
                tnb
                gnb
                bnb
@@ -256,7 +257,7 @@ let to_sig (bact : t) : bact_sig =
   let imol_enum = MolMap.enum !(bact.ireactants) in
   let trimmed_imol_enum =
     Enum.map (fun (a,(imd: Reactant.ImolSet.t ref)) ->
-        ({mol = !imd.mol; qtt= !imd.qtt;
+        ({mol = !imd.mol; qtt=  !imd.qtt;
           ambient = !imd.ambient} : inert_bact_elem))
              imol_enum in
   let trimmed_imol_list = List.of_enum trimmed_imol_enum in
@@ -290,8 +291,7 @@ let empty_sig : bact_sig = {
     inert_mols = [];
     active_mols = []}
   
-let make ?(env=Environment.default_env)
-         ?(bact_sig=empty_sig)  () :t =
+let make  ?(bact_sig=empty_sig)  env :t =
   let renv = ref env in 
   
   let bact = {ireactants = ref MolMap.empty;

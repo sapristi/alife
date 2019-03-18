@@ -59,7 +59,10 @@
    -> problem solved, there was an error whan adding reactions to IRMap
 
 * improvements
-** TODO use Zarith module for reaction rates
+** CURRENT use Zarith module for reaction rates
+    -> find a way to restrict fractions to decimal ones
+    so as to avoid too much cost
+    -> functorize to compare performance
 ** TODO use chalk for terminal colors
 ** TODO use Pnet Set as reactants
 ** TODO sanitize the use mutable/immutable and refs in structures

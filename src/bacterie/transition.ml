@@ -19,6 +19,9 @@
 (*  - la liste des types de transition entrantes *)
 (*  - la liste des types de transitions sortantes *)
 
+open Local_libs.Numeric.Num
+
+
 type input_arc = {source_place : int;
                   iatype : Acid_types.input_arc}
                    [@@ deriving show, yojson]

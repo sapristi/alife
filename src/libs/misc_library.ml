@@ -1,11 +1,11 @@
 open Easy_logging
-   
+open Numeric
 let logger = Logging.make_logger
                "Yaac.misc_library"
                (Some Debug)
                [Cli Debug]
 
-open Batteries
+
 let rec cut_list l pos =
   match l with
   | [] -> [], []
@@ -112,23 +112,25 @@ let common_elements l1 l2 =
     | _ -> res
   in common_elements_aux l1 l2 []
 
-      
-let rec pick_from_list (bound : float) (c : float)
-                       (value : 'a -> float)
-                       (l : 'a list)  = 
-      match l with
-      | h::t -> 
-         let c' = c +. value h in
-         
-         logger#flash
-           (Printf.sprintf "Bound %f;Current %f;"
-           bound (value h));
-         
-         if c' > bound then h
-         else pick_from_list bound c' value t
-      | [] ->
-         raise Not_found
-            
+
+let rec pick_from_list (bound : Num.num) (c : Num.num)
+          (value : 'a -> Num.num)
+          (l : 'a list)  =
+  let open Num in
+  match l with
+  | h::t -> 
+     let c' = c + value h in
+
+     logger#flash 
+       (Printf.sprintf "Bound %s;Current %s;"
+          (show_num bound) (show_num (value h)));
+     
+     if c' > bound then h
+     else pick_from_list bound c' value t
+  | [] ->
+     raise Not_found
+
+           (*
 let pick_from_enum (bound : float)
                    (value : 'a -> float)
                    (enum : 'a Enum.t) : 'a  =
@@ -141,12 +143,12 @@ let pick_from_enum (bound : float)
       else false
     in
     Enum.find find_f enum
-
+            *)
   
 let show_list show_e l =
-  List.reduce
+  List.fold_left
     (fun a -> fun b -> Printf.sprintf "%s\n%s" a b)
-    (List.map show_e l)
+    "" (List.map show_e l) 
 
 let show_list_prefix prefix show_e l =
   List.fold_left

@@ -1,5 +1,6 @@
 
 open Local_libs.Misc_library
+open Local_libs.Numeric.Num
 
 
 (* * file overview *)
@@ -150,8 +151,8 @@ module ReactionsM (R : REACTANT) =
         val to_yojson : t -> Yojson.Safe.json
         val pp : Format.formatter -> t -> unit
         val compare : t -> t -> int
-        val rate : t -> float
-        val update_rate : t -> float
+        val rate : t -> num
+        val update_rate : t -> num
         val make : build_t -> t
         val eval : t -> effect list
         val remove_reac_from_reactants : R.reac -> t -> unit
@@ -162,7 +163,7 @@ module ReactionsM (R : REACTANT) =
     (REAC with type build_t = (R.Amol.t ref * R.t)) =
       struct
         type t =  {
-            mutable rate : float;
+            mutable rate : num;
             graber_data : R.Amol.t ref;
             grabed_data : R.t;
           }
@@ -173,22 +174,22 @@ module ReactionsM (R : REACTANT) =
         let calculate_rate ({graber_data; grabed_data;_} : t) =
           let mol = R.mol grabed_data
           and qtt = R.qtt grabed_data in
-          float_of_int (Petri_net.grab_factor
+          (Petri_net.grab_factor
              mol
-             (!graber_data.pnet)) *.
-            (float_of_int qtt) 
+             (!graber_data.pnet)) *
+            (num_of_int qtt)
           
-        let rate ({rate;_} : t) : float=
+        let rate ({rate;_} : t) : num=
           rate
           
         let update_rate (({rate;_}) as g : t) =
           let old_rate = rate in
           g.rate <- calculate_rate g;
-          g.rate -. old_rate
+          g.rate - old_rate
           
         let make ((graber_data, grabed_data) : build_t) : t=
           {graber_data; grabed_data;
-           rate = calculate_rate ({graber_data; grabed_data; rate=0.})}
+           rate = calculate_rate ({graber_data; grabed_data; rate=zero})}
           
         let eval (g : t) : effect list =
           ignore( asymetric_grab
@@ -211,7 +212,7 @@ module ReactionsM (R : REACTANT) =
       =
       struct
         type t = {
-            mutable rate : float;
+            mutable rate : num;
             amd : R.Amol.t ref;
           }
                    [@@ deriving ord, show, to_yojson]
@@ -219,7 +220,7 @@ module ReactionsM (R : REACTANT) =
         type build_t = R.Amol.t ref
                      
         let calculate_rate (t :t)  =
-          float_of_int (!(t.amd).pnet).launchables_nb
+           (!(t.amd).pnet).launchables_nb
           
         let rate (t : t)  =
           t.rate
@@ -227,10 +228,10 @@ module ReactionsM (R : REACTANT) =
         let update_rate (({rate;_}) as t : t) =
           let old_rate = rate in
           t.rate <- calculate_rate t;
-          t.rate -. old_rate
+          t.rate - old_rate
           
         let make (amd : build_t)  =
-          { rate = calculate_rate {amd; rate = 0.}; amd; }
+          { rate = calculate_rate {amd; rate = zero}; amd; }
           
         let eval (trans : t) : effect list=
           let t_effects = Petri_net.launch_random_transition
@@ -252,7 +253,7 @@ module ReactionsM (R : REACTANT) =
     module Break :
     (REAC with type build_t = (R.t)) =
       struct
-        type t = {mutable rate : float; [@compare fun a b -> 0] 
+        type t = {mutable rate : num; [@compare fun a b -> 0] 
                   reactant : R.t; 
                  }
                    [@@ deriving show, ord, to_yojson]
@@ -261,8 +262,8 @@ module ReactionsM (R : REACTANT) =
                     
         let calculate_rate ba =
           let mol = R.mol (ba.reactant) in
-          sqrt (float_of_int (String.length mol - 1)) *.
-            (float_of_int (R.qtt (ba.reactant)))
+          sqrt ((num_of_int (String.length mol) )- one) *
+            (num_of_int (R.qtt (ba.reactant)))
           
         let rate ba =
           ba.rate
@@ -270,10 +271,10 @@ module ReactionsM (R : REACTANT) =
         let update_rate ba = 
           let old_rate = ba.rate in
           ba.rate <- calculate_rate ba;
-          ba.rate -. old_rate
+          ba.rate - old_rate
           
         let make reactant =
-          {reactant; rate = calculate_rate {reactant; rate = 0.}}
+          {reactant; rate = calculate_rate {reactant; rate = zero}}
           
         let eval ba =
           let mol = R.mol (ba.reactant)  in

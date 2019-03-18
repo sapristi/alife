@@ -1,9 +1,11 @@
 
-open Batteries
+
 open Reaction
 open Local_libs
 open Yaac_config
 open Easy_logging
+open Batteries
+open Local_libs.Numeric.Num
 module MolMap =
   struct
     include Map.Make (struct type t = Molecule.t
@@ -26,7 +28,7 @@ module ARMap =
 (* *** module Amolset *)
     module AmolSet =
       struct
-        include Set.Make (
+        include Batteries.Set.Make (
                     struct
                       type t = Reactant.Amol.t ref
                       let compare =
@@ -47,7 +49,7 @@ module ARMap =
           let (dummy_pnet : Petri_net.t) ={
               mol = ""; transitions = [||];places = [||];
               uid = pnet_id;
-              launchables_nb = 0;} in
+              launchables_nb = zero;} in
           let dummy_amd = ref (Reactant.Amol.make_new dummy_pnet)
           in
           find dummy_amd amolset
@@ -123,7 +125,7 @@ module ARMap =
       [ Reacs.Update_reacs !((!areactant).reacs)]
 
     let total_nb (armap :t) =
-      MolMap.fold (fun _ amset t -> t + AmolSet.cardinal amset) !armap 0
+      MolMap.fold (fun _ amset t -> t + (num_of_int (AmolSet.cardinal amset))) !armap zero
       
     let remove (areactant : Reactant.Amol.t ref) (armap : t) : Reacs.effect list =
       armap :=

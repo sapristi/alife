@@ -3,4 +3,4 @@
  (flags -w)
  (preprocess
   (pps ppx_deriving.show))
- (libraries easy_logging local_libs ppx_deriving.show))
+ (libraries easy_logging  ppx_deriving.show))

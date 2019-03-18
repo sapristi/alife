@@ -1,7 +1,7 @@
 open Reactions
 open Yojson
-open Batteries
-
+(* open Batteries *)
+open Local_libs.Numeric
 (* * file overview *)
 
 (*   A reaction is defined as an action that can be performed on one or *)
@@ -70,10 +70,10 @@ module rec
           }
 
         let show (imd : t) =
-          Printf.sprintf "Inert : %s (%i)" imd.mol imd.qtt
+          Printf.sprintf "Inert : %s (%d)" imd.mol imd.qtt
         let to_yojson (imd : t) : Yojson.Safe.json =
           `Assoc [ "mol" , Molecule.to_yojson imd.mol;
-                   "qtt" , `Int imd.qtt;
+                   "qtt" , `Int  imd.qtt;
                    "ambient" , `Bool imd.ambient ]
           
         let pp (f : Format.formatter) (imd : t) =
@@ -235,8 +235,8 @@ module rec
                val to_yojson : t -> Yojson.Safe.json
                val pp : Format.formatter -> t -> unit
                val compare : t -> t -> int
-               val rate : t -> float
-               val update_rate : t -> float
+               val rate : t -> Num.num
+               val update_rate : t -> Num.num
                val make : build_t -> t
                val eval : t -> effect list
                val remove_reac_from_reactants : Reaction.t -> t -> unit
@@ -308,7 +308,7 @@ module rec
         
    and ReacSet :
          (sig
-           include Set.S with type elt =  Reaction.t
+           include BatSet.S with type elt =  Reaction.t
            val show : t -> string
            val to_yojson : t -> Yojson.Safe.json
            val pp : Format.formatter -> t -> unit
@@ -316,14 +316,14 @@ module rec
      =
      struct
        
-       include Set.Make (Reaction)
+       include BatSet.Make (Reaction)
            
        let show (rset :t) : string =
          fold (fun (reac : Reaction.t) desc ->
              (Reaction.show reac)^"\n"^desc)
            rset
            ""
-       let to_yojson rset =
+       let to_yojson (rset :t) : Yojson.Safe.json=
          `List (List.map Reaction.to_yojson (to_list rset))
        let pp (f : Format.formatter) (rset : t) =
          Format.pp_print_string f "reactions set"
