@@ -163,7 +163,7 @@ module ReactionsM (R : REACTANT) =
     (REAC with type build_t = (R.Amol.t ref * R.t)) =
       struct
         type t =  {
-            mutable rate : num;
+            mutable rate : num;[@compare fun a b -> 0] 
             graber_data : R.Amol.t ref;
             grabed_data : R.t;
           }
@@ -212,7 +212,7 @@ module ReactionsM (R : REACTANT) =
       =
       struct
         type t = {
-            mutable rate : num;
+            mutable rate : num;[@compare fun a b -> 0] 
             amd : R.Amol.t ref;
           }
                    [@@ deriving ord, show, to_yojson]

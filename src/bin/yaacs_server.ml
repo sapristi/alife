@@ -43,8 +43,10 @@ let run_yaacs p : unit=
 
   if p.debug
   then
-    Logging.set_level "Yaac" (Some Debug);
-
+    Logging.set_level "Yaac" (Some Debug)
+  else
+    Logging.set_level "Yaac" (Some Info);
+    
   logger#info "Starting Yaac Server";
 
   Web_server.start_srv

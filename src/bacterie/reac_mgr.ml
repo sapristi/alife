@@ -60,6 +60,9 @@ module MakeReacSet
          (Reac : Reacs.REAC)
   = 
   struct
+    let logger = Logging.make_logger "Yaac.ReacSet"
+               (Some Debug)
+               [Cli Debug]
     type elt = Reac.t
     module RSet= Set.Make(Reac)  
                
