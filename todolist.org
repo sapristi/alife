@@ -6,9 +6,9 @@
 
 
 ** TODO Rework pnet creation, introduce variants (cyclic pnet)? 
-** STARTED Reaction rates : problem with floats
-   Many problems, most immediate is reaction comparison
-   -> Dirty fix : ignore rate to compare in RSet
+** DONE Numeric module, that provides a swith to select 
+   numeric implementation.
+   Only mol quantities are still integers
 ** TODO explicit exceptions
 ** TODO gui:
     - [ ] update all molecules after transition (if needs be)

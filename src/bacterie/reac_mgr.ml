@@ -90,7 +90,7 @@ module MakeReacSet
       if  (abs (s.rates_sum - (calculate_rate s))) > one
       then
         begin
-          Printf.sprintf "%.100f %.100f\n%s"
+          Printf.sprintf "remove : %.100f %.100f\n%s"
             (float_of_num s.rates_sum)
             (float_of_num (calculate_rate s))
             (show s)
@@ -108,7 +108,7 @@ module MakeReacSet
       if  (abs (s.rates_sum - (calculate_rate s))) > one
       then
         begin
-          Printf.sprintf "%.20f %.20f"
+          Printf.sprintf "add : %.20f %.20f"
             (float_of_num s.rates_sum)
             (float_of_num (calculate_rate s))
           |> logger#error;
@@ -127,7 +127,7 @@ module MakeReacSet
       then
         begin
           
-          Printf.sprintf "%.20f %.20f"
+          Printf.sprintf "Update_rate : %.20f %.20f"
             (float_of_num s.rates_sum)
             (float_of_num (calculate_rate s))
           |> logger#error;
@@ -339,7 +339,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
     (Printf.sprintf
        "********    Breaks   (total : %s)  (nb_reacs : %d)  *********"
        (show_num total_b_rate) (BSet.cardinal reac_mgr.b_set));
-  logger#ldebug (lazy (GSet.show reac_mgr.g_set));
+  logger#ldebug (lazy (BSet.show reac_mgr.b_set));
 
                      
   let a0 = (total_g_rate) + (total_t_rate)

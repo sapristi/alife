@@ -139,6 +139,7 @@ let make_dyn_service  f  =
 
 let make_req_handler simulator sandbox =
 
+  logger#flash "Building req handler";
   let main_redirects =
     (List.map
        (fun (name, f) ->  "/sim_commands/general/"^name, make_dyn_service f)

@@ -2,7 +2,7 @@ open Easy_logging
 open Numeric
 let logger = Logging.make_logger
                "Yaac.misc_library"
-               (Some Debug)
+               (Some Warning)
                [Cli Debug]
 
 
@@ -121,9 +121,9 @@ let rec pick_from_list (bound : Num.num) (c : Num.num)
   | h::t -> 
      let c' = c + value h in
 
-     logger#flash 
+     logger#ldebug (lazy 
        (Printf.sprintf "Bound %s;Current %s;"
-          (show_num bound) (show_num (value h)));
+          (show_num bound) (show_num (value h))));
      
      if c' > bound then h
      else pick_from_list bound c' value t

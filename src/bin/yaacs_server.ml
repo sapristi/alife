@@ -45,7 +45,8 @@ let run_yaacs p : unit=
   then
     Logging.set_level "Yaac" (Some Debug);
 
-  
+  logger#info "Starting Yaac Server";
+
   Web_server.start_srv
     p.static_path
     (Bact_server.make_req_handler

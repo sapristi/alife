@@ -1,5 +1,8 @@
 open Yaac_config
 
+let num_logger = Easy_logging.Logging.make_logger "Yaac.Numeric"
+               (Some Debug) [Cli Debug]
+   
 module type NumericT =
   sig
 
@@ -41,7 +44,7 @@ module Sloppy : NumericT =
     let random n = Random.float n
   end
 
-let qsqrt q =
+let zsqrt n =
   let two_q = Q.of_int 2 in
   let rec qsqrt_aux xk n =
     let xk' =
@@ -49,10 +52,16 @@ let qsqrt q =
         (Q.add xk (Q.div n xk))
         two_q
       
-    in if Q.abs (Q.sub xk xk') < Q.one
-       then xk
-       else qsqrt_aux xk' n
-  in qsqrt_aux q q
+    in
+    if Q.lt (Q.abs (Q.sub xk xk')) Q.one
+    then xk
+    else qsqrt_aux xk' n
+  in
+  let q:Q.t = {num=n;den=Z.one} in
+  let res = qsqrt_aux q q
+          |> Q.to_bigint in
+  res
+  
    
 module ExactZ : NumericT =
   struct
@@ -65,8 +74,7 @@ module ExactZ : NumericT =
     let ( *$ ) = Z.mul
 
 
-    let sqrt n =
-      Q.to_bigint @@ qsqrt (Q.of_bigint n)
+    let sqrt n = zsqrt n
       
     let string_of_num = to_string
     let num_of_int = of_int
@@ -79,9 +87,18 @@ module ExactZ : NumericT =
     let float_of_num = to_float 
     let num_to_yojson n =
       `String (string_of_num n)
-    let num_of_yojson json =
+    let num_of_yojson (json : Yojson.Safe.json) =
       match json with
       | `String s -> Ok (of_string s)
+      | `Int n -> Ok (of_int n)
+      | `Float f ->
+         (
+           try
+             let n = int_of_float f in
+             Ok (of_int n)
+           with _  ->
+                 Error "ExactZ cannot load float"
+         )
       | _ -> Error "cannot load json"
 
     (** [Warning] not overflow safe *)
@@ -98,7 +115,8 @@ module ExactQ : NumericT =
     let ( - ) = Q.sub
     let ( * ) = Q.mul
 
-    let sqrt = qsqrt
+    let sqrt {num=n;den=m} =
+      {num=zsqrt n;den=zsqrt m}
     let string_of_num = to_string
     let num_of_int = of_int
 
@@ -109,9 +127,11 @@ module ExactQ : NumericT =
     let float_of_num = to_float 
     let num_to_yojson n =
       `String (string_of_num n)
-    let num_of_yojson json =
+    let num_of_yojson (json : Yojson.Safe.json) =
       match json with
       | `String s -> Ok (of_string s)
+      | `Int n -> Ok (of_int n)
+      | `Float f -> Ok (of_float f)
       | _ -> Error "cannot load json"
 
     (** [Warning] QUICK AND DIRTY
