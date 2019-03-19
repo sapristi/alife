@@ -357,10 +357,15 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   else
     
     let bound = random a0 in
+    logger#info @@ Printf.sprintf "Picked bound %s" (Num.show_num bound);
     let res = 
       if bound < total_g_rate 
       then
-        Reaction.Grab (ref (GSet.pick_reaction reac_mgr.g_set))
+        try
+          Reaction.Grab (ref (GSet.pick_reaction reac_mgr.g_set))
+        with _ ->
+          logger#info @@ GSet.show reac_mgr.g_set;
+          failwith @@ GSet.show reac_mgr.g_set
       else if bound < total_g_rate + total_t_rate
       then 
         Reaction.Transition ( ref (TSet.pick_reaction reac_mgr.t_set))

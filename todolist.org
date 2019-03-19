@@ -6,9 +6,7 @@
 
 
 ** TODO Rework pnet creation, introduce variants (cyclic pnet)? 
-** DONE Numeric module, that provides a swith to select 
-   numeric implementation.
-   Only mol quantities are still integers
+** TODO Config generator
 ** TODO explicit exceptions
 ** TODO gui:
     - [ ] update all molecules after transition (if needs be)
@@ -19,6 +17,11 @@
     - [X] commit env fails
     - [ ] refresh after loading
     - [ ] display reactions
+** STARTED Numeric module, that provides a swith to select 
+   numeric implementation.
+   Only mol quantities are still integers;
+   Random need some rework, and performance might be an issue
+   with exact calculations
 ** DONE stacktrace
 ** DONE Pnet creation : negative place_id in transitions
 ** DONE reactions not removed when removing molecule
