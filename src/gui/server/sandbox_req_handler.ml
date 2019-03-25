@@ -56,8 +56,8 @@ let next_reactions (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
       done;
     with
     | _ as e->
-       logger#error (Printexc.get_backtrace ());
-       logger#error (Printexc.to_string e);
+       logger#serror (Printexc.get_backtrace ());
+       logger#serror (Printexc.to_string e);
        ();
   );
   `Assoc

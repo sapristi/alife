@@ -87,7 +87,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
   match new_opnet with
     
   | Some pnet ->
-     logger#info (Printf.sprintf "adding active molecule  : %s" mol);
+     logger#info "adding active molecule  : %s" mol;
      
      let ar = ref (Reactant.Amol.make_new pnet) in
      (* reactions : grabs with other amols*)
@@ -107,7 +107,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
      ARMap.add ar bact.areactants
   | None ->
      (
-     logger#info (Printf.sprintf "adding inactive molecule  : %s" mol);
+     logger#info "adding inactive molecule  : %s" mol;
        match MolMap.Exceptionless.find mol !(bact.ireactants) with
        | None -> 
           let new_rireac = ref (Reactant.ImolSet.make_new mol) in
@@ -299,8 +299,7 @@ let make  ?(bact_sig=empty_sig)  env :t =
               env = renv;
               reac_mgr = Reac_mgr.make_new renv}
   in
-  logger#info (Printf.sprintf "Creating new bactery from %s"
-              (show_bact_sig bact_sig));
+  logger#info "Creating new bactery from %s" (show_bact_sig bact_sig);
   from_sig bact_sig bact
 
   

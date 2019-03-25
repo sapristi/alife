@@ -105,16 +105,15 @@ let make_dyn_service  f  =
 
           (* Log.info (fun m -> m "serving GET request : \n%s" req_descr);  *)
           let url = cgi#url () in
-          logger#info (Printf.sprintf
-                      "serving GET request : at %s with paramters :\n%s" url req_descr);
+          logger#info "serving GET request : at %s with paramters :\n%s" url req_descr;
           
           let response, status =
             try 
               f cgi, `Ok
             with
             | _ as e ->
-               logger#error (Printexc.get_backtrace ());
-               logger#error (Printexc.to_string e);
+               logger#serror (Printexc.get_backtrace ());
+               logger#serror (Printexc.to_string e);
                
                "error", `Internal_server_error
           in
@@ -123,8 +122,8 @@ let make_dyn_service  f  =
           cgi # out_channel # output_string response;
           cgi # out_channel # commit_work();
 
-          logger#info (Printf.sprintf "sent response : %s"
-                         (Nethttp.string_of_http_status status));
+          logger#info "sent response : %s"
+            (Nethttp.string_of_http_status status);
           logger#ldebug @@ lazy response;
                          
           

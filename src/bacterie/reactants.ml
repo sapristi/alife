@@ -79,13 +79,13 @@ module ARMap =
                    then
                      (
                        Reac_mgr.add_grab new_amol (Amol current_amd) reac_mgr;
-                       logger#debug (Printf.sprintf "[%s] grabing %s" (Reactant.show (Amol current_amd)) (Reactant.show new_reactant));
+                       logger#debug  "[%s] grabing %s" (Reactant.show (Amol current_amd)) (Reactant.show new_reactant);
                      );
                    if is_grabed
                    then
                      (
                        Reac_mgr.add_grab current_amd new_reactant reac_mgr;
-                       logger#debug (Printf.sprintf "[%s] grabed by %s"  (Reactant.show (Amol current_amd)) (Reactant.show new_reactant));
+                       logger#debug "[%s] grabed by %s"  (Reactant.show (Amol current_amd)) (Reactant.show new_reactant);
                      );
                  ) amolset;
                
@@ -94,7 +94,7 @@ module ARMap =
                then 
                  iter
                    (fun current_amol ->
-                     logger#debug (Printf.sprintf "[%s] grabing %s" (Reactant.show (Amol current_amol)) (Reactant.mol new_reactant));
+                     logger#debug "[%s] grabing %s" (Reactant.show (Amol current_amol)) (Reactant.mol new_reactant);
                      Reac_mgr.add_grab current_amol new_reactant reac_mgr)
                    amolset
                
@@ -109,7 +109,7 @@ module ARMap =
                    [Cli Debug]
 
     let add (areactant :Reactant.Amol.t ref)  (armap : t) : Reacs.effect list =
-      logger#info (Printf.sprintf "add %s" (Reactant.Amol.show !areactant));
+      logger#info "add %s" (Reactant.Amol.show !areactant);
 
       armap :=
         MolMap.modify_opt
@@ -151,14 +151,13 @@ module ARMap =
           AmolSet.find_by_id pnet_id amolset
       with
       | _   ->
-         logger#flash ((Printf.sprintf "Looking for %s:%d")
-                         mol pnet_id);
+         logger#flash "Looking for %s:%d" mol pnet_id;
          failwith "ok"
       
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
                                     (armap :t)  reac_mgr: unit =
       
-      logger#info (Printf.sprintf "adding reactions with %s" (Reactant.show new_reactant));
+      logger#info "adding reactions with %s" (Reactant.show new_reactant);
       MolMap.iter 
         (fun _ areac -> 
           AmolSet.add_reacs_with_new_reactant
@@ -242,7 +241,7 @@ module IRMap =
              then
                (
                  Reac_mgr.add_grab new_amol (ImolSet rireactant) reac_mgr;
-                 logger#debug (Printf.sprintf "[%s] grabed by %s" !rireactant.mol (Reactant.show new_reactant));
+                 logger#debug "[%s] grabed by %s" !rireactant.mol (Reactant.show new_reactant);
                )
            )
            !irmap

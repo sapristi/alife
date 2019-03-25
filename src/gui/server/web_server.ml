@@ -106,7 +106,6 @@ let start_srv file_root req_processor (conn_attr) =
   and srv = make_srv file_root req_processor conn_attr in
   Uq_engines.when_state ~is_done:(accept srv ues) lstn_engine;
 
-  Printf.sprintf "Listening as %s on port %i\n" host_name port
-  |> logger#info;
+  logger#info "Listening as %s on port %i\n" host_name port;
   
   Unixqueue.run ues

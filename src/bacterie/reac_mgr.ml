@@ -93,11 +93,10 @@ module MakeReacSet
       if  (abs (s.rates_sum - (calculate_rate s))) > one
       then
         begin
-          Printf.sprintf "remove : %.100f %.100f\n%s"
+          logger#error "remove : %.100f %.100f\n%s"
             (float_of_num s.rates_sum)
             (float_of_num (calculate_rate s))
-            (show s)
-          |> logger#error;
+            (show s);
           failwith "error"
         end
       
@@ -111,10 +110,9 @@ module MakeReacSet
       if  (abs (s.rates_sum - (calculate_rate s))) > one
       then
         begin
-          Printf.sprintf "add : %.20f %.20f"
+          logger#error "add : %.20f %.20f"
             (float_of_num s.rates_sum)
-            (float_of_num (calculate_rate s))
-          |> logger#error;
+            (float_of_num (calculate_rate s));
           failwith "error"
         end
       
@@ -130,10 +128,9 @@ module MakeReacSet
       then
         begin
           
-          Printf.sprintf "Update_rate : %.20f %.20f"
+          logger#error "Update_rate : %.20f %.20f"
             (float_of_num s.rates_sum)
-            (float_of_num (calculate_rate s))
-          |> logger#error;
+            (float_of_num (calculate_rate s));
           failwith "error"
         end
 
@@ -154,9 +151,8 @@ module MakeReacSet
           (RSet.elements s.set)
       with
         Not_found ->
-        logger#debug
-          (Printf.sprintf "Not found with bound %s, rates_sum %s"
-             (show_num bound) (show_num s.rates_sum));
+        logger#debug "Not found with bound %s, rates_sum %s"
+             (show_num bound) (show_num s.rates_sum);
         failwith "ok"
 end
 (* for binding reactions ? *)
@@ -270,10 +266,9 @@ let add_grab (graber_d : Reactant.Amol.t ref)
    *                       (Reactant.show grabed_d)); *)
   
   
-  logger#info
-    (Printf.sprintf "added new grab between : \n%s\n%s"
+  logger#info "added new grab between : \n%s\n%s"
                     (Reactant.Amol.show !graber_d)
-                    (Reactant.show grabed_d));
+                    (Reactant.show grabed_d);
 
   let (g:Reacs.Grab.t) = Reacs.Grab.make (graber_d,grabed_d)   in
   GSet.add g reac_mgr.g_set;
@@ -287,9 +282,8 @@ let add_grab (graber_d : Reactant.Amol.t ref)
   
            
 let add_transition amd reac_mgr  =
-  logger#info
-    (Printf.sprintf "added new transition : %s"
-                    (Reactant.Amol.show !amd));
+  logger#info "added new transition : %s"
+                    (Reactant.Amol.show !amd);
   
   let t = Reacs.Transition.make amd   in
   TSet.add t reac_mgr.t_set;
@@ -300,9 +294,7 @@ let add_transition amd reac_mgr  =
 
 (* ** Break *)
 let add_break md reac_mgr =
-  logger#info
-    (Printf.sprintf "added new break : %s"
-                    (Reactant.show md));
+  logger#info "added new break : %s"  (Reactant.show md);
   
   let b = Reacs.Break.make md in
   BSet.add b reac_mgr.b_set;
@@ -326,22 +318,16 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       BSet.total_rate reac_mgr.b_set
   in
 
-  logger#info
-    (Printf.sprintf
-       "********     Grabs   (total : %s)  (nb_reacs : %d)  *********"
-       (show_num total_g_rate) (GSet.cardinal reac_mgr.g_set));
+  logger#info  "********     Grabs   (total : %s)  (nb_reacs : %d)  *********"
+    (show_num total_g_rate) (GSet.cardinal reac_mgr.g_set);
   logger#ldebug (lazy (GSet.show reac_mgr.g_set));
   
-  logger#info
-    (Printf.sprintf
-       "******** Transitions (total : %s)  (nb_reacs : %d)  *********"
-       (show_num total_t_rate) (TSet.cardinal reac_mgr.t_set));
+  logger#info  "******** Transitions (total : %s)  (nb_reacs : %d)  *********"
+       (show_num total_t_rate) (TSet.cardinal reac_mgr.t_set);
   logger#ldebug (lazy (TSet.show reac_mgr.t_set));
   
-  logger#info
-    (Printf.sprintf
-       "********    Breaks   (total : %s)  (nb_reacs : %d)  *********"
-       (show_num total_b_rate) (BSet.cardinal reac_mgr.b_set));
+  logger#info  "********    Breaks   (total : %s)  (nb_reacs : %d)  *********"
+       (show_num total_b_rate) (BSet.cardinal reac_mgr.b_set);
   logger#ldebug (lazy (BSet.show reac_mgr.b_set));
 
                      
@@ -357,14 +343,14 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   else
     
     let bound = random a0 in
-    logger#info @@ Printf.sprintf "Picked bound %s" (Num.show_num bound);
+    logger#info  "Picked bound %s" (Num.show_num bound);
     let res = 
       if bound < total_g_rate 
       then
         try
           Reaction.Grab (ref (GSet.pick_reaction reac_mgr.g_set))
         with _ ->
-          logger#info @@ GSet.show reac_mgr.g_set;
+          logger#sinfo @@ GSet.show reac_mgr.g_set;
           failwith @@ GSet.show reac_mgr.g_set
       else if bound < total_g_rate + total_t_rate
       then 
@@ -373,8 +359,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
         Reaction.Break (ref (BSet.pick_reaction reac_mgr.b_set))
       
     in
-    logger#info
-      (Printf.sprintf "picked %s" (Reaction.show res));
+    logger#info "picked %s" (Reaction.show res);
     Some res
     
 (* ** update_reaction_rates *)

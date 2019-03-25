@@ -10,7 +10,7 @@ let logger = Logging.make_logger "Yaac.Sandbox"
                [Cli Debug]
 
 
-let _ = logger#info @@ Config.show_config Config.logconfig
+let _ = logger#sinfo @@ Config.show_config Config.logconfig
                   
 
                   
