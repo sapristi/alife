@@ -35,8 +35,7 @@ open Local_libs.Numeric
 (*     We thus have to have a distinct pnet for each present molecule *)
 
 let logger = Logging.make_logger "Yaac.Bact"
-               (Some Warning)
-               [Cli Debug]
+               Warning [Cli Debug]
 
       
 type t ={

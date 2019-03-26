@@ -6,8 +6,7 @@ open Easy_logging
 
 
 let logger = Logging.make_logger "Yaac.Sandbox"
-               (Some Warning)
-               [Cli Debug]
+               Warning [Cli Debug]
 
 
 let _ = logger#sinfo @@ Config.show_config Config.logconfig

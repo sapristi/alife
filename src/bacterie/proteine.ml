@@ -18,8 +18,8 @@ open Local_libs
 open Easy_logging
 (* * Proteine module *)
 
-let logger = Logging.make_logger "Yaac.proteine" (Some Warning)
-               [Cli Debug]
+let logger = Logging.make_logger "Yaac.proteine"
+               Warning [Cli Debug]
 
 (* * A proteine *)                   
 type t = acid list

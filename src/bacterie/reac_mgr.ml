@@ -49,9 +49,9 @@ open Local_libs.Numeric.Num
 (*    boilerplate in this file, especially if the number of reactions kind grows. *)
 
 
-let logger = Logging.make_logger "Yaac.reacs_mgr"
-               (Some Warning)
-               [Cli Debug]
+let logger = Logging.make_logger
+               "Yaac.reacs_mgr"
+               Warning [Cli Debug]
 
                  
 (* * MakeReacSet functor *)
@@ -61,8 +61,7 @@ module MakeReacSet
   = 
   struct
     let logger = Logging.make_logger "Yaac.ReacSet"
-               (Some Debug)
-               [Cli Debug]
+               Debug [Cli Debug]
     type elt = Reac.t
     module RSet= Set.Make(Reac)  
                

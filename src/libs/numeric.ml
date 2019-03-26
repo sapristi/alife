@@ -1,7 +1,7 @@
 open Yaac_config
 
-let num_logger = Easy_logging.Logging.make_logger "Yaac.Numeric"
-               (Some Debug) [Cli Debug]
+let num_logger = Easy_logging.Logging.make_logger
+                   "Yaac.Numeric" Debug [Cli Debug]
    
 module type NumericT =
   sig

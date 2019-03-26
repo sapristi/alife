@@ -22,8 +22,7 @@ type params = {
 ;;
 
 let logger = Logging.make_logger  "Yaac.Main"
-               (Some Warning)
-               [Cli Debug];;
+               Warning [Cli Debug];;
 
 
 let run_yaacs p : unit= 
@@ -34,7 +33,7 @@ let run_yaacs p : unit=
       let handler = Default_handlers.make (File ("stats", Debug)) in
       let stats_reporter = Logging.get_logger "reacs_stats" in
       stats_reporter#add_handler handler;
-      stats_reporter#set_level (Some Debug);
+      stats_reporter#set_level Debug;
       Default_handlers.set_formatter handler format_dummy;
       stats_reporter#info "ireactants areactants transitions grabs breaks  picked_dur treated_dur actions_dur";
     end
@@ -43,9 +42,9 @@ let run_yaacs p : unit=
 
   if p.debug
   then
-    Logging.set_level "Yaac" (Some Debug)
+    Logging.set_level "Yaac" Debug
   else
-    Logging.set_level "Yaac" (Some Info);
+    Logging.set_level "Yaac" Info;
     
   logger#info "Starting Yaac Server";
 

@@ -4,8 +4,8 @@ open Bacterie_libs
 open Reaction
 open Local_libs
 open Easy_logging
-let logger = Logging.make_logger "Yaac.sandbox" (Some Debug)
-           [Cli Debug]
+let logger = Logging.make_logger "Yaac.sandbox"
+               Debug [Cli Debug]
 
 let pnet_ids_from_mol  (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let mol = cgi # argument_value "mol_desc" in

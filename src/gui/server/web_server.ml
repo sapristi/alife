@@ -12,8 +12,7 @@ open Nethttpd_reactor
 open Local_libs
 open Easy_logging
 let logger = Logging.make_logger "Yaac.Server"
-               (Some Info)
-               [Cli Debug]
+               Info [Cli Debug]
            
 
 let fs_spec file_root =

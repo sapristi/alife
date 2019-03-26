@@ -2,8 +2,7 @@ open Easy_logging
 open Numeric
 let logger = Logging.make_logger
                "Yaac.misc_library"
-               (Some Warning)
-               [Cli Debug]
+               Warning [Cli Debug]
 
 
 let rec cut_list l pos =

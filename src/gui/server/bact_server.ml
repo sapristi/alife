@@ -8,9 +8,7 @@ open Reactors
 open Local_libs   
 open Easy_logging
 let logger = Logging.make_logger "Yaac.server"
-                 (Some Info)
-                 [Cli Debug;
-                  File ("server", Debug)]
+                 Info  [Cli Debug; File ("server", Debug)]
            
 
 

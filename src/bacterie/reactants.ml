@@ -41,8 +41,7 @@ module ARMap =
           empty
           
         let logger = Logging.make_logger "Yaac.Internal.Amolset"
-                       (Some Warning)
-                       [Cli Debug]
+                       Warning [Cli Debug]
                    
 
         let find_by_id pnet_id amolset  =
@@ -105,8 +104,7 @@ module ARMap =
             
            
     let logger = Logging.make_logger "Yaac.Internal.ARMap"
-                   (Some Warning)
-                   [Cli Debug]
+                   Warning [Cli Debug]
 
     let add (areactant :Reactant.Amol.t ref)  (armap : t) : Reacs.effect list =
       logger#info "add %s" (Reactant.Amol.show !areactant);
@@ -175,8 +173,7 @@ module IRMap =
     type t = (Reactant.ImolSet.t ref) MolMap.t ref
 
     let logger = Logging.make_logger "Yaac.Internal.IRMap"
-                   (Some Warning)
-                   [Cli Debug]
+                   Warning [Cli Debug]
 
            
     let add_to_qtt (ir : Reactant.ImolSet.t) deltaqtt (irmap : t)

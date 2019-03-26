@@ -34,8 +34,8 @@ open Local_libs.Numeric.Num
 
 
 (* * the proteine module *)
-let logger = Logging.make_logger "Yaac.pnet" (Some Warning)
-               [Cli Debug]
+let logger = Logging.make_logger "Yaac.pnet"
+               Warning [Cli Debug]
 
 type t =
   {
