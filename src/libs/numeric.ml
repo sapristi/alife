@@ -44,37 +44,46 @@ module Sloppy : NumericT =
     let random n = Random.float n
   end
 
-let zsqrt n =
-  let two_q = Q.of_int 2 in
-  let rec qsqrt_aux xk n =
-    let xk' =
-      Q.div
-        (Q.add xk (Q.div n xk))
-        two_q
-      
+
+
+let rec random_30bit_bits k res =
+  let open Z in
+  if k = 0 then res
+  else
+    let res' = (of_int @@ Random.bits ()) + (shift_left res 30) 
+    in random_30bit_bits Pervasives.(k-1) res'
+         
+let rec bigrandom (n : Z.t) : Z.t =
+  let open Z in
+  let b30 = of_int 30 in
+  if numbits n <= 30
+  then of_int @@ Random.int @@ to_int n
+  else
+    let q,r =
+      let q',r' = div_rem (of_int (numbits n)) b30 in
+      if r' = zero
+      then q'- one, b30
+      else q', r'
     in
-    if Q.lt (Q.abs (Q.sub xk xk')) Q.one
-    then xk
-    else qsqrt_aux xk' n
-  in
-  let q:Q.t = {num=n;den=Z.one} in
-  let res = qsqrt_aux q q
-          |> Q.to_bigint in
-  res
-  
-   
+    let m = shift_right n @@ to_int (b30*q) in
+    (* shouldn't it be :
+       let rbit = of_int @@ Random.int (to_int @@ m + 1) in 
+       ????? *)
+    
+    let rbit = of_int @@ Random.int (to_int m) in
+    let rbit' = shift_left rbit @@ to_int (b30*q) in
+    if rbit = m
+    then
+      rbit' + bigrandom (n-rbit')
+    else
+      rbit' + random_30bit_bits (to_int q) zero
+    
 module ExactZ : NumericT =
   struct
     include Z
               
     type num = t
              
-    let ( +$ ) = Z.add
-    let ( -$ ) = Z.sub
-    let ( *$ ) = Z.mul
-
-
-    let sqrt n = zsqrt n
       
     let string_of_num = to_string
     let num_of_int = of_int
@@ -97,14 +106,14 @@ module ExactZ : NumericT =
              let n = int_of_float f in
              Ok (of_int n)
            with _  ->
-                 Error "ExactZ cannot load float"
+             Error "ExactZ cannot load float"
          )
       | _ -> Error "cannot load json"
 
     (** [Warning] not overflow safe *)
     let random n =
-      let n' = to_int64 n in
-      of_int64 (Random.int64 n')
+      bigrandom n
+
   end
    
 module ExactQ : NumericT =
@@ -116,7 +125,7 @@ module ExactQ : NumericT =
     let ( * ) = Q.mul
 
     let sqrt {num=n;den=m} =
-      {num=zsqrt n;den=zsqrt m}
+      {num=Z.sqrt n;den=Z.sqrt m}
     let string_of_num = to_string
     let num_of_int = of_int
 
@@ -139,9 +148,8 @@ module ExactQ : NumericT =
      *)
     let random {num=n; den=m} =
       
-      let n' = Z.to_int64 n in
-      let rn = Z.of_int64 (Random.int64 n')
-      in {num= rn; den= m}
+      {num= bigrandom n; den=m}
+
   end
 
 let num = 
