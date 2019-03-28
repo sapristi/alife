@@ -22,6 +22,8 @@ module type NumericT =
     val string_of_num : num -> string
     val float_of_num : num -> float
     val random : num -> num
+
+    val lt : num -> num -> bool
   end
 
 
@@ -42,6 +44,7 @@ module Sloppy : NumericT =
     let float_of_num n = n
     let pp_num f n = Format.pp_print_string f (show_num n)
     let random n = Random.float n
+    let lt a b = a < b
   end
 
 

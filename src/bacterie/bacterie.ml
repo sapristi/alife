@@ -148,7 +148,7 @@ let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
 let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
   List.iter
     (fun (effect : Reacs.effect) ->
-      logger#lflash (lazy (Printf.sprintf "Executing effect %s"
+      logger#ldebug (lazy (Printf.sprintf "Executing effect %s"
                              (Reacs.show_effect effect)));
       match effect with
       | T_effects tel ->
@@ -197,7 +197,7 @@ let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
 let stats_logger = Logging.get_logger "reacs_stats"
                        
 let next_reaction (bact : t)  =
-  let reac_nb = lazy (Reac_mgr.get_reac_nb bact.reac_mgr) in
+  let reac_nb = lazy (Reac_mgr.get_available_reac_nb bact.reac_mgr) in
   let begin_time = Sys.time () in 
   let ro = Reac_mgr.pick_next_reaction bact.reac_mgr in
   let picked_time = Sys.time () in

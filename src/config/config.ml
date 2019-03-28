@@ -18,4 +18,4 @@ let logconfig = {
 type num_choice =
   | Sloppy | ExactZ | ExactQ
 
-let num = Sloppy
+let num = ExactQ

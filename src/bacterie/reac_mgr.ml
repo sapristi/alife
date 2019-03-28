@@ -199,13 +199,13 @@ type t =
   { t_set :  TSet.t;
     g_set :  GSet.t;
     b_set :  BSet.t;
-    mutable reac_nb : int;
+    mutable reac_counter : int;
     env : Environment.t ref; 
   }
     [@@deriving show]
 
 
-let get_reac_nb rmgr =
+let get_available_reac_nb rmgr =
   (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set,
    BSet.cardinal rmgr.b_set)
   
@@ -214,7 +214,7 @@ let to_yojson (rmgr : t) : Yojson.Safe.json =
       "transitions", TSet.to_yojson rmgr.t_set;
       "grabs", GSet.to_yojson rmgr.g_set;
       "breaks", BSet.to_yojson rmgr.b_set;
-      "reac_nb", `Int rmgr.reac_nb;
+      "reac_counter", `Int rmgr.reac_counter;
       "env", Environment.to_yojson !(rmgr.env)]
 
   
@@ -222,7 +222,7 @@ let make_new (env : Environment.t ref) =
   {t_set = TSet.empty ();
    g_set = GSet.empty ();
    b_set = BSet.empty ();
-   reac_nb = 0;
+   reac_counter = 0;
    env = env; } 
 
 
@@ -340,26 +340,29 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       None
     )
   else
-    
-    let bound = random a0 in
-    logger#info  "Picked bound %s" (Num.show_num bound);
-    let res = 
-      if bound < total_g_rate 
-      then
-        try
-          Reaction.Grab (ref (GSet.pick_reaction reac_mgr.g_set))
-        with _ ->
-          logger#sinfo @@ GSet.show reac_mgr.g_set;
-          failwith @@ GSet.show reac_mgr.g_set
-      else if bound < total_g_rate + total_t_rate
-      then 
-        Reaction.Transition ( ref (TSet.pick_reaction reac_mgr.t_set))
-      else 
-        Reaction.Break (ref (BSet.pick_reaction reac_mgr.b_set))
+    (
+      reac_mgr.reac_counter <- Pervasives.(reac_mgr.reac_counter + 1);
+      let bound = random a0 in
+      logger#info  "Picked bound %s" (Num.show_num bound);
+      let res = 
+        if lt bound total_g_rate 
+        then
+          try
+            Reaction.Grab (ref (GSet.pick_reaction reac_mgr.g_set))
+          with _ ->
+            logger#sinfo @@ GSet.show reac_mgr.g_set;
+            failwith @@ GSet.show reac_mgr.g_set
+        else if lt bound (total_g_rate + total_t_rate)
+        then 
+          Reaction.Transition ( ref (TSet.pick_reaction reac_mgr.t_set))
+        else 
+          Reaction.Break (ref (BSet.pick_reaction reac_mgr.b_set))
+        
+      in
+      logger#info "[%d] picked %s" reac_mgr.reac_counter (Reaction.show res);
       
-    in
-    logger#info "picked %s" (Reaction.show res);
-    Some res
+      Some res
+    )
     
 (* ** update_reaction_rates *)
     

@@ -18,6 +18,7 @@ type params = {
                               (** Set most log level to debug *)
     stats: bool;            [@default false]
                               (** Generates running stats *)
+    log_level : log_level;  [@default Info] [@enum [("debug", Easy_logging__Easy_logging_types.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
   } [@@deriving cmdliner,show]
 ;;
 
@@ -40,11 +41,7 @@ let run_yaacs p : unit=
   else
     ();
 
-  if p.debug
-  then
-    Logging.set_level "Yaac" Debug
-  else
-    Logging.set_level "Yaac" Info;
+  Logging.set_level "Yaac" p.log_level;
     
   logger#info "Starting Yaac Server";
 
