@@ -12,7 +12,7 @@ open Nethttpd_reactor
 open Local_libs
 open Easy_logging
 let logger = Logging.make_logger "Yaac.Server"
-               Info [Cli Debug]
+               Debug [Cli Debug]
            
 
 let fs_spec file_root =
@@ -36,6 +36,7 @@ let get_my_addr () =
 
    
 let make_srv file_root req_processor (conn_attr : (string * int)) =
+  logger#info "Starting server at root %s" file_root;
   let (host_name, port) = conn_attr in
   host_distributor
     [ default_host ~pref_name:host_name ~pref_port:port (),

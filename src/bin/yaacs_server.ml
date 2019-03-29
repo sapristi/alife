@@ -19,14 +19,24 @@ type params = {
     stats: bool;            [@default false]
                               (** Generates running stats *)
     log_level : log_level;  [@default Info] [@enum [("debug", Easy_logging__Easy_logging_types.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
+    data_path : string [@default "./"] [@docv "PATH"]
   } [@@deriving cmdliner,show]
 ;;
+
+
 
 let logger = Logging.make_logger  "Yaac.Main"
                Warning [Cli Debug];;
 
 
 let run_yaacs p : unit= 
+  
+  let file_handler_defaults : Default_handlers.file_handler_defaults_t =  {
+      logs_folder = p.data_path^"logs/";
+      truncate = true;
+      file_perms = 0o660;
+    } in Default_handlers.set_file_handler_defaults file_handler_defaults;
+    
   if p.stats
   then
     begin
@@ -43,13 +53,13 @@ let run_yaacs p : unit=
 
   Logging.set_level "Yaac" p.log_level;
     
-  logger#info "Starting Yaac Server";
+  logger#info "Starting Yaac with options :\n%s" @@ show_params p;
 
   Web_server.start_srv
-    p.static_path
+    (p.data_path ^ p.static_path)
     (Bact_server.make_req_handler
        (Simulator.make ())
-       (Sandbox.of_yojson (Yojson.Safe.from_file "bact.json")))
+       (Sandbox.of_yojson (Yojson.Safe.from_file  @@ p.data_path^"bact.json")))
     (p.host, p.port)
   
 

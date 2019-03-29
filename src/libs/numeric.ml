@@ -80,7 +80,23 @@ let rec bigrandom (n : Z.t) : Z.t =
       rbit' + bigrandom (n-rbit')
     else
       rbit' + random_30bit_bits (to_int q) zero
-    
+
+
+
+let bigrandom_veryeasy (n: Z.t) : Z.t =
+  let open Z in
+  let k = numbits n in
+  let q,r = div_rem (of_int k) (of_int 30) in
+  let q' =
+    if r = zero then q else q + one
+  in
+  let rand =  ref  (random_30bit_bits (to_int q') zero) in
+  while !rand > n do
+    rand := random_30bit_bits (to_int q') zero
+  done;
+  !rand
+
+  
 module ExactZ : NumericT =
   struct
     include Z
