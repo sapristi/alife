@@ -2,7 +2,6 @@ open Bacterie_libs;;
 open OUnit2;;
 open Reactors;;
 
-let b = ref (Bacterie.make ());;
      
 
 let simple_bind test_ctx =

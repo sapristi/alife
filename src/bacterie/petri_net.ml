@@ -27,15 +27,15 @@
 open Batteries
 open Local_libs
 open Yaac_config
-open Easy_logging
+open Easy_logging_yojson
 open Local_libs.Numeric.Num
 
 
 
 
 (* * the proteine module *)
-let logger = Logging.make_logger "Yaac.pnet"
-               Warning [Cli Debug]
+let logger = Logging.get_logger "Yaac.Bact.Internal.pnet"
+               
 
 type t =
   {

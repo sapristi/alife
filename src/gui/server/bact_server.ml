@@ -6,9 +6,9 @@ open Sandbox_req_handler
 open Bacterie_libs
 open Reactors
 open Local_libs   
-open Easy_logging
-let logger = Logging.make_logger "Yaac.server"
-                 Info  [Cli Debug; File ("server", Debug)]
+open Easy_logging_yojson
+let logger = Logging.get_logger "Yaac.Server.Bact"
+
            
 
 

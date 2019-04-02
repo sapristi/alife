@@ -1,7 +1,7 @@
 open Yaac_config
 
-let num_logger = Easy_logging.Logging.make_logger
-                   "Yaac.Numeric" Debug [Cli Debug]
+let num_logger = Easy_logging.Logging.get_logger
+                   "Yaac.Libs.Numeric" 
    
 module type NumericT =
   sig
@@ -24,6 +24,7 @@ module type NumericT =
     val random : num -> num
 
     val lt : num -> num -> bool
+    val equal : num -> num -> bool
   end
 
 
@@ -45,6 +46,7 @@ module Sloppy : NumericT =
     let pp_num f n = Format.pp_print_string f (show_num n)
     let random n = Random.float n
     let lt a b = a < b
+    let equal a b = a = b
   end
 
 

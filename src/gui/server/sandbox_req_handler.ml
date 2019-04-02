@@ -3,9 +3,9 @@ open Reactors
 open Bacterie_libs
 open Reaction
 open Local_libs
-open Easy_logging
-let logger = Logging.make_logger "Yaac.sandbox"
-               Debug [Cli Debug]
+open Easy_logging_yojson
+let logger = Logging.get_logger "Yaac.Server.sandbox"
+              
 
 let pnet_ids_from_mol  (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let mol = cgi # argument_value "mol_desc" in
@@ -23,7 +23,7 @@ let pnet_from_mol (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let mol = cgi # argument_value "mol_desc"
   and pnet_id = int_of_string (cgi# argument_value "pnet_id") in
   let pnet_json =
-    !(Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet
+    (Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet
     |> Petri_net.to_json
   in
   `Assoc
@@ -81,7 +81,7 @@ let commit_token_edit (sandbox : Sandbox.t) (cgi : Netcgi.cgi)
                          |> int_of_string
        in
        
-       let pnet = !(Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
+       let pnet = (Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
        (
          match token_o with
          | Some token -> 
@@ -107,7 +107,7 @@ let launch_transition (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   and trans_index = cgi # argument_value "transition_index"
                     |> int_of_string in
 
-  let pnet = !(Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
+  let pnet = (Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
   
   let p_actions = Petri_net.launch_transition_by_id trans_index pnet in
   let actions = List.map (fun x -> Reacs.T_effects x) [p_actions] in

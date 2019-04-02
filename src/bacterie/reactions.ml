@@ -75,14 +75,14 @@ module type REACTANT =
       type t =
         private {
             mol : Molecule.t;
-            qtt : int; 
+            mutable qtt : int; 
             reacs : reacSet ref;
-            ambient:bool;
+            mutable ambient:bool;
           }
       val make_new : Molecule.t -> t
-      val add_to_qtt : int -> t -> t
-      val set_qtt : int ->  t -> t
-      val set_ambient : bool -> t -> t
+      val add_to_qtt : int -> t -> unit
+      val set_qtt : int ->  t -> unit
+      val set_ambient : bool -> t -> unit
       include REACTANT_DEFAULT
               with type t := t
               and type reac := reac
@@ -106,8 +106,8 @@ module type REACTANT =
 
          
     type t =
-      | Amol of Amol.t ref
-      | ImolSet of ImolSet.t ref
+      | Amol of Amol.t
+      | ImolSet of ImolSet.t
 
     include REACTANT_DEFAULT
             with type t := t
@@ -136,7 +136,7 @@ module ReactionsM (R : REACTANT) =
   struct
     type effect =
       | T_effects of Place.transition_effect list
-      | Update_launchables of R.Amol.t ref
+      | Update_launchables of R.Amol.t
       | Remove_one of R.t
       | Update_reacs of R.reacSet
       | Remove_reacs of R.reacSet
@@ -160,23 +160,23 @@ module ReactionsM (R : REACTANT) =
       
 (* ** Grab reaction *)                    
     module Grab :
-    (REAC with type build_t = (R.Amol.t ref * R.t)) =
+    (REAC with type build_t = (R.Amol.t * R.t)) =
       struct
         type t =  {
             mutable rate : num;[@compare fun a b -> 0] 
-            graber_data : R.Amol.t ref;
+            graber_data : R.Amol.t;
             grabed_data : R.t;
           }
                     [@@ deriving show, ord, to_yojson]
                 
-        type build_t = (R.Amol.t ref * R.t)
+        type build_t = (R.Amol.t * R.t)
                      
         let calculate_rate ({graber_data; grabed_data;_} : t) =
           let mol = R.mol grabed_data
           and qtt = R.qtt grabed_data in
           (Petri_net.grab_factor
              mol
-             (!graber_data.pnet)) *
+             (graber_data.pnet)) *
             (num_of_int qtt)
           
         let rate ({rate;_} : t) : num=
@@ -194,13 +194,13 @@ module ReactionsM (R : REACTANT) =
         let eval (g : t) : effect list =
           ignore( asymetric_grab
             (R.mol (g.grabed_data))
-            (!(g.graber_data).pnet));
+            ((g.graber_data).pnet));
           Remove_one (g.grabed_data)::
             Update_launchables g.graber_data :: 
-              Update_reacs (R.Amol.reacs !(g.graber_data)) ::
+              Update_reacs (R.Amol.reacs (g.graber_data)) ::
                 []
         let remove_reac_from_reactants reac g =
-          R.Amol.remove_reac reac !(g.graber_data);
+          R.Amol.remove_reac reac (g.graber_data);
           R.remove_reac reac (g.grabed_data);
       end
 
@@ -208,19 +208,19 @@ module ReactionsM (R : REACTANT) =
 (* **  Transition reaction *)                    
       
     module Transition  :
-    (REAC with type build_t = R.Amol.t ref)
+    (REAC with type build_t = R.Amol.t)
       =
       struct
         type t = {
             mutable rate : num;[@compare fun a b -> 0] 
-            amd : R.Amol.t ref;
+            amd : R.Amol.t;
           }
                    [@@ deriving ord, show, to_yojson]
                
-        type build_t = R.Amol.t ref
+        type build_t = R.Amol.t
                      
         let calculate_rate (t :t)  =
-           (!(t.amd).pnet).launchables_nb
+           t.amd.pnet.launchables_nb
           
         let rate (t : t)  =
           t.rate
@@ -235,12 +235,12 @@ module ReactionsM (R : REACTANT) =
           
         let eval (trans : t) : effect list=
           let t_effects = Petri_net.launch_random_transition
-                            (!(trans.amd).pnet)
+                            trans.amd.pnet
           in
           (*          Petri_net.update_launchables (!(trans.amd).pnet);*)
           T_effects (t_effects) ::
             Update_launchables trans.amd ::
-              Update_reacs (R.Amol.reacs !(trans.amd)) ::
+              Update_reacs (R.Amol.reacs trans.amd) ::
                 []
       
       

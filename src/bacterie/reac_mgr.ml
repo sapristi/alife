@@ -5,7 +5,7 @@ open Batteries
 open Reaction
 open Local_libs
 open Yaac_config
-open Easy_logging
+open Easy_logging_yojson
 
 open Local_libs.Numeric.Num
 (* * file overview *)
@@ -49,9 +49,8 @@ open Local_libs.Numeric.Num
 (*    boilerplate in this file, especially if the number of reactions kind grows. *)
 
 
-let logger = Logging.make_logger
-               "Yaac.reacs_mgr"
-               Warning [Cli Debug]
+let logger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr"
+               
 
                  
 (* * MakeReacSet functor *)
@@ -60,8 +59,7 @@ module MakeReacSet
          (Reac : Reacs.REAC)
   = 
   struct
-    let logger = Logging.make_logger "Yaac.ReacSet"
-               Debug [Cli Debug]
+    let logger = Logging.get_logger "Yaac.Bact.Reacs.ReacSet"
     type elt = Reac.t
     module RSet= Set.Make(Reac)  
                
@@ -71,6 +69,8 @@ module MakeReacSet
     let show (s : t) =
       RSet.fold (fun (e : elt) desc ->
           (Reac.show e)^"\n"^desc) s.set ""
+    let pp (f : Format.formatter) (s : t) =
+          Format.pp_print_string f (show s)
     let cardinal r = RSet.cardinal r.set
     let empty () : t =
       {rates_sum = zero;
@@ -82,14 +82,13 @@ module MakeReacSet
       s.rates_sum
 
     let remove r s =
-      lazy (Printf.sprintf "Remove %s" (Reac.show r))
-      |> logger#ldebug;
+      logger#debug "Remove %s" (Reac.show r);
       
       let rate = Reac.rate r in
       s.set <- RSet.remove r s.set;
       s.rates_sum <- s.rates_sum - rate;
 
-      if  (abs (s.rates_sum - (calculate_rate s))) > one
+      if  not (Num.equal s.rates_sum (calculate_rate s))
       then
         begin
           logger#error "remove : %.100f %.100f\n%s"
@@ -101,29 +100,30 @@ module MakeReacSet
       
     let add r s =
 
-      lazy (Printf.sprintf "Add %s" (Reac.show r))
-      |> logger#ldebug;
+      logger#debug  "Add %s" (Reac.show r);
 
       s.set <- RSet.add r s.set;
       s.rates_sum <- s.rates_sum + (Reac.rate r);
-      if  (abs (s.rates_sum - (calculate_rate s))) > one
+      if  not (Num.equal s.rates_sum (calculate_rate s))
       then
         begin
           logger#error "add : %.20f %.20f"
             (float_of_num s.rates_sum)
             (float_of_num (calculate_rate s));
+          logger#error "add : %s %s"
+            (show_num s.rates_sum)
+            (show_num (calculate_rate s));
           failwith "error"
         end
       
     let update_rate r s =
 
-      lazy (Printf.sprintf "Update %s" (Reac.show r))
-      |> logger#ldebug;
+      logger#debug "Update %s" (Reac.show r);
 
       let rate_delta = Reac.update_rate r in
       s.rates_sum <- s.rates_sum + rate_delta;
 
-      if  (abs (s.rates_sum - (calculate_rate s))) > one
+      if  not (Num.equal s.rates_sum (calculate_rate s))
       then
         begin
           
@@ -133,8 +133,6 @@ module MakeReacSet
           failwith "error"
         end
 
-    let pp (f : Format.formatter) (s : t) =
-          Format.pp_print_string f (show s)
     let to_yojson s =
       `Assoc [
           "total", num_to_yojson s.rates_sum;
@@ -232,14 +230,14 @@ let remove_reactions reactions reac_mgr =
     (fun (r : Reaction.t) ->
       match r with
       | Transition t ->
-         TSet.remove !t reac_mgr.t_set
+         TSet.remove t reac_mgr.t_set
          
       | Grab g ->
-         GSet.remove !g reac_mgr.g_set;
+         GSet.remove g reac_mgr.g_set;
          Reaction.unlink r;
 
       | Break b ->
-         BSet.remove !b reac_mgr.b_set;
+         BSet.remove b reac_mgr.b_set;
 
     ) reactions
 
@@ -256,7 +254,7 @@ let remove_reactions reactions reac_mgr =
 
 (* ** Grabs *)
 
-let add_grab (graber_d : Reactant.Amol.t ref)
+let add_grab (graber_d : Reactant.Amol.t)
              (grabed_d : Reactant.t ) (reac_mgr :t)  =
 
 
@@ -266,14 +264,14 @@ let add_grab (graber_d : Reactant.Amol.t ref)
   
   
   logger#info "added new grab between : \n%s\n%s"
-                    (Reactant.Amol.show !graber_d)
+                    (Reactant.Amol.show graber_d)
                     (Reactant.show grabed_d);
 
   let (g:Reacs.Grab.t) = Reacs.Grab.make (graber_d,grabed_d)   in
   GSet.add g reac_mgr.g_set;
   
-  let r = Reaction.Grab (ref g) in
-  Reactant.Amol.add_reac r !graber_d;
+  let r = Reaction.Grab g in
+  Reactant.Amol.add_reac r graber_d;
   Reactant.add_reac r grabed_d
   
   
@@ -282,13 +280,13 @@ let add_grab (graber_d : Reactant.Amol.t ref)
            
 let add_transition amd reac_mgr  =
   logger#info "added new transition : %s"
-                    (Reactant.Amol.show !amd);
+    (Reactant.Amol.show amd);
   
   let t = Reacs.Transition.make amd   in
   TSet.add t reac_mgr.t_set;
   
-  let rt = Reaction.Transition (ref t) in
-  Reactant.Amol.add_reac rt !amd
+  let rt = Reaction.Transition t in
+  Reactant.Amol.add_reac rt amd
 
 
 (* ** Break *)
@@ -298,7 +296,7 @@ let add_break md reac_mgr =
   let b = Reacs.Break.make md in
   BSet.add b reac_mgr.b_set;
 
-  let rb = Reaction.Break (ref b) in
+  let rb = Reaction.Break b in
   Reactant.add_reac rb md
 
   
@@ -317,15 +315,15 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       BSet.total_rate reac_mgr.b_set
   in
 
-  logger#info  "********     Grabs   (total : %s)  (nb_reacs : %d)  *********"
+  logger#debug  "********     Grabs   (total : %s)  (nb_reacs : %d)  *********"
     (show_num total_g_rate) (GSet.cardinal reac_mgr.g_set);
   logger#ldebug (lazy (GSet.show reac_mgr.g_set));
   
-  logger#info  "******** Transitions (total : %s)  (nb_reacs : %d)  *********"
+  logger#debug  "******** Transitions (total : %s)  (nb_reacs : %d)  *********"
        (show_num total_t_rate) (TSet.cardinal reac_mgr.t_set);
   logger#ldebug (lazy (TSet.show reac_mgr.t_set));
   
-  logger#info  "********    Breaks   (total : %s)  (nb_reacs : %d)  *********"
+  logger#debug  "********    Breaks   (total : %s)  (nb_reacs : %d)  *********"
        (show_num total_b_rate) (BSet.cardinal reac_mgr.b_set);
   logger#ldebug (lazy (BSet.show reac_mgr.b_set));
 
@@ -343,20 +341,16 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
     (
       reac_mgr.reac_counter <- Pervasives.(reac_mgr.reac_counter + 1);
       let bound = random a0 in
-      logger#info  "Picked bound %s" (Num.show_num bound);
+      logger#debug  "Picked bound %s" (Num.show_num bound);
       let res = 
         if lt bound total_g_rate 
         then
-          try
-            Reaction.Grab (ref (GSet.pick_reaction reac_mgr.g_set))
-          with _ ->
-            logger#sinfo @@ GSet.show reac_mgr.g_set;
-            failwith @@ GSet.show reac_mgr.g_set
+          Reaction.Grab (GSet.pick_reaction reac_mgr.g_set)
         else if lt bound (total_g_rate + total_t_rate)
         then 
-          Reaction.Transition ( ref (TSet.pick_reaction reac_mgr.t_set))
+          Reaction.Transition (TSet.pick_reaction reac_mgr.t_set)
         else 
-          Reaction.Break (ref (BSet.pick_reaction reac_mgr.b_set))
+          Reaction.Break (BSet.pick_reaction reac_mgr.b_set)
         
       in
       logger#info "[%d] picked %s" reac_mgr.reac_counter (Reaction.show res);
@@ -369,11 +363,11 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
 let rec update_reaction_rate (reac : Reaction.t) reac_mgr=
   match reac with
   | Grab g -> 
-     GSet.update_rate !g reac_mgr.g_set
+     GSet.update_rate g reac_mgr.g_set
   | Transition t -> 
-     TSet.update_rate !t reac_mgr.t_set
+     TSet.update_rate t reac_mgr.t_set
   | Break b ->
-     BSet.update_rate !b reac_mgr.b_set
+     BSet.update_rate b reac_mgr.b_set
 
 
     

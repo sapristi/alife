@@ -64,9 +64,9 @@ module rec
       struct
         type t = {
             mol : Molecule.t;
-            qtt : int; 
+            mutable qtt : int; 
             reacs : ReacSet.t ref;
-            ambient:bool;
+            mutable ambient:bool;
           }
 
         let show (imd : t) =
@@ -82,18 +82,16 @@ module rec
         let pp_reacSet = ReacSet.pp
                        
         let compare (imd1 : t) (imd2 : t) =
-          String.compare imd1.mol imd2.mol
+          Molecule.compare imd1.mol imd2.mol
         let mol ims = ims.mol
         let qtt ims = ims.qtt
         let reacs ims = !(ims.reacs)
         let add_to_qtt deltaqtt ims =
-          if ims.ambient
-          then ims
-          else
-            {ims with qtt = ims.qtt + deltaqtt}
+          if not ims.ambient
+          then ims.qtt <- ims.qtt + deltaqtt
           
         let set_qtt qtt (ims : t)=
-          {ims with qtt = qtt}
+          ims.qtt <- qtt
         let make_new mol : t =
           {mol; qtt=1; reacs = (ref ReacSet.empty);ambient=false}
         let add_reac (reac : Reaction.t) (imd : t) =
@@ -101,7 +99,7 @@ module rec
         let remove_reac (reac : Reaction.t) (imd : t) =
           imd.reacs := ReacSet.remove reac !(imd.reacs)
         let set_ambient ambient ims =
-          {ims with ambient = ambient}
+          ims.ambient <- ambient
 
       end
       
@@ -177,36 +175,36 @@ module rec
      *)
 (* *** Reactant functions *)
     type t =
-      | Amol of Amol.t ref
-      | ImolSet of ImolSet.t ref
+      | Amol of Amol.t
+      | ImolSet of ImolSet.t
                      [@@ deriving show, ord]
                  
     let to_yojson reactant =
       match reactant with 
-      | Amol amol -> Amol.to_yojson !amol
-      | ImolSet ims -> ImolSet.to_yojson !ims
+      | Amol amol -> Amol.to_yojson amol
+      | ImolSet ims -> ImolSet.to_yojson ims
     let show_reacSet = ReacSet.show
     let pp_reacSet = ReacSet.pp
     let qtt reactant =
       match reactant with
-      | Amol amol -> Amol.qtt !amol
-      | ImolSet ims -> ImolSet.qtt !ims
+      | Amol amol -> Amol.qtt amol
+      | ImolSet ims -> ImolSet.qtt ims
     let mol reactant =
       match reactant with
-      | Amol amol -> Amol.mol !amol
-      | ImolSet ims -> ImolSet.mol !ims
+      | Amol amol -> Amol.mol amol
+      | ImolSet ims -> ImolSet.mol ims
     let reacs reactant =
       match reactant with
-      | Amol amol -> Amol.reacs !amol
-      | ImolSet ims -> ImolSet.reacs !ims
+      | Amol amol -> Amol.reacs amol
+      | ImolSet ims -> ImolSet.reacs ims
     let add_reac reaction reactant =
       match reactant with 
-      | Amol amol -> Amol.add_reac reaction !amol
-      | ImolSet ims -> ImolSet.add_reac reaction !ims
+      | Amol amol -> Amol.add_reac reaction amol
+      | ImolSet ims -> ImolSet.add_reac reaction ims
     let remove_reac reaction reactant =
       match reactant with 
-      | Amol amol -> Amol.remove_reac reaction !amol
-      | ImolSet ims -> ImolSet.remove_reac reaction !ims
+      | Amol amol -> Amol.remove_reac reaction amol
+      | ImolSet ims -> ImolSet.remove_reac reaction ims
   end
   
 (* ** Reacs : implementation of the reactions *)
@@ -220,7 +218,7 @@ module rec
            
            type effect =
              | T_effects of Place.transition_effect list
-             | Update_launchables of Reactant.Amol.t ref
+             | Update_launchables of Reactant.Amol.t
              | Remove_one of Reactant.t
              | Update_reacs of Reactant.reacSet
              | Remove_reacs of Reactant.reacSet
@@ -243,11 +241,11 @@ module rec
              end
 
            module Grab :
-           (REAC with type build_t = (Reactant.Amol.t ref *
+           (REAC with type build_t = (Reactant.Amol.t *
                                         Reactant.t ))
 
            module Transition  :
-           (REAC with type build_t = Reactant.Amol.t ref)
+           (REAC with type build_t = Reactant.Amol.t)
 
 
            module Break :
@@ -264,9 +262,9 @@ module rec
          (sig
 
            type t  =
-             | Grab of Reacs.Grab.t ref
-             | Transition of Reacs.Transition.t ref
-             | Break of Reacs.Break.t ref
+             | Grab of Reacs.Grab.t
+             | Transition of Reacs.Transition.t
+             | Break of Reacs.Break.t
 
            val to_yojson : t -> Yojson.Safe.json
            val treat_reaction : t -> Reacs.effect list
@@ -279,27 +277,27 @@ module rec
      struct
        open Reacs
        type t =
-         | Grab of Grab.t ref
-         | Transition of Transition.t ref
-         | Break of Break.t ref
+         | Grab of Grab.t
+         | Transition of Transition.t
+         | Break of Break.t
                       [@@ deriving ord, show, to_yojson]    
 
        let rate r =
          match r with
-         | Transition t -> Transition.rate (!t)
-         | Grab g -> Grab.rate (!g)
-         | Break ba -> Break.rate !ba
+         | Transition t -> Transition.rate t
+         | Grab g -> Grab.rate g
+         | Break ba -> Break.rate ba
        let treat_reaction r  : effect list=
          match r with
-         | Transition t -> Transition.eval !t
-         | Grab g -> Grab.eval !g
-         | Break ba -> Break.eval !ba
+         | Transition t -> Transition.eval t
+         | Grab g -> Grab.eval g
+         | Break ba -> Break.eval ba
                      
        let unlink r = 
          match r with
-         | Transition t -> Transition.remove_reac_from_reactants r !t
-         | Grab g -> Grab.remove_reac_from_reactants r !g
-         | Break ba -> Break.remove_reac_from_reactants r !ba          
+         | Transition t -> Transition.remove_reac_from_reactants r t
+         | Grab g -> Grab.remove_reac_from_reactants r g
+         | Break ba -> Break.remove_reac_from_reactants r ba          
      end
      
      

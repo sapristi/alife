@@ -10,9 +10,9 @@ open Nethttpd_engine
 open Nethttpd_types
 open Nethttpd_reactor
 open Local_libs
-open Easy_logging
-let logger = Logging.make_logger "Yaac.Server"
-               Debug [Cli Debug]
+open Easy_logging_yojson
+let logger = Logging.get_logger "Yaac.Server"
+               
            
 
 let fs_spec file_root =

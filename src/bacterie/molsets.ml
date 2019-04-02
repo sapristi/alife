@@ -16,27 +16,27 @@ module ActiveMolSet  = struct
   module PnetSet =
     Set.Make (
         struct
-          type t = Reactant.Amol.t ref
+          type t = Reactant.Amol.t
           let compare =
             fun (amd1 :t) (amd2:t) ->
             Reactant.Amol.compare
-              !amd1 !amd2
+              amd1 amd2
         end)
   include PnetSet
   let find_by_pnet_id pid amolset : Petri_net.t= 
     let (dummy_pnet : Petri_net.t) ={
         mol = ""; transitions = [||];places = [||];
         uid = pid; launchables_nb = Local_libs.Numeric.Num.zero;} in
-    let dummy_amd = ref (Reactant.Amol.make_new dummy_pnet)
+    let dummy_amd = Reactant.Amol.make_new dummy_pnet
     in
-    !(find dummy_amd amolset).pnet
+    (find dummy_amd amolset).pnet
     
 
   let  get_pnet_ids amolset : int list =
     let pnet_enum = enum amolset in
     let ids_enum = Enum.map
-                     (fun (amd : Reactant.Amol.t ref) ->
-                       (!amd).pnet.uid) pnet_enum in
+                     (fun (amd : Reactant.Amol.t ) ->
+                       amd.pnet.uid) pnet_enum in
     List.of_enum ids_enum
     
         
@@ -48,8 +48,8 @@ module ActiveMolSet  = struct
     then
       ()
     else
-      let (any_amd : Reactant.Amol.t ref) = any amolset in
-      let dummy_pnet = !(any_amd).pnet in
+      let (any_amd : Reactant.Amol.t) = any amolset in
+      let dummy_pnet = any_amd.pnet in
 
       match new_reactant with
       | Amol new_amol ->
@@ -59,7 +59,7 @@ module ActiveMolSet  = struct
                            dummy_pnet
          and is_grabed =Petri_net.can_grab
                           dummy_pnet.mol
-                          !new_amol.pnet  in
+                          new_amol.pnet  in
          
 
          PnetSet.iter

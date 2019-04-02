@@ -1,8 +1,8 @@
-open Easy_logging
+open Easy_logging_yojson
 open Numeric
-let logger = Logging.make_logger
-               "Yaac.misc_library"
-               Warning [Cli Debug]
+let logger = Logging.get_logger
+               "Yaac.Libs.misc"
+
 
 
 let rec cut_list l pos =

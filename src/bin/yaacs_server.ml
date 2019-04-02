@@ -4,7 +4,7 @@ open Cmdliner
 open Yaac_config
 open Server
 open Reactors
-open Easy_logging
+open Easy_logging_yojson
 
 let () = Printexc.record_backtrace true;;
 
@@ -18,44 +18,75 @@ type params = {
                               (** Set most log level to debug *)
     stats: bool;            [@default false]
                               (** Generates running stats *)
-    log_level : log_level;  [@default Info] [@enum [("debug", Easy_logging__Easy_logging_types.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
-    data_path : string [@default "./"] [@docv "PATH"]
+    log_level : log_level option; [@enum [("debug", Easy_logging__Easy_logging_types.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
+    data_path : string;     [@default "./"] [@docv "PATH"]
+    log_config : string     [@default ""]
   } [@@deriving cmdliner,show]
 ;;
 
 
 
-let logger = Logging.make_logger  "Yaac.Main"
-               Warning [Cli Debug];;
-
+let logger = Logging.get_logger  "Yaac.Main"
+               
+let default_log_config_str = {|
+{
+    "handlers": {
+        "file_handlers": {
+             "logs_folder" : "logs",
+             "truncate" : false
+        }
+    },
+    "loggers": 
+        [
+            {
+                "name": "Yaac",
+                "level": "debug",
+                "handlers": [ {"cli": {"level":"debug"}} ] },
+            {
+                "name": "Yaac.Bact",
+                "level": "info"},
+            {
+                "name": "Yaac.Bact.Internal",
+                "level": "warning"},
+            
+            {
+                "name": "Yaac.Server",
+                "level" : "info"},
+            {
+                "name": "Yaac.stats",
+                "level": "nolevel",
+                "propagate" : false }
+        ]
+} |}
 
 let run_yaacs p : unit= 
+  logger#info "Starting Yaac with options :\n%s" @@ show_params p;
   
-  let file_handler_defaults : Default_handlers.file_handler_defaults_t =  {
-      logs_folder = p.data_path^"logs/";
-      truncate = true;
-      file_perms = 0o660;
-    } in Default_handlers.set_file_handler_defaults file_handler_defaults;
-    
+  if p.log_config = ""
+  then Logging.load_config_str default_log_config_str
+  else Logging.load_config_file p.log_config;
+  
   if p.stats
   then
     begin
       let format_dummy : Default_handlers.log_formatter = fun item  -> item.msg in
       let handler = Default_handlers.make (File ("stats", Debug)) in
-      let stats_reporter = Logging.get_logger "reacs_stats" in
+      let stats_reporter = Logging.get_logger "Yaac.stats" in
       stats_reporter#add_handler handler;
-      stats_reporter#set_level Debug;
       Default_handlers.set_formatter handler format_dummy;
       stats_reporter#info "ireactants areactants transitions grabs breaks  picked_dur treated_dur actions_dur";
     end
   else
     ();
-
-  Logging.set_level "Yaac" p.log_level;
-    
-  logger#info "Starting Yaac with options :\n%s" @@ show_params p;
-
-  Web_server.start_srv
+  begin 
+    match p.log_level with
+    | None -> ()
+    | Some lvl ->   let root_logger = Logging.get_logger "Yaac" in  
+                    root_logger#set_level lvl;
+  end;
+                  
+                  
+    Web_server.start_srv
     (p.data_path ^ p.static_path)
     (Bact_server.make_req_handler
        (Simulator.make ())

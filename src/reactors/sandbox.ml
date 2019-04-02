@@ -5,8 +5,8 @@ open Yaac_config
 open Easy_logging
 
 
-let logger = Logging.make_logger "Yaac.Sandbox"
-               Warning [Cli Debug]
+let logger = Logging.get_logger "Yaac.Reactor.Sandbox"
+               
 
 
 let _ = logger#sinfo @@ Config.show_config Config.logconfig

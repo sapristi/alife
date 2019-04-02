@@ -62,20 +62,19 @@
    -> problem solved, there was an error whan adding reactions to IRMap
 
 * improvements
-** CURRENT use Zarith module for reaction rates
-    -> find a way to restrict fractions to decimal ones
-    so as to avoid too much cost
-    -> functorize to compare performance
-** TODO use chalk for terminal colors
 ** TODO use Pnet Set as reactants
-** TODO sanitize the use mutable/immutable and refs in structures
-   - [ ] in amolset
-   - [ ] everywhere ?
+** TODO use uniqueID lib
+** STARTED sanitize the use mutable/immutable and refs in structures
+    - reactants do not use ref anymore
 
 ** STARTED implement tests
    describe bacteria where only one kind of reaction can happen to
    be able to predict results
 
+** DONE use Zarith module for reaction rates
+    -> find a way to restrict fractions to decimal ones
+    so as to avoid too much cost
+    -> functorize to compare performance
 ** DONE sanitize server files :
    - use dune to copy files to the build directory
    - put external libs in an archive to clean git repo

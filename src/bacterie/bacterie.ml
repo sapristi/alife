@@ -8,7 +8,7 @@ open Reaction
 type ('a, 'b) mresult = ('a, 'b) result
 open Reactants
 open Yaac_config
-open Easy_logging
+open Easy_logging_yojson
 open Local_libs.Numeric
    
 (* * Container module *)
@@ -34,13 +34,13 @@ open Local_libs.Numeric
 (*  + areactants : active reactants, molecules that fold into a petri net. *)
 (*     We thus have to have a distinct pnet for each present molecule *)
 
-let logger = Logging.make_logger "Yaac.Bact"
-               Warning [Cli Debug]
+let logger = Logging.get_logger "Yaac.Bact"
+               
 
       
 type t ={
-    mutable ireactants : IRMap.t;
-    mutable areactants : ARMap.t;
+    ireactants : IRMap.t;
+    areactants : ARMap.t;
     reac_mgr : Reac_mgr.t;
     env : Environment.t ref;
   }
@@ -88,7 +88,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
   | Some pnet ->
      logger#info "adding active molecule  : %s" mol;
      
-     let ar = ref (Reactant.Amol.make_new pnet) in
+     let ar = Reactant.Amol.make_new pnet in
      (* reactions : grabs with other amols*)
      ARMap.add_reacs_with_new_reactant (Amol ar) bact.areactants bact.reac_mgr;
       
@@ -106,23 +106,23 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
      ARMap.add ar bact.areactants
   | None ->
      (
-     logger#info "adding inactive molecule  : %s" mol;
+       logger#info "adding inactive molecule  : %s" mol;
        match MolMap.Exceptionless.find mol !(bact.ireactants) with
        | None -> 
-          let new_rireac = ref (Reactant.ImolSet.make_new mol) in
+          let new_ireac = Reactant.ImolSet.make_new mol in
           (* reactions : grabs *)
           ARMap.add_reacs_with_new_reactant
-            (ImolSet new_rireac) bact.areactants bact.reac_mgr;
+            (ImolSet new_ireac) bact.areactants bact.reac_mgr;
           
           (* reactions : break *)
-          Reac_mgr.add_break (ImolSet new_rireac) bact.reac_mgr;
+          Reac_mgr.add_break (ImolSet new_ireac) bact.reac_mgr;
           (* add molecule *)
-          bact.ireactants := MolMap.add !new_rireac.mol new_rireac
+          bact.ireactants := MolMap.add new_ireac.mol new_ireac
                                         !(bact.ireactants);
-          [ Reacs.Update_reacs !(!new_rireac.reacs) ]
+          [ Reacs.Update_reacs !(new_ireac.reacs) ]
           
-       | Some rireac ->
-         IRMap.add_to_qtt !rireac 1 bact.ireactants
+       | Some ireac ->
+         IRMap.add_to_qtt ireac 1 bact.ireactants
      )
     
   
@@ -133,7 +133,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
 let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
   match reactant with
   | ImolSet ir ->
-     IRMap.add_to_qtt !ir (-1) bact.ireactants
+     IRMap.add_to_qtt ir (-1) bact.ireactants
   | Amol amol ->
      ARMap.remove amol bact.areactants
 
@@ -164,8 +164,8 @@ let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
              (* bact.message_queue <- m :: bact.message_queue; *)
                 ()
            ) tel
-      | Update_launchables ramol ->
-         Petri_net.update_launchables !ramol.pnet
+      | Update_launchables amol ->
+         Petri_net.update_launchables amol.pnet
       | Update_reacs reacset ->
          Reac_mgr.update_rates reacset bact.reac_mgr
       | Remove_reacs reacset -> 
@@ -255,9 +255,9 @@ let to_sig (bact : t) : bact_sig =
   let open Batteries in 
   let imol_enum = MolMap.enum !(bact.ireactants) in
   let trimmed_imol_enum =
-    Enum.map (fun (a,(imd: Reactant.ImolSet.t ref)) ->
-        ({mol = !imd.mol; qtt=  !imd.qtt;
-          ambient = !imd.ambient} : inert_bact_elem))
+    Enum.map (fun (a,(imd: Reactant.ImolSet.t )) ->
+        ({mol = imd.mol; qtt= imd.qtt;
+          ambient = imd.ambient} : inert_bact_elem))
              imol_enum in
   let trimmed_imol_list = List.of_enum trimmed_imol_enum in
   
