@@ -1,6 +1,5 @@
 open Reactions
 open Yojson
-(* open Batteries *)
 open Local_libs.Numeric
 (* * file overview *)
 
@@ -70,7 +69,7 @@ module rec
           }
 
         let show (imd : t) =
-          Printf.sprintf "Inert : %s (%d)" imd.mol imd.qtt
+          Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol 
         let to_yojson (imd : t) : Yojson.Safe.json =
           `Assoc [ "mol" , Molecule.to_yojson imd.mol;
                    "qtt" , `Int  imd.qtt;
@@ -112,7 +111,7 @@ module rec
             reacs : ReacSet.t ref;
           }
         let show am = 
-          Printf.sprintf "Active mol : %s (id : %d)" am.mol am.pnet.uid 
+          Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol  
         let to_yojson am : Yojson.Safe.json =
           `Assoc [ "mol", Molecule.to_yojson am.mol;
                    "pnet_id", `Int am.pnet.uid]
@@ -265,11 +264,11 @@ module rec
              | Grab of Reacs.Grab.t
              | Transition of Reacs.Transition.t
              | Break of Reacs.Break.t
+                      [@@deriving show]
 
            val to_yojson : t -> Yojson.Safe.json
            val treat_reaction : t -> Reacs.effect list
            val compare : t -> t -> int
-           val show : t -> string
            val unlink : t -> unit
          end)
      =
@@ -306,7 +305,7 @@ module rec
         
    and ReacSet :
          (sig
-           include BatSet.S with type elt =  Reaction.t
+           include CCSet.S with type elt =  Reaction.t
            val show : t -> string
            val to_yojson : t -> Yojson.Safe.json
            val pp : Format.formatter -> t -> unit
@@ -314,7 +313,7 @@ module rec
      =
      struct
        
-       include BatSet.Make (Reaction)
+       include CCSet.Make (Reaction)
            
        let show (rset :t) : string =
          fold (fun (reac : Reaction.t) desc ->
@@ -323,7 +322,7 @@ module rec
            ""
        let to_yojson (rset :t) : Yojson.Safe.json=
          `List (List.map Reaction.to_yojson (to_list rset))
-       let pp (f : Format.formatter) (rset : t) =
-         Format.pp_print_string f "reactions set"
+       let pp =
+         pp ~start:"Reac set:\n" Reaction.pp 
   end
 

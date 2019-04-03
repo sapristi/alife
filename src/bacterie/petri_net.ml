@@ -24,7 +24,7 @@
 (* #load "custom_types.cmo";; *)
 
 
-open Batteries
+
 open Local_libs
 open Yaac_config
 open Easy_logging_yojson
@@ -141,7 +141,7 @@ let launch_transition_by_id (tId : int) p =
   
 let launch_random_transition (p : t)
     : Place.transition_effect list =
-  let launchables = Array.filter (fun (t:Transition.t) -> t.launchable) p.transitions in
+  let launchables = CCArray.filter (fun (t:Transition.t) -> t.launchable) p.transitions in
   if Array.length launchables > 0
   then 
     let t = Misc_library.random_pick_from_array launchables in

@@ -11,7 +11,7 @@
 (* #load "misc_library.ml" *)
 
 (*open Misc_library*)
-open Batteries
+
 open Acid_types
 open Yaac_config
 open Local_libs
@@ -186,7 +186,7 @@ let build_nodes_list_with_exts (prot : t) :
 (* wonderfull tail-recursive all-in-one function*)
 
   
-module Tmap = BatMap.Make(String)
+module Tmap = CCMap.Make(String)
 let rec build_data (prot : t)
                    (trans : ((int*input_arc) list *
                                (int*output_arc) list) Tmap.t)
@@ -200,20 +200,27 @@ let rec build_data (prot : t)
           build_data prot' trans ((n+1,[])::places)
          
        | InputArc (id, t) :: prot' ->
-          build_data prot' 
-                     (Tmap.modify_def
-                        ([],[]) id
-                        (fun (ias, oas) ->
-                          ((n, t)::ias, oas)) trans)
-                     places
+          build_data prot'
+            
+            (Tmap.update id
+               (fun item ->
+                 match item with
+                 | None -> Some ([],[])
+                 | Some (ias, oas) ->
+                    Some ((n, t)::ias, oas))
+               trans)
+            places
          
        | OutputArc (id, t) ::prot' -> 
-          build_data prot' 
-                     (Tmap.modify_def
-                        ([],[]) id
-                        (fun (ias, oas) ->
-                          (ias, (n, t)::oas)) trans)
-                     places
+          build_data prot'
+            (Tmap.update id
+               (fun item ->
+                 match item with
+                 | None -> Some ([],[])
+                 | Some (ias, oas) ->
+                    Some (ias, (n, t)::oas))
+               trans)
+            places
          
        | Extension e :: prot' -> 
           build_data prot' trans ((n, e::exts)::places')

@@ -4,7 +4,7 @@
 (* * libs *)
 open Local_libs
 open Reaction
-(* compatibility with yojson before loading batteries *)
+(* compatibility with yojson *)
 type ('a, 'b) mresult = ('a, 'b) result
 open Reactants
 open Yaac_config
@@ -107,7 +107,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
   | None ->
      (
        logger#info "adding inactive molecule  : %s" mol;
-       match MolMap.Exceptionless.find mol !(bact.ireactants) with
+       match MolMap.get mol !(bact.ireactants) with
        | None -> 
           let new_ireac = Reactant.ImolSet.make_new mol in
           (* reactions : grabs *)
@@ -252,22 +252,19 @@ let from_sig (bact_sig : bact_sig) (bact : t): t  =
   
   
 let to_sig (bact : t) : bact_sig =
-  let open Batteries in 
-  let imol_enum = MolMap.enum !(bact.ireactants) in
-  let trimmed_imol_enum =
-    Enum.map (fun (a,(imd: Reactant.ImolSet.t )) ->
+  let imol_list = MolMap.to_list !(bact.ireactants) in
+  let trimmed_imol_list =
+    List.map (fun (a,(imd: Reactant.ImolSet.t )) ->
         ({mol = imd.mol; qtt= imd.qtt;
           ambient = imd.ambient} : inert_bact_elem))
-             imol_enum in
-  let trimmed_imol_list = List.of_enum trimmed_imol_enum in
-  
-  let amol_enum = MolMap.enum !(bact.areactants) in
-  let trimmed_amol_enum =
-    Enum.map (fun (a, amolset) ->
-        {mol = a; qtt = ARMap.AmolSet.cardinal amolset;})
-             amol_enum
+             imol_list
   in
-  let trimmed_amol_list = List.of_enum trimmed_amol_enum
+  let amol_list = MolMap.to_list !(bact.areactants) in
+  let trimmed_amol_list =
+    List.map (fun (a, amolset) ->
+        {mol = a; qtt = ARMap.AmolSet.cardinal amolset;})
+             amol_list
+
   in  
   {inert_mols = trimmed_imol_list;
    active_mols = trimmed_amol_list;}

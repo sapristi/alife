@@ -1,7 +1,7 @@
 
 
 
-open Batteries
+
 open Reaction
 open Local_libs
 open Yaac_config
@@ -61,7 +61,7 @@ module MakeReacSet
   struct
     let logger = Logging.get_logger "Yaac.Bact.Reacs.ReacSet"
     type elt = Reac.t
-    module RSet= Set.Make(Reac)  
+    module RSet= CCSet.Make(Reac)  
                
     type t = {mutable rates_sum : num;
               mutable set : RSet.t;}

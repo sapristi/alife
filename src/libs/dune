@@ -5,7 +5,6 @@
   (pps ppx_deriving.show ppx_deriving.ord ppx_deriving_yojson))
  (libraries
   easy_logging_yojson
-  batteries
   ppx_deriving
   ppx_deriving.show
   ppx_deriving_yojson

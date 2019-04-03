@@ -58,10 +58,7 @@ let random_pick_from_array a =
   let n = Random.int (Array.length a) in 
   a.(n)
 ;;
-let random_pick_from_PSet s = 
-  let size = BatSet.PSet.cardinal s in
-  let n = Random.int size in
-  BatSet.PSet.at_rank_exn n s
+
 
 
 

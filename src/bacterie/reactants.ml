@@ -4,12 +4,16 @@ open Reaction
 open Local_libs
 open Yaac_config
 open Easy_logging_yojson
-open Batteries
+(*open Batteries*)
 open Local_libs.Numeric.Num
 module MolMap =
   struct
-    include Map.Make (struct type t = Molecule.t
-                             let compare = Pervasives.compare end)
+    include CCMap.Make (struct type t = Molecule.t
+                               let compare = Pervasives.compare end)
+
+    
+    (*let show : Molecule.t t -> string =
+      Format.sprintf pp t*)
                      (*   include Exceptionless *)
   end
   
@@ -27,7 +31,7 @@ module ARMap =
 (* *** module Amolset *)
     module AmolSet =
       struct
-        include Batteries.Set.Make (
+        include CCSet.Make (
                     struct
                       type t = Reactant.Amol.t
                       let compare =
@@ -35,7 +39,10 @@ module ARMap =
                         Reactant.Amol.compare
                           amd1 amd2
                     end)
-              
+
+        let pp = pp ~start:"AmolSet:\n " Reactant.Amol.pp
+        let show amolset =
+          Format.asprintf "%a" pp amolset
         let make mol =
           empty
           
@@ -57,7 +64,7 @@ module ARMap =
           then
             ()
           else
-            let any_pnet = (any amolset).pnet in
+            let any_pnet = (choose amolset).pnet in
             
             match new_reactant with
             | Amol new_amol ->
@@ -98,8 +105,9 @@ module ARMap =
 
 (* *** ARMap defs *)      
     type t = AmolSet.t MolMap.t ref
-            
-           
+    let pp = MolMap.pp Molecule.pp AmolSet.pp 
+    let show armap =
+          Format.asprintf "%a" pp armap
     let logger = Logging.get_logger "Yaac.Bact.Internal.ARMap"
                    
 
@@ -107,7 +115,7 @@ module ARMap =
       logger#info "add %s" (Reactant.Amol.show areactant);
 
       armap :=
-        MolMap.modify_opt
+        MolMap.update
           areactant.mol
           (fun data ->
             match data with
@@ -124,9 +132,16 @@ module ARMap =
       
     let remove (areactant : Reactant.Amol.t) (armap : t) : Reacs.effect list =
       armap :=
-        MolMap.modify
+        MolMap.update
           areactant.mol
-          (fun  amolset ->  AmolSet.remove areactant amolset )
+          (fun  amolseto ->
+            match amolseto with
+            | None ->
+               logger#error "Trying to remove nonexistent Amol %s from %s"
+                 (Reactant.Amol.show areactant) (show !armap);
+               failwith "NotFound"
+            | Some amolset -> 
+               Some (AmolSet.remove areactant amolset) )
           !armap;
         
       [ Reacs.Remove_reacs !(areactant.reacs)]
@@ -134,10 +149,10 @@ module ARMap =
       
     let get_pnet_ids mol (armap :t) =
       MolMap.find mol !armap
-      |> AmolSet.enum
-      |> Enum.map  (fun (amd : Reactant.Amol.t) ->
+      |> AmolSet.to_list
+      |> List.map  (fun (amd : Reactant.Amol.t) ->
              amd.pnet.uid)
-      |> List.of_enum
+
 
     let find mol pnet_id (armap : t) =
       try

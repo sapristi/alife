@@ -1,9 +1,8 @@
 open Reaction
-open Batteries
 
 module MolSet =
   struct
-    include Set.Make (struct type t = Molecule.t
+    include CCSet.Make (struct type t = Molecule.t
                              let compare = Pervasives.compare end)
                      (* include Exceptionless *)
   end
@@ -14,7 +13,7 @@ module MolSet =
 module ActiveMolSet  = struct
 
   module PnetSet =
-    Set.Make (
+    CCSet.Make (
         struct
           type t = Reactant.Amol.t
           let compare =
@@ -33,11 +32,10 @@ module ActiveMolSet  = struct
     
 
   let  get_pnet_ids amolset : int list =
-    let pnet_enum = enum amolset in
-    let ids_enum = Enum.map
-                     (fun (amd : Reactant.Amol.t ) ->
-                       amd.pnet.uid) pnet_enum in
-    List.of_enum ids_enum
+    let pnet_enum = to_list amolset in
+    List.map
+      (fun (amd : Reactant.Amol.t ) ->
+        amd.pnet.uid) pnet_enum
     
         
 (* *** update reacs with new reactant *)
@@ -48,7 +46,7 @@ module ActiveMolSet  = struct
     then
       ()
     else
-      let (any_amd : Reactant.Amol.t) = any amolset in
+      let (any_amd : Reactant.Amol.t) = choose amolset in
       let dummy_pnet = any_amd.pnet in
 
       match new_reactant with

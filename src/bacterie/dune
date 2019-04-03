@@ -9,6 +9,7 @@
  (libraries local_libs
             yaac_config
             easy_logging_yojson
+            containers
             batteries
             re
             ppx_deriving
