@@ -28,42 +28,13 @@ type params = {
 
 let logger = Logging.get_logger  "Yaac.Main"
                
-let default_log_config_str = {|
-{
-    "handlers": {
-        "file_handlers": {
-             "logs_folder" : "logs",
-             "truncate" : false
-        }
-    },
-    "loggers": 
-        [
-            {
-                "name": "Yaac",
-                "level": "debug",
-                "handlers": [ {"cli": {"level":"debug"}} ] },
-            {
-                "name": "Yaac.Bact",
-                "level": "info"},
-            {
-                "name": "Yaac.Bact.Internal",
-                "level": "warning"},
-            
-            {
-                "name": "Yaac.Server",
-                "level" : "info"},
-            {
-                "name": "Yaac.stats",
-                "level": "nolevel",
-                "propagate" : false }
-        ]
-} |}
+
 
 let run_yaacs p : unit= 
   logger#info "Starting Yaac with options :\n%s" @@ show_params p;
   
   if p.log_config = ""
-  then Logging.load_config_str default_log_config_str
+  then Logging.load_config_str Config.default_log_config_str
   else Logging.load_config_file p.log_config;
   
   if p.stats

@@ -65,12 +65,13 @@ module MakeReacSet
                
     type t = {mutable rates_sum : num;
               mutable set : RSet.t;}
-      
+
+    let pp fmt e =
+      (RSet.pp ~start:"ReacSet" Reac.pp) fmt e.set
+            
     let show (s : t) =
-      RSet.fold (fun (e : elt) desc ->
-          (Reac.show e)^"\n"^desc) s.set ""
-    let pp (f : Format.formatter) (s : t) =
-          Format.pp_print_string f (show s)
+      Format.asprintf "%a" pp s
+
     let cardinal r = RSet.cardinal r.set
     let empty () : t =
       {rates_sum = zero;
@@ -81,22 +82,26 @@ module MakeReacSet
     let total_rate s =
       s.rates_sum
 
+    let check_reac_rates s =
+      if  not (Num.equal s.rates_sum (calculate_rate s))
+      then
+        begin
+          logger#error "Stored and computed rates are not equal: %.20f != %.20f\n%s"
+            (float_of_num s.rates_sum)
+            (float_of_num (calculate_rate s))
+            (show s);
+          failwith "error"
+        end
+      
     let remove r s =
       logger#debug "Remove %s" (Reac.show r);
       
       let rate = Reac.rate r in
       s.set <- RSet.remove r s.set;
       s.rates_sum <- s.rates_sum - rate;
-
-      if  not (Num.equal s.rates_sum (calculate_rate s))
-      then
-        begin
-          logger#error "remove : %.20f != %.20f\n%s"
-            (float_of_num s.rates_sum)
-            (float_of_num (calculate_rate s))
-            (show s);
-          failwith "error"
-        end
+      if Config.check_reac_rates
+      then check_reac_rates s
+           
       
     let add r s =
 
@@ -104,14 +109,8 @@ module MakeReacSet
 
       s.set <- RSet.add r s.set;
       s.rates_sum <- s.rates_sum + (Reac.rate r);
-      if  not (Num.equal s.rates_sum (calculate_rate s))
-      then
-        begin
-          logger#error "add : %.20f != %.20f"
-            (float_of_num s.rates_sum)
-            (float_of_num (calculate_rate s));
-          failwith "error"
-        end
+      if Config.check_reac_rates
+      then check_reac_rates s
       
     let update_rate r s =
 
@@ -119,16 +118,9 @@ module MakeReacSet
 
       let rate_delta = Reac.update_rate r in
       s.rates_sum <- s.rates_sum + rate_delta;
+      if Config.check_reac_rates
+      then check_reac_rates s
 
-      if  not (Num.equal s.rates_sum (calculate_rate s))
-      then
-        begin
-          
-          logger#error "Update_rate : %.20f != %.20f"
-            (float_of_num s.rates_sum)
-            (float_of_num (calculate_rate s));
-          failwith "error"
-        end
 
     let to_yojson s =
       `Assoc [
@@ -145,8 +137,9 @@ module MakeReacSet
           (RSet.elements s.set)
       with
         Not_found ->
-        logger#error "Not found with bound %s, rates_sum %s"
-             (show_num bound) (show_num s.rates_sum);
+        logger#error "Not found with bound %s, rates_sum %s in\n%s "
+          (show_num bound) (show_num s.rates_sum)
+          (show s);
         raise Not_found
 end
 (* for binding reactions ? *)
@@ -159,7 +152,7 @@ module MakeAutoUpdatingReacSet (Reac : Reacs.REAC) =
               mutable set : RSet.t;}
     let make_empty () : t =
       {total_rate = zero; set = RSet.empty;}
-
+      
     let remove r s = s.set <- RSet.remove r s.set
     let add r s = s.set <- RSet.add r s.set
     let update_rate r s = ()

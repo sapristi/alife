@@ -144,9 +144,16 @@ module ARMap =
                logger#error "Trying to remove nonexistent Amol %s from %s"
                  (Reactant.Amol.show areactant) (show armap.v);
                raise Not_found
-            | Some amolset -> 
-               Some (AmolSet.remove areactant amolset) )
-          armap.v;
+            | Some amolset ->
+               if Config.keep_empty_reactants
+               then 
+                 Some (AmolSet.remove areactant amolset)
+               else
+                 let new_aset = AmolSet.remove areactant amolset in
+                 if AmolSet.is_empty new_aset
+                 then None
+                 else Some new_aset
+          ) armap.v;
         
       [ Reacs.Remove_reacs !(areactant.reacs)]
 
@@ -202,6 +209,9 @@ module IRMap =
         : Reacs.effect list =
       let imolset = MolMap.find ir.mol irmap.v in
       Reactant.ImolSet.add_to_qtt deltaqtt imolset;
+      if (not Config.keep_empty_reactants) && imolset.qtt = 0
+      then irmap.v <- MolMap.remove ir.mol irmap.v; 
+                                                              
       [Reacs.Update_reacs !(ir.reacs)]
       
     let set_qtt qtt mol (irmap : t)  : Reacs.effect list=
@@ -222,7 +232,6 @@ module IRMap =
       irmap.v <- MolMap.remove mol irmap.v;
       [ Reacs.Remove_reacs reacs]
 
-      
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
                                     (irmap :t) reac_mgr =      
       match new_reactant with

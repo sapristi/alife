@@ -167,9 +167,11 @@ module ExactQ : NumericT =
     (** [Warning] QUICK AND DIRTY
         but this should be ok 
      *)
-    let random {num=n; den=m} =
-      
-      {num= bigrandom n; den=m}
+    (*let random {num=n; den=m} =
+      {num= bigrandom n; den=m} *)
+    let random q =
+      let r = Random.float 1. in
+      q * (of_float r)
 
   end
 

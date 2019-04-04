@@ -1,21 +1,38 @@
 
-open Easy_logging
-   
-type config = {
-    bact_log_level : log_level option;
-    reacs_log_level : log_level option;
-    stats_log_level : log_level option;
-    internal_log_level : log_level option;
-  } [@@deriving show]
+let default_log_config_str = {|
+{
+    "handlers": {
+        "file_handlers": {
+             "logs_folder" : "logs",
+             "truncate" : false
+        }
+    },
+    "loggers": 
+        [
+            {
+                "name": "Yaac",
+                "level": "debug",
+                "handlers": [ {"cli": {"level":"debug"}} ] },
+            {
+                "name": "Yaac.Bact",
+                "level": "info"},
+            {
+                "name": "Yaac.Bact.Internal",
+                "level": "warning"},
             
-let logconfig = {
-    bact_log_level = Some Info;
-    reacs_log_level = Some Info;
-    stats_log_level = None;
-    internal_log_level = Some Info;
-  }
+            {
+                "name": "Yaac.Server",
+                "level" : "info"},
+            {
+                "name": "Yaac.stats",
+                "level": "nolevel",
+                "propagate" : false }
+        ]
+} |}
 
 type num_choice =
   | Sloppy | ExactZ | ExactQ
 
 let num = ExactQ
+let check_reac_rates = true
+let keep_empty_reactants = true

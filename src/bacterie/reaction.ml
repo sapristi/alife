@@ -67,16 +67,17 @@ module rec
             reacs : ReacSet.t ref;
             mutable ambient:bool;
           }
-
+               
         let show (imd : t) =
-          Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol 
+          Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol
+          
+        let pp (f : Format.formatter) (imd : t) =
+          Format.pp_print_string f (show imd)
         let to_yojson (imd : t) : Yojson.Safe.json =
           `Assoc [ "mol" , Molecule.to_yojson imd.mol;
                    "qtt" , `Int  imd.qtt;
                    "ambient" , `Bool imd.ambient ]
           
-        let pp (f : Format.formatter) (imd : t) =
-          Format.pp_print_string f (show imd)
         let show_reacSet = ReacSet.show
         let pp_reacSet = ReacSet.pp
                        

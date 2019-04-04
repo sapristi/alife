@@ -192,8 +192,9 @@ let get_reactions (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
 let show_pnet (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   let mol =cgi#argument_value "mol"
   and pnet_id = int_of_string @@ cgi#argument_value "pnet_id"  in
-  Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants
-  |>  Reactant.Amol.show
+  let ar = Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants in
+  let pnet = ar.pnet in 
+  Petri_net.show pnet
 
   
 let server_functions =

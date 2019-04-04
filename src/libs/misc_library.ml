@@ -117,11 +117,10 @@ let rec pick_from_list (bound : Num.num) (c : Num.num)
   | h::t -> 
      let c' = c + value h in
 
-     logger#ldebug (lazy 
-       (Printf.sprintf "Bound %s;Current %s;"
-          (show_num bound) (show_num (value h))));
+     logger#debug "Fixed bound: %s; Current: %s; Cumul: %s"
+          (show_num bound) (show_num (value h)) (show_num c');
      
-     if c' > bound then h
+     if lt bound c'  then h
      else pick_from_list bound c' value t
   | [] ->
      raise Not_found
