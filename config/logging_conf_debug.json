@@ -1,20 +1,22 @@
 {
     "handlers": {
-        "logs_folder" : "logs",
-        "truncate" : false
+        "file_handlers": {
+             "logs_folder" : "logs",
+             "truncate" : false
+        }
     },
-    "loggers": {
+    "loggers": 
         [
             {
                 "name": "Yaac",
                 "level": "debug",
-                "handlers": "Cli debug"},
+                "handlers": [ {"cli": {"level":"debug"}} ] },
             {
                 "name": "Yaac.Bact",
-                "level": "info"},
+                "level": "debug"},
             {
                 "name": "Yaac.Bact.Internal",
-                "level": "warning"},
+                "level": "debug"},
             
             {
                 "name": "Yaac.Server",
@@ -22,8 +24,9 @@
             {
                 "name": "Yaac.stats",
                 "level": "nolevel",
-                "propagate" : false}
-            
+                "propagate" : false },
+            {
+                "name" : "Yaac.Libs",
+                "level" : "warning"}
         ]
-    }
-}
+} 

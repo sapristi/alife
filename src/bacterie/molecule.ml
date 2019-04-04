@@ -4,8 +4,6 @@
 (*   functions to help build a petri-net out of it and a module to help it *)
 (*   get managed by a petri-net (i.e. simulate chemical reactions *)
 
-(* * preamble : load libraries *)
-
 
     
 type t = string

@@ -104,7 +104,10 @@ module ARMap =
       end
 
 (* *** ARMap defs *)      
-    type t = AmolSet.t MolMap.t ref
+    type t = {
+        mutable v:  AmolSet.t MolMap.t
+      }
+           
     let pp = MolMap.pp Molecule.pp AmolSet.pp 
     let show armap =
           Format.asprintf "%a" pp armap
@@ -114,7 +117,7 @@ module ARMap =
     let add (areactant :Reactant.Amol.t )  (armap : t) : Reacs.effect list =
       logger#info "add %s" (Reactant.Amol.show areactant);
 
-      armap :=
+      armap.v <-
         MolMap.update
           areactant.mol
           (fun data ->
@@ -123,32 +126,32 @@ module ARMap =
                Some ( AmolSet.add areactant amolset )
             | None ->
                Some( AmolSet.singleton areactant )
-          ) !armap;
+          ) armap.v;
       (* we should return the list of reactions to update *)
       [ Reacs.Update_reacs !(areactant.reacs)]
 
     let total_nb (armap :t) =
-      MolMap.fold (fun _ amset t -> t + (num_of_int (AmolSet.cardinal amset))) !armap zero
+      MolMap.fold (fun _ amset t -> t + (num_of_int (AmolSet.cardinal amset))) armap.v zero
       
     let remove (areactant : Reactant.Amol.t) (armap : t) : Reacs.effect list =
-      armap :=
+      armap.v <-
         MolMap.update
           areactant.mol
           (fun  amolseto ->
             match amolseto with
             | None ->
                logger#error "Trying to remove nonexistent Amol %s from %s"
-                 (Reactant.Amol.show areactant) (show !armap);
-               failwith "NotFound"
+                 (Reactant.Amol.show areactant) (show armap.v);
+               raise Not_found
             | Some amolset -> 
                Some (AmolSet.remove areactant amolset) )
-          !armap;
+          armap.v;
         
       [ Reacs.Remove_reacs !(areactant.reacs)]
 
       
     let get_pnet_ids mol (armap :t) =
-      MolMap.find mol !armap
+      MolMap.find mol armap.v
       |> AmolSet.to_list
       |> List.map  (fun (amd : Reactant.Amol.t) ->
              amd.pnet.uid)
@@ -156,13 +159,13 @@ module ARMap =
 
     let find mol pnet_id (armap : t) =
       try
-        let amolset = MolMap.find mol !armap in
+        let amolset = MolMap.find mol armap.v in
         
           AmolSet.find_by_id pnet_id amolset
       with
       | _   ->
-         logger#error "cannot find %s:%d" mol pnet_id;
-         failwith "ok"
+         logger#error "Cannot find %s:%d in %s" mol pnet_id (show armap.v);
+         raise Not_found
       
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
                                     (armap :t)  reac_mgr: unit =
@@ -174,7 +177,7 @@ module ARMap =
             new_reactant
             areac
             reac_mgr)
-        !armap
+        armap.v
       
   end
 
