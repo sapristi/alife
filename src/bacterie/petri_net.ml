@@ -118,9 +118,10 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
       None
   with
   | _ as e->
-     logger#swarning (Printexc.get_backtrace ());
-     logger#swarning (Printexc.to_string e);
-     logger#warning "During pnet creation";
+     logger#warning "Error during pnet creation :\n%s\n%s"
+       (Printexc.get_backtrace ())
+       (Printexc.to_string e);
+
      None
      
 let make_from_mol (mol : Molecule.t) : t option =

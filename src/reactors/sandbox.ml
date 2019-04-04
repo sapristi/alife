@@ -9,9 +9,6 @@ let logger = Logging.get_logger "Yaac.Reactor.Sandbox"
                
 
 
-let _ = logger#sinfo @@ Config.show_config Config.logconfig
-                  
-
                   
 type t =
   {

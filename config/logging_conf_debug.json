@@ -10,14 +10,13 @@
             {
                 "name": "Yaac",
                 "level": "debug",
-                "handlers": [ {"cli": {"level":"debug"}} ] },
+                "handlers": [ {"cli": {"level":"info"}} ] },
             {
                 "name": "Yaac.Bact",
                 "level": "debug"},
             {
                 "name": "Yaac.Bact.Internal",
-                "level": "debug"},
-            
+                "level": "debug"},      
             {
                 "name": "Yaac.Server",
                 "level" : "info"},

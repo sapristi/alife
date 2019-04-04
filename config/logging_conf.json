@@ -17,7 +17,9 @@
             {
                 "name": "Yaac.Bact.Internal",
                 "level": "warning"},
-            
+            {
+                "name": "Yaac.Bact.React",
+                "level": "info"},
             {
                 "name": "Yaac.Server",
                 "level" : "info"},

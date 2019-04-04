@@ -112,7 +112,8 @@ module ARMap =
     let show armap =
           Format.asprintf "%a" pp armap
     let logger = Logging.get_logger "Yaac.Bact.Internal.ARMap"
-                   
+
+    let make () = {v = MolMap.empty}
 
     let add (areactant :Reactant.Amol.t )  (armap : t) : Reacs.effect list =
       logger#info "add %s" (Reactant.Amol.show areactant);
@@ -185,34 +186,40 @@ module ARMap =
 
 module IRMap =
   struct
-    type t = (Reactant.ImolSet.t) MolMap.t ref
+    type t = {mutable v : Reactant.ImolSet.t MolMap.t}
 
+    let pp = MolMap.pp Molecule.pp Reactant.ImolSet.pp 
+    let show irmap =
+          Format.asprintf "%a" pp irmap
     let logger = Logging.get_logger "Yaac.Bact.Internal.IRMap"
-                   
 
-           
+    let make () = {v = MolMap.empty}
+
+    let add (ireac : Reactant.ImolSet.t) irmap =
+      irmap.v <- MolMap.add ireac.mol ireac irmap.v
+                
     let add_to_qtt (ir : Reactant.ImolSet.t) deltaqtt (irmap : t)
         : Reacs.effect list =
-      let imolset = MolMap.find ir.mol !irmap in
+      let imolset = MolMap.find ir.mol irmap.v in
       Reactant.ImolSet.add_to_qtt deltaqtt imolset;
       [Reacs.Update_reacs !(ir.reacs)]
       
     let set_qtt qtt mol (irmap : t)  : Reacs.effect list=
       
-      let imolset = MolMap.find mol !irmap in
+      let imolset = MolMap.find mol irmap.v in
       Reactant.ImolSet.set_qtt qtt imolset;
       [ Reacs.Update_reacs !(imolset.reacs)]
 
       
     let set_ambient ambient mol (irmap :t) =
-      let imolset = MolMap.find mol !irmap in
+      let imolset = MolMap.find mol irmap.v in
        Reactant.ImolSet.set_ambient ambient imolset
       
       
     let remove_all mol (irmap : t) =
-      let imolset = MolMap.find mol !irmap in
+      let imolset = MolMap.find mol irmap.v in
       let reacs = Reactant.ImolSet.reacs imolset in
-      irmap := MolMap.remove mol !irmap;
+      irmap.v <- MolMap.remove mol irmap.v;
       [ Reacs.Remove_reacs reacs]
 
       
@@ -229,7 +236,7 @@ module IRMap =
                  logger#debug "[%s] grabed by %s" ireactant.mol (Reactant.show new_reactant);
                )
            )
-           !irmap
+           irmap.v
         
       | ImolSet _ -> ()
       

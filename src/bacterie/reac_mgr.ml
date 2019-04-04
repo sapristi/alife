@@ -91,7 +91,7 @@ module MakeReacSet
       if  not (Num.equal s.rates_sum (calculate_rate s))
       then
         begin
-          logger#error "remove : %.100f %.100f\n%s"
+          logger#error "remove : %.20f != %.20f\n%s"
             (float_of_num s.rates_sum)
             (float_of_num (calculate_rate s))
             (show s);
@@ -107,12 +107,9 @@ module MakeReacSet
       if  not (Num.equal s.rates_sum (calculate_rate s))
       then
         begin
-          logger#error "add : %.20f %.20f"
+          logger#error "add : %.20f != %.20f"
             (float_of_num s.rates_sum)
             (float_of_num (calculate_rate s));
-          logger#error "add : %s %s"
-            (show_num s.rates_sum)
-            (show_num (calculate_rate s));
           failwith "error"
         end
       
@@ -127,7 +124,7 @@ module MakeReacSet
       then
         begin
           
-          logger#error "Update_rate : %.20f %.20f"
+          logger#error "Update_rate : %.20f != %.20f"
             (float_of_num s.rates_sum)
             (float_of_num (calculate_rate s));
           failwith "error"
@@ -148,9 +145,9 @@ module MakeReacSet
           (RSet.elements s.set)
       with
         Not_found ->
-        logger#debug "Not found with bound %s, rates_sum %s"
+        logger#error "Not found with bound %s, rates_sum %s"
              (show_num bound) (show_num s.rates_sum);
-        failwith "ok"
+        raise Not_found
 end
 (* for binding reactions ? *)
 module MakeAutoUpdatingReacSet (Reac : Reacs.REAC) = 
@@ -263,7 +260,7 @@ let add_grab (graber_d : Reactant.Amol.t)
    *                       (Reactant.show grabed_d)); *)
   
   
-  logger#info "added new grab between : \n%s\n%s"
+  logger#trace "added new grab between : \n- %s\n- %s"
                     (Reactant.Amol.show graber_d)
                     (Reactant.show grabed_d);
 
@@ -279,7 +276,7 @@ let add_grab (graber_d : Reactant.Amol.t)
   
            
 let add_transition amd reac_mgr  =
-  logger#info "added new transition : %s"
+  logger#trace "added new transition : %s"
     (Reactant.Amol.show amd);
   
   let t = Reacs.Transition.make amd   in
@@ -291,7 +288,7 @@ let add_transition amd reac_mgr  =
 
 (* ** Break *)
 let add_break md reac_mgr =
-  logger#info "added new break : %s"  (Reactant.show md);
+  logger#trace "added new break : %s"  (Reactant.show md);
   
   let b = Reacs.Break.make md in
   BSet.add b reac_mgr.b_set;
@@ -314,7 +311,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
     !(reac_mgr.env).break_rate *
       BSet.total_rate reac_mgr.b_set
   in
-
+    
   logger#debug  "********     Grabs   (total : %s)  (nb_reacs : %d)  *********"
     (show_num total_g_rate) (GSet.cardinal reac_mgr.g_set);
   logger#ldebug (lazy (GSet.show reac_mgr.g_set));

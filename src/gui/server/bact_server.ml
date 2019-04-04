@@ -9,8 +9,17 @@ open Local_libs
 open Easy_logging_yojson
 let logger = Logging.get_logger "Yaac.Server.Bact"
 
-           
 
+let set_log_level (cgi: Netcgi.cgi) : string =
+  let loggername = cgi#argument_value "logger" in
+  match cgi#argument_value "level"
+        |> log_level_of_string with
+  | Ok level ->  
+     let logger = Logging.get_logger loggername in
+     logger#set_level level;
+     "ok"
+  | Error r -> 
+     r
 
 let prot_from_mol (cgi:Netcgi.cgi) : string =
   
@@ -84,10 +93,11 @@ let list_acids cgi : string =
     
 
 let server_functions =
-  ["prot_from_mol", prot_from_mol;
-   "build_all_from_mol", build_all_from_mol;
-   "build_all_from_prot", build_all_from_prot;
-   "list_acids", list_acids]
+  ["set_log_level", set_log_level;
+    "prot_from_mol", prot_from_mol;
+    "build_all_from_mol", build_all_from_mol;
+    "build_all_from_prot", build_all_from_prot;
+    "list_acids", list_acids]
     
   
 let make_dyn_service  f  =
@@ -110,8 +120,9 @@ let make_dyn_service  f  =
               f cgi, `Ok
             with
             | _ as e ->
-               logger#serror (Printexc.get_backtrace ());
-               logger#serror (Printexc.to_string e);
+               logger#error "An error happened while treating the request:%s\n%s"
+                 (Printexc.get_backtrace ())
+                 (Printexc.to_string e);
                
                "error", `Internal_server_error
           in

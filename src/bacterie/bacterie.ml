@@ -86,7 +86,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
   match new_opnet with
     
   | Some pnet ->
-     logger#info "adding active molecule  : %s" mol;
+     logger#trace "adding active molecule  : %s" mol;
      
      let ar = Reactant.Amol.make_new pnet in
      (* reactions : grabs with other amols*)
@@ -106,8 +106,8 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
      ARMap.add ar bact.areactants
   | None ->
      (
-       logger#info "adding inactive molecule  : %s" mol;
-       match MolMap.get mol !(bact.ireactants) with
+       logger#trace "adding inactive molecule  : %s" mol;
+       match MolMap.get mol bact.ireactants.v with
        | None -> 
           let new_ireac = Reactant.ImolSet.make_new mol in
           (* reactions : grabs *)
@@ -117,8 +117,8 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
           (* reactions : break *)
           Reac_mgr.add_break (ImolSet new_ireac) bact.reac_mgr;
           (* add molecule *)
-          bact.ireactants := MolMap.add new_ireac.mol new_ireac
-                                        !(bact.ireactants);
+          IRMap.add new_ireac bact.ireactants;
+
           [ Reacs.Update_reacs !(new_ireac.reacs) ]
           
        | Some ireac ->
@@ -206,7 +206,7 @@ let next_reaction (bact : t)  =
      logger#warning "no more reactions";
      ()
   | Some r ->
-     let ir_card = lazy (MolMap.cardinal !(bact.ireactants))
+     let ir_card = lazy (MolMap.cardinal bact.ireactants.v)
      and ar_card = lazy (ARMap.total_nb bact.areactants) in
      let actions = Reaction.treat_reaction r in
      let treated_time = Sys.time () in 
@@ -252,14 +252,14 @@ let from_sig (bact_sig : bact_sig) (bact : t): t  =
   
   
 let to_sig (bact : t) : bact_sig =
-  let imol_list = MolMap.to_list !(bact.ireactants) in
+  let imol_list = MolMap.to_list bact.ireactants.v in
   let trimmed_imol_list =
     List.map (fun (a,(imd: Reactant.ImolSet.t )) ->
         ({mol = imd.mol; qtt= imd.qtt;
           ambient = imd.ambient} : inert_bact_elem))
              imol_list
   in
-  let amol_list = MolMap.to_list !(bact.areactants) in
+  let amol_list = MolMap.to_list bact.areactants.v in
   let trimmed_amol_list =
     List.map (fun (a, amolset) ->
         {mol = a; qtt = ARMap.AmolSet.cardinal amolset;})
@@ -290,8 +290,8 @@ let empty_sig : bact_sig = {
 let make  ?(bact_sig=empty_sig)  env :t =
   let renv = ref env in 
   
-  let bact = {ireactants = ref MolMap.empty;
-              areactants = ref MolMap.empty;
+  let bact = {ireactants = IRMap.make ();
+              areactants = ARMap.make ();
               env = renv;
               reac_mgr = Reac_mgr.make_new renv}
   in

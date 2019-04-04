@@ -56,8 +56,8 @@ let next_reactions (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
       done;
     with
     | _ as e->
-       logger#serror (Printexc.get_backtrace ());
-       logger#serror (Printexc.to_string e);
+       logger#error "Error when picking reaction;\n%s\n%s"
+         (Printexc.get_backtrace ()) (Printexc.to_string e);
        ();
   );
   `Assoc
@@ -188,6 +188,13 @@ let get_reactions (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   !(sandbox.bact).reac_mgr
   |> Reac_mgr.to_yojson
   |> Yojson.Safe.to_string
+
+let show_pnet (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
+  let mol =cgi#argument_value "mol"
+  and pnet_id = int_of_string @@ cgi#argument_value "pnet_id"  in
+  Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants
+  |>  Reactant.Amol.show
+
   
 let server_functions =
   [
@@ -205,7 +212,8 @@ let server_functions =
     "reset_sandbox", reset_state;
     "set_sandbox",set_state;
     "set_environment", set_environment;
-    "get_reactions", get_reactions
+    "get_reactions", get_reactions;
+    "show_pnet", show_pnet
   ]
     
    
