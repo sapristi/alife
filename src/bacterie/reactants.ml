@@ -145,14 +145,14 @@ module ARMap =
                  (Reactant.Amol.show areactant) (show armap.v);
                raise Not_found
             | Some amolset ->
-               if Config.keep_empty_reactants
+               if Config.remove_empty_reactants
                then 
-                 Some (AmolSet.remove areactant amolset)
-               else
                  let new_aset = AmolSet.remove areactant amolset in
                  if AmolSet.is_empty new_aset
                  then None
                  else Some new_aset
+               else
+                 Some (AmolSet.remove areactant amolset)
           ) armap.v;
         
       [ Reacs.Remove_reacs !(areactant.reacs)]
@@ -200,6 +200,26 @@ module IRMap =
           Format.asprintf "%a" pp irmap
     let logger = Logging.get_logger "Yaac.Bact.Internal.IRMap"
 
+
+    (** External API : should not be called from other internal functions *)
+    module Ext =
+      struct
+        let set_qtt qtt mol (irmap : t)  : Reacs.effect list =
+          let imolset = MolMap.find mol irmap.v in
+          Reactant.ImolSet.set_qtt qtt imolset;
+          [ Reacs.Update_reacs !(imolset.reacs)]
+          
+        let set_ambient ambient mol (irmap :t) =
+          let imolset = MolMap.find mol irmap.v in
+          Reactant.ImolSet.set_ambient ambient imolset
+      
+        let remove_all mol (irmap : t) =
+          let imolset = MolMap.find mol irmap.v in
+          let reacs = Reactant.ImolSet.reacs imolset in
+          irmap.v <- MolMap.remove mol irmap.v;
+          [ Reacs.Remove_reacs reacs]
+      end
+               
     let make () = {v = MolMap.empty}
 
     let add (ireac : Reactant.ImolSet.t) irmap =
@@ -209,31 +229,15 @@ module IRMap =
         : Reacs.effect list =
       let imolset = MolMap.find ir.mol irmap.v in
       Reactant.ImolSet.add_to_qtt deltaqtt imolset;
-      if (not Config.keep_empty_reactants) && imolset.qtt = 0
-      then irmap.v <- MolMap.remove ir.mol irmap.v; 
-                                                              
+      if Config.remove_empty_reactants && imolset.qtt = 0
+      then
+        Ext.remove_all imolset.mol irmap
+      else
       [Reacs.Update_reacs !(ir.reacs)]
-      
-    let set_qtt qtt mol (irmap : t)  : Reacs.effect list=
-      
-      let imolset = MolMap.find mol irmap.v in
-      Reactant.ImolSet.set_qtt qtt imolset;
-      [ Reacs.Update_reacs !(imolset.reacs)]
 
-      
-    let set_ambient ambient mol (irmap :t) =
-      let imolset = MolMap.find mol irmap.v in
-       Reactant.ImolSet.set_ambient ambient imolset
-      
-      
-    let remove_all mol (irmap : t) =
-      let imolset = MolMap.find mol irmap.v in
-      let reacs = Reactant.ImolSet.reacs imolset in
-      irmap.v <- MolMap.remove mol irmap.v;
-      [ Reacs.Remove_reacs reacs]
-
+          
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
-                                    (irmap :t) reac_mgr =      
+          (irmap :t) reac_mgr =      
       match new_reactant with
       | Amol new_amol -> 
          MolMap.iter

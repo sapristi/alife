@@ -34,5 +34,5 @@ type num_choice =
   | Sloppy | ExactZ | ExactQ
 
 let num = ExactQ
-let check_reac_rates = true
-let keep_empty_reactants = true
+let check_reac_rates = false
+let remove_empty_reactants = true

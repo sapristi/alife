@@ -1,24 +1,24 @@
 open Bacterie_libs
 open Local_libs
-
-
+open Easy_logging
+open Numeric.Num
 let () = Printexc.record_backtrace true;;
    
-let format_dummy : Logger.Formatter.t = fun item -> item.msg;;
-let handler = Logger.Handler.make_file_handler Logger.Debug "stats" in
-    let stats_reporter = Logger.get_logger "reacs_stats" in
+let format_dummy : Default_handlers.log_formatter = fun item -> item.msg;;
+let handler = Default_handlers.make (File ("stats", Debug)) in
+    let stats_reporter = Logging.get_logger "reacs_stats" in
     stats_reporter#add_handler handler;
-    stats_reporter#set_level (Some Debug);
-    Logger.Handler.set_formatter handler format_dummy;
+    stats_reporter#set_level (Debug);
+    Default_handlers.set_formatter handler format_dummy;
     stats_reporter#info "ireactants areactants transitions grabs breaks  picked_dur treated_dur actions_dur";;
 
 
 
 let env : Environment.t = {
-    transition_rate = 10.;
-    grab_rate = 1.;
-    break_rate = 0.001;
-    random_collision_rate = 0.
+    transition_rate = (num_of_string "10");
+    grab_rate = num_of_string "1";
+    break_rate = num_of_string "1/1000";
+    random_collision_rate = num_of_string "0"
   }
 
 
@@ -34,7 +34,7 @@ let bsig : Bacterie.bact_sig =
     active_mols= [{mol="AAABAAAADDFCBAAADDFBAAABDDFCBAABDDFBAAACDDFCBAACDDFBAAADDDFCBAADDDFBAAAFDDFCBAAFDDFBAAAAADDFCAABBBDDFAAABAAAADDFABAFAFDDFAAABAAABDDFABAFBFDDFAAABAAACDDFABAFCFDDFAAABAAADDDFABAFDFDDFAAABAAAFDDFABAFFFDDFAAABCAAADDFCCAAADDFBCBABDDFCCAABDDFBCCACDDFCCAACDDFBCDADDDFCCAADDDFBCFAFDDFCCAAFDDFBABAAADDFCAABBBDDFAAACAAAAADDFABBAAACAAAAADDFABBAAABAABBBDDFCAACCCDDFAAABAABBBDDFABADFDFFFDDFAAABBACCCDDFCAACCCDDFABC";qtt=10}]
   } 
 
-let bact = Bacterie.make ~env:env ~bact_sig:bsig ();;
+let bact = Bacterie.make ~bact_sig:bsig env;;
 for i = 0 to 1000000 do
   Bacterie.next_reaction bact
 done;;

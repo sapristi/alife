@@ -51,7 +51,7 @@ open Local_libs.Numeric.Num
 
 let logger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr"
                
-
+(*let logger = Logging.make_logger "Yaac.Bact.Reacs.reacs_mgr" Debug [File ("reacs", Debug)]*)
                  
 (* * MakeReacSet functor *)
 open Numeric
@@ -90,7 +90,10 @@ module MakeReacSet
             (float_of_num s.rates_sum)
             (float_of_num (calculate_rate s))
             (show s);
-          failwith "error"
+          failwith (Printf.sprintf "error %f %f\n %s"
+                      (float_of_num s.rates_sum)
+                      (float_of_num (calculate_rate s))
+                      (show s))
         end
       
     let remove r s =

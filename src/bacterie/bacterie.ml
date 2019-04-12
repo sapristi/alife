@@ -34,8 +34,7 @@ open Local_libs.Numeric
 (*  + areactants : active reactants, molecules that fold into a petri net. *)
 (*     We thus have to have a distinct pnet for each present molecule *)
 
-let logger = Logging.get_logger "Yaac.Bact"
-               
+let logger = Logging.make_logger "Yaac.Bact" Debug [File ("bact", Debug)]               
 
       
 type t ={
@@ -46,7 +45,7 @@ type t ={
   }
 type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
                      [@@ deriving yojson, ord, show]
-type active_bact_elem = {qtt:int;mol: Molecule.t} 
+type active_bact_elem = {qtt:int;mol: Molecule.t}
                    [@@ deriving yojson, ord, show]
 type bact_sig = {
     inert_mols : inert_bact_elem list;
@@ -235,9 +234,9 @@ let from_sig (bact_sig : bact_sig) (bact : t): t  =
     (fun {mol = m;qtt = n; ambient=a} ->
       add_molecule m bact
       |> execute_actions bact;
-      IRMap.set_qtt n m bact.ireactants
+      IRMap.Ext.set_qtt n m bact.ireactants
       |> execute_actions bact;
-      IRMap.set_ambient a m bact.ireactants;
+      IRMap.Ext.set_ambient a m bact.ireactants;
     ) bact_sig.inert_mols;
   
     List.iter

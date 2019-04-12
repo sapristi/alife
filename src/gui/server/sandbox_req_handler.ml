@@ -128,7 +128,7 @@ let add_mol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) : string=
   
 let remove_imol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
   let mol = cgi # argument_value "mol_desc" in
-  Reactants.IRMap.remove_all mol !(sandbox.bact).ireactants
+  Reactants.IRMap.Ext.remove_all mol !(sandbox.bact).ireactants
   |> Bacterie.execute_actions !(sandbox.bact);
   get_bact_elements sandbox cgi
 
@@ -145,7 +145,7 @@ let set_imol_quantity (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   and n = cgi # argument_value "mol_quantity"
           |> int_of_string
   in
-  Reactants.IRMap.set_qtt  n mol !(sandbox.bact).ireactants
+  Reactants.IRMap.Ext.set_qtt  n mol !(sandbox.bact).ireactants
   |> Bacterie.execute_actions !(sandbox.bact);
   get_bact_elements sandbox cgi
   
