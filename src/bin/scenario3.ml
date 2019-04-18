@@ -1,15 +1,16 @@
 open Bacterie_libs
 open Local_libs
+open Numeric.Num
 
 
 let () = Printexc.record_backtrace true;;
    
 
 let env : Environment.t = {
-    transition_rate = 10.;
-    grab_rate = 1.;
-    break_rate = 0.001;
-    random_collision_rate = 0.
+    transition_rate = (num_of_string "1");
+    grab_rate = num_of_string "1";
+    break_rate = num_of_string "1/1000";
+    random_collision_rate = zero
   }
 
 
@@ -25,5 +26,5 @@ let bsig : Bacterie.bact_sig =
     active_mols= [(*{mol="AAABAAAADDFCBAAADDFBAAABDDFCBAABDDFBAAACDDFCBAACDDFBAAADDDFCBAADDDFBAAAFDDFCBAAFDDFBAAAAADDFCAABBBDDFAAABAAAADDFABAFAFDDFAAABAAABDDFABAFBFDDFAAABAAACDDFABAFCFDDFAAABAAADDDFABAFDFDDFAAABAAAFDDFABAFFFDDFAAABCAAADDFCCAAADDFBCBABDDFCCAABDDFBCCACDDFCCAACDDFBCDADDDFCCAADDDFBCFAFDDFCCAAFDDFBABAAADDFCAABBBDDFAAACAAAAADDFABBAAACAAAAADDFABBAAABAABBBDDFCAACCCDDFAAABAABBBDDFABADFDFFFDDFAAABBACCCDDFCAACCCDDFABC";qtt=10}*)]
   } 
 
-let bact = Bacterie.make ~env:env ~bact_sig:bsig ();;
+let bact = Bacterie.make ~bact_sig:bsig env;;
 

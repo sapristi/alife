@@ -18,6 +18,7 @@ module type NumericT =
     val sqrt : num -> num
     val abs : num -> num
     val num_of_int : int -> num
+    val num_of_string : string -> num
       
     val string_of_num : num -> string
     val float_of_num : num -> float
@@ -41,6 +42,7 @@ module Sloppy : NumericT =
     let sqrt = Float.sqrt
     let abs = Float.abs
     let num_of_int = float_of_int
+    let num_of_string = float_of_string
     let string_of_num = string_of_float
     let float_of_num n = n
     let pp_num f n = Format.pp_print_string f (show_num n)
@@ -114,6 +116,7 @@ module ExactZ : NumericT =
     let show_num = string_of_num
     let pp_num f n = Format.pp_print_string f (show_num n)
 
+    let num_of_string = of_string
     let float_of_num = to_float 
     let num_to_yojson n =
       `String (string_of_num n)
@@ -149,7 +152,7 @@ module ExactQ : NumericT =
       {num=Z.sqrt n;den=Z.sqrt m}
     let string_of_num = to_string
     let num_of_int = of_int
-
+    let num_of_string = of_string
     let compare_num = compare
     let show_num = string_of_num
     let pp_num f n = Format.pp_print_string f (show_num n)

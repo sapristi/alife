@@ -51,7 +51,7 @@ open Local_libs.Numeric.Num
 
 let logger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr"
                
-
+(*let logger = Logging.make_logger "Yaac.Bact.Reacs.reacs_mgr" Debug [File ("reacs", Debug)]*)
                  
 (* * MakeReacSet functor *)
 open Numeric
@@ -90,19 +90,29 @@ module MakeReacSet
             (float_of_num s.rates_sum)
             (float_of_num (calculate_rate s))
             (show s);
-          failwith "error"
+          failwith (Printf.sprintf "error %f %f\n %s"
+                      (float_of_num s.rates_sum)
+                      (float_of_num (calculate_rate s))
+                      (show s))
         end
       
     let remove r s =
       logger#debug "Remove %s" (Reac.show r);
+
+      (* we first update the reaction rate 
+         to avoid collisions with possible 
+         updates of this reaction (this avoids
+         checking the reaction was not removed in
+         the update_rate function   *)
+      let rate_delta = Reac.update_rate r in
+      s.rates_sum <- s.rates_sum + rate_delta;
       
       let rate = Reac.rate r in
       s.set <- RSet.remove r s.set;
       s.rates_sum <- s.rates_sum - rate;
       if Config.check_reac_rates
       then check_reac_rates s
-           
-      
+             
     let add r s =
 
       logger#debug  "Add %s" (Reac.show r);
@@ -118,6 +128,9 @@ module MakeReacSet
 
       let rate_delta = Reac.update_rate r in
       s.rates_sum <- s.rates_sum + rate_delta;
+      logger#debug "rate delta: %f, new_rate: %f"
+        (float_of_num rate_delta)
+        (float_of_num s.rates_sum);
       if Config.check_reac_rates
       then check_reac_rates s
 

@@ -2,16 +2,42 @@ open Bacterie_libs;;
 open OUnit2;;
 open Reactors;;
 
-     
+open Easy_logging;;
+
+let logger = Logging.make_logger "Yaac" Debug [Cli Debug];;
+(*let logger = Logging.make_logger "Yaac" Debug [];;*)
+
+
+let rlogger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr" in
+    rlogger#set_level Debug;;
+
+let print_bact b =
+  logger#debug "%s" (Yojson.Safe.to_string @@ Bacterie.to_sig_yojson b);
+  logger#debug "%s" (Reac_mgr.show b.reac_mgr)
 
 let simple_bind test_ctx =
-  
+
   let sandbox = Sandbox.of_yojson
                   ( Yojson.Safe.from_file "bact_states/simple_bind.json" ) 
   in
+  logger#debug "start";
+  print_bact !(sandbox.bact);
+  
   Bacterie.next_reaction !(sandbox.bact);
+
+  logger#debug "after 1st reac";
+  print_bact !(sandbox.bact);
+
   Bacterie.next_reaction !(sandbox.bact);
+
+  logger#debug "after 2nd reac";
+  print_bact !(sandbox.bact);
+  
   Bacterie.next_reaction !(sandbox.bact);
+
+  logger#debug "after 3rd reac";
+  print_bact !(sandbox.bact);
+
   
   let result = Bacterie.to_sig !(sandbox.bact)
                |> Bacterie.canonical_bact_sig 
@@ -74,13 +100,17 @@ and simple_break test_ctx =
     expected_result result
 
 and simple_grab_release test_ctx =
-  
+
+  logger#info "simple grab release";
   let sandbox = Sandbox.of_yojson
                   ( Yojson.Safe.from_file "bact_states/simple_grab_release.json" ) 
-  in 
+  in
+  logger#info "init ok";
   Bacterie.next_reaction !(sandbox.bact);
+  logger#info "first reac ok";
   Bacterie.next_reaction !(sandbox.bact);
 
+  logger#info "second reac ok";
 
   
   let result = Bacterie.to_sig !(sandbox.bact)

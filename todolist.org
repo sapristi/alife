@@ -4,7 +4,7 @@
 
 * bugfixes/improvements
 
-
+** TODO debug not keep empty reactants
 ** TODO Rework pnet creation, introduce variants (cyclic pnet)? 
 ** TODO Config generator
 ** TODO explicit exceptions
@@ -62,6 +62,7 @@
    -> problem solved, there was an error whan adding reactions to IRMap
 
 * improvements
+** TODO Use custom (binary?) trees to hold reactions in Reac_sets so as to speed up next reaction search.
 ** TODO use Pnet Set as reactants
 ** TODO use uniqueID lib
 ** STARTED sanitize the use mutable/immutable and refs in structures
