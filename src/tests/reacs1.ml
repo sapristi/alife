@@ -127,7 +127,48 @@ and simple_grab_release test_ctx =
   assert_equal
     ~printer:Bacterie.show_bact_sig 
     expected_result result
+
+
+let grab_release_amol test_ctx =
   
+  logger#info "grab release amol";
+  let sandbox = Sandbox.of_yojson
+                  ( Yojson.Safe.from_file "bact_states/grab_amol.json" ) 
+  in
+  Bacterie.next_reaction !(sandbox.bact);
+
+  
+  let inter_result = Bacterie.to_sig !(sandbox.bact)
+               |> Bacterie.canonical_bact_sig 
+             
+  and inter_expected_result : Bacterie.bact_sig =
+    Bacterie.canonical_bact_sig
+      {active_mols = [
+         {mol="AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";qtt=1};
+       ];
+       inert_mols = []} in
+  
+  assert_equal
+    ~printer:Bacterie.show_bact_sig 
+    inter_expected_result inter_result;
+    
+  Bacterie.next_reaction !(sandbox.bact);
+  
+  let result = Bacterie.to_sig !(sandbox.bact)
+               |> Bacterie.canonical_bact_sig 
+             
+  and expected_result : Bacterie.bact_sig =
+    Bacterie.canonical_bact_sig
+      {active_mols = [
+         {mol="AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";qtt=1};
+         {mol="AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB";qtt=1}
+       ];
+       inert_mols = []} in
+  
+  assert_equal
+    ~printer:Bacterie.show_bact_sig 
+    expected_result result
+    
 let suite =
   "suite">:::
     ["simple bind">::simple_bind;
