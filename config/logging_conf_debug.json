@@ -10,7 +10,7 @@
             {
                 "name": "Yaac",
                 "level": "debug",
-                "handlers": [ {"cli": {"level":"info"}} ] },
+                "handlers": [ {"cli": {"level":"debug"}} ] },
             {
                 "name": "Yaac.Bact",
                 "level": "debug"},
