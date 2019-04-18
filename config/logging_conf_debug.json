@@ -19,13 +19,13 @@
                 "level": "debug"},      
             {
                 "name": "Yaac.Server",
-                "level" : "info"},
+                "level" : "debug"},
+            {
+                "name" : "Yaac.Libs",
+                "level" : "debug"},
             {
                 "name": "Yaac.stats",
                 "level": "nolevel",
-                "propagate" : false },
-            {
-                "name" : "Yaac.Libs",
-                "level" : "warning"}
+                "propagate" : false }
         ]
 } 

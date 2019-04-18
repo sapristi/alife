@@ -176,8 +176,9 @@ let set_environment (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
         |> Yojson.Safe.from_string 
         |> Environment.of_yojson
   with
-  | Ok env -> 
-     !(sandbox.bact).env := env;
+  | Ok env ->
+     sandbox.env := env;
+     logger#debug "Commited new env: %s" (Environment.show env);
      "done"
   | Error s ->
      "error decoding env from json " ^ s

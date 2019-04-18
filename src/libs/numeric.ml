@@ -1,8 +1,11 @@
 open Yaac_config
 
-let num_logger = Easy_logging.Logging.get_logger
-                   "Yaac.Libs.Numeric" 
-   
+let logger = Easy_logging.Logging.get_logger "Yaac.Libs.Numeric"
+
+
+(* let logger = Easy_logging.Logging.make_logger "Yaac.Libs.Numeric" Debug [Cli Debug]*)
+
+           
 module type NumericT =
   sig
 
@@ -161,15 +164,17 @@ module ExactQ : NumericT =
     let num_to_yojson n =
       `String (string_of_num n)
     let num_of_yojson (json : Yojson.Safe.json) =
+      logger#debug "Num from '%s'" (Yojson.Safe.to_string json);
       match json with
       | `String s -> Ok (of_string s)
       | `Int n -> Ok (of_int n)
       | `Float f -> Ok (of_float f)
-      | _ -> Error "cannot load json"
+      | _ ->
+         logger#error "Cannot decode num from %s" (Yojson.Safe.to_string json);
+         Error "cannot load json " 
 
     (** [Warning] QUICK AND DIRTY
-        but this should be ok 
-     *)
+        but this should be ok    *)
     (*let random {num=n; den=m} =
       {num= bigrandom n; den=m} *)
     let random q =
