@@ -28,9 +28,10 @@ let of_yojson   json : t=
   and bact_sig_json = Yojson.Safe.Util.member "bact" json
   in
   match (Environment.of_yojson env_json, Bacterie.bact_sig_of_yojson bact_sig_json) with
-  | (Ok env, Ok bact_sig) -> 
-     let bact = ref (Bacterie.make ~bact_sig env)
-     and renv = ref env in
+  | (Ok env, Ok bact_sig) ->
+     let renv = ref env in 
+     let bact = ref (Bacterie.make ~bact_sig renv)
+     and renv = renv in
      {bact = bact; env = renv}
   | _  -> failwith  "error loading sandbox json" 
   

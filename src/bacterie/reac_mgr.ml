@@ -51,8 +51,6 @@ open Local_libs.Numeric.Num
 
 let logger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr"
                
-(*let logger = Logging.make_logger "Yaac.Bact.Reacs.reacs_mgr" Debug [File ("reacs", Debug)]*)
-                 
 (* * MakeReacSet functor *)
 open Numeric
 module MakeReacSet
@@ -303,6 +301,8 @@ let add_break md reac_mgr =
   Reactant.add_reac rb md
 
   
+let logger = Logging.make_logger "Yaac.Bact.Reacs.reacs_mgr" Debug [Cli Debug] 
+                 
 (* ** pick next reaction *)
 (* replace to_list with to_enum ? *)
 let pick_next_reaction (reac_mgr:t) : Reaction.t option=
@@ -318,15 +318,15 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       BSet.total_rate reac_mgr.b_set
   in
     
-  logger#debug  "********     Grabs   (total : %s)  (nb_reacs : %d)  *********"
+  logger#info  "********     Grabs   (total : %s)  (nb_reacs : %d)  *********"
     (show_num total_g_rate) (GSet.cardinal reac_mgr.g_set);
   logger#ldebug (lazy (GSet.show reac_mgr.g_set));
   
-  logger#debug  "******** Transitions (total : %s)  (nb_reacs : %d)  *********"
+  logger#info  "******** Transitions (total : %s)  (nb_reacs : %d)  *********"
        (show_num total_t_rate) (TSet.cardinal reac_mgr.t_set);
   logger#ldebug (lazy (TSet.show reac_mgr.t_set));
   
-  logger#debug  "********    Breaks   (total : %s)  (nb_reacs : %d)  *********"
+  logger#info  "********    Breaks   (total : %s)  (nb_reacs : %d)  *********"
        (show_num total_b_rate) (BSet.cardinal reac_mgr.b_set);
   logger#ldebug (lazy (BSet.show reac_mgr.b_set));
 

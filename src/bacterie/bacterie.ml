@@ -286,9 +286,7 @@ let empty_sig : bact_sig = {
     inert_mols = [];
     active_mols = []}
   
-let make  ?(bact_sig=empty_sig)  env :t =
-  let renv = ref env in 
-  
+let make ?(bact_sig=empty_sig)  renv :t =
   let bact = {ireactants = IRMap.make ();
               areactants = ARMap.make ();
               env = renv;
