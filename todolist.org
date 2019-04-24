@@ -4,7 +4,7 @@
 
 * bugfixes/improvements
 
-** STARTED Fix removing empty reactants
+** DONE Fix removing empty reactants
         - ok for imol, this needs testing for amols
 ** TODO Rework pnet creation, introduce variants (cyclic pnet)? 
 ** TODO Config generator
