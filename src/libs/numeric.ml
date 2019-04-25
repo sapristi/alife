@@ -1,9 +1,8 @@
 open Yaac_config
+open Easy_logging_yojson
 
-let logger = Easy_logging.Logging.get_logger "Yaac.Libs.Numeric"
-
-
-(* let logger = Easy_logging.Logging.make_logger "Yaac.Libs.Numeric" Debug [Cli Debug]*)
+   
+let logger = Logging.get_logger "Yaac.Libs.Numeric"
 
            
 module type NumericT =
