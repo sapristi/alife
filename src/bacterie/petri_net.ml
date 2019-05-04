@@ -27,7 +27,7 @@
 
 open Local_libs
 open Yaac_config
-open Easy_logging_yojson
+open Yaac_logging
 open Local_libs.Numeric.Num
 
 

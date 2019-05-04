@@ -1,8 +1,7 @@
 open Yaac_config
-open Easy_logging_yojson
+open Yaac_logging
 
    
-let logger = Logging.get_logger "Yaac.Libs.Numeric"
 
            
 module type NumericT =
@@ -144,6 +143,8 @@ module ExactZ : NumericT =
    
 module ExactQ : NumericT =
   struct
+    
+    let logger = Logging.get_logger "Yaac.Libs.Numeric"
     include Q
     type num = t
     let ( + ) = Q.add

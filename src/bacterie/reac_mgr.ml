@@ -1,11 +1,7 @@
-
-
-
-
 open Reaction
 open Local_libs
 open Yaac_config
-open Easy_logging_yojson
+open Yaac_logging
 
 open Local_libs.Numeric.Num
 (* * file overview *)
@@ -203,7 +199,22 @@ type t =
   }
     [@@deriving show]
 
-
+let tag (rmgr:t) =
+  let total_g_rate =
+    !(rmgr.env).grab_rate *
+      GSet.total_rate rmgr.g_set
+  and total_t_rate = 
+    !(rmgr.env).transition_rate *
+      TSet.total_rate rmgr.t_set
+  and total_b_rate = 
+    !(rmgr.env).break_rate *
+      BSet.total_rate rmgr.b_set
+  in YaacTags.RMgr (rmgr.reac_counter, (
+           Num.show_num total_g_rate,
+           Num.show_num total_t_rate,
+           string_of_float @@ Num.float_of_num total_b_rate))
+           
+           
 let get_available_reac_nb rmgr =
   (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set,
    BSet.cardinal rmgr.b_set)
@@ -264,7 +275,7 @@ let add_grab (graber_d : Reactant.Amol.t)
    *                       (Reactant.show grabed_d)); *)
   
   
-  logger#trace "added new grab between : \n- %s\n- %s"
+  logger#trace ~tags:([tag reac_mgr]) "adding new grab between : \n- %s\n- %s"
                     (Reactant.Amol.show graber_d)
                     (Reactant.show grabed_d);
 
@@ -280,7 +291,7 @@ let add_grab (graber_d : Reactant.Amol.t)
   
            
 let add_transition amd reac_mgr  =
-  logger#trace "added new transition : %s"
+  logger#trace  ~tags:([tag reac_mgr])  "adding new transition : %s"
     (Reactant.Amol.show amd);
   
   let t = Reacs.Transition.make amd   in
@@ -292,7 +303,7 @@ let add_transition amd reac_mgr  =
 
 (* ** Break *)
 let add_break md reac_mgr =
-  logger#trace "added new break : %s"  (Reactant.show md);
+  logger#trace  ~tags:([tag reac_mgr]) "adding new break : %s"  (Reactant.show md);
   
   let b = Reacs.Break.make md in
   BSet.add b reac_mgr.b_set;
@@ -301,7 +312,7 @@ let add_break md reac_mgr =
   Reactant.add_reac rb md
 
   
-let logger = Logging.make_logger "Yaac.Bact.Reacs.reacs_mgr" Debug [Cli Debug] 
+let logger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr"
                  
 (* ** pick next reaction *)
 (* replace to_list with to_enum ? *)
@@ -318,15 +329,15 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       BSet.total_rate reac_mgr.b_set
   in
     
-  logger#info  "********     Grabs   (total : %s)  (nb_reacs : %d)  *********"
+  logger#debug  "********     Grabs   (total : %s)  (nb_reacs : %d)  *********"
     (show_num total_g_rate) (GSet.cardinal reac_mgr.g_set);
   logger#ldebug (lazy (GSet.show reac_mgr.g_set));
   
-  logger#info  "******** Transitions (total : %s)  (nb_reacs : %d)  *********"
+  logger#debug  "******** Transitions (total : %s)  (nb_reacs : %d)  *********"
        (show_num total_t_rate) (TSet.cardinal reac_mgr.t_set);
   logger#ldebug (lazy (TSet.show reac_mgr.t_set));
   
-  logger#info  "********    Breaks   (total : %s)  (nb_reacs : %d)  *********"
+  logger#debug  "********    Breaks   (total : %s)  (nb_reacs : %d)  *********"
        (show_num total_b_rate) (BSet.cardinal reac_mgr.b_set);
   logger#ldebug (lazy (BSet.show reac_mgr.b_set));
 
@@ -337,14 +348,14 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   if a0 = zero
   then
     (
-      logger#warning "No reaction available";
+      logger#warning ~tags:([tag reac_mgr]) "No reaction available";
       None
     )
   else
     (
       reac_mgr.reac_counter <- Pervasives.(reac_mgr.reac_counter + 1);
       let bound = random a0 in
-      logger#debug  "Picked bound %s" (Num.show_num bound);
+      logger#debug   ~tags:([tag reac_mgr]) "Picked bound %s" (Num.show_num bound);
       let res = 
         if lt bound total_g_rate 
         then
@@ -356,7 +367,7 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
           Reaction.Break (BSet.pick_reaction reac_mgr.b_set)
         
       in
-      logger#info "[%d] picked %s" reac_mgr.reac_counter (Reaction.show res);
+      logger#info ~tags:([tag reac_mgr]) "picked %s"  (Reaction.show res);
       
       Some res
     )

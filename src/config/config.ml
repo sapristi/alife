@@ -19,7 +19,9 @@ let default_log_config_str = {|
             {
                 "name": "Yaac.Bact.Internal",
                 "level": "warning"},
-            
+            {
+                "name": "Yaac.Libs",
+                "level": "info"},
             {
                 "name": "Yaac.Server",
                 "level" : "info"},

@@ -2,7 +2,7 @@
 open Bacterie_libs
 open Local_libs
 open Yaac_config
-open Easy_logging
+open Yaac_logging
 
 
 let logger = Logging.get_logger "Yaac.Reactor.Sandbox"

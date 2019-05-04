@@ -2,7 +2,7 @@ open Bacterie_libs;;
 open OUnit2;;
 open Reactors;;
 
-open Easy_logging;;
+open Local_libs.Yaac_logging;;
 
 let logger = Logging.make_logger "Yaac" Debug [Cli Debug];;
 (*let logger = Logging.make_logger "Yaac" Debug [];;*)

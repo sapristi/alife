@@ -8,7 +8,7 @@ open Reaction
 type ('a, 'b) mresult = ('a, 'b) result
 open Reactants
 open Yaac_config
-open Easy_logging_yojson
+open Yaac_logging
 open Local_libs.Numeric
 
 
@@ -37,7 +37,7 @@ open Local_libs.Numeric
 (*  + areactants : active reactants, molecules that fold into a petri net. *)
 (*     We thus have to have a distinct pnet for each present molecule *)
 
-let logger = Logging.make_logger "Yaac.Bact" Debug [File ("bact", Debug)]               
+let logger = Logging.get_logger "Yaac.Bact"
 
       
 type t ={

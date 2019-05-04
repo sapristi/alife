@@ -6,7 +6,6 @@
         bacterie_libs
         local_libs
         yaac_config
-        easy_logging_yojson
         ppx_deriving
         ppx_deriving.make
         ppx_deriving_yojson.runtime))
