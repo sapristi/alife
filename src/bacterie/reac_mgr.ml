@@ -149,37 +149,98 @@ module MakeReacSet
           (show s);
         raise Not_found
 end
-(* for binding reactions ? *)
-module MakeAutoUpdatingReacSet (Reac : Reacs.REAC) = 
+
+
+module CSet =
   struct
-    type elt = Reac.t
-    module RSet= Set.Make(Reac)  
-               
-    type t = {mutable total_rate : num;
-              mutable set : RSet.t;}
-    let make_empty () : t =
-      {total_rate = zero; set = RSet.empty;}
-      
-    let remove r s = s.set <- RSet.remove r s.set
-    let add r s = s.set <- RSet.add r s.set
-    let update_rate r s = ()
-    let total_rate s =
-      s.total_rate <-
-        RSet.fold
-        (fun r res -> Reac.rate r + res)
-        s.set zero;
-      s.total_rate
-      
+
+    module Colliders = CCSet.Make(Reactant)
+                    
+
+    let collision_factor (reactant : Reactant.t) =
+      match reactant with
+      | Amol amol -> one
+      | ImolSet imolset -> one
+                       
+    type t = {
+        mutable rates_sum: num;
+        mutable single_rates_sum: num;
+        mutable colliders: Colliders.t;
+      }
+
+    let pp fmt e =
+      (Colliders.pp ~start:"ReacSet" Reactant.pp) fmt e.colliders
+            
     let show (s : t) =
-      RSet.fold (fun (e : elt) desc ->
-          (Reac.show e)^"\n"^desc) s.set ""
+      Format.asprintf "%a" pp s
+
+    let cardinal (s:t) = Colliders.cardinal s.colliders   
+    let empty () : t =
+      {rates_sum = zero;
+       single_rates_sum=zero;
+       colliders = Colliders.empty}
+
+
+    (** total rate is:
+        TR  = Σ_(i<j) λ_i q_i λ_j q_j + Σ_i λ_i² q_i (q_i - 1) 
+
+        we can use the identity 
+        (Σ_i λ_i q_i)² = 2 Σ_(i<j) λ_i q_i λ_j q_j + Σ_i (λ_i q_i)²
+
+        we to rewrite TR as:
+        TR = [ (Σ_i λ_i q_i)² - Σ_i (λ_i q_i)²]/2  + Σ_i λ_i² q_i (q_i - 1) 
+
+        where : 
+          - λ_i is the collision factor of a molecule
+          - q_i is the quantity of a molecule
+     *)
+    let calculate_rate (s:t) =
+      let rate_t_qtt a =
+        (collision_factor a)* Num.num_of_int (Reactant.qtt a)
+      in
+      let single_rates_sum =
+        Colliders.fold
+          (fun (a:Reactant.t) b -> rate_t_qtt a + b)
+          s.colliders zero
+      and square_rates_sum =
+        Colliders.fold
+          (fun (a:Reactant.t) b -> (rate_t_qtt a) * (rate_t_qtt a)  + b)
+          s.colliders zero
+      in
+      ( single_rates_sum * single_rates_sum - square_rates_sum) / (one + one) +
+         (Colliders.fold
+          (fun (a:Reactant.t) b -> (collision_factor a) * Num.num_of_int (Reactant.qtt a )* (rate_t_qtt a)  + b)
+          s.colliders zero)
+
+
+    let rates_sum (s:t) = s.rates_sum
+                          
+    let check_reac_rate (s:t) = 
+      if  not (Num.equal s.rates_sum (calculate_rate s))
+      then
+        begin
+          logger#error "Stored and computed rates are not equal: %.20f != %.20f\n%s"
+            (float_of_num s.rates_sum)
+            (float_of_num (calculate_rate s))
+            (show s);
+          failwith (Printf.sprintf "error %f %f\n %s"
+                      (float_of_num s.rates_sum)
+                      (float_of_num (calculate_rate s))
+                      (show s))
+        end
       
-    let pick_reaction (s : t) =
-      Misc_library.pick_from_list (random s.total_rate) zero
-                                  Reac.rate
-                                  (RSet.elements s.set)
-      
-end
+    let add r (s:t) =
+      let cf = collision_factor r in
+      s.colliders <- Colliders.add r s.colliders;
+      s.rates_sum <- s.rates_sum + cf * (cf -one) + cf*s.single_rates_sum;
+      s.single_rates_sum <- s.single_rates_sum + cf
+
+    let remove r (s:t)=
+      let cf = collision_factor r in
+      s.single_rates_sum <- s.single_rates_sum - cf;
+      s.rates_sum <- s.rates_sum - cf*(cf - one) - cf*s.single_rates_sum;
+      s.colliders <- Colliders.remove r s.colliders
+  end
 module GSet = MakeReacSet(Reacs.Grab)
 module TSet = MakeReacSet(Reacs.Transition)
 module BSet = MakeReacSet(Reacs.Break)
@@ -311,6 +372,10 @@ let add_break md reac_mgr =
   let rb = Reaction.Break b in
   Reactant.add_reac rb md
 
+
+let add_collider md reac_mgr =
+  logger#trace  ~tags:([tag reac_mgr]) "adding new collider : %s"  (Reactant.show md);
+  ()
   
 let logger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr"
                  
@@ -465,3 +530,34 @@ let build_instance
      let remove e = this.set <- RS.RSet.remove e this.set
    end : ReacSetInstance)
    *)
+(* for binding reactions ? *)
+module MakeAutoUpdatingReacSet (Reac : Reacs.REAC) = 
+  struct
+    type elt = Reac.t
+    module RSet= Set.Make(Reac)  
+               
+    type t = {mutable total_rate : num;
+              mutable set : RSet.t;}
+    let make_empty () : t =
+      {total_rate = zero; set = RSet.empty;}
+      
+    let remove r s = s.set <- RSet.remove r s.set
+    let add r s = s.set <- RSet.add r s.set
+    let update_rate r s = ()
+    let total_rate s =
+      s.total_rate <-
+        RSet.fold
+        (fun r res -> Reac.rate r + res)
+        s.set zero;
+      s.total_rate
+      
+    let show (s : t) =
+      RSet.fold (fun (e : elt) desc ->
+          (Reac.show e)^"\n"^desc) s.set ""
+      
+    let pick_reaction (s : t) =
+      Misc_library.pick_from_list (random s.total_rate) zero
+                                  Reac.rate
+                                  (RSet.elements s.set)
+      
+  end

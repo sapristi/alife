@@ -13,7 +13,7 @@ module type NumericT =
     val ( + ) : num -> num -> num
     val ( - ) : num -> num -> num
     val ( * ) : num -> num -> num
-
+    val ( / ) : num -> num -> num
     val zero : num
     val one : num
     val sqrt : num -> num
@@ -37,6 +37,7 @@ module Sloppy : NumericT =
     let ( + ) = ( +. )
     let ( - ) = ( -. )
     let ( * ) = ( *. )
+    let ( / ) = ( /. )
            
     let zero = 0.
     let one = 1.
