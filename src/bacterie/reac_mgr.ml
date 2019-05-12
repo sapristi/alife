@@ -252,9 +252,10 @@ module BSet = MakeReacSet(Reacs.Break)
 
 
 type t =
-  { t_set :  TSet.t;
-    g_set :  GSet.t;
-    b_set :  BSet.t;
+  { t_set : TSet.t;
+    g_set : GSet.t;
+    b_set : BSet.t;
+    c_set : CSet.t;
     mutable reac_counter : int;
     env : Environment.t ref; 
   }
@@ -293,6 +294,7 @@ let make_new (env : Environment.t ref) =
   {t_set = TSet.empty ();
    g_set = GSet.empty ();
    b_set = BSet.empty ();
+   c_set = CSet.empty ();
    reac_counter = 0;
    env = env; } 
 

@@ -251,6 +251,8 @@ module rec
            module Break :
            (REAC with type build_t = (Reactant.t))
 
+           module Collision :
+           (REAC with type build_t = (Reactant.t * Reactant.t))
            
          end)
      = struct
@@ -265,6 +267,8 @@ module rec
              | Grab of Reacs.Grab.t
              | Transition of Reacs.Transition.t
              | Break of Reacs.Break.t
+             | Collision of Reacs.Collision.t
+             
                       [@@deriving show]
 
            val to_yojson : t -> Yojson.Safe.json
@@ -280,24 +284,31 @@ module rec
          | Grab of Grab.t
          | Transition of Transition.t
          | Break of Break.t
+         | Collision of Collision.t
+         
                       [@@ deriving ord, show, to_yojson]    
 
        let rate r =
          match r with
          | Transition t -> Transition.rate t
          | Grab g -> Grab.rate g
-         | Break ba -> Break.rate ba
+         | Break b -> Break.rate b
+         | Collision c -> Collision.rate c
+         
+
        let treat_reaction r  : effect list=
          match r with
          | Transition t -> Transition.eval t
          | Grab g -> Grab.eval g
-         | Break ba -> Break.eval ba
+         | Break b -> Break.eval b
+         | Collision c -> Collision.eval c
                      
        let unlink r = 
          match r with
          | Transition t -> Transition.remove_reac_from_reactants r t
          | Grab g -> Grab.remove_reac_from_reactants r g
-         | Break ba -> Break.remove_reac_from_reactants r ba          
+         | Break b -> Break.remove_reac_from_reactants r b
+         | Collision c -> Collision.remove_reac_from_reactants r c         
      end
      
      

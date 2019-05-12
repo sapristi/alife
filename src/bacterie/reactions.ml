@@ -1,7 +1,9 @@
 
-open Local_libs.Misc_library
-open Local_libs.Numeric.Num
-
+open Local_libs
+open Misc_library
+open Numeric.Num
+open Yaac_logging
+let logger = Logging.get_logger "Yaac.Bact.Reactions"
 
 (* * file overview *)
 
@@ -46,7 +48,9 @@ open Local_libs.Numeric.Num
 (*       and what is to be returned higher, and why *)
 
 (* * REACTANT signature *)
-  
+
+
+   
 
 module type REACTANT =
   sig
@@ -289,4 +293,40 @@ module ReactionsM (R : REACTANT) =
           ()
       end
 
+    module Collision :
+    (REAC with type build_t = (R.t * R.t)) =
+      struct
+        type t = {mutable rate : num; [@compare fun a b -> 0] 
+                  r1 : R.t;
+                  r2: R.t;
+                 }
+                   [@@ deriving show, ord, to_yojson]
+               
+        type build_t = R.t * R.t
+                     
+        let calculate_rate c =
+          one
+          
+        let rate c =
+          logger#warning "This should not be used"; 
+          c.rate
+          
+        let update_rate c = 
+          logger#warning "This should not be used"; 
+          let old_rate = c.rate in
+          c.rate <- calculate_rate c;
+          c.rate - old_rate
+          
+        let make (r1,r2) =
+          {r1; r2; rate = calculate_rate {r1; r2; rate = zero}}
+          
+        let eval {r1; r2; rate} =
+          logger#info "Random collision between %s  and %s"
+            (R.show r1) (R.show r2); 
+          []
+          
+          
+        let remove_reac_from_reactants reac g =
+          ()
+      end
   end
