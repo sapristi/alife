@@ -46,8 +46,30 @@ open Local_libs.Numeric.Num
 
 
 let logger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr"
-               
-(* * MakeReacSet functor *)
+
+(* * ReacSet modules *)
+(* Reaction containers *)
+
+(* ** ReacSet module type *)
+module type ReacSet =
+  sig
+    type elt
+    type t
+    val pp : Format.formatter -> t -> unit
+    val show : t -> string
+    val to_yojson : t -> Yojson.Safe.json
+    val cardinal : t -> int
+    val empty : unit -> t
+    val total_rate : t -> Local_libs.Numeric.Num.num
+    val add : elt -> t -> unit
+    val remove : Reaction.t -> t -> unit
+    val update_rate : Reaction.t -> t -> unit
+    val pick_reaction : t -> Reaction.t
+  end
+           
+(* ** MakeReacSet functor *)
+(* generic container functor *)
+           
 open Numeric
 module MakeReacSet
          (Reac : Reacs.REAC)
@@ -150,18 +172,20 @@ module MakeReacSet
         raise Not_found
 end
 
+(* ** CSet : Collision Set *)
+(* This module is custom made for collisions, where reactions are not stored, *)
+(* but dynamically calculated from the set of reactants. *)
 
 module CSet =
   struct
 
     module Colliders = CCSet.Make(Reactant)
                     
-
     let collision_factor (reactant : Reactant.t) =
       match reactant with
       | Amol amol -> one
       | ImolSet imolset -> one
-                       
+    type elt = C
     type t = {
         mutable rates_sum: num;
         mutable single_rates_sum: num;
@@ -171,9 +195,12 @@ module CSet =
     let pp fmt e =
       (Colliders.pp ~start:"ReacSet" Reactant.pp) fmt e.colliders
             
-    let show (s : t) =
+    let show (s:t) =
       Format.asprintf "%a" pp s
-
+      
+    let to_yojson (s:t) = 
+      `String "CSet"
+      
     let cardinal (s:t) = Colliders.cardinal s.colliders   
     let empty () : t =
       {rates_sum = zero;
@@ -213,7 +240,7 @@ module CSet =
           s.colliders zero)
 
 
-    let rates_sum (s:t) = s.rates_sum
+    let total_rate s = s.rates_sum
                           
     let check_reac_rate (s:t) = 
       if  not (Num.equal s.rates_sum (calculate_rate s))
@@ -235,20 +262,27 @@ module CSet =
       s.rates_sum <- s.rates_sum + cf * (cf -one) + cf*s.single_rates_sum;
       s.single_rates_sum <- s.single_rates_sum + cf
 
-    let remove r (s:t)=
+    let remove r (s:t) =
       let cf = collision_factor r in
       s.single_rates_sum <- s.single_rates_sum - cf;
       s.rates_sum <- s.rates_sum - cf*(cf - one) - cf*s.single_rates_sum;
       s.colliders <- Colliders.remove r s.colliders
+
+    let update_rate r (s:t) =
+      logger#trace "Update rate"
+
+      
+    let pick_reaction (s:t) =
+      let c1 = Colliders.choose s.colliders
+      and c2 = Colliders.choose s.colliders in
+      let c = Reacs.Collision.make (c1,c2) in
+      c
   end
 module GSet = MakeReacSet(Reacs.Grab)
 module TSet = MakeReacSet(Reacs.Transition)
 module BSet = MakeReacSet(Reacs.Break)
 
-
-
-
-(* * module defs *)
+(* * Main  defs *)
 
 
 type t =
@@ -313,6 +347,9 @@ let remove_reactions reactions reac_mgr =
 
       | Break b ->
          BSet.remove b reac_mgr.b_set;
+
+      | Collision c ->
+         logger#warning "This should not happen";
 
     ) reactions
 
@@ -449,6 +486,8 @@ let rec update_reaction_rate (reac : Reaction.t) reac_mgr=
      TSet.update_rate t reac_mgr.t_set
   | Break b ->
      BSet.update_rate b reac_mgr.b_set
+  | Collision c ->
+     CSet.update_rate c reac_mgr.c_set
 
 
     
