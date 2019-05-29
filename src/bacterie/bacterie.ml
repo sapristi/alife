@@ -8,7 +8,7 @@ open Reaction
 type ('a, 'b) mresult = ('a, 'b) result
 open Reactants
 open Yaac_config
-open Yaac_logging
+open Easy_logging_yojson
 open Local_libs.Numeric
 
 

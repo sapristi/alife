@@ -3,7 +3,7 @@ open Reactors
 open Bacterie_libs
 open Reaction
 open Local_libs
-open Yaac_logging
+open Easy_logging_yojson
 let logger = Logging.get_logger "Yaac.Server.sandbox"
               
 

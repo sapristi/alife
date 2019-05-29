@@ -3,7 +3,7 @@
 open Reaction
 open Local_libs
 open Yaac_config
-open Yaac_logging
+open Easy_logging_yojson
 (*open Batteries*)
 open Local_libs.Numeric.Num
 module MolMap =

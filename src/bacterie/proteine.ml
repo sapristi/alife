@@ -15,7 +15,7 @@
 open Acid_types
 open Yaac_config
 open Local_libs
-open Yaac_logging
+open Easy_logging_yojson
 (* * Proteine module *)
 
 let logger = Logging.make_logger "Yaac.Bact.Internal.proteine"
