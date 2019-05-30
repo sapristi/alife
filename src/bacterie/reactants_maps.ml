@@ -1,4 +1,9 @@
+(**
 
+modules defined in this file:
+   - ARMap : structure holding active reactants (that is, molecules with PNet)
+   - IRMap : structure holding inactive reactants   
+*)
 
 open Reaction
 open Local_libs
@@ -11,7 +16,6 @@ module MolMap =
     include CCMap.Make (struct type t = Molecule.t
                                let compare = Pervasives.compare end)
 
-    
     (*let show : Molecule.t t -> string =
       Format.sprintf pp t*)
                      (*   include Exceptionless *)
