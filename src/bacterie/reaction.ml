@@ -3,13 +3,6 @@ open Yojson
 open Local_libs.Numeric
 (* * file overview *)
 
-(*   A reaction is defined as an action that can be performed on one or *)
-(*   more reactants. *)
-(*   Since  reactants  hold themselves a set of reactions (whom rates have to be *)
-(*   updated at a change in the reactant), the modules Reaction, ReacSet *)
-(*   and Reactant are mutally dependant and have to be defined together. *)
-  
-
 (* ** Reactant module *)
 
 (*    Reactant.t is defined as a sum type of various possible reactants, *)
@@ -27,17 +20,19 @@ open Local_libs.Numeric
 (*       depends on the internal state of the contained petri nets. *)
 
 (* ** Reacs module *)
-   
 (*    Application of the functor defined in reactions.ml to the Reactant module. *)
 
 (* ** Reaction module *)
-
-(*    Reaction.t is a sum type, each case represents an action, and the paremeters *)
-(*    hold references to the reactants. *)
+(*    Reaction.t is a sum type, each case represents a reaction *)
 
 (* ** ReacSet module *)
-
 (*    Simply a Set of reactions *)
+
+
+(* ** Explanation *)
+(*   Since  reactants  hold themselves a set of reactions (whom rates have to be *)
+(*   updated at a change in the reactant), the modules Reaction, ReacSet *)
+(*   and Reactant are mutally dependant and have to be defined together. *)
 
 (* * modules definitions*)
 module rec
