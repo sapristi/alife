@@ -4,7 +4,7 @@ open Cmdliner
 open Yaac_config
 open Server
 open Reactors
-open Yaac_logging
+open Easy_logging_yojson
 
 let () = Printexc.record_backtrace true;;
 
@@ -18,7 +18,7 @@ type params = {
                               (** Set most log level to debug *)
     stats: bool;            [@default false]
                               (** Generates running stats *)
-    log_level : log_level option; [@enum [("debug", Easy_logging__Easy_logging_types.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
+    log_level : log_level option; [@enum [("debug", Easy_logging__.Easy_logging_types.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
     data_path : string;     [@default "./"] [@docv "PATH"]
     log_config : string     [@default ""]
   } [@@deriving cmdliner,show]
@@ -40,11 +40,11 @@ let run_yaacs p : unit=
   if p.stats
   then
     begin
-      let format_dummy : YaacHandlers.log_formatter = fun item  -> item.msg in
-      let handler = YaacHandlers.make (File ("stats", Debug)) in
+      let format_dummy : Default_handlers.log_formatter = fun item  -> item.msg in
+      let handler = Default_handlers.make (File ("stats", Debug)) in
       let stats_reporter = Logging.get_logger "Yaac.stats" in
       stats_reporter#add_handler handler;
-      YaacHandlers.set_formatter handler format_dummy;
+      Default_handlers.set_formatter handler format_dummy;
       stats_reporter#info "ireactants areactants transitions grabs breaks  picked_dur treated_dur actions_dur";
     end
   else

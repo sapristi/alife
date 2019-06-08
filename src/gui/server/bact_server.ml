@@ -6,7 +6,7 @@ open Sandbox_req_handler
 open Bacterie_libs
 open Reactors
 open Local_libs   
-open Yaac_logging
+open Easy_logging_yojson
 let logger = Logging.get_logger "Yaac.Server.Bact"
 
 

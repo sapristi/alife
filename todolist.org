@@ -63,6 +63,7 @@
    -> problem solved, there was an error whan adding reactions to IRMap
 
 * improvements
+** TODO Reorganise/rename reaction files so that they are easily accessible
 ** TODO Use custom (binary?) trees to hold reactions in Reac_sets so as to speed up next reaction search.
 ** TODO use Pnet Set as reactants
 ** TODO use uniqueID lib
@@ -102,9 +103,21 @@
    -> problem with references
 * features
 
-** TODO random binds
-   - [ ] clean feature/random-binds branch
-   - [ ] finalise feature
+** STARTED random collisions
+   - [X] Implement reaction in framework
+   - [ ] Implement reaction effects :
+     * the two molecules break
+     * the two molecules mix 
+     * grab by a place not designed to do so
+     * release some grabed molecules 
+     * ...
+       -> the important point is to implement a minimal set of features
+       and enable evolution.
+   - [ ] Test reactions
+     
+** TODO Random single mol effects
+   - launch a transition that is not launchable
+   - release a grabed molecule
 
 ** TODO extended pnets (as graphs)
 

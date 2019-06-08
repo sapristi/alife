@@ -3,13 +3,13 @@ open Reactors
 open Bacterie_libs
 open Reaction
 open Local_libs
-open Yaac_logging
+open Easy_logging_yojson
 let logger = Logging.get_logger "Yaac.Server.sandbox"
               
 
 let pnet_ids_from_mol  (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let mol = cgi # argument_value "mol_desc" in
-  let pnet_ids = Reactants.ARMap.get_pnet_ids mol !(sandbox.bact).areactants in
+  let pnet_ids = Reactants_maps.ARMap.get_pnet_ids mol !(sandbox.bact).areactants in
   let pnet_ids_json =
     `List (List.map (fun i -> `Int i) pnet_ids)
   in
@@ -23,7 +23,7 @@ let pnet_from_mol (sandbox : Sandbox.t) (cgi:Netcgi.cgi) =
   let mol = cgi # argument_value "mol_desc"
   and pnet_id = int_of_string (cgi# argument_value "pnet_id") in
   let pnet_json =
-    (Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet
+    (Reactants_maps.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet
     |> Petri_net.to_json
   in
   `Assoc
@@ -81,7 +81,7 @@ let commit_token_edit (sandbox : Sandbox.t) (cgi : Netcgi.cgi)
                          |> int_of_string
        in
        
-       let pnet = (Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
+       let pnet = (Reactants_maps.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
        (
          match token_o with
          | Some token -> 
@@ -107,7 +107,7 @@ let launch_transition (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   and trans_index = cgi # argument_value "transition_index"
                     |> int_of_string in
 
-  let pnet = (Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
+  let pnet = (Reactants_maps.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
   
   let p_actions = Petri_net.launch_transition_by_id trans_index pnet in
   let actions = List.map (fun x -> Reacs.T_effects x) [p_actions] in
@@ -128,15 +128,15 @@ let add_mol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) : string=
   
 let remove_imol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
   let mol = cgi # argument_value "mol_desc" in
-  Reactants.IRMap.Ext.remove_all mol !(sandbox.bact).ireactants
+  Reactants_maps.IRMap.Ext.remove_all mol !(sandbox.bact).ireactants
   |> Bacterie.execute_actions !(sandbox.bact);
   get_bact_elements sandbox cgi
 
 let remove_amol (sandbox : Sandbox.t) (cgi : Netcgi.cgi) = 
   let mol = cgi # argument_value "mol_desc"
   and pnet_id = cgi # argument_value "pnet_id" |> int_of_string in
-  let amol = Reactants.ARMap.find mol pnet_id  !(sandbox.bact).areactants in
-  Reactants.ARMap.remove amol !(sandbox.bact).areactants
+  let amol = Reactants_maps.ARMap.find mol pnet_id  !(sandbox.bact).areactants in
+  Reactants_maps.ARMap.remove amol !(sandbox.bact).areactants
   |> Bacterie.execute_actions !(sandbox.bact);
   get_bact_elements sandbox cgi
              
@@ -145,7 +145,7 @@ let set_imol_quantity (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   and n = cgi # argument_value "mol_quantity"
           |> int_of_string
   in
-  Reactants.IRMap.Ext.set_qtt  n mol !(sandbox.bact).ireactants
+  Reactants_maps.IRMap.Ext.set_qtt  n mol !(sandbox.bact).ireactants
   |> Bacterie.execute_actions !(sandbox.bact);
   get_bact_elements sandbox cgi
   
@@ -193,7 +193,7 @@ let get_reactions (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
 let show_pnet (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
   let mol =cgi#argument_value "mol"
   and pnet_id = int_of_string @@ cgi#argument_value "pnet_id"  in
-  let ar = Reactants.ARMap.find mol pnet_id !(sandbox.bact).areactants in
+  let ar = Reactants_maps.ARMap.find mol pnet_id !(sandbox.bact).areactants in
   let pnet = ar.pnet in 
   Petri_net.show pnet
 

@@ -6,9 +6,9 @@ open Local_libs
 open Reaction
 (* compatibility with yojson *)
 type ('a, 'b) mresult = ('a, 'b) result
-open Reactants
+open Reactants_maps
 open Yaac_config
-open Yaac_logging
+open Easy_logging_yojson
 open Local_libs.Numeric
 
 

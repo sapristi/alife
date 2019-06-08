@@ -1,7 +1,7 @@
 open Reaction
 open Local_libs
 open Yaac_config
-open Yaac_logging
+open Easy_logging_yojson
 
 open Local_libs.Numeric.Num
 (* * file overview *)
@@ -295,7 +295,7 @@ type t =
   }
     [@@deriving show]
 
-let tag (rmgr:t) =
+let tag (rmgr:t) : string =
   let total_g_rate =
     !(rmgr.env).grab_rate *
       GSet.total_rate rmgr.g_set
@@ -305,11 +305,13 @@ let tag (rmgr:t) =
   and total_b_rate = 
     !(rmgr.env).break_rate *
       BSet.total_rate rmgr.b_set
-  in YaacTags.RMgr (rmgr.reac_counter, (
-           Num.show_num total_g_rate,
-           Num.show_num total_t_rate,
-           string_of_float @@ Num.float_of_num total_b_rate))
-           
+  in
+  Printf.sprintf "%i,(G: %s, T: %s, B: %s)"
+    rmgr.reac_counter
+    (Num.show_num total_g_rate)
+    (Num.show_num total_t_rate)
+    (string_of_float @@ Num.float_of_num total_b_rate)
+   
            
 let get_available_reac_nb rmgr =
   (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set,

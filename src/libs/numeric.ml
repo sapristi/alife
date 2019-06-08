@@ -1,7 +1,6 @@
 open Yaac_config
-open Easy_logging
+open Easy_logging_yojson
 
-   
 
            
 module type NumericT =
