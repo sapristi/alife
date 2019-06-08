@@ -1,4 +1,4 @@
-open Yaac_logging
+open Easy_logging
 open Numeric
 let logger = Logging.get_logger  "Yaac.Libs.misc"
 

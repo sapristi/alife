@@ -1,5 +1,5 @@
 open Yaac_config
-open Yaac_logging
+open Easy_logging
 
    
 
