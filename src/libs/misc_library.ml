@@ -153,3 +153,11 @@ let show_array_prefix prefix show_e l =
   Array.fold_left
     (fun a -> fun b -> Printf.sprintf "%s\n%s" a b)
     prefix (Array.map show_e l)
+
+
+let bernouil q =
+  let q' = Num.float_of_num q in 
+  Random.float 1. < q'
+  
+let bernouil_f q =
+  Random.float 1. < q
