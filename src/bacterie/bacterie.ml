@@ -281,7 +281,7 @@ let load_yojson_sig (json : Yojson.Safe.json) (bact :t ): (t,string) mresult =
 
 
              
-(* *** make empty *)
+(* *** make *)
 (* an empty bactery *)
   
   
@@ -304,8 +304,8 @@ module SimControl =
     
       
 (* *** add_proteine *)
-(* adds the molecule corresponding to a proteine to a bactery first transforms it back to a molecule, so the *)
-(* process is not very natural. *)
+(* adds the molecule corresponding to a proteine to a bactery first transforms *)
+(* it back to a molecule, so the process is not very natural. *)
 (* ***** SHOULD NOT BE USED *)
 
     let add_proteine (prot : Proteine.t) (bact : t) : unit =

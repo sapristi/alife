@@ -311,7 +311,10 @@ module ReactionsM (R : REACTANT) =
           {r1; r2; rate = calculate_rate {r1; r2; rate = zero}}
           
         let eval {r1; r2; rate} =
-          logger#info "Random collision between %s  and %s"
+          let m1 = (R.mol r1) and m2 = (R.mol r2) in
+          let new_mols = collide m1 m2 in
+          
+          logger#trace "Random collision between %s  and %s"
             (R.show r1) (R.show r2); 
           []
           

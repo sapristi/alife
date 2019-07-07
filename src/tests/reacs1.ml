@@ -168,7 +168,7 @@ let grab_release_amol test_ctx =
     ~printer:Bacterie.show_bact_sig 
     expected_result result
 
-
+(*
 and simple_collision test_ctx =
   let sandbox = Sandbox.of_yojson
       (Yojson.Safe.from_file "bact_states/simple_collision.json")
@@ -178,7 +178,7 @@ and simple_collision test_ctx =
                |> Bacterie.canonical_bact_sig
   and expected_result : Bacterie.bact_sig =
     Bacterie.canonical_bact_sig
-       
+  *)     
 
 
 let suite =
