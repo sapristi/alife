@@ -304,14 +304,17 @@ let tag (rmgr:t) : string =
       TSet.total_rate rmgr.t_set
   and total_b_rate = 
     !(rmgr.env).break_rate *
-      BSet.total_rate rmgr.b_set
+    BSet.total_rate rmgr.b_set
+  and total_c_rate =
+    !(rmgr.env).collision_rate *
+    CSet.total_rate rmgr.c_set
   in
-  Printf.sprintf "%i,(G: %s, T: %s, B: %s)"
+  Printf.sprintf "%i,(G: %s, T: %s, B: %s, C: %s)"
     rmgr.reac_counter
     (Num.show_num total_g_rate)
     (Num.show_num total_t_rate)
     (string_of_float @@ Num.float_of_num total_b_rate)
-   
+    (Num.show_num total_c_rate) 
            
 let get_available_reac_nb rmgr =
   (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set,
@@ -416,7 +419,11 @@ let add_break md reac_mgr =
 
 let add_collider md reac_mgr =
   logger#trace  ~tags:([tag reac_mgr]) "adding new collider : %s"  (Reactant.show md);
-  ()
+
+  CSet.add md reac_mgr.c_set
+  
+  (* let rc = Reaction.Collision  in
+     Reactant.add_reac rc md; *)
   
 let logger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr"
                  
@@ -432,22 +439,36 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
       TSet.total_rate reac_mgr.t_set
   and total_b_rate = 
     !(reac_mgr.env).break_rate *
-      BSet.total_rate reac_mgr.b_set
+    BSet.total_rate reac_mgr.b_set
+  and total_c_rate = 
+    !(reac_mgr.env).collision_rate *
+    CSet.total_rate reac_mgr.c_set
   in
     
-  logger#debug  "********     Grabs   (total : %s)  (nb_reacs : %d)  *********"
-    (show_num total_g_rate) (GSet.cardinal reac_mgr.g_set);
-  logger#ldebug (lazy (GSet.show reac_mgr.g_set));
+  logger#ldebug (lazy
+                  (Printf.sprintf
+                     "********     Grabs   (total : %s)  (nb_reacs : %d)  *********\n%s"
+                     (show_num total_g_rate) (GSet.cardinal reac_mgr.g_set)
+                     (GSet.show reac_mgr.g_set)));
+                   
+  logger#ldebug (lazy
+                  (Printf.sprintf
+                     "******** Transitions (total : %s)  (nb_reacs : %d)  *********\n%s"
+                     (show_num total_t_rate) (TSet.cardinal reac_mgr.t_set)
+                     (TSet.show reac_mgr.t_set)));
   
-  logger#debug  "******** Transitions (total : %s)  (nb_reacs : %d)  *********"
-       (show_num total_t_rate) (TSet.cardinal reac_mgr.t_set);
-  logger#ldebug (lazy (TSet.show reac_mgr.t_set));
+  logger#ldebug (lazy
+                  (Printf.sprintf
+                     "********    Breaks   (total : %s)  (nb_reacs : %d)  *********\n%s"
+                     (show_num total_b_rate) (BSet.cardinal reac_mgr.b_set)
+                     (BSet.show reac_mgr.b_set)));
   
-  logger#debug  "********    Breaks   (total : %s)  (nb_reacs : %d)  *********"
-       (show_num total_b_rate) (BSet.cardinal reac_mgr.b_set);
-  logger#ldebug (lazy (BSet.show reac_mgr.b_set));
-
-                     
+  logger#ldebug (lazy
+                  (Printf.sprintf
+                     "********    Collision   (total : %s)  (nb_reacs : %d)  *********\n%s"
+                     (show_num total_c_rate) (CSet.cardinal reac_mgr.c_set)
+                     (CSet.show reac_mgr.c_set)));
+                  
   let a0 = (total_g_rate) + (total_t_rate)
            + (total_b_rate)
   in

@@ -20,7 +20,7 @@ let env : Environment.t = {
     transition_rate = (num_of_string "10");
     grab_rate = num_of_string "1";
     break_rate = num_of_string "1/100000";
-    random_collision_rate = num_of_string "0"
+    collision_rate = num_of_string "0"
   }
 
 
