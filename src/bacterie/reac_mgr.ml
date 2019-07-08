@@ -82,8 +82,10 @@ module MakeReacSet
     type t = {mutable rates_sum : num;
               mutable set : RSet.t;}
 
-    let pp fmt e =
-      (RSet.pp ~start:"ReacSet" Reac.pp) fmt e.set
+    let pp fmt s=
+      if RSet.is_empty s.set
+      then Format.fprintf fmt  "ReacSet (empty)" 
+      else (RSet.pp ~start:"ReacSet:" Reac.pp) fmt s.set
             
     let show (s : t) =
       Format.asprintf "%a" pp s
@@ -192,8 +194,10 @@ module CSet =
         mutable colliders: Colliders.t;
       }
 
-    let pp fmt e =
-      (Colliders.pp ~start:"ReacSet" Reactant.pp) fmt e.colliders
+    let pp fmt s =
+      if Colliders.is_empty s.colliders
+      then Format.fprintf fmt  "ReacSet (empty)" 
+      else (Colliders.pp ~start:"ReacSet:" Reactant.pp) fmt s.colliders
             
     let show (s:t) =
       Format.asprintf "%a" pp s
