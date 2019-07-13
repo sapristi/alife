@@ -176,3 +176,14 @@ let shuffle_list l =
   shuffle_array a;
 
   Array.to_list a
+
+let extract_from_list l a =
+  let rec aux l res = 
+    match l with
+    | [] -> Error "not found" 
+    | h :: t ->
+      if a = h
+      then Ok (res@t)
+      else aux t (res@[h])
+  in
+  aux l []

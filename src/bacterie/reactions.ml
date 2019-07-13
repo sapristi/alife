@@ -314,9 +314,18 @@ module ReactionsM (R : REACTANT) =
           let m1 = (R.mol r1) and m2 = (R.mol r2) in
           let new_mols = collide m1 m2 in
           
-          logger#trace "Random collision between %s  and %s"
-            (R.show r1) (R.show r2); 
-          []
+          logger#trace "Random collision between %s and %s"
+            (R.show r1) (R.show r2);
+          let res = ref []  and new_mols_r = ref new_mols in
+          ( match extract_from_list (!new_mols_r) m1 with
+            | Ok new_mols' -> new_mols_r := new_mols'
+            | Error _ -> res := (Remove_one r1) :: (!res)
+          );
+          ( match extract_from_list (!new_mols_r) m2 with
+            | Ok new_mols' -> new_mols_r := new_mols'
+            | Error _ -> res := (Remove_one r2) :: (!res)
+          );
+          !res @ (List.map (fun m -> Release_mol m) !new_mols_r)
           
           
         let remove_reac_from_reactants reac g =
