@@ -186,7 +186,7 @@ module CSet =
     let collision_factor (reactant : Reactant.t) =
       match reactant with
       | Amol amol -> one
-      | ImolSet imolset -> one
+      | ImolSet imolset -> Num.num_of_int imolset.qtt
     type elt = C
     type t = {
         mutable rates_sum: num;
@@ -277,8 +277,9 @@ module CSet =
 
       
     let pick_reaction (s:t) =
-      let c1 = Colliders.choose s.colliders
-      and c2 = Colliders.choose s.colliders in
+      let c1 = Colliders.choose s.colliders in
+      let colliders' = Colliders.remove c1 s.colliders in
+      let c2 = Colliders.choose colliders' in
       let c = Reacs.Collision.make (c1,c2) in
       c
   end

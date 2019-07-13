@@ -247,7 +247,8 @@ module rec
            (REAC with type build_t = (Reactant.t))
 
            module Collision :
-           (REAC with type build_t = (Reactant.t * Reactant.t))
+             (REAC with type build_t = (Reactant.t * Reactant.t))
+
            
          end)
      = struct
