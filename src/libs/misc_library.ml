@@ -161,3 +161,18 @@ let bernouil q =
   
 let bernouil_f q =
   Random.float 1. < q
+
+let shuffle_array a =
+
+  for i = (Array.length a) -1 downto 1 do
+    let j = Random.int (i+1) in
+    let b = a.(i) in
+    a.(i) <- a.(j);
+    a.(j) <- b
+  done
+
+let shuffle_list l =
+  let a = Array.of_list l in
+  shuffle_array a;
+
+  Array.to_list a

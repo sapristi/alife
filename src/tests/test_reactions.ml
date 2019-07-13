@@ -3,9 +3,10 @@ open OUnit2;;
 open Reactors;;
 open Easy_logging_yojson;;
 
-let logger = Logging.make_logger "Yaac" Debug [Cli Debug];;
+let root_logger = Logging.make_logger "Yaac" Debug [Cli Debug];;
 (*let logger = Logging.make_logger "Yaac" Debug [];;*)
 
+let logger = Logging.get_logger "Yaac.test_reactions";;
 
 let rlogger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr" in
     rlogger#set_level Debug;;

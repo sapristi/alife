@@ -1,5 +1,9 @@
 open Local_libs
 open Misc_library
+open Easy_logging_yojson
+
+open CCList
+let logger = Logging.get_logger "Yaac.Bact.Reacs.Effects"
 
 (* * File overview *)
 
@@ -27,10 +31,15 @@ let break mol =
   (String.sub mol 0 b, String.sub mol b (n-b))
 
 
-let break_l mol = 
-  let n = String.length mol in
-  let b = 1+ Random.int (n-1) in
-  [String.sub mol 0 b; String.sub mol b (n-b)]
+let break_l mol =
+  logger#debug "Breaking %s" mol;
+
+  if String.length mol < 2
+  then [mol]
+  else
+    let n = String.length mol in
+    let b = 1+ Random.int (n-1) in
+    [String.sub mol 0 b; String.sub mol b (n-b)]
 
 
 (* * collision *)
@@ -41,24 +50,20 @@ let break_l mol =
 (*  - each resulting piece can be flipped *)
 (*  - the pieces will then form new molecules *)
 (*    by concatenation. *)
-  
-let collide mol1 mol2 =
-  let rec random_flip m =
-    if bernouil_f 0.5
-    then
-      let l = String.length m in 
-      String.init l (fun i -> m.[l-i-1])
-    else m
-  and mix l =
-    let res = ref []
-    and ll = List.length l in 
 
-    for i = 0 to ll - 1  do
-      res := (List.nth l (Random.int (ll - i - 1))) ::  !res
-    done;
-    !res
+
+let rec random_flip m =
+  if bernouil_f 0.5
+  then
+    let l = String.length m in 
+    String.init l (fun i -> m.[l-i-1])
+  else m
+
+let collide mol1 mol2 =
+  logger#debug "Colliding %s and %s" mol1 mol2;
     
-  and aux l res =
+(*
+  let rec aux l res =
     match l, res with
     | [], _ -> res
     | h::[],  [] -> [h]
@@ -69,13 +74,35 @@ let collide mol1 mol2 =
          then (h^h') :: res
          else h :: res
        in aux t res'
+*)
 
+  let rec aux l res =
+    match l with
+    | [] -> res
+    | h::[] -> h :: res
+    | h::h'::t ->
+      if bernouil_f 0.5
+      then aux (h'::t) (h::res)
+      else aux t  ((h^h') :: res)
   in
+
+  let l1 = if bernouil_f 0.5
+    then break_l mol1 else [mol1]
+  and l2 = if bernouil_f 0.5
+    then break_l mol2 else [mol2]
+  in
+  let l = l1@l2 in
+  logger#debug "Breaked into %s" (CCFormat.sprintf "%a" (CCList.pp CCFormat.string) l);
+  let fl = List.map random_flip l in
+  logger#debug "Flipped into %s" (CCFormat.sprintf "%a" (CCList.pp CCFormat.string) fl);
+  let mols = shuffle_list fl in
+  logger#debug "Shuffled into %s" (CCFormat.sprintf "%a" (CCList.pp CCFormat.string) mols);
+  (*
   let mols = ((if bernouil_f 0.5
               then break_l mol1 else [mol1])
              @ (if bernouil_f 0.5
                 then break_l mol2 else [mol2]))
              |> List.map random_flip
-             |> mix
-  in
+             |> mix *)
+  
   aux mols []

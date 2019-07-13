@@ -451,30 +451,30 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
     
   logger#ldebug (lazy
                   (Printf.sprintf
-                     "********     Grabs   (total : %s)  (nb_reacs : %d)  *********\n%s"
+                     "********     Grabs   (total rate: %s)  (nb_reacs: %d)  *********\n%s"
                      (show_num total_g_rate) (GSet.cardinal reac_mgr.g_set)
                      (GSet.show reac_mgr.g_set)));
                    
   logger#ldebug (lazy
                   (Printf.sprintf
-                     "******** Transitions (total : %s)  (nb_reacs : %d)  *********\n%s"
+                     "******** Transitions (total rate: %s)  (nb_reacs: %d)  *********\n%s"
                      (show_num total_t_rate) (TSet.cardinal reac_mgr.t_set)
                      (TSet.show reac_mgr.t_set)));
   
   logger#ldebug (lazy
                   (Printf.sprintf
-                     "********    Breaks   (total : %s)  (nb_reacs : %d)  *********\n%s"
+                     "********    Breaks   (total rate: %s)  (nb_reacs: %d)  *********\n%s"
                      (show_num total_b_rate) (BSet.cardinal reac_mgr.b_set)
                      (BSet.show reac_mgr.b_set)));
   
   logger#ldebug (lazy
                   (Printf.sprintf
-                     "********    Collision   (total : %s)  (nb_reacs : %d)  *********\n%s"
+                     "********    Collision   (total rate: %s)  (nb_reacs: %d)  *********\n%s"
                      (show_num total_c_rate) (CSet.cardinal reac_mgr.c_set)
                      (CSet.show reac_mgr.c_set)));
                   
   let a0 = (total_g_rate) + (total_t_rate)
-           + (total_b_rate)
+           + (total_b_rate) + (total_c_rate)
   in
   if a0 = zero
   then
@@ -494,9 +494,11 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
         else if lt bound (total_g_rate + total_t_rate)
         then 
           Reaction.Transition (TSet.pick_reaction reac_mgr.t_set)
-        else 
+        else if lt bound (total_g_rate + total_t_rate + total_b_rate)
+        then
           Reaction.Break (BSet.pick_reaction reac_mgr.b_set)
-        
+        else
+          Reaction.Collision (CSet.pick_reaction reac_mgr.c_set)
       in
       logger#info ~tags:([tag reac_mgr]) "picked %s"  (Reaction.show res);
       

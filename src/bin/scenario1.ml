@@ -41,7 +41,7 @@ let sigs =
     
 List.iter
   (fun s ->
-    let bact = Bacterie.make  ~bact_sig:s env in
+    let bact = Bacterie.make  ~bact_sig:s (ref env) in
     
     for i = 0 to 200 do
       Bacterie.next_reaction bact;
