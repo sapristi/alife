@@ -151,6 +151,7 @@ module ReactionsM (R : REACTANT) =
         val make : build_t -> t
         val eval : t -> effect list
         val remove_reac_from_reactants : R.reac -> t -> unit
+        val get_reactants: t -> build_t
       end
       
 (* ** Grab reaction *)                    
@@ -196,7 +197,10 @@ module ReactionsM (R : REACTANT) =
                 []
         let remove_reac_from_reactants reac g =
           R.Amol.remove_reac reac (g.graber_data);
-          R.remove_reac reac (g.grabed_data);
+          R.remove_reac reac (g.grabed_data)
+
+        let get_reactants g =
+          (g.graber_data, g.grabed_data)
       end
 
 
@@ -241,6 +245,9 @@ module ReactionsM (R : REACTANT) =
       
         let remove_reac_from_reactants reac g =
           ()
+
+        let get_reactants t =
+          t.amd
       end
       
 (* **  Break reaction *)  
@@ -282,6 +289,9 @@ module ReactionsM (R : REACTANT) =
           
         let remove_reac_from_reactants reac g =
           ()
+
+        let get_reactants b =
+          b.reactant
       end
 
     module Collision :
@@ -331,5 +341,8 @@ module ReactionsM (R : REACTANT) =
           
         let remove_reac_from_reactants reac g =
           ()
+
+        let get_reactants c =
+          (c.r1, c.r2)
       end
   end

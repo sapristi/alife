@@ -99,15 +99,15 @@ module rec
       end
       
 (* *** Amol :    reactant with one active molecule *)
-    module Amol = 
+    module Amol =
       struct
         type t = {
             mol : Molecule.t;
             pnet : Petri_net.t;
             reacs : ReacSet.t ref;
           }
-        let show am = 
-          Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol  
+        let show am =
+          Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol
         let to_yojson am : Yojson.Safe.json =
           `Assoc [ "mol", Molecule.to_yojson am.mol;
                    "pnet_id", `Int am.pnet.uid]
@@ -124,7 +124,7 @@ module rec
           {mol = pnet.mol; pnet; reacs = ref ReacSet.empty}
 
         let add_reac reac (amd : t) =
-          amd.reacs := ReacSet.add reac !(amd.reacs) 
+          amd.reacs := ReacSet.add reac !(amd.reacs)
 
         let remove_reac (reac : Reaction.t) (amd : t) =
           amd.reacs := ReacSet.remove reac !(amd.reacs)
@@ -176,7 +176,7 @@ module rec
                      [@@ deriving show, ord]
                  
     let to_yojson reactant =
-      match reactant with 
+      match reactant with
       | Amol amol -> Amol.to_yojson amol
       | ImolSet ims -> ImolSet.to_yojson ims
       | Dummy -> `String "Dummy"
@@ -195,11 +195,11 @@ module rec
       | Amol amol -> Amol.reacs amol
       | ImolSet ims -> ImolSet.reacs ims
     let add_reac reaction reactant =
-      match reactant with 
+      match reactant with
       | Amol amol -> Amol.add_reac reaction amol
       | ImolSet ims -> ImolSet.add_reac reaction ims
     let remove_reac reaction reactant =
-      match reactant with 
+      match reactant with
       | Amol amol -> Amol.remove_reac reaction amol
       | ImolSet ims -> ImolSet.remove_reac reaction ims
   end
@@ -235,6 +235,7 @@ module rec
                val make : build_t -> t
                val eval : t -> effect list
                val remove_reac_from_reactants : Reaction.t -> t -> unit
+               val get_reactants: t -> build_t
              end
 
            module Grab :
@@ -254,7 +255,7 @@ module rec
            
          end)
      = struct
-     include ReactionsM(Reactant) 
+     include ReactionsM(Reactant)
    end
 
 (* ** Reaction  *)
@@ -284,7 +285,7 @@ module rec
          | Break of Break.t
          | Collision of Collision.t
          
-                      [@@ deriving ord, show, to_yojson]    
+                      [@@ deriving ord, show, to_yojson]
 
        let rate r =
          match r with
@@ -301,12 +302,12 @@ module rec
          | Break b -> Break.eval b
          | Collision c -> Collision.eval c
                      
-       let unlink r = 
+       let unlink r =
          match r with
          | Transition t -> Transition.remove_reac_from_reactants r t
          | Grab g -> Grab.remove_reac_from_reactants r g
          | Break b -> Break.remove_reac_from_reactants r b
-         | Collision c -> Collision.remove_reac_from_reactants r c         
+         | Collision c -> Collision.remove_reac_from_reactants r c
      end
      
      
@@ -333,6 +334,6 @@ module rec
        let to_yojson (rset :t) : Yojson.Safe.json=
          `List (List.map Reaction.to_yojson (to_list rset))
        let pp =
-         pp ~start:"Reac set:\n" Reaction.pp 
+         pp ~start:"Reac set:\n" Reaction.pp
   end
 

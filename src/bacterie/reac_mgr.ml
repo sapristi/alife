@@ -266,11 +266,13 @@ module CSet =
       s.rates_sum <- s.rates_sum + cf * (cf -one) + cf*s.single_rates_sum;
       s.single_rates_sum <- s.single_rates_sum + cf
 
-    let remove r (s:t) =
-      let cf = collision_factor r in
+    let remove c (s:t) =
+      let (r1, r2) = Reacs.Collision.get_reactants c in 
+      
+      let cf = collision_factor r1 in
       s.single_rates_sum <- s.single_rates_sum - cf;
       s.rates_sum <- s.rates_sum - cf*(cf - one) - cf*s.single_rates_sum;
-      s.colliders <- Colliders.remove r s.colliders
+      s.colliders <- Colliders.remove r1 s.colliders
 
     let update_rate r (s:t) =
       logger#trace "Update rate"
@@ -359,7 +361,7 @@ let remove_reactions reactions reac_mgr =
          BSet.remove b reac_mgr.b_set;
 
       | Collision c ->
-         logger#warning "This should not happen";
+        CSet.remove c reac_mgr.c_set;
 
     ) reactions
 
