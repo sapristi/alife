@@ -1,3 +1,4 @@
+
 open Easy_logging_yojson
 open Numeric
 let logger = Logging.get_logger  "Yaac.Libs.misc"
@@ -152,3 +153,37 @@ let show_array_prefix prefix show_e l =
   Array.fold_left
     (fun a -> fun b -> Printf.sprintf "%s\n%s" a b)
     prefix (Array.map show_e l)
+
+
+let bernouil q =
+  let q' = Num.float_of_num q in 
+  Random.float 1. < q'
+  
+let bernouil_f q =
+  Random.float 1. < q
+
+let shuffle_array a =
+
+  for i = (Array.length a) -1 downto 1 do
+    let j = Random.int (i+1) in
+    let b = a.(i) in
+    a.(i) <- a.(j);
+    a.(j) <- b
+  done
+
+let shuffle_list l =
+  let a = Array.of_list l in
+  shuffle_array a;
+
+  Array.to_list a
+
+let extract_from_list l a =
+  let rec aux l res = 
+    match l with
+    | [] -> Error "not found" 
+    | h :: t ->
+      if a = h
+      then Ok (res@t)
+      else aux t (res@[h])
+  in
+  aux l []

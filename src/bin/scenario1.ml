@@ -20,7 +20,7 @@ let env : Environment.t = {
     transition_rate = (num_of_string "10");
     grab_rate = num_of_string "1";
     break_rate = num_of_string "1/100000";
-    random_collision_rate = num_of_string "0"
+    collision_rate = num_of_string "0"
   }
 
 
@@ -41,7 +41,7 @@ let sigs =
     
 List.iter
   (fun s ->
-    let bact = Bacterie.make  ~bact_sig:s env in
+    let bact = Bacterie.make  ~bact_sig:s (ref env) in
     
     for i = 0 to 200 do
       Bacterie.next_reaction bact;

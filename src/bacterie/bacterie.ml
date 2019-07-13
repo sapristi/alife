@@ -102,6 +102,10 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
      
      (* reaction : break *)
      Reac_mgr.add_break (Amol ar) bact.reac_mgr;
+
+     (* reaction : collisions *) 
+     Reac_mgr.add_collider (Amol ar) bact.reac_mgr;
+
      
      (* we add the reactant after adding reactions 
         because it must not react with itself *)
@@ -118,6 +122,10 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
           
           (* reactions : break *)
           Reac_mgr.add_break (ImolSet new_ireac) bact.reac_mgr;
+ 
+          (* reactions : collision *)
+          Reac_mgr.add_collider (ImolSet new_ireac) bact.reac_mgr;
+          
           (* add molecule *)
           IRMap.add new_ireac bact.ireactants;
 
@@ -281,7 +289,7 @@ let load_yojson_sig (json : Yojson.Safe.json) (bact :t ): (t,string) mresult =
 
 
              
-(* *** make empty *)
+(* *** make *)
 (* an empty bactery *)
   
   
@@ -304,8 +312,8 @@ module SimControl =
     
       
 (* *** add_proteine *)
-(* adds the molecule corresponding to a proteine to a bactery first transforms it back to a molecule, so the *)
-(* process is not very natural. *)
+(* adds the molecule corresponding to a proteine to a bactery first transforms *)
+(* it back to a molecule, so the process is not very natural. *)
 (* ***** SHOULD NOT BE USED *)
 
     let add_proteine (prot : Proteine.t) (bact : t) : unit =

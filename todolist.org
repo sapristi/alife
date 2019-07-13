@@ -67,6 +67,7 @@
 ** TODO Use custom (binary?) trees to hold reactions in Reac_sets so as to speed up next reaction search.
 ** TODO use Pnet Set as reactants
 ** TODO use uniqueID lib
+** STARTED collisions
 ** STARTED sanitize the use mutable/immutable and refs in structures
     - reactants do not use ref anymore
 

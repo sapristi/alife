@@ -18,7 +18,8 @@
  (name scenarios)
  (deps ./src/bin/scenario1.exe
        ./src/bin/scenario2.exe
-       ./src/bin/scenario3.exe)
+       ./src/bin/scenario3.exe
+       ./src/bin/scenario4.exe)
  )
 
 (alias

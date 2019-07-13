@@ -7,6 +7,6 @@
         "transition_rate" : 0,
         "grab_rate" : 0,
         "break_rate" : 1,
-        "random_collision_rate" : 0
+        "collision_rate" : 0
     }
 }

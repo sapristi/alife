@@ -1,6 +1,7 @@
-(test
+(tests
  (deps (glob_files bact_states/*.json))
- (name reacs1)
+ (names test_reactions test_collision)
  (libraries bacterie_libs oUnit reactors)
- (flags -w)
+ (flags -w -g)
  )
+

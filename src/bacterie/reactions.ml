@@ -1,7 +1,12 @@
 
-open Local_libs.Misc_library
-open Local_libs.Numeric.Num
+open Local_libs
+open Misc_library
+open Numeric.Num
+open Easy_logging
 
+open Reactions_effects
+   
+let logger = Logging.get_logger "Yaac.Bact.Reactions"
 
 (* * file overview *)
 
@@ -46,7 +51,9 @@ open Local_libs.Numeric.Num
 (*       and what is to be returned higher, and why *)
 
 (* * REACTANT signature *)
-  
+
+
+   
 
 module type REACTANT =
   sig
@@ -108,6 +115,7 @@ module type REACTANT =
     type t =
       | Amol of Amol.t
       | ImolSet of ImolSet.t
+      | Dummy
 
     include REACTANT_DEFAULT
             with type t := t
@@ -116,19 +124,6 @@ module type REACTANT =
   end
   
 
-(* * asymetric_grab auxiliary function *)
-(*  Why is it not in the functor ?  *)
-
-let asymetric_grab mol pnet = 
-  let grabs = Petri_net.get_possible_mol_grabs mol pnet
-  in
-  if not (grabs = [])
-  then
-    let grab,pid = random_pick_from_list grabs in
-    match grab with
-    | pos -> Petri_net.grab mol pos pid pnet
-  else
-    false
   
 (* * ReactionsM functor *)
   
@@ -156,6 +151,7 @@ module ReactionsM (R : REACTANT) =
         val make : build_t -> t
         val eval : t -> effect list
         val remove_reac_from_reactants : R.reac -> t -> unit
+        val get_reactants: t -> build_t
       end
       
 (* ** Grab reaction *)                    
@@ -201,7 +197,10 @@ module ReactionsM (R : REACTANT) =
                 []
         let remove_reac_from_reactants reac g =
           R.Amol.remove_reac reac (g.graber_data);
-          R.remove_reac reac (g.grabed_data);
+          R.remove_reac reac (g.grabed_data)
+
+        let get_reactants g =
+          (g.graber_data, g.grabed_data)
       end
 
 
@@ -246,6 +245,9 @@ module ReactionsM (R : REACTANT) =
       
         let remove_reac_from_reactants reac g =
           ()
+
+        let get_reactants t =
+          t.amd
       end
       
 (* **  Break reaction *)  
@@ -287,6 +289,60 @@ module ReactionsM (R : REACTANT) =
           
         let remove_reac_from_reactants reac g =
           ()
+
+        let get_reactants b =
+          b.reactant
       end
 
+    module Collision :
+    (REAC with type build_t = (R.t * R.t)) =
+      struct
+        type t = {mutable rate : num; [@compare fun a b -> 0] 
+                  r1 : R.t;
+                  r2: R.t;
+                 }
+                   [@@ deriving show, ord, to_yojson]
+               
+        type build_t = R.t * R.t
+                     
+        let calculate_rate c =
+          one
+          
+        let rate c =
+          logger#warning "This should not be used"; 
+          c.rate
+          
+        let update_rate c = 
+          logger#warning "This should not be used"; 
+          let old_rate = c.rate in
+          c.rate <- calculate_rate c;
+          c.rate - old_rate
+          
+        let make (r1,r2) =
+          {r1; r2; rate = calculate_rate {r1; r2; rate = zero}}
+          
+        let eval {r1; r2; rate} =
+          let m1 = (R.mol r1) and m2 = (R.mol r2) in
+          let new_mols = collide m1 m2 in
+          
+          logger#trace "Random collision between %s and %s"
+            (R.show r1) (R.show r2);
+          let res = ref []  and new_mols_r = ref new_mols in
+          ( match extract_from_list (!new_mols_r) m1 with
+            | Ok new_mols' -> new_mols_r := new_mols'
+            | Error _ -> res := (Remove_one r1) :: (!res)
+          );
+          ( match extract_from_list (!new_mols_r) m2 with
+            | Ok new_mols' -> new_mols_r := new_mols'
+            | Error _ -> res := (Remove_one r2) :: (!res)
+          );
+          !res @ (List.map (fun m -> Release_mol m) !new_mols_r)
+          
+          
+        let remove_reac_from_reactants reac g =
+          ()
+
+        let get_reactants c =
+          (c.r1, c.r2)
+      end
   end

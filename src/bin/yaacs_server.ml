@@ -40,11 +40,11 @@ let run_yaacs p : unit=
   if p.stats
   then
     begin
-      let format_dummy : Default_handlers.log_formatter = fun item  -> item.msg in
-      let handler = Default_handlers.make (File ("stats", Debug)) in
+      let format_dummy : Handlers.log_formatter = fun item  -> item.msg in
+      let handler = Handlers.make (File ("stats", Debug)) in
       let stats_reporter = Logging.get_logger "Yaac.stats" in
       stats_reporter#add_handler handler;
-      Default_handlers.set_formatter handler format_dummy;
+      Handlers.set_formatter handler format_dummy;
       stats_reporter#info "ireactants areactants transitions grabs breaks  picked_dur treated_dur actions_dur";
     end
   else

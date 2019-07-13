@@ -29,6 +29,13 @@ module MolMap =
 (*         iterates through the present areactants to *)
 (* 	add the possible reactions with the new reactant *)
 
+
+(* apparently, AmolSet is a step toward splitting ARMap into
+ * multiple sets, organised by molecule. For now, each AmolSet
+ * holds at most one reactant *)
+  
+
+
 module ARMap =
   struct
 
@@ -120,7 +127,7 @@ module ARMap =
     let make () = {v = MolMap.empty}
 
     let add (areactant :Reactant.Amol.t )  (armap : t) : Reacs.effect list =
-      logger#info "add %s" (Reactant.Amol.show areactant);
+      logger#trace "Adding Reactant.Amol %s" (Reactant.Amol.show areactant);
 
       armap.v <-
         MolMap.update
@@ -139,6 +146,8 @@ module ARMap =
       MolMap.fold (fun _ amset t -> t + (num_of_int (AmolSet.cardinal amset))) armap.v zero
       
     let remove (areactant : Reactant.Amol.t) (armap : t) : Reacs.effect list =
+      logger#trace "Removing Reactant.Amol %s" (Reactant.Amol.show areactant);
+
       armap.v <-
         MolMap.update
           areactant.mol
@@ -182,7 +191,7 @@ module ARMap =
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
                                     (armap :t)  reac_mgr: unit =
       
-      logger#info "adding reactions with %s" (Reactant.show new_reactant);
+      logger#trace "adding reactions with %s" (Reactant.show new_reactant);
       MolMap.iter 
         (fun _ areac -> 
           AmolSet.add_reacs_with_new_reactant

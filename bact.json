@@ -11,6 +11,6 @@
         "transition_rate" : 10,
         "grab_rate" : 1,
         "break_rate" : 0.001,
-        "random_collision_rate" : 0}
+        "collision_rate" : 0}
     
 }

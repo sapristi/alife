@@ -18,7 +18,7 @@ let env : Environment.t = {
     transition_rate = (num_of_string "10");
     grab_rate = num_of_string "1";
     break_rate = num_of_string "1/1000";
-    random_collision_rate = num_of_string "0"
+    collision_rate = num_of_string "0"
   }
 
 
@@ -34,7 +34,7 @@ let bsig : Bacterie.bact_sig =
     active_mols= [{mol="AAABAAAADDFCBAAADDFBAAABDDFCBAABDDFBAAACDDFCBAACDDFBAAADDDFCBAADDDFBAAAFDDFCBAAFDDFBAAAAADDFCAABBBDDFAAABAAAADDFABAFAFDDFAAABAAABDDFABAFBFDDFAAABAAACDDFABAFCFDDFAAABAAADDDFABAFDFDDFAAABAAAFDDFABAFFFDDFAAABCAAADDFCCAAADDFBCBABDDFCCAABDDFBCCACDDFCCAACDDFBCDADDDFCCAADDDFBCFAFDDFCCAAFDDFBABAAADDFCAABBBDDFAAACAAAAADDFABBAAACAAAAADDFABBAAABAABBBDDFCAACCCDDFAAABAABBBDDFABADFDFFFDDFAAABBACCCDDFCAACCCDDFABC";qtt=10}]
   } 
 
-let bact = Bacterie.make ~bact_sig:bsig env;;
+let bact = Bacterie.make ~bact_sig:bsig (ref env);;
 for i = 0 to 1000000 do
   Bacterie.next_reaction bact
 done;;
