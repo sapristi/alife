@@ -115,6 +115,7 @@ module type REACTANT =
     type t =
       | Amol of Amol.t
       | ImolSet of ImolSet.t
+      | Dummy
 
     include REACTANT_DEFAULT
             with type t := t

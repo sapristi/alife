@@ -425,7 +425,11 @@ let add_break md reac_mgr =
 let add_collider md reac_mgr =
   logger#trace  ~tags:([tag reac_mgr]) "adding new collider : %s"  (Reactant.show md);
 
-  CSet.add md reac_mgr.c_set
+  CSet.add md reac_mgr.c_set;
+
+  let collider = Reacs.Collision.make (md,Dummy) in
+  let collider_reac = Reaction.Collision collider in
+  Reactant.add_reac collider_reac md
   
   (* let rc = Reaction.Collision  in
      Reactant.add_reac rc md; *)
