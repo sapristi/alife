@@ -12,8 +12,11 @@
         <!-- ** external libs -->
         <link href="/css-libs/semantic.min.css" Rel="stylesheet">
         <link href="/css-libs/cytoscape-context-menus.css" rel="stylesheet">
+
+
         
-	<!-- ** external js -->
+	      <!-- ** external js -->
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <script src="/js-libs/jquery-3.3.1.min.js"></script>
         <script src="/js-libs/knockout-3.4.2.debug.js"></script>
         <script src="/js-libs/semantic.min.js"></script>
@@ -28,6 +31,7 @@
         <!-- ** personnal css -->
         <link href="/custom_styles.css" rel="stylesheet">
 
+        
     </head>
 
     <!-- * body -->
@@ -45,19 +49,19 @@
                 <a class="active item">Molbuilder</a>
             </div>
             
-            <div class="ui grid" >
+            <div class="ui grid" id="main_vue">
 
                 <div class="centered row">
                     <h1 class="ui header" style="margin-top:5px">Mol Builder</h1>
                 </div>
 
                 <div class="row">
-	            <div class="six wide column">
-	                <h4 class="ui horizontal divider header">
-	                    Petri Net view
-	                </h4>
+	                  <div class="six wide column">
+	                      <h4 class="ui horizontal divider header">
+	                          Petri Net view
+	                      </h4>
 
-	                <button class="ui labeled icon button tooltip" data-bind="click:reset_graph_view">
+	                      <button class="ui labeled icon button tooltip" data-bind="click:reset_graph_view">
 	                    <i class="refresh icon"></i> Refresh graph
 	                    <span class="tooltiptext">Doesn't need to be used</span>
 	                </button>
@@ -124,51 +128,53 @@
 	                    </div>
 	                </div>
 	            </div>
-	        </div>
-	        <div class="row">
+	              </div>
+	              <div class="row">
+	                  <div id="mol_vue" class="eight wide column">
+	                      <h4 class="ui horizontal divider header">
+	                          Molecule
+	                      </h4>
+	                      <div class="ui buttons">
+	                          <button class="ui button tooltip"  v-on:click="compile" data-bind="click:commit_mol">
+		                            Compile mol
+		                            <span class="tooltiptext">Calculates associated Proteine and Petri Net</span>
+	                          </button>
+	                          <button class="ui button tooltip" data-bind="">
+		                            Restore mol
+		                            <span class="tooltiptext">Revert changes</span>
+	                          </button>
+	                          <button class="ui button tooltip" data-bind="click:send_mol_to_sandbox">
+		                            Send to Sandbox
+		                            <span class="tooltiptext">Add the current molecule to the sandbox</span>
+	                          </button>
+	                      </div>
+	                      <div class="ui form">
+	                          <div class="field">
+		                            <textarea style="resize : both"
+			                                    rows="15"
+			                                    data-bind="value:mol_text"
+			                                    id="molbuilder_prot_text"></textarea>
+	                          </div>
+	                      </div>
+	                  </div>
+	              </div>
 
-	            <div class="eight wide column">
-	                <h4 class="ui horizontal divider header">
-	                    Molecule
-	                </h4>
-	                <div class="ui buttons">
-	                    <button class="ui button tooltip" data-bind="click:commit_mol">
-		                Compile mol
-		                <span class="tooltiptext">Calculates associated Proteine and Petri Net</span>
-	                    </button>
-	                    <button class="ui button tooltip" data-bind="">
-		                Restore mol
-		                <span class="tooltiptext">Revert changes</span>
-	                    </button>
-	                    <button class="ui button tooltip" data-bind="click:send_mol_to_sandbox">
-		                Send to Sandbox
-		                <span class="tooltiptext">Add the current molecule to the sandbox</span>
-	                    </button>
-	                </div>
-	                <div class="ui form">
-	                    <div class="field">
-		                <textarea style="resize : both"
-			                  rows="15"
-			                  data-bind="value:mol_text"
-			                  id="molbuilder_prot_text"></textarea>
-	                    </div>
-	                </div>
-	            </div>
+
+                <div class="row">
+                    <mol-vue-bis></mol-vue-bis>
+	              </div>
 
 
-
-	        </div>
             </div>
-
         </div>
 
     </body>
 
 
     <!-- ** scripts loading  -->
+    <script src="molbuilder_vue.js"> </script>
     <script src="/js-libs/FileSaver.min.js"> </script>
     <script src="/utils.js"> </script>
     <script src="/pnet_cytoscape.js"> </script>
     <script src="molbuilderVM.js"> </script>
-
 </html>
