@@ -18,7 +18,7 @@ type params = {
                               (** Set most log level to debug *)
     stats: bool;            [@default false]
                               (** Generates running stats *)
-    log_level : log_level option; [@enum [("debug", Easy_logging__.Easy_logging_types.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
+    log_level : Logging.level option; [@enum [("debug", Easy_logging__.Easy_logging_types.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
     data_path : string;     [@default "./"] [@docv "PATH"]
     log_config : string     [@default ""]
   } [@@deriving cmdliner,show]

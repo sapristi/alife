@@ -13,7 +13,7 @@ let logger = Logging.get_logger "Yaac.Server.Bact"
 let set_log_level (cgi: Netcgi.cgi) : string =
   let loggername = cgi#argument_value "logger" in
   match cgi#argument_value "level"
-        |> log_level_of_string with
+        |> Logging.level_of_string with
   | Ok level ->  
      let logger = Logging.get_logger loggername in
      logger#set_level level;

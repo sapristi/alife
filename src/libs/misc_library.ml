@@ -1,7 +1,6 @@
 
-open Easy_logging_yojson
 open Numeric
-let logger = Logging.get_logger  "Yaac.Libs.misc"
+let logger = Easy_logging_yojson.Logging.get_logger  "Yaac.Libs.misc"
 
 
 let rec cut_list l pos =
