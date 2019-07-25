@@ -10,6 +10,7 @@ open Easy_logging_yojson
 let logger = Logging.get_logger "Yaac.Server.Bact"
 
 
+
 let set_log_level (cgi: Netcgi.cgi) : string =
   let loggername = cgi#argument_value "logger" in
   match cgi#argument_value "level"
@@ -17,7 +18,7 @@ let set_log_level (cgi: Netcgi.cgi) : string =
   | Ok level ->  
      let logger = Logging.get_logger loggername in
      logger#set_level level;
-     "ok"
+     "\"ok\""
   | Error r -> 
      r
 
@@ -38,20 +39,18 @@ let prot_from_mol (cgi:Netcgi.cgi) : string =
 let build_all_from_mol (cgi : Netcgi.cgi) : string =
   
   let mol = cgi # argument_value "mol_desc" in
-  let prot_json = mol
-                  |> Molecule.to_proteine
-                  |> Proteine.to_yojson
-                
+  let prot = Molecule.to_proteine mol
   in
-  match Petri_net.make_from_mol mol with
+  logger#debug "Built Proteine:\n%s" (Proteine.show prot);
+  match Petri_net.make_from_prot prot mol with
   | Some pnet -> let pnet_json = Petri_net.to_json pnet
                  in
                  `Assoc
                   ["purpose", `String "build_all_from_mol";
-                   "data", `Assoc ["prot", prot_json;
+                   "data", `Assoc ["prot", (Proteine.to_yojson prot);
                                    "pnet", pnet_json]]
                  |> Yojson.Safe.to_string
-  | None -> "cannot build pnet"
+  | None -> "{\"error\": \"cannot build pnet\"}"
           
 let build_all_from_prot (cgi : Netcgi.cgi) : string =
   
@@ -71,10 +70,10 @@ let build_all_from_prot (cgi : Netcgi.cgi) : string =
                               "data",
                               `Assoc ["mol", mol_json; "pnet", pnet_json]]
                             |>  Yojson.Safe.to_string
-            | None -> "cannot build pnet"
+            | None -> "\"cannot build pnet\""
           )
     | Error s -> 
-       "error decoding proteine from json : "^s
+      "\"error decoding proteine from json : "^s^"\""
       
 let list_acids cgi : string =
   let json_data =

@@ -55,19 +55,12 @@
                 </div>
                 
                 <div class="row">
-                    <cytoscape-vue inline-template>
+                    <cytoscape-vue :pnet="pnet" inline-template>
 	                      <div class="six wide column">
 	                          <h4 class="ui horizontal divider header">
 	                              Petri Net view
 	                          </h4>
-                            
-	                          <button class="ui labeled icon button tooltip" data-bind="click:reset_graph_view">
-	                              <i class="refresh icon"></i> Refresh graph
-	                              <span class="tooltiptext">Doesn't need to be used</span>
-	                          </button>
-	                          <div id="molbuilder_pnet_cy"  class="cy small">
-	                          </div>
-                            
+	                          <div id="molbuilder_pnet_cy"  class="cy small"></div>
 	                      </div>
                     </cytoscape-vue>
 
@@ -103,21 +96,21 @@
 	                          </div>
 	                      </div>
                     </acid-selection-vue>
-                    <prot-vue inline-template>
+                    <prot-vue :prot="prot" inline-template>
 	                      <div class="six wide column">
 	                          <h4 class="ui horizontal divider header">
 	                              Proteine
 	                          </h4>
 	                          <div class="ui buttons">
-	                              <button class="ui button tooltip" v-on:click="compile" data-bind="click:commit_prot">
+	                              <button class="ui button tooltip" v-on:click="compile">
 		                                Compile prot
 		                                <span class="tooltiptext">Calculates associated Petri Net and Molecule</span>
 	                              </button>
-	                              <button class="ui button tooltip" v-on:click="restore" data-bind="">
+	                              <button class="ui button tooltip" v-on:click="restore" >
 		                                Restore prot
 		                                <span class="tooltiptext">Revert changes</span>
 	                              </button>
-	                              <button class="ui button tooltip" data-bind="click:send_prot_to_sandbox">
+	                              <button class="ui button tooltip">
 		                                Send to Sandbox
 		                                <span class="tooltiptext">Add to the sandbox (compile before using this)</span>
 	                              </button>
@@ -148,7 +141,7 @@
 		                                Restore mol
 		                                <span class="tooltiptext">Revert changes</span>
 	                              </button>
-	                              <button class="ui button tooltip" data-bind="click:send_mol_to_sandbox">
+	                              <button class="ui button tooltip">
 		                                Send to Sandbox
 		                                <span class="tooltiptext">Add the current molecule to the sandbox</span>
 	                              </button>
@@ -175,5 +168,4 @@
     <script src="/utils.js"> </script>
     <script src="/pnet_cytoscape.js"> </script>
     <script src="molbuilder_vue.js"> </script>
-    <!-- <script src="molbuilderVM.js"> </script> -->
 </html>
