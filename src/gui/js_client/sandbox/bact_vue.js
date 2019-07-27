@@ -14,29 +14,33 @@ Vue.component("environment", {
     `
 })
 
-Vue.component("mol-list", {
-    props: ["mols", "id", "columns"],
-    data: function () {
-        return {selected_mol_index: null}
-    }
-
-})
-
-Vue.component("inert-mols-list",{
-    props: ["inert_mols"],
+Vue.component("mols-list", {
+    props: ["mols", "columns", "mol_type"],
     data: function () {
         return {selected_mol_index: null}
     },
+    template: `
+        <table class="ui fixed selectable table">
+			      <thead><tr>
+				        <th v-for="col in columns" v-bind:class="col.css_class" >{{col.title}}</th>
+			      </tr></thead>
+			      <tbody>
+				        <tr v-for="(mol,index) in mols" v-on:click="select(index)" v-bind:class="{ active: mol.selected }">
+                    <td v-for="col in columns" v-bind:style="col.style">{{mol[col.property]}}</td>
+				        </tr>
+			      </tbody>
+        </table>
+    `,
     methods: {
         select: function(index){
             if (index === this.selected_mol_index) {
-                this.inert_mols[this.selected_mol_index].selected = false;
+                this.mols[this.selected_mol_index].selected = false;
                 this.selected_mol_index = null;
             } else {
                 if (this.selected_mol_index !== null)
-                    this.inert_mols[this.selected_mol_index].selected = false;
+                    this.mols[this.selected_mol_index].selected = false;
                 this.selected_mol_index = index;
-                this.inert_mols[this.selected_mol_index].selected = true;
+                this.mols[this.selected_mol_index].selected = true;
             };
             this.$forceUpdate();
         }
@@ -45,8 +49,9 @@ Vue.component("inert-mols-list",{
         selected_mol_index: function() {
             if (this.selected_mol_index !== null) {
                 this.$root.$emit(
-                    'selected_mol',this.inert_mols[this.selected_mol_index])}
-            else {this.$root.$emit('unselected_mol', null)}
+                    'selected_mol_' + this.mol_type,
+                     this.mols[this.selected_mol_index])}
+            else {this.$root.$emit('unselected_mol_'+ this.mol_type, null )}
         }
     }
 });
@@ -54,22 +59,118 @@ Vue.component("inert-mols-list",{
 Vue.component("inert-mols-controls",{
     props: [],
     data: function () {
-        return {qtt: null,
+        return {mol: null,
+                qtt: null,
                 disabled: true}
     },
     mounted: function(){
-        this.$root.$on('selected_mol', mol => {this.qtt = mol.qtt; this.disabled=false});
-        this.$root.$on('unselected_mol', _ => {this.qtt = null; this.disabled=true})
+        this.$root.$on('selected_mol_inert', mol =>
+            {this.mol = mol.mol; this.qtt = mol.qtt; this.disabled=false});
+        this.$root.$on('unselected_mol_inert', mol_type =>
+            {this.mol = null; this.qtt = null; this.disabled=true})
     }
 });
 
+
+Vue.component("active-mols-controls",{
+    data: function () {
+        return {
+            mol: null,
+            pnet_ids: [],
+            disabled: true,
+            selected_pnet: null
+        }
+    },
+    methods: {
+        init: function (mol) {
+            this.mol= mol.mol;this.disabled=false;
+            utils.ajax_get(
+	              {command : "pnet_ids_from_mol",
+	               mol_desc : this.mol,
+	               target : "sandbox"}
+	          ).done(data => {
+	              this.pnet_ids = data.data;
+            console.log(this)});
+        },
+        clear: function () {
+            this.mol = null; this.disabled=true; this.pnet_ids=[];
+            this.selected_pnet = null;
+        }
+    },
+    mounted: function() {
+        this.$root.$on("selected_mol_active", mol => {this.init(mol);}),
+        this.$root.$on("unselected_mol_active", _ => {this.clear();})
+    },
+    watch: {
+        selected_pnet: function(val) {
+            this.$root.$emit("selected_pnet", {mol: this.mol, pnet_id: this.selected_pnet});
+        }
+    }
+});
+
+Vue.component("petri-net", {
+    data: function () {
+        return {pnet: null}
+    },
+    methods: {
+        init: function(mol, pnet_id) {
+            utils.ajax_get(
+                {command: "pnet_from_mol",
+                 mol_desc: mol,
+	               pnet_id : pnet_id,
+	               target: "sandbox"}
+            ).done(
+                data => {console.log("pnet updated with ", data);this.pnet = data.data.pnet})
+        }
+    },
+    mounted: function() {
+        this.$root.$on("selected_pnet", data => {
+            if (data.pnet_id !== null) {
+                this.init(data.mol, data.pnet_id);}
+        else {this.pnet = null;} })
+    }
+});
+
+Vue.component("pnet-cy", {
+    props: ["pnet"],
+    data: function () {return {pnet_cy: null}},
+    watch: {
+        pnet: function(data) {
+            console.log("Pnet Cy updated with ", data);
+            if (data === null) { this.pnet_cy.destroy() }
+            else {
+                this.pnet_cy = new make_pnet_graph(
+		                data,
+		                document.getElementById('pnet_cy'),
+		                this);
+                this.pnet_cy.run();
+            }
+        }
+    }
+});
+
+
+
+inert_mols_columns = [
+    {css_class: "thirteen wide", title: "Molecule name",
+     property: "mol", style:"word-wrap:break-word"},
+    {css_class: "two wide", title: "Quantity", property: "qtt"},
+    {css_class: "two wide", title: "Ambient", property: "ambient"}
+];
+
+active_mols_columns =  [
+    {css_class: "thirteen wide", title: "Molecule name",
+     property: "mol", style:"word-wrap:break-word"},
+    {css_class: "three wide", title: "Quantity", property: "qtt"}
+];
 
 sandbox_vue = new Vue({
     data: function (){
         return {
             env: null,
             inert_mols: [],
-            active_mols: []}
+            active_mols: [],
+            test_mols: []}
     },
     el: "#sandbox_vue",
     methods: {
@@ -88,5 +189,9 @@ sandbox_vue = new Vue({
     },
     mounted: function() {
         this.update();
+    },
+    created: function() {
+        this.inert_mols_columns= inert_mols_columns;
+        this.active_mols_columns= active_mols_columns;
     }
 })
