@@ -2,4 +2,4 @@
   (name server)
   (flags -w)
   (libraries
-        bacterie_libs nethttpd reactors ))
+	opium bacterie_libs nethttpd reactors ))

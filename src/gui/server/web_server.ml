@@ -12,7 +12,7 @@ open Nethttpd_reactor
 open Local_libs
 open Easy_logging_yojson
 let logger = Logging.get_logger "Yaac.Server"
-               
+    
            
 
 let fs_spec file_root =
@@ -21,7 +21,7 @@ let fs_spec file_root =
     file_suffix_types = [ "txt", "text/plain";
 			  "html", "text/html";
                           "css", "text/css";
-                          "js", "text/js";
+                          "js", "text/javascript";
                           "ico", "img/ico"];
     file_default_type = "application/octet-stream";
     file_options = [ `Enable_gzip;
@@ -43,14 +43,18 @@ let make_srv file_root req_processor (conn_attr : (string * int)) =
       uri_distributor
         [ "*", (options_service());
           "/", (file_service (fs_spec file_root));
-          "/sim_commands/", req_processor;
+          "/api/", req_processor;
         ]
     ] 
 
 
 let serve_connection ues fd srv =
   (* cgi config to change if diffent input methods are needed *)
-  let custom_cgi_config =Netcgi.default_config  in
+  let custom_cgi_config ={
+      Netcgi.default_config
+    with permitted_http_methods = [`GET; `HEAD; `POST; `PUT; `DELETE];
+         permitted_input_content_types = ["*/*"; "application/json"]
+    } in
   let config =
     new Nethttpd_engine.modify_http_engine_config
       ~config_input_flow_control:true
@@ -58,7 +62,6 @@ let serve_connection ues fd srv =
       ~modify_http_processor_config:
       (new Nethttpd_reactor.modify_http_processor_config
          ~config_cgi:custom_cgi_config)
-    
       Nethttpd_engine.default_http_engine_config in
   let pconfig = 
     new Nethttpd_engine.buffering_engine_processing_config in
