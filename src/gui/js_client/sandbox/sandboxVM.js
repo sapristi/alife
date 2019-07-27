@@ -16,7 +16,8 @@ function SandboxViewModel () {
     self.env = {
         transition_rate : ko.observable(),
         grab_rate : ko.observable(),
-        break_rate : ko.observable()
+        break_rate : ko.observable(),
+        collision_rate: ko.observable()
     }
 
     self.bc_receive.onmessage = function(msg) {
