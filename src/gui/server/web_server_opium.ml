@@ -1,5 +1,6 @@
 open Opium.Std
 open Easy_logging_yojson
+open Lwt.Infix
 
 let logger = Logging.make_logger "Server" Debug [Cli Debug] ;;
 
@@ -20,7 +21,7 @@ let response_not_found = `String "not found", Cohttp.Header.init (), `Not_found
 let serve_file prefix path =
   let ext = Filename.extension path
   and full_path = (prefix^path)in
-  logger#debug "Serving file %s" full_path;
+  logger#trace "Serving file %s" full_path;
   let (res_body, headers, code) = match List.find_opt (fun (ext',_) -> ext = ext') config with
     | None -> response_not_found
     | Some (_, content_type ) ->
@@ -57,33 +58,58 @@ let log_in =
     and meth = Cohttp.Code.sexp_of_meth req.request.meth |> Base.Sexp.to_string_hum
     in
     logger#trace ~tags:[get_tag req.env] "Serving %s request at %s" meth resource;
-    logger#debug "Request body: %s" (Lwt_main.run (Cohttp_lwt.Body.to_string req.body));
+    (* logger#debug "Request body: %s" (Lwt_main.run (Cohttp_lwt.Body.to_string req.body)); *)
     handler req
   in
   Rock.Middleware.create ~name:"Log in" ~filter
 
 let log_out =
   let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
-                 Opium_kernel__Rock.Filter.simple  = fun handler req -> 
-    let response = Lwt.bind (Lwt.return req) handler in 
-    response
-    |> Lwt_main.run
-    |> Response.code
-    |> Cohttp.Code.string_of_status
-    |> logger#trace ~tags:[get_tag req.env] "Response: %s";
-    handler req
+      Opium_kernel__Rock.Filter.simple  = fun handler req ->
+    let handler' = fun req ->
+      let response = Lwt.bind (Lwt.return req) handler in 
+      (
+        response
+        >|= Response.code
+        >|= Cohttp.Code.string_of_status
+        >|= logger#trace ~tags:[get_tag req.env] "Response: %s";
+      )
+      >>= ( fun () -> response)
+    in
+    handler' req
   in
   Rock.Middleware.create ~name:"Log out" ~filter
 
 
-let start_srv port files_prefix =
+let exn_catcher =
+  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
+      Opium_kernel__Rock.Filter.simple  = fun handler req ->
+    let handler' = fun req ->
+      try%lwt 
+        Lwt.return req >>= handler
+      with
+      | _ as e ->
+        logger#error ~tags:[get_tag req.env] "An error happened while treating the request:%s\n%s"
+          (Printexc.get_backtrace ())
+          (Printexc.to_string e);
+        `String "error" |> respond'
+        
+    in
+    handler' req
+  in
+  Rock.Middleware.create ~name:"Exn catcher" ~filter
+
+
+let start_srv port files_prefix routes =
   App.empty
   |> App.port port
   |> middleware tag_request
   |> middleware log_in
   |> get "**" (fun x -> serve_file files_prefix x.request.resource)
-  |> get "/api/" (fun x -> `String "api ok" |> respond')
+  |> routes
   |> middleware log_out
-  |> App.start
-  |> Lwt_main.run
+  |> middleware exn_catcher
+  |> App.run_command 
+  (* |> App.start *)
+  (* |> Lwt_main.run *)
 

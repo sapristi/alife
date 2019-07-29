@@ -7,7 +7,7 @@ open Bacterie_libs
 open Reactors
 open Local_libs   
 open Easy_logging_yojson
-let logger = Logging.get_logger "Yaac.Server.Bact"
+let logger = Logging.get_logger "Server.Bact"
 
 
 let set_log_level (cgi: Netcgi.cgi) : string =
@@ -61,111 +61,77 @@ let build_all_from_prot (cgi : Netcgi.cgi) : string =
     |> Proteine.of_yojson 
   with
   | Ok prot ->
-     let mol = Molecule.of_proteine prot
-     in let  mol_json = `String mol in
-        (
-            match Petri_net.make_from_mol mol with
-            | Some pnet ->  let pnet_json = Petri_net.to_json pnet in
-                            `Assoc
-                             ["purpose", `String "build_all_from_prot";
-                              "data",
-                              `Assoc ["mol", mol_json; "pnet", pnet_json]]
-                            |>  Yojson.Safe.to_string
-            | None -> "cannot build pnet"
-          )
-    | Error s -> 
-       "error decoding proteine from json : "^s
-      
-let list_acids cgi : string =
+    let mol = Molecule.of_proteine prot
+    in let  mol_json = `String mol in
+    (
+      match Petri_net.make_from_mol mol with
+      | Some pnet ->  let pnet_json = Petri_net.to_json pnet in
+        `Assoc
+          ["purpose", `String "build_all_from_prot";
+           "data",
+           `Assoc ["mol", mol_json; "pnet", pnet_json]]
+        |>  Yojson.Safe.to_string
+      | None -> "cannot build pnet"
+    )
+  | Error s -> 
+    "error decoding proteine from json : "^s
+
+open Opium.Std
+
+type build_req_body = 
+  | Mol of Molecule.t
+  | Prot of Proteine.t
+[@@deriving yojson]
+
+open Lwt.Infix
+
+   
+let build (req: Opium_kernel__Rock.Request.t) =
+  (
+    match%lwt
+      req.body
+      |> Cohttp_lwt.Body.to_string
+      >|= Yojson.Safe.from_string 
+      >|= build_req_body_of_yojson
+    with
+    | Ok res -> Lwt.return (`String "body decoded")
+    | Error e -> Lwt.return (`String ("bad body"^e))
+  )
+
+
+let acids_list  =
   let json_data =
     `Assoc
      ["purpose", `String "list_acids";
       "data", `List [
-                 `Assoc ["type", `String "places";
-                         "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.nodes)];
-                 `Assoc ["type", `String "inputs_arcs";
-                         "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.input_arcs)];
-                 `Assoc ["type", `String "outputs_arcs";
-                         "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.output_arcs)];
-                 `Assoc ["type", `String "extensions";
-                         "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.extensions);]]] in
+        `Assoc ["type", `String "places";
+                "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.nodes)];
+        `Assoc ["type", `String "inputs_arcs";
+                "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.input_arcs)];
+        `Assoc ["type", `String "outputs_arcs";
+                "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.output_arcs)];
+        `Assoc ["type", `String "extensions";
+                "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.extensions);]]] in
   Yojson.Safe.to_string json_data
     
 
-let server_functions =
-  ["set_log_level", set_log_level;
-    "prot_from_mol", prot_from_mol;
-    "build_all_from_mol", build_all_from_mol;
-    "build_all_from_prot", build_all_from_prot;
-    "list_acids", list_acids]
-    
-  
-let make_dyn_service  f  =
-  Nethttpd_services.dynamic_service
-    { dyn_handler =
-        (fun env (cgi:Netcgi.cgi)  ->
-          let req_descr = List.fold_left
-                    (fun res x->
-                      res ^(Printf.sprintf "\t%s : %s\n" x#name x#value))
-                    ""
-                    (cgi#arguments)
-          in
 
-          (* Log.info (fun m -> m "serving GET request : \n%s" req_descr);  *)
-          let url = cgi#url () in
-          logger#info "serving GET request : at %s with paramters :\n%s" url req_descr;
-          
-          let response, status =
-            try 
-              f cgi, `Ok
-            with
-            | _ as e ->
-               logger#error "An error happened while treating the request:%s\n%s"
-                 (Printexc.get_backtrace ())
-                 (Printexc.to_string e);
-               
-               "error", `Internal_server_error
-          in
-          
-          cgi # set_header ~content_type:"application/json" ~status:status();
-          cgi # out_channel # output_string response;
-          cgi # out_channel # commit_work();
-
-          logger#info "sent response : %s"
-            (Nethttp.string_of_http_status status);
-          logger#ldebug @@ lazy response;
-                         
-          
-          (* Log.info (fun m -> m "sent response :%s\n" response); *)
-        );
-      dyn_activation = Nethttpd_services.std_activation `Std_activation_buffered;
-      dyn_uri = None;
-      dyn_translator = (fun _ -> "");
-      dyn_accept_all_conditionals = false
-    }
+let respond_json = respond' ~headers:( Cohttp.Header.init_with "Content-Type" "application/json")
+let make_routes simulator sandbox x =
+  x
+  |> get "/ok" (fun x -> `String "ok" |> respond')
+  |> get "/api/utils/acids" (fun x -> `String acids_list |> respond_json)
+  |> post "/api/utils/build" (fun x -> (build x) >|=  respond)
+  |> get "/raise" (fun x -> failwith "this is an error" |> respond')
 
 
-let make_req_handler simulator sandbox =
-
-  logger#flash "Building req handler";
-  let main_redirects =
-    (List.map
-       (fun (name, f) ->  "/sim_commands/general/"^name, make_dyn_service f)
-       server_functions)
-  and sandbox_redirects = 
-    (List.map
-       (fun (name, f) ->  "/sim_commands/sandbox/"^name, make_dyn_service (f sandbox))
-       Sandbox_req_handler.server_functions)
-  and simulator_redirect = 
-    (List.map
-       (fun (name, f) ->  "/sim_commands/simulator/"^name, make_dyn_service  (f simulator))
-       Sim_req_handler.server_functions)
-
-  in 
-
-    Nethttpd_services.uri_distributor
-      (
-        main_redirects @
-          sandbox_redirects @
-            simulator_redirect)
-  
+(* let response, status =
+ *   try 
+ *     f cgi, `Ok
+ *   with
+ *   | _ as e ->
+ *      logger#error "An error happened while treating the request:%s\n%s"
+ *        (Printexc.get_backtrace ())
+ *        (Printexc.to_string e);
+ *      
+ *      "error", `Internal_server_error *)
