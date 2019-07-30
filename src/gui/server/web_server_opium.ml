@@ -35,81 +35,48 @@ let serve_file prefix path =
 
 
 let req_counter = ref 0
-and key = Opium_kernel__Hmap0.Key.create ("c", (fun _ -> Atom "c"));;
 
-let tag_request =
-  let filter : 
-        (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
-          Opium_kernel__Rock.Filter.simple  = fun handler req -> 
-    let env = Opium_kernel__Hmap0.add key (string_of_int !req_counter) req.env in
-    req_counter := !req_counter + 1;
-    let req = {req with env=env} in
-    handler req
-  in
-  Rock.Middleware.create ~name:"tag request" ~filter
-
-let get_tag env =
-  Opium_kernel__Hmap0.find_exn key env
-
-let log_in =
-  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
+let log_in_out = 
+ let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
                  Opium_kernel__Rock.Filter.simple  = fun handler req -> 
-    let resource = req.request.resource
-    and meth = Cohttp.Code.sexp_of_meth req.request.meth |> Base.Sexp.to_string_hum
-    in
-    logger#trace ~tags:[get_tag req.env] "Serving %s request at %s" meth resource;
-    (* logger#debug "Request body: %s" (Lwt_main.run (Cohttp_lwt.Body.to_string req.body)); *)
-    handler req
-  in
-  Rock.Middleware.create ~name:"Log in" ~filter
+   let c = string_of_int (!req_counter) in
+   (
+     req_counter := !req_counter +1;
+     let resource = req.request.resource
+     and meth = Cohttp.Code.sexp_of_meth req.request.meth |> Base.Sexp.to_string_hum
+     in
+     logger#trace ~tags:[c] "Serving %s request at %s" meth resource;
+     let handler' = fun req ->
+       try%lwt
+         let response =
+         Lwt.bind (Lwt.return req) handler in
+         (
+           response
+           >|= Response.code
+           >|= Cohttp.Code.string_of_status
+           >|= logger#trace ~tags:[c] "Response: %s";
+         )
+         >>= ( fun () -> response)
+       with
+       | _ as e ->
+         logger#error ~tags:[c] "An error happened while treating the request:%s\n%s"
+           (Printexc.get_backtrace ())
+           (Printexc.to_string e);
+         `String "error" |> respond'
+         
 
-let log_out =
-  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
-      Opium_kernel__Rock.Filter.simple  = fun handler req ->
-    let handler' = fun req ->
-      let response = Lwt.bind (Lwt.return req) handler in 
-      (
-        response
-        >|= Response.code
-        >|= Cohttp.Code.string_of_status
-        >|= logger#trace ~tags:[get_tag req.env] "Response: %s";
-      )
-      >>= ( fun () -> response)
-    in
-    handler' req
-  in
-  Rock.Middleware.create ~name:"Log out" ~filter
-
-
-let exn_catcher =
-  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
-      Opium_kernel__Rock.Filter.simple  = fun handler req ->
-    let handler' = fun req ->
-      try%lwt 
-        Lwt.return req >>= handler
-      with
-      | _ as e ->
-        logger#error ~tags:[get_tag req.env] "An error happened while treating the request:%s\n%s"
-          (Printexc.get_backtrace ())
-          (Printexc.to_string e);
-        `String "error" |> respond'
-        
-    in
-    handler' req
-  in
-  Rock.Middleware.create ~name:"Exn catcher" ~filter
-
+     in
+     handler' req
+   )
+ in
+ Rock.Middleware.create ~name:"Log in out" ~filter
 
 let start_srv port files_prefix routes =
   App.empty
   |> App.port port
-  |> middleware tag_request
-  |> middleware log_in
+  |> middleware log_in_out
   |> get "**" (fun x -> serve_file files_prefix x.request.resource)
   |> routes
-  |> middleware log_out
-  |> middleware exn_catcher
-  |> App.run_command 
-  (* |> App.start *)
-  (* |> Lwt_main.run *)
+  |> App.start
+  |> Lwt_main.run
 
