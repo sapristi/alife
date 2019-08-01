@@ -71,12 +71,33 @@ let log_in_out =
  in
  Rock.Middleware.create ~name:"Log in out" ~filter
 
+
+
+let json_h = Cohttp.Header.init_with "Content-Type" "application/json"
+
+let error_to_response e =
+  `String (`Assoc ["error", `String e]
+           |> Yojson.Safe.to_string)
+
+let json_to_response j =
+  `String (j |> Yojson.Safe.to_string)
+let respond_error = respond' ~headers:json_h ~code:`Bad_request
+
+
+let handle_response r =
+  match%lwt r with
+  | `String s -> `String s |> respond'
+  | `Json (j : Yojson.Safe.t ) -> j |> json_to_response  |>  respond' ~headers:json_h 
+  | `Error (s : string ) -> s |> error_to_response  |> respond_error
+
+
 let start_srv port files_prefix routes =
   App.empty
   |> App.port port
   |> middleware log_in_out
   |> get "**" (fun x -> serve_file files_prefix x.request.resource)
-  |> routes
+  |> get "/ping" (fun x -> `String "ok" |> respond')
+  |> List.fold_right (fun (route,f) x -> x |> route (fun req -> f req |> handle_response) ) routes
   |> App.start
   |> Lwt_main.run
 
