@@ -56,7 +56,7 @@ let run_yaacs p : unit=
                     root_logger#set_level lvl;
   end;
                   
-  Web_server_opium.start_srv
+  Web_server.start_srv
     p.port
     (p.data_path ^ p.static_path)
     (Bact_server.make_routes
