@@ -216,7 +216,7 @@ Vue.component("place",{
 
 Vue.component("pnet-cy", {
     props: ["pnet"],
-    data: function () {return {pnet_cy: null}},
+    // data: function () {return {pnet_cy: null}},
     methods: {
         set_node_selected: function(node_data ){
             console.log("Selected ", node_data);
