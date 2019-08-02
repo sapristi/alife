@@ -84,10 +84,7 @@ Vue.component("active-mols-controls",{
     methods: {
         init: function (mol) {
             this.mol= mol.mol;this.disabled=false;
-            utils.ajax_get(
-	              {command : "pnet_ids_from_mol",
-	               mol_desc : this.mol,
-	               target : "sandbox"}
+            utils.ajax('GET', `/api/sandbox/mol/${this.mol}`
 	          ).done(data => {
 	              this.pnet_ids = data.data;
                 this.selected_pnet = this.pnet_ids[0];
@@ -115,11 +112,7 @@ Vue.component("petri-net", {
     },
     methods: {
         init: function(mol, pnet_id) {
-            utils.ajax_get(
-                {command: "pnet_from_mol",
-                 mol_desc: mol,
-	               pnet_id : pnet_id,
-	               target: "sandbox"}
+            utils.ajax('GET', `/api/sandbox/mol/${mol}/pnet/${pnet_id}`
             ).done(
                 data => {console.log("pnet updated with ", data);
                          this.pnet = data.data.pnet})
@@ -271,9 +264,7 @@ sandbox_vue = new Vue({
     el: "#sandbox_vue",
     methods: {
         update: function () {
-            utils.ajax_get(
-                {command:"get_sandbox_data",
-	               target:"sandbox"}
+            utils.ajax('GET', "/api/sandbox"
             ).done(
                 data =>  {
                     this.env = data.data.env;
