@@ -1,7 +1,31 @@
 
 
 var utils = {
-    
+
+    ajax : function(method, path, payload) {
+	      console.log("${method} : ${path} with payload: ");
+	      console.log(payload);
+        
+        var connect_uri = window.location.origin + "/" + method;
+        
+        var request = {
+            url: connect_uri,
+            datatype: 'json',
+            data: payload,
+            method: method,
+            success: function(json) {
+                console.log("received ;");
+                console.log(json)
+            },
+            error: function(jqXHR) {
+                console.log("ajax error " + jqXHR.status + " from sending :");
+		            console.log(req_data, "to", connect_uri);
+            }
+        };
+        return $.ajax(request);
+
+    },
+
     ajax_get : function(req_data) {
 	      console.log("sending:");
 	      console.log(req_data);
