@@ -56,15 +56,15 @@ function SandboxViewModel () {
     self.update = function() {
         utils.ajax_get(
             {command:"get_sandbox_data",
-	     target:self.container_id}
+	           target:self.container_id}
         ).done(
             function(data) {
                 for (var k in self.env) {
                     self.env[k](
                         data.data.env[k]);}
-
+                
                 self.bactVM.set_bact_data(data.data.bact);
-                }
+            }
         );
     }
 

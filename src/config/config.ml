@@ -37,4 +37,14 @@ type num_choice =
 
 let num = ExactQ
 let check_reac_rates = false
+
+(* *)
 let remove_empty_reactants = true
+
+(* Set to true to enable "discover mode":
+   it is easier to understand what happens in the molbuilder.
+   Pnet with no transitions will be enabled as such.
+
+
+   Set to false for better performances. *)
+let build_inactive_pnets = false

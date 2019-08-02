@@ -5,6 +5,9 @@
 (*   get managed by a petri-net (i.e. simulate chemical reactions *)
 
 
+open Easy_logging_yojson
+
+let logger = Logging.get_logger "Yaac.Molecule"
     
 type t = string
            [@@deriving show, yojson, ord] 
@@ -62,6 +65,8 @@ and ext_tinit_cre = Re.compile (Re.Perl.re ext_tinit_re)
 and ext_bind_cre = Re.compile (Re.Perl.re ext_bind_re)
                  
 let rec mol_parser (s : t) : Proteine.t =
+
+  logger#debug "Parsing %s" s;
   if s = ""
   then []
   else
@@ -161,7 +166,9 @@ let rec mol_parser (s : t) : Proteine.t =
     with _ -> mol_parser (Str.string_after s 1)
             
 let to_proteine (m : t) : Proteine.t = 
-  mol_parser m
+  let res = mol_parser m in
+  logger#debug "Parsed %s to:\n%s" m (Proteine.show res);
+  res
   
       
 let rec of_proteine (p : Proteine.t) : t =

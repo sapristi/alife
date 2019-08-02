@@ -255,167 +255,170 @@ var make_pnet_graph = function(pnet_data, container, eventHandler) {
 
     for (var i = 0;i < pnet_data.places.length;i++){
 	var node = pnet_data.places[i];
-	var node_id = "p"+i;
-
-	// place
+	      var node_id = "p"+i;
+        
+	      // place
         cy.add({
             group: "nodes",
             data: {id :node_id,
-		   type : "place",
-		   index : i,
-		  },
+		               type : "place",
+		               index : i,
+		              },
             classes: "place"});
-	// extensions
-	for (var j=0; j< node.extensions.length; j++) {
-	    
-	    var ext = node.extensions[j];
-	    var node_ext_id = node_id + "_" + ext[0];
-	    cy.add({
-		group:"nodes",
-		data: {id: node_ext_id,
-		       type : ext[0],
-		       args : ext.slice(1)
-		      },
-		classes : "extension " + ext[0]
-	    });
-	    cy.add({
-		group:"edges",
-		data:{
-		    source : node_id,
-		    target : node_ext_id,
-		    type : ext[0],
-		    args : ext.slice(1),
-		    directed : true
-		},
-		classes : "extension " + ext[0] 
-	    });
-	}
+	      // extensions
+	      for (var j=0; j< node.extensions.length; j++) {
+	          
+	          var ext = node.extensions[j];
+	          var node_ext_id = node_id + "_" + ext[0];
+	          cy.add({
+		            group:"nodes",
+		            data: {id: node_ext_id,
+		                   type : ext[0],
+		                   args : ext.slice(1)
+		                  },
+		            classes : "extension " + ext[0]
+	          });
+	          cy.add({
+		            group:"edges",
+		            data:{
+		                source : node_id,
+		                target : node_ext_id,
+		                type : ext[0],
+		                args : ext.slice(1),
+		                directed : true
+		            },
+		            classes : "extension " + ext[0] 
+	          });
+	      }
     }
-
+    
 // *** transitions
     for (var i = 0; i < pnet_data.transitions.length;i++) {
         var t = pnet_data.transitions[i];
         var tname = "t" + i;
-
+        
 // ***** transition nodes
 	
-	var classes  = "transition";
+	      var classes  = "transition";
 
-	cy.add({
+	      cy.add({
             group: "nodes",
             data: { id:tname,
-		    label:t.id,
-		    type : "transition",
-		    index : i
-		  },
+		                label:t.id,
+		                type : "transition",
+		                index : i
+		              },
             classes : classes});
         
 // ***** transition input_arcs
         t.input_arcs.forEach(function(dp) {
-	    var label = make_arc_short_name(dp.iatype);
-	    var classes = "arc " + label;
+	          var label = make_arc_short_name(dp.iatype);
+	          var classes = "arc " + label;
             var data = {
                 source : "p"+ dp.source_place,
                 target : tname,
                 directed : true,
-		label: label,
-		type : dp.iatype[0],
-		args : dp.iatype.slice(1)
-	    }
+		            label: label,
+		            type : dp.iatype[0],
+		            args : dp.iatype.slice(1)
+	          }
             cy.add({
                 group: "edges",
                 data: data,
-		classes : classes
+		            classes : classes
             });
         });
-	
+	      
 // ***** transition output_arcs
         t.output_arcs.forEach(function(dp) {
-	    var label = make_arc_short_name(dp.oatype);
-	    var classes = "arc " + label;
+	          var label = make_arc_short_name(dp.oatype);
+	          var classes = "arc " + label;
             cy.add({
                 group: "edges",
                 data: {
                     source : tname,
                     target : "p"+ dp.dest_place,
                     directed : true,
-		    label: label,
-		    type : dp.oatype[0],
-		    args : dp.oatype.slice(1)
-		},
-		classes : classes
+		                label: label,
+		                type : dp.oatype[0],
+		                args : dp.oatype.slice(1)
+		            },
+		            classes : classes
             });
         });
 
 	
     }
-
+    
 // *** interactions
     cy.on('select', '.place, .transition', function(evt){
-    	eventHandler.set_node_selected(evt.target.data());
-	evt.target.incomers('edge')
-	    .forEach(function(edge){edge.select();});
-	evt.target.outgoers('edge')
-	    .forEach(function(edge){edge.select();});
+    	  eventHandler.set_node_selected(evt.target.data());
+	      evt.target.incomers('edge')
+	          .forEach(function(edge){edge.select();});
+	      evt.target.outgoers('edge')
+	          .forEach(function(edge){edge.select();});
     });
     
     
     cy.on('unselect', 'node', function(evt){
-    	eventHandler.set_node_unselected();
+    	  eventHandler.set_node_unselected();
     });
 // *** layout
     var layout = cy.layout(make_cola_layout(cy));
     cy.contextMenus({
-	menuItems: [
-	    {
-		id:"start",
-		content:"start",
+	      menuItems: [
+	          {
+		            id:"start",
+		            content:"start",
                 tooltipText: 'select all edges',
                 coreAsWell: true,
-		onClickFunction : function(event) {
-		    layout.run();
-		}
-	    },
-	    {
-		id:"stop",
-		content:"stop",
+		            onClickFunction : function(event) {
+		                layout.run();
+		            }
+	          },
+	          {
+		            id:"stop",
+		            content:"stop",
                 tooltipText: 'select all edges',
                 coreAsWell: true,
-		onClickFunction : function(event) {
-		    layout.stop();
-		}
-	    },
-	]});
-
+		            onClickFunction : function(event) {
+		                layout.stop();
+		            }
+	          },
+	      ]});
+    
 // *** return value
     var pnet_cy = {
-	cy : cy,
-	layout : layout,
-	update : function( pnet) {
-	    
-	    for (var i = 0;i < pnet.places.length;i++){
+	      cy : cy,
+	      layout : layout,
+	      update : function( pnet) {
+	          
+	          for (var i = 0;i < pnet.places.length;i++){
 		
-		if (pnet.places[i].token == null) {
-		    this.cy.$("#p"+i).removeClass("withToken");
-		} else {
-		    this.cy.$("#p"+i).addClass("withToken");
-		}
-	    }
-	    
-	    for (var i = 0; i < pnet.transitions.length;i++) {
-		
-		if (pnet.transitions[i].launchable) {
-		    this.cy.$("#t"+i).addClass("launchable");
-		}else {
-		    this.cy.$("#t"+i).removeClass("launchable");
-		}
-	    }
-	    
-	},
-	run : function() {
-	    // this.cy.layout(make_cola_layout(this.cy)).run()
-	    this.layout.run();
-	}
+		            if (pnet.places[i].token == null) {
+		                this.cy.$("#p"+i).removeClass("withToken");
+		            } else {
+		                this.cy.$("#p"+i).addClass("withToken");
+		            }
+	          }
+	          
+	          for (var i = 0; i < pnet.transitions.length;i++) {
+		            
+		            if (pnet.transitions[i].launchable) {
+		                this.cy.$("#t"+i).addClass("launchable");
+		            }else {
+		                this.cy.$("#t"+i).removeClass("launchable");
+		            }
+	          }
+	          
+	      },
+	      run : function() {
+	          // this.cy.layout(make_cola_layout(this.cy)).run()
+	          this.layout.run();
+	      },
+        destroy: function () {
+            this.cy.destroy();
+        }
     };
     return pnet_cy;
 }
