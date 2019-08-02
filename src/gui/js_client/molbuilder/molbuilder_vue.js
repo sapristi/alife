@@ -73,25 +73,21 @@ molbuilder_vue = new Vue ({
         },
         set_prot: function(prot) {
             this.prot = prot;
-            utils.ajax_get(
-                {command: "build_all_from_prot",
-	               target: "general",
-	               prot_desc : JSON.stringify(this.prot_obj)}
-	          ).done(
+            utils.ajax(
+                'POST', "/api/utils/build/from_prot", this.prot
+            ).done(
 	              data => {
-                    this.mol = data.data.mol;
-                    this.pnet = data.data.pnet;
+                    this.mol = data.mol;
+                    this.pnet = data.pnet;
                 });
         },
         set_data_from_mol() {
-            utils.ajax_get(
-                {command: "build_all_from_mol",
-                 mol_desc: this.mol,
-    	           target: "general"}
+            utils.ajax(
+                'POST', "/api/utils/build/from_mol",JSON.stringify(this.mol)
             ).done(
     	          data => {
-                    this.pnet = data.data.pnet;
-                    this.prot = JSON.stringify(data.data.prot).replace(/],/g, "],\n")
+                    this.pnet = data.pnet;
+                    this.prot = JSON.stringify(data.prot).replace(/],/g, "],\n")
     	          });
         }
     },

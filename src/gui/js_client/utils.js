@@ -3,10 +3,10 @@
 var utils = {
 
     ajax : function(method, path, payload) {
-	      console.log("${method} : ${path} with payload: ");
+	      console.log(`${method} : ${path} with payload: `);
 	      console.log(payload);
         
-        var connect_uri = window.location.origin + "/" + method;
+        var connect_uri = window.location.origin +  path;
         
         var request = {
             url: connect_uri,

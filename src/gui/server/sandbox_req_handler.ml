@@ -214,18 +214,18 @@ let next_reactions (sandbox : Sandbox.t) (req) =
 
 
 let make_routes sandbox =
-  [ get    "/sandbox",                          get_sandbox sandbox ;
-    post   "/sandbox",                          set_sandbox sandbox ;
-    post   "/sandbox/reset",                    reset_sandbox sandbox;
-    get    "/sandbox/mol",                      get_bact_elements sandbox; 
-    get    "/sandbox/mol/:mol",                 pnet_ids_from_mol sandbox;
-    post   "/sandbox/mol/:mol",                 add_mol sandbox;
-    put    "/sandbox/mol/:mol/qtt/:qtt",        set_imol_quantity sandbox; 
-    delete "/sandbox/mol/:mol",                 remove_imol sandbox;
-    get    "/sandbox/mol/:mol/pnet/:pnet_id",   get_pnet sandbox;
-    put    "/sandbox/mol/:mol/pnet/:pnet_id",   pnet_action sandbox;
-    delete "/sandbox/mol/:mol/pnet/:pnet_id",   remove_amol sandbox;
+  [ get    "/api/sandbox",                          get_sandbox sandbox ;
+    post   "/api/sandbox",                          set_sandbox sandbox ;
+    post   "/api/sandbox/reset",                    reset_sandbox sandbox;
+    get    "/api/sandbox/mol",                      get_bact_elements sandbox; 
+    get    "/api/sandbox/mol/:mol",                 pnet_ids_from_mol sandbox;
+    post   "/api/sandbox/mol/:mol",                 add_mol sandbox;
+    put    "/api/sandbox/mol/:mol/qtt/:qtt",        set_imol_quantity sandbox; 
+    delete "/api/sandbox/mol/:mol",                 remove_imol sandbox;
+    get    "/api/sandbox/mol/:mol/pnet/:pnet_id",   get_pnet sandbox;
+    put    "/api/sandbox/mol/:mol/pnet/:pnet_id",   pnet_action sandbox;
+    delete "/api/sandbox/mol/:mol/pnet/:pnet_id",   remove_amol sandbox;
     (* get    "/sandbox/environment" *)
-    put    "/sandbox/environment",              set_environment sandbox;
-    get    "/sandbox/reaction",                 get_reactions sandbox;
-    post   "/sandbox/reaction/next/:n",         next_reactions sandbox]
+    put    "/api/sandbox/environment",              set_environment sandbox;
+    get    "/api/sandbox/reaction",                 get_reactions sandbox;
+    post   "/api/sandbox/reaction/next/:n",         next_reactions sandbox]
