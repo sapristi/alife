@@ -1,111 +1,104 @@
-
-(* * web_server *)
-
-open Nethttp
-open Nethttp.Header
-open Nethttpd_types
-open Nethttpd_kernel
-open Nethttpd_services
-open Nethttpd_engine
-open Nethttpd_types
-open Nethttpd_reactor
-open Local_libs
+open Opium.Std
 open Easy_logging_yojson
-let logger = Logging.get_logger "Yaac.Server"
-               
-           
+open Lwt.Infix
 
-let fs_spec file_root =
-  { file_docroot = file_root;
-    file_uri = "/";
-    file_suffix_types = [ "txt", "text/plain";
-			  "html", "text/html";
-                          "css", "text/css";
-                          "js", "text/js";
-                          "ico", "img/ico"];
-    file_default_type = "application/octet-stream";
-    file_options = [ `Enable_gzip;
-		     `Enable_listings (simple_listing ?hide:None);
-		     `Enable_index_file ["index.html"]
-		   ]
-  }
+let logger = Logging.make_logger "Server" Debug [Cli Debug] ;;
 
-  
-let get_my_addr () =
-  (Unix.gethostbyname(Unix.gethostname())).Unix.h_addr_list.(0) 
+let read_whole_file filename =
+  let ch = open_in filename in
+  let s = really_input_string ch (in_channel_length ch) in
+  close_in ch;
+  s
 
-   
-let make_srv file_root req_processor (conn_attr : (string * int)) =
-  logger#info "Starting server at root %s" file_root;
-  let (host_name, port) = conn_attr in
-  host_distributor
-    [ default_host ~pref_name:host_name ~pref_port:port (),
-      uri_distributor
-        [ "*", (options_service());
-          "/", (file_service (fs_spec file_root));
-          "/sim_commands/", req_processor;
-        ]
-    ] 
+let config = [ ".txt", "text/plain";
+			         ".html", "text/html";
+               ".css", "text/css";
+               ".js", "text/javascript";
+               ".ico", "img/ico"];;
+
+let response_not_found = `String "not found", Cohttp.Header.init (), `Not_found
+
+let serve_file prefix path =
+  let ext = Filename.extension path
+  and full_path = (prefix^path)in
+  logger#trace "Serving file %s" full_path;
+  let (res_body, headers, code) = match List.find_opt (fun (ext',_) -> ext = ext') config with
+    | None -> response_not_found
+    | Some (_, content_type ) ->
+       if Sys.file_exists full_path
+       then
+         let data = read_whole_file full_path in
+         `String data, Cohttp.Header.init_with "Content-Type" content_type, `OK
+       else
+         response_not_found
+  in respond' ~headers:headers ~code:code res_body
 
 
-let serve_connection ues fd srv =
-  (* cgi config to change if diffent input methods are needed *)
-  let custom_cgi_config =Netcgi.default_config  in
-  let config =
-    new Nethttpd_engine.modify_http_engine_config
-      ~config_input_flow_control:true
-      ~config_output_flow_control:true
-      ~modify_http_processor_config:
-      (new Nethttpd_reactor.modify_http_processor_config
-         ~config_cgi:custom_cgi_config)
-    
-      Nethttpd_engine.default_http_engine_config in
-  let pconfig = 
-    new Nethttpd_engine.buffering_engine_processing_config in
+let req_counter = ref 0
 
-  Unix.set_nonblock fd;
+let log_in_out = 
+ let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
+                 Opium_kernel__Rock.Filter.simple  = fun handler req -> 
+   let c = string_of_int (!req_counter) in
+   (
+     req_counter := !req_counter +1;
+     let resource = req.request.resource
+     and meth = Cohttp.Code.sexp_of_meth req.request.meth |> Base.Sexp.to_string_hum
+     in
+     logger#trace ~tags:[c] "Serving %s request at %s" meth resource;
+     let handler' = fun req ->
+       try%lwt
+         let response =
+         Lwt.bind (Lwt.return req) handler in
+         (
+           response
+           >|= Response.code
+           >|= Cohttp.Code.string_of_status
+           >|= logger#trace ~tags:[c] "Response: %s";
+         )
+         >>= ( fun () -> response)
+       with
+       | _ as e ->
+         logger#error ~tags:[c] "An error happened while treating the request:%s\n%s"
+           (Printexc.get_backtrace ())
+           (Printexc.to_string e);
+         `String "error" |> respond'
+         
 
-  ignore(Nethttpd_engine.process_connection
-           config
-           pconfig
-           fd
-           ues
-           srv)
-
-
-let rec accept srv ues srv_sock_acc =
-  (* This function accepts the next connection using the [acc_engine]. After the   
-   * connection has been accepted, it is served by [serve_connection], and the
-   * next connection will be waited for (recursive call of [accept]). Because
-   * [server_connection] returns immediately (it only sets the callbacks needed
-   * for serving), the recursive call is also done immediately.
-   *)
-  let acc_engine = srv_sock_acc # accept() in
-  Uq_engines.when_state
-    ~is_done:(fun (fd,fd_spec) ->
-      if srv_sock_acc # multiple_connections then (
-        serve_connection ues fd srv;
-        accept srv ues srv_sock_acc
-      ) else
-        srv_sock_acc # shut_down())
-    ~is_error:(fun _ -> srv_sock_acc # shut_down())
-    acc_engine
+     in
+     handler' req
+   )
+ in
+ Rock.Middleware.create ~name:"Log in out" ~filter
 
 
 
-let start_srv file_root req_processor (conn_attr) =
-  
-  let (host_name, port) = conn_attr in
-  
-  let ues = Unixqueue.create_unix_event_system () in
-  let opts = { Uq_server.lstn_backlog = 20;
-               Uq_server.lstn_reuseaddr = true } in
-  let lstn_engine =
-    Uq_server.listener
-      (`Socket(`Sock_inet(Unix.SOCK_STREAM, Unix.inet_addr_any, port) ,opts)) ues 
-  and srv = make_srv file_root req_processor conn_attr in
-  Uq_engines.when_state ~is_done:(accept srv ues) lstn_engine;
+let json_h = Cohttp.Header.init_with "Content-Type" "application/json"
 
-  logger#info "Listening as %s on port %i\n" host_name port;
-  
-  Unixqueue.run ues
+let error_to_response e =
+  `String (`Assoc ["error", `String e]
+           |> Yojson.Safe.to_string)
+
+let json_to_response j =
+  `String (j |> Yojson.Safe.to_string)
+let respond_error = respond' ~headers:json_h ~code:`Bad_request
+
+
+let handle_response r =
+  match%lwt r with
+  | `Empty -> `String "" |> respond' ~code:`No_content
+  | `String s -> `String s |> respond'
+  | `Json (j : Yojson.Safe.t ) -> j |> json_to_response  |>  respond' ~headers:json_h 
+  | `Error (s : string ) -> s |> error_to_response  |> respond_error
+
+
+let start_srv port files_prefix routes =
+  App.empty
+  |> App.port port
+  |> middleware log_in_out
+  |> get "**" (fun x -> serve_file files_prefix x.request.resource)
+  |> get "/ping" (fun x -> `String "ok" |> respond')
+  |> List.fold_right (fun (route,f) x -> x |> route (fun req -> f req |> handle_response) ) routes
+  |> App.start
+  |> Lwt_main.run
+

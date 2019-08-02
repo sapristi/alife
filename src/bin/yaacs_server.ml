@@ -56,13 +56,13 @@ let run_yaacs p : unit=
                     root_logger#set_level lvl;
   end;
                   
-                  
-    Web_server.start_srv
+  Web_server.start_srv
+    p.port
     (p.data_path ^ p.static_path)
-    (Bact_server.make_req_handler
+    (Bact_server.make_routes
        (Simulator.make ())
-       (Sandbox.of_yojson (Yojson.Safe.from_file  @@ p.data_path^"bact.json")))
-    (p.host, p.port)
+       (Sandbox.of_yojson (Yojson.Safe.from_file  @@ p.data_path^"bact.json"))
+    )
   
 
 let _ = 

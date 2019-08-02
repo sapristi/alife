@@ -51,10 +51,7 @@ Vue.component('cytoscape-vue', {
 Vue.component('acid-selection-vue', {
     data: function () {return {acid_examples: []}},
     created: function() {
-        utils.ajax_get(
-            {command: "list_acids",
-	           target: "general"}
-	      ).done(
+        utils.ajax('GET', "/api/utils/acids").done(
 	          data => {
                 console.log(this.acid_examples);
                 console.log("Created: ", this);
