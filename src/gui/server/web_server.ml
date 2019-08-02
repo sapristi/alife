@@ -86,6 +86,7 @@ let respond_error = respond' ~headers:json_h ~code:`Bad_request
 
 let handle_response r =
   match%lwt r with
+  | `Empty -> `String "" |> respond' ~code:`No_content
   | `String s -> `String s |> respond'
   | `Json (j : Yojson.Safe.t ) -> j |> json_to_response  |>  respond' ~headers:json_h 
   | `Error (s : string ) -> s |> error_to_response  |> respond_error
