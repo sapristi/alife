@@ -254,7 +254,6 @@ active_mols_columns =  [
 		            <h2 class="ui horizontal divider header">
 		                Petri Net manipulation
 		            </h2>
-		            <!-- ko if : pnetVM.data() -->
                 <div v-show="$store.state.pnet.pnet" class="row">
 		                <!-- **** 1ere colonne : pnet view -->
 		                <div class="twelve wide column">
@@ -280,32 +279,19 @@ active_mols_columns =  [
 			                          </div>
                                 
 			                          <!-- ***** transition -->
-			                          <div v-if="transition">
-			                              <div data-bind="if:active">
-				                                <h4 class="ui horizontal divider header">
-				                                    Transition description
-				                                </h4>
-				                                <button
-				                                    class="ui button tooltip"
-					                                  data-bind="click:$parent.launch_transition,
-					                                         css:{primary:launchable()}">
-				                                    Launch transition
-				                                    <span class="big tooltiptext">
-					                                      Launches the selected transition.<br>
-					                                      <span class="special-text">Be carefull :</span><br>
-					                                      Only  yellow (or red if selected) transitions should be launched.
-				                                    </span>
-				                                </button>
-			                              </div>
-			                          </div>
-                                
+                                <transition></transition> 
 			                          <!-- ***** place -->
 			                          <place></place>
                                 <!-- :place="place" :disabled="place" /> -->
                             </div></petri-net-controls>
 		                </div>
 		            </div>
-		            <!-- /ko -->
+                <h2 class="ui horizontal divider header">
+                    Reactions
+                </h2>
+                <div class="row">
+
+                </div>
 	          </div>
         </div>
     </body>
@@ -315,7 +301,9 @@ active_mols_columns =  [
     <script src="/js-libs/FileSaver.min.js"> </script>
     <script src="/utils.js"> </script>
     <script src="/pnet_cytoscape.js"> </script>
+    <script src="transition_vue.js"></script>
     <script src="place_vue.js"></script>
+    <script src="pnet_vue.js"></script>
     <script src="sandbox_vue.js"></script>
 
     <!-- <script src="active_molsVM.js"> </script> -->
