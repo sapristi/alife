@@ -23,6 +23,7 @@
 	      <script src="/js-libs/cytoscape-context-menus.js"></script>
 	      <script src="/js-libs/cytoscape-automove.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://unpkg.com/vuex"></script>
 
 	      <!-- ** personnal css -->
 	      <link href="/custom_styles.css" rel="stylesheet">
@@ -102,30 +103,30 @@ active_mols_columns =  [
 
 		            <!-- *** première ligne : contrôles généraux-->
 		            <div class="row"  id="sandbox_main">
-		                    <div class="six wide column">
-                            
-			                      <div class="ui horizontal buttons">
-			                          <button class="ui icon button tooltip" data-bind="click : update"><i class="refresh icon"></i>
-				                            <span class="tooltiptext">Use this button after adding a molecule from the MolBuilder</span>
-			                          </button>
-			                          <div class="ui button tooltip"
-				                             data-bind="click:bactVM.reset_sandbox">
-				                            Reset
-				                            <span class="tooltiptext">Reset sandbox to initial state</span>
-			                          </div>
-			                          <div>
-				                            <label for="sandbox_load" class="ui button tooltip"
-				                                   id="sandbox_load_button">
-				                                Load from file
-				                                <span class="tooltiptext">Load sandbox state from a local text file</span>
-				                            </label>
-				                            <input type="file"
-				                                   id="sandbox_load"
-				                                   style="display:none"/>
-			                          </div>
-			                          <div class="ui button" data-bind="click:save_sandbox">
-				                            Save to file
-			                          </div>
+		                <div class="six wide column">
+                        
+			                  <div class="ui horizontal buttons">
+			                      <button class="ui icon button tooltip" data-bind="click : update"><i class="refresh icon"></i>
+				                        <span class="tooltiptext">Use this button after adding a molecule from the MolBuilder</span>
+			                      </button>
+			                      <div class="ui button tooltip"
+				                         data-bind="click:bactVM.reset_sandbox">
+				                        Reset
+				                        <span class="tooltiptext">Reset sandbox to initial state</span>
+			                      </div>
+			                      <div>
+				                        <label for="sandbox_load" class="ui button tooltip"
+				                               id="sandbox_load_button">
+				                            Load from file
+				                            <span class="tooltiptext">Load sandbox state from a local text file</span>
+				                        </label>
+				                        <input type="file"
+				                               id="sandbox_load"
+				                               style="display:none"/>
+			                      </div>
+			                      <div class="ui button" data-bind="click:save_sandbox">
+				                        Save to file
+			                      </div>
 			                      </div>
 		                    </div>
 
@@ -219,31 +220,31 @@ active_mols_columns =  [
 		                <div class="five wide column">
                         <active-mols-controls inline-template>
                             <div>
-                        <h4 class="ui horizontal divider header">
+                                <h4 class="ui horizontal divider header">
 			                      Selected Molecule
-			                  </h4>
-                        <div> Specific molecule selection:
-                        <select class="ui dropdown"
-                                v-bind:class="{disabled: disabled}"
-                                v-model="selected_pnet">
-                            <option v-for="pnet_id in pnet_ids"
-                                    :value="pnet_id" :key="pnet_id">{{pnet_id}}</option>
-                        </select>
-                        </div>
-			                  <div>{{mol}}</div>
-			                  <button class="ui button tooltip"
-                                v-bind:class="{disabled: disabled}"
-				                        data-bind="click:remove_mol">Remove molecule
+			                          </h4>
+                                <div> Specific molecule selection:
+                                    <select class="ui dropdown"
+                                            v-bind:class="{disabled: disabled}"
+                                            v-model="selected_pnet">
+                                        <option v-for="pnet_id in pnet_ids"
+                                                :value="pnet_id" :key="pnet_id">{{pnet_id}}</option>
+                                    </select>
+                                </div>
+			                          <div>{{mol}}</div>
+			                          <button class="ui button tooltip"
+                                        v-bind:class="{disabled: disabled}"
+				                                data-bind="click:remove_mol">Remove molecule
 
-			                      <span class="tooltiptext">Definitely removes the molecule from the bactery</span>
-			                  </button>
-
-			                  <button class="ui icon button tooltip"
-                                v-bind:class="{disabled: disabled}"
-                                data-bind="click:$parent.send_to_molbuilder.bind($data)">
-			                      Send to Mol Builder
-			                      <span class="big tooltiptext">Initiate the Mol Builder with the selected molecule.<br> Use this to see how a particular Petri net is designed</span>
-			                  </button>
+			                              <span class="tooltiptext">Definitely removes the molecule from the bactery</span>
+			                          </button>
+                                
+			                          <button class="ui icon button tooltip"
+                                        v-bind:class="{disabled: disabled}"
+                                        data-bind="click:$parent.send_to_molbuilder.bind($data)">
+			                              Send to Mol Builder
+			                              <span class="big tooltiptext">Initiate the Mol Builder with the selected molecule.<br> Use this to see how a particular Petri net is designed</span>
+			                          </button>
                             </div>
                         </active-mols-controls>
 		                </div>
@@ -255,89 +256,56 @@ active_mols_columns =  [
 		                Petri Net manipulation
 		            </h2>
 		            <!-- ko if : pnetVM.data() -->
-                <petri-net inline-template>
                 <div class="row">
 		                <!-- **** 1ere colonne : pnet view -->
 		                <div class="twelve wide column">
 			                  <h4 class="ui horizontal divider header">
 			                      Petri Net view
 			                  </h4>
-                        <pnet-cy :pnet="pnet" inline-template>
+                        <pnet-cy inline-template>
 			                      <div id="pnet_cy" class="cy big"></div>
                         </pnet-cy>
 		                </div>
 
 		                <!-- **** 2eme colonne : pnet informations -->
 		                <div class="four wide column">
-                        <petri-net-controls :pnet="pnet" inline-template>
+                        <petri-net-controls inline-template>
                             <div>
-			                  <h4 class="ui horizontal divider header">
-			                      Petri Net description
-			                  </h4>
-			                  <div id="longribbon" class="ui orange ribbon medium label" style="min-width:0px">
-			                      Select a place or a transition in the graph to display more  information</div>
-			                  <div class="ui bulleted list">
-                            <div class="item" v-for="t in desc_texts">{{t}}</div>
-			                  </div>
-
-			                  <!-- **** selon selection -->
-			                  <!-- ***** transition -->
-			                  <div v-if="transition" data-bind="with:transitionVM">
-			                      <div data-bind="if:active">
-				                        <h4 class="ui horizontal divider header">
-				                            Transition description
-				                        </h4>
-				                        <button
-				                            class="ui button tooltip"
-					                          data-bind="click:$parent.launch_transition,
-					                                 css:{primary:launchable()}">
-				                            Launch transition
-				                            <span class="big tooltiptext">
-					                              Launches the selected transition.<br>
-					                              <span class="special-text">Be carefull :</span><br>
-					                              Only  yellow (or red if selected) transitions should be launched.
-				                            </span>
-				                        </button>
-			                      </div>
-			                  </div>
-
-			                  <!-- ***** place -->
-
-			                  <place :place="place" :disabled="place" inline-template>
-                            <div v-if="place">
-				                        <!-- ****** place description-->
-				                        <h4 class="ui horizontal divider header">
-				                            Place description
-				                        </h4>
-
-				                        <!-- ******* place extensions display -->
-				                        <h5 class="ui header">Place extensions</h5>
-				                        <div class="ui bulleted list" v-if="place.extensions">
-				                            <div v-for="ext in place.extensions" class="item">{{extension_to_str(ext)}}</div>
-				                        </div>
-				                        <div v-else="place.extensions">No extensions</div>
-
-				                        <!-- ******* token display -->
-				                        <h5 class="ui header">Token</h5>
-				                        <div class="ui segment"
-				                             style="word-wrap:break-word">{{token_str}}
-				                        </div>
-
-				                        <!-- ******* token edit button -->
-
-				                        <div class="ui divider"></div>
-				                        <div class="ui toggle checkbox">
-				                            <input v-model="token_edit_checkbox" type="checkbox">
-				                            <label>Token edition</label>
-				                        </div>
-
-				                            <token-edit v-if="token_edit_checkbox" class="tooltip" v-bind:token="place.token"></token-edit>
-			                      </div>
-			                  </place>
+			                          <h4 class="ui horizontal divider header">
+			                              Petri Net description
+			                          </h4>
+			                          <div id="longribbon" class="ui orange ribbon medium label" style="min-width:0px">
+			                              Select a place or a transition in the graph to display more  information</div>
+			                          <div class="ui bulleted list">
+                                    <div class="item" v-for="t in desc_texts">{{t}}</div>
+			                          </div>
+                                
+			                          <!-- ***** transition -->
+			                          <div v-if="transition">
+			                              <div data-bind="if:active">
+				                                <h4 class="ui horizontal divider header">
+				                                    Transition description
+				                                </h4>
+				                                <button
+				                                    class="ui button tooltip"
+					                                  data-bind="click:$parent.launch_transition,
+					                                         css:{primary:launchable()}">
+				                                    Launch transition
+				                                    <span class="big tooltiptext">
+					                                      Launches the selected transition.<br>
+					                                      <span class="special-text">Be carefull :</span><br>
+					                                      Only  yellow (or red if selected) transitions should be launched.
+				                                    </span>
+				                                </button>
+			                              </div>
+			                          </div>
+                                
+			                          <!-- ***** place -->
+			                          <place></place>
+                                <!-- :place="place" :disabled="place" /> -->
                             </div></petri-net-controls>
 		                </div>
 		            </div>
-                </petri-net>
 		            <!-- /ko -->
 	          </div>
         </div>
@@ -348,7 +316,7 @@ active_mols_columns =  [
     <script src="/js-libs/FileSaver.min.js"> </script>
     <script src="/utils.js"> </script>
     <script src="/pnet_cytoscape.js"> </script>
-    <script src="pnet_vue.js"></script>
+    <script src="place_vue.js"></script>
     <script src="sandbox_vue.js"></script>
 
     <!-- <script src="active_molsVM.js"> </script> -->

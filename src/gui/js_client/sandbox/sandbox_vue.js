@@ -50,8 +50,8 @@ Vue.component("mols-list", {
             if (this.selected_mol_index !== null) {
                 this.$root.$emit(
                     'selected_mol_' + this.mol_type,
-                     this.mols[this.selected_mol_index])}
-            else {this.$root.$emit('unselected_mol_'+ this.mol_type, null )}
+                    this.mols[this.selected_mol_index]);}
+            else {this.$root.$emit('unselected_mol_'+ this.mol_type, null );}
         }
     }
 });
@@ -61,13 +61,13 @@ Vue.component("inert-mols-controls",{
     data: function () {
         return {mol: null,
                 qtt: null,
-                disabled: true}
+                disabled: true};
     },
     mounted: function(){
         this.$root.$on('selected_mol_inert', mol =>
-            {this.mol = mol.mol; this.qtt = mol.qtt; this.disabled=false});
+                       {this.mol = mol.mol; this.qtt = mol.qtt; this.disabled=false;});
         this.$root.$on('unselected_mol_inert', mol_type =>
-            {this.mol = null; this.qtt = null; this.disabled=true})
+                       {this.mol = null; this.qtt = null; this.disabled=true;})
     }
 });
 
@@ -79,7 +79,7 @@ Vue.component("active-mols-controls",{
             pnet_ids: [],
             disabled: true,
             selected_pnet: null
-        }
+        };
     },
     methods: {
         init: function (mol) {
@@ -88,11 +88,12 @@ Vue.component("active-mols-controls",{
 	          ).done(data => {
 	              this.pnet_ids = data.data;
                 this.selected_pnet = this.pnet_ids[0];
-            console.log(this)});
+                console.log(this);});
         },
         clear: function () {
             this.mol = null; this.disabled=true; this.pnet_ids=[];
             this.selected_pnet = null;
+            this.$store.commit('pnet/clear');
         }
     },
     mounted: function() {
@@ -101,37 +102,77 @@ Vue.component("active-mols-controls",{
     },
     watch: {
         selected_pnet: function(val) {
-            this.$root.$emit("selected_pnet", {mol: this.mol, pnet_id: this.selected_pnet});
+            utils.ajax('GET', `/api/sandbox/mol/${this.mol}/pnet/${this.selected_pnet}`).done(
+                data => {console.log("pnet updated with ", data);
+                         this.pnet = data.data.pnet;
+                         this.$store.commit('pnet/set',{
+                             pnet_id: this.selected_pnet,
+                             mol: this.mol,
+                             pnet: data.data.pnet
+                         });
+                        })
         }
     }
 });
 
-Vue.component("petri-net", {
-    data: function () {
-        return {pnet: null}
+
+const pnet_store = {
+    namespaced: true,
+    state: {
+        pnet_id: null,
+        pnet: null,
+        mol: null,
+        selected_place_index: null,
+        selected_transition_index: null
     },
-    methods: {
-        init: function(mol, pnet_id) {
-            utils.ajax('GET', `/api/sandbox/mol/${mol}/pnet/${pnet_id}`
-            ).done(
-                data => {console.log("pnet updated with ", data);
-                         this.pnet = data.data.pnet})
+    mutations: {
+        set(state, data) {
+            state.pnet_id = data.pnet_id;
+            state.pnet = data.pnet;
+            state.mol = data.mol;
+        },
+        select_place(state, place_id) {
+            console.log("Store placeid: ", place_id);
+            state.selected_place_index = place_id;
+            state.selected_transition_index = null;
+        },
+        select_transition(state, transition_id) {
+            state.selected_transition_index = transition_id;
+            state.selected_place_index = null;
+        },
+        unselect(state) {
+            state.selected_transition_index = null;
+            state.selected_place_index = null;
+        },
+        clear(state) {
+            state.pnet_id = null;
+            state.pnet = null;
+            state.mol = null;
+            state.selected_place_index = null;
+            state.selected_transition_index = null;
         }
-    },
-    mounted: function() {
-        this.$root.$on("selected_pnet", data => {
-            if (data.pnet_id !== null) {
-                this.init(data.mol, data.pnet_id);}
-        else {this.pnet = null;} })
     }
-});
+    // getters: {
+    //     place: state => {
+    //         if (state.pnet === null) {return null;};
+    //         if (state.selected_place_index === null) {return null;};
+    //         return state.pnet.places[state.selected_place_index];
+    //     },
+    //     transition: state => {
+    //         if (state.pnet === null) {return null;};
+    //         if (state.selected_transition_index === null) {return null;};
+    //         return state.pnet.transitions[state.selected_transition_index];
+    //     }
+    // }
+};
+
 
 Vue.component("petri-net-controls",{
-    props: ["pnet"],
     data: function () {
-        return {place: null, transition: null}
+        return {place: null, transition: null, selected_index:null};
     },
     computed: {
+        pnet: function() {return this.$store.state.pnet.pnet;},
         desc_texts: function (){
             if (this.pnet) {
                 var launchables_nb = this.pnet.transitions.filter(
@@ -145,62 +186,61 @@ Vue.component("petri-net-controls",{
     mounted: function() {
         this.$root.$on("pnet_cy_node_selected", node_data => {
             if (node_data.type == "place") {
+                this.selected_index = node_data.index;
                 this.place = this.pnet.places[node_data.index];
                 this.transition = null;
                 console.log("Sekected: ", this.place);
-            } else if (node_data.type = "transition") {
+            } else if (node_data.type == "transition") {
                 this.transition = node_data;
                 this.place = null;
             }
-        }),
+        });
         this.$root.$on("pnet_cy_node_unselected", _ => {
             this.place = null; this.transition = null;
-        })
-
+            this.selected_index = null;
+        });
+        this.$root.$on("commit_token", token_state => {
+            console.log("ok");
+            utils.ajax('POST', `/api/sandbox/mol/${this.pnet.mol}`);
+        });
     }
 });
 
 
-Vue.component("place",{
-    props: ["place"],
-    data: function () {return {
-        token_edit_checkbox: false,
-        token_edit_state: null,
-        token_edit_m1: null,
-        token_edit_m2: null};},
-    methods: {
-        token_to_str: function(token) {
-            if (token === null) return "No token."
-            var mol = token[1];
-	          var index = token[0];
-	          if (mol != "") {
-		            var mol1 = mol.substring(0, index);
-		            var mol2 = mol.substring(index);
-		            return mol1
-		                + "<font style='color:red'>⮞</font>"
-		                + mol2;
-	          } else {return  "Token without molecule";}
-        },
-        extension_to_str: function(ext) {
-            console.log("Ext to str: ", ext);
-	          var ext_str = ext[0].replace(/_/g," ");
-	          if (ext.length > 1)
-	          {
-	              if (ext_str == "Displace mol") {
-		                if (ext[1][0])
-		                {ext_str = ext_str + " forward";}
-		                else {ext_str = ext_str + " backward";}
-	              }
-	              else if (ext_str == "Grab ext") {
-		                var grab_patt = ext[1];
-		                ext_str = ext_str + "; pattern :\n" + grab_patt;
-	              }
-	          }
-	          return ext_str;
-        },
-    },
+Vue.component("pnet-cy", {
     computed: {
-        token_str: function() { return this.token_to_str(this.place.token);},
+        pnet() {return this.$store.state.pnet.pnet;}
+    },
+    methods: {
+        set_node_selected: function(node_data ){
+            console.log("Selected ", node_data);
+            if (node_data.type == "place") {
+                this.$store.commit("pnet/select_place", node_data.index);
+            } else if (node_data.type == "transition") {
+                this.$store.commit("pnet/select_transition", node_data.index);
+            }
+            // this.$root.$emit("pnet_cy_node_selected", node_data);
+        },
+        set_node_unselected: function() {
+            this.$root.$emit("pnet_cy_node_unselected", null);
+        }
+    },
+    watch: {
+        pnet: {immediate: true,
+               handler: function(data, old_data) {
+                   console.log("Pnet Cy updated with ", data);
+                   console.log(this, document.getElementById('pnet_cy'));
+                   if (data === null) { if (old_data) this.pnet_cy.destroy(); }
+                   else {
+                       this.pnet_cy = new make_pnet_graph(
+		                       data,
+		                       document.getElementById('pnet_cy'),
+		                       this);
+                       this.pnet_cy.run();
+                       console.log("Running cytoscape");
+                   }
+               }
+              }
     }
 });
 
@@ -221,15 +261,26 @@ active_mols_columns =  [
     {css_class: "three wide", title: "Quantity", property: "qtt"}
 ];
 
+const store = new Vuex.Store({
+    modules: {
+        pnet: pnet_store
+    },
+    state: {
+        empty: true
+    }
+});
+
+
 sandbox_vue = new Vue({
     data: function (){
         return {
             env: null,
             inert_mols: [],
             active_mols: [],
-            test_mols: []}
+            test_mols: []};
     },
     el: "#sandbox_vue",
+    store,
     methods: {
         update: function () {
             utils.ajax('GET', "/api/sandbox"
