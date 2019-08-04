@@ -11,7 +11,7 @@ var utils = {
         var request = {
             url: connect_uri,
             datatype: 'json',
-            data: payload,
+            data: JSON.stringify(payload),
             method: method,
             success: function(json) {
                 console.log("received ;");
@@ -19,7 +19,7 @@ var utils = {
             },
             error: function(jqXHR) {
                 console.log("ajax error " + jqXHR.status + " from sending :");
-		            console.log(req_data, "to", connect_uri);
+		            console.log(payload, "to", connect_uri);
             }
         };
         return $.ajax(request);

@@ -151,19 +151,19 @@ const pnet_store = {
             state.selected_place_index = null;
             state.selected_transition_index = null;
         }
+    },
+    getters: {
+        place: state => {
+            if (state.pnet === null) {return null;};
+            if (state.selected_place_index === null) {return null;};
+            return state.pnet.places[state.selected_place_index];
+        },
+        transition: state => {
+            if (state.pnet === null) {return null;};
+            if (state.selected_transition_index === null) {return null;};
+            return state.pnet.transitions[state.selected_transition_index];
+        }
     }
-    // getters: {
-    //     place: state => {
-    //         if (state.pnet === null) {return null;};
-    //         if (state.selected_place_index === null) {return null;};
-    //         return state.pnet.places[state.selected_place_index];
-    //     },
-    //     transition: state => {
-    //         if (state.pnet === null) {return null;};
-    //         if (state.selected_transition_index === null) {return null;};
-    //         return state.pnet.transitions[state.selected_transition_index];
-    //     }
-    // }
 };
 
 

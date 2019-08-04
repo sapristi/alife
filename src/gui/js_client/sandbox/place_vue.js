@@ -25,13 +25,17 @@ Vue.component("token-edit", {
     methods: {
         commit_token: function() {
             console.log("Commit token: ", this.token_edit_state, this.token_edit_m1, this.token_edit_m2);
-            if (this.token_edit_state === false) {
-                this.$root.$emit("commit_token", null);
-                console.log(this.$store.state.pnet.pnet_id);}
-            else {
-                this.$root.$emit(
-                    "commit_token",
-                    [this.token_edit_m1.length, this.token_edit_m1 + this.token_edit_m2]);}
+            var mol = this.$store.state.pnet.mol;
+            var pnet_id = this.$store.state.pnet.pnet_id;
+            var place_index = this.$store.state.pnet.selected_place_index;
+            var token_update;
+            if (this.token_edit_state === false) {token = null;}
+            else {token = [this.token_edit_m1.length, this.token_edit_m1 + this.token_edit_m2];}
+
+            utils.ajax('PUT', `/api/sandbox/mol/${mol}/pnet/${pnet_id}`,
+                       ["Update_token",token,place_index]).done(
+                           data => {console.log(data);}
+                       );
         },
         cancel_edit: function() {
             console.log("Cancel token edit");
@@ -96,13 +100,9 @@ Vue.component("token-edit", {
 
 
 Vue.component("place",{
-    computed: {
-    },
     data: function () {return {
         token_edit_checkbox: false,
-        token_edit_state: null,
-        token_edit_m1: null,
-        token_edit_m2: null};},
+    };},
     methods: {
         token_to_str: function(token) {
             if (token === null) return "No token.";
@@ -136,18 +136,10 @@ Vue.component("place",{
     },
     computed: {
         token_str: function() { return this.token_to_str(this.place.token);},
-        place_index() {
-            console.log("tes");
-            return this.$store.state.pnet.selected_place_index;
-        },
         place: function () {
-            // var place_index = this.$store.state.pnet.selected_place_index;
-            console.log("place: ", this.place_index);
-            if (this.place_index === null) {return null;}
-            
-            var place = this.$store.state.pnet.pnet.places[this.place_index];
-            return place;
-        }
+            return this.$store.getters["pnet/place"];
+        },
+        token: function() {return this.place.token;}
 
     },
     template: `
