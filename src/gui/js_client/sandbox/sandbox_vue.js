@@ -198,45 +198,13 @@ Vue.component("place",{
 	          }
 	          return ext_str;
         },
-        commit_token: function() {
-            console.log("Commit token: ", this.token_state, this.token_edit_m1, this.token_edit_m2)
-        }
     },
     computed: {
-        token_str: function() { return this.token_to_str(this.place.token);}
-    }
-})
-
-Vue.component("pnet-cy", {
-    props: ["pnet"],
-    // data: function () {return {pnet_cy: null}},
-    methods: {
-        set_node_selected: function(node_data ){
-            console.log("Selected ", node_data);
-            this.$root.$emit("pnet_cy_node_selected", node_data);
-        },
-        set_node_unselected: function() {
-            this.$root.$emit("pnet_cy_node_unselected", null);
-        }
-    },
-    watch: {
-        pnet: {immediate: true,
-               handler: function(data, old_data) {
-                   console.log("Pnet Cy updated with ", data);
-                   console.log(this, document.getElementById('pnet_cy'));
-                   if (data === null) { if (old_data) this.pnet_cy.destroy() }
-                   else {
-                       this.pnet_cy = new make_pnet_graph(
-		                       data,
-		                       document.getElementById('pnet_cy'),
-		                       this);
-                       this.pnet_cy.run();
-                       console.log("Running cytoscape")
-                   }
-               }
-              }
+        token_str: function() { return this.token_to_str(this.place.token);},
     }
 });
+
+
 
 
 
