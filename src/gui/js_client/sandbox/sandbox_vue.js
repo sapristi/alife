@@ -14,6 +14,48 @@ Vue.component("environment", {
     `
 })
 
+Vue.component("sim-controls",{
+    data: function() {return {reac_nb_input: null}},
+    methods: {
+        _next_reactions(n) {
+            utils.ajax('POST', `/api/sandbox/reaction/next/${n}`).done(
+                data => {console.log(data);}
+            )
+        },
+        next_reaction() {this._next_reactions(1)},
+        next_reactions() {this._next_reactions(this.reac_nb_input);}
+    },
+    template: `
+        <div class="ui fixed top sticky"
+		         style="max-width:100px;position:fixed;top:100px" id="left_sim_sticky">
+		        <div class="ui segment"
+			           style="max-width:100px; margin-left:110px; padding-left:0px; padding-right:0">
+			          <h4 class="ui horizontal divider header">Simulation ok</h4>
+                
+			          <button class="ui primary button tooltip"
+                    v-on:click="next_reaction"
+				                style="padding-left:5px;padding-right:5px">
+			              Next reaction
+			              <span class="tooltiptext">Evaluates the next reaction</span>
+			          </button>
+			          <div class="ui action input">
+			              <button class="ui primary button tooltip"
+                        v-on:click="next_reactions"
+				                    style="padding-left:5px;padding-right:5px">
+				                Next reactions
+				                <span class="tooltiptext">Evaluates the next reaction</span>
+			              </button>
+			              <input placeholder="number"
+				                   type="text"
+				                   size="4"
+                           v-model="reac_nb_input"/>
+			          </div>
+		        </div>
+		    </div>
+`
+});
+
+
 Vue.component("mols-list", {
     props: ["mols", "columns", "mol_type"],
     data: function () {
