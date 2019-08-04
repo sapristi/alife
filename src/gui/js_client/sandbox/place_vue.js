@@ -34,7 +34,7 @@ Vue.component("token-edit", {
 
             utils.ajax('PUT', `/api/sandbox/mol/${mol}/pnet/${pnet_id}`,
                        ["Update_token",token,place_index]).done(
-                           data => {console.log(data);}
+                           data => {this.$store.commit("pnet/set_pnet", data.data.pnet);}
                        );
         },
         cancel_edit: function() {
@@ -112,7 +112,7 @@ Vue.component("place",{
 		            var mol1 = mol.substring(0, index);
 		            var mol2 = mol.substring(index);
 		            return mol1
-		                + "<font style='color:red'>⮞</font>"
+		                + "<font style='color:red;font-weight:bold'>►</font>"
 		                + mol2;
 	          } else {return  "Token without molecule";}
         },
@@ -158,8 +158,8 @@ Vue.component("place",{
             
 				    <!-- ******* token display -->
 				    <h5 class="ui header">Token</h5>
-				    <div class="ui segment"
-				         style="word-wrap:break-word">{{token_str}}
+				    <div class="ui segment" v-html="token_str"
+				         style="word-wrap:break-word">
 				    </div>
             
 				    <!-- ******* token edit button -->

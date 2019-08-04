@@ -102,15 +102,18 @@ Vue.component("active-mols-controls",{
     },
     watch: {
         selected_pnet: function(val) {
-            utils.ajax('GET', `/api/sandbox/mol/${this.mol}/pnet/${this.selected_pnet}`).done(
-                data => {console.log("pnet updated with ", data);
-                         this.pnet = data.data.pnet;
-                         this.$store.commit('pnet/set',{
-                             pnet_id: this.selected_pnet,
-                             mol: this.mol,
-                             pnet: data.data.pnet
-                         });
-                        })
+            if (this.selected_pnet === null){this.clear();}
+            else {
+                utils.ajax('GET', `/api/sandbox/mol/${this.mol}/pnet/${this.selected_pnet}`).done(
+                    data => {console.log("pnet updated with ", data);
+                             this.pnet = data.data.pnet;
+                             this.$store.commit('pnet/set',{
+                                 pnet_id: this.selected_pnet,
+                                 mol: this.mol,
+                                 pnet: data.data.pnet
+                             });
+                            })
+            }
         }
     }
 });
@@ -130,6 +133,9 @@ const pnet_store = {
             state.pnet_id = data.pnet_id;
             state.pnet = data.pnet;
             state.mol = data.mol;
+        },
+        set_pnet(state, data) {
+            state.pnet = data;
         },
         select_place(state, place_id) {
             console.log("Store placeid: ", place_id);

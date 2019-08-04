@@ -52,8 +52,7 @@ active_mols_columns =  [
     <!-- * body -->
 
     <body>
-        <div id="sandbox_vue" class="ui container"
-             data-bind="with:sandboxVM">
+        <div id="sandbox_vue" class="ui container">
 	          <!-- left rail -->
 	          <div class="ui left rail"
 		             style="max-width:100px;padding-right:5px;margin-right:5px">
@@ -256,7 +255,7 @@ active_mols_columns =  [
 		                Petri Net manipulation
 		            </h2>
 		            <!-- ko if : pnetVM.data() -->
-                <div class="row">
+                <div v-show="$store.state.pnet.pnet" class="row">
 		                <!-- **** 1ere colonne : pnet view -->
 		                <div class="twelve wide column">
 			                  <h4 class="ui horizontal divider header">
@@ -270,7 +269,7 @@ active_mols_columns =  [
 		                <!-- **** 2eme colonne : pnet informations -->
 		                <div class="four wide column">
                         <petri-net-controls inline-template>
-                            <div>
+                            <div >
 			                          <h4 class="ui horizontal divider header">
 			                              Petri Net description
 			                          </h4>
