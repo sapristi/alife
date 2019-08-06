@@ -22,8 +22,10 @@
 
 	      <script src="/js-libs/cytoscape-context-menus.js"></script>
 	      <script src="/js-libs/cytoscape-automove.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-        <script src="https://unpkg.com/vuex"></script>
+        <script src="/js-libs/vue.js"></script>
+        <script src="/js-libs/vuex.js"></script>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
+        <!-- <script src="https://unpkg.com/vuex.js"></script> -->
 
 	      <!-- ** personnal css -->
 	      <link href="/custom_styles.css" rel="stylesheet">
@@ -56,7 +58,7 @@ active_mols_columns =  [
 	          <!-- left rail -->
 	          <div class="ui left rail"
 		             style="max-width:100px;padding-right:5px;margin-right:5px">
-                <sim-controls></sim-controls>
+                <sim-reaction-controls></sim-reaction-controls>
 		        </div>
 
             <div class="ui top fixed menu">
@@ -100,9 +102,11 @@ active_mols_columns =  [
 			                      <div class="ui button" data-bind="click:save_sandbox">
 				                        Save to file
 			                      </div>
-			                      </div>
-		                    </div>
+			                  </div>
+                        <sim-general-controls></sim-general-controls>
 
+		                </div>
+                    
                     <div class="six wide column">
                     <environment :env="env"></environment>
                         </div>
@@ -129,46 +133,46 @@ active_mols_columns =  [
 			                  <h4 class="ui horizontal divider header">
 			                      Molecules list
 			                  </h4>
-                        <mols-list :mols="inert_mols"
+                        <mols-list :mols="$store.state.imols"
                                    :columns="inert_mols_columns"
                                    mol_type="inert">
-			                  </inert-mols-list>
+			                  </mols-list>
                     </div>
 		                <div class="five wide column">
                         <inert-mols-controls inline-template>
-                        <div>
-			                        <h4 class="ui horizontal divider header">
-			                        Selected Molecule
-			                              </h4>
-			                        <div data-bind="text:current_mol_name"></div>
-			                        <button class="ui button tooltip"
-				                                    data-bind="click:remove_mol"
-                                            v-bind:class="{disabled: disabled}">Remove molecule
-			                        <span class="tooltiptext">Definitely removes the molecule from the bactery</span>
+                            <div>
+			                          <h4 class="ui horizontal divider header">
+			                              Selected Molecule
+			                          </h4>
+			                          <div data-bind="text:current_mol_name"></div>
+			                          <button class="ui button tooltip"
+                                        v-on:click="remove_mol"
+                                        v-bind:class="{disabled: disabled}">Remove molecule
+			                              <span class="tooltiptext">Definitely removes the molecule from the bactery</span>
+			                          </button>
+			                          <div class="ui action input">
+			                              <button class="ui button tooltip"
+                                            v-on:click="set_mol_quantity"
+                                            v-bind:class="{disabled: disabled}">
+				                                Set quantity
+				                                <span class="big tooltiptext">Set the quantity of molecules in the bactery. <br> Note that molecules can have negative quantity (ugh), but if the quantity is less than 0 then no transition will be launched in a simulation round </span>
 			                              </button>
-			                        <div class="ui action input">
-			                        <button class="ui button tooltip"
-				                                        data-bind="click:set_mol_quantity"
-                                                v-bind:class="{disabled: disabled}">
-				                        Set quantity
-				                        <span class="big tooltiptext">Set the quantity of molecules in the bactery. <br> Note that molecules can have negative quantity (ugh), but if the quantity is less than 0 then no transition will be launched in a simulation round </span>
-			                                  </button>
-			                        <input placeholder="quantity"
-				                                       type="text"
-                                               v-bind:class="{disabled: disabled}"
-				                                       size="4"
-                                               v-model="qtt"
-				                                       data-bind="value:mol_quantity_input"/>
-			                              </div>
-			                        <button class="ui icon button tooltip"
-                                            data-bind="click:$parent.send_to_molbuilder.bind($data)"
-                                            v-bind:class="{disabled: disabled}" >
-			                        Send to Mol Builder
-			                        <span class="big tooltiptext">Initiate the Mol Builder with the selected molecule.<br> Use this to see how a particular Petri net is designed</span>
-			                              </button>
-                                </div>
-                            </inert-mols-controls>
-		                    </div>
+			                              <input placeholder="quantity"
+				                                   type="text"
+                                           v-bind:class="{disabled: disabled}"
+				                                   size="4"
+                                           v-model="qtt"/>
+			                          </div>
+			                          <button class="ui icon button tooltip"
+                                        v-on:click="send_to_molbuilder"
+                                        data-bind="click:$parent.send_to_molbuilder.bind($data)"
+                                        v-bind:class="{disabled: disabled}" >
+			                              Send to Mol Builder
+			                              <span class="big tooltiptext">Initiate the Mol Builder with the selected molecule.<br> Use this to see how a particular Petri net is designed</span>
+			                          </button>
+                            </div>
+                        </inert-mols-controls>
+		                </div>
                 </div>
 
 
@@ -185,7 +189,7 @@ active_mols_columns =  [
 			                  <h4 class="ui horizontal divider header">
 			                      Molecules list
 			                  </h4>
-                        <mols-list :mols="active_mols"
+                        <mols-list :mols="$store.state.amols"
                                    :columns="active_mols_columns"
                                    mol_type="active"></mols-list>
 	                  </div>

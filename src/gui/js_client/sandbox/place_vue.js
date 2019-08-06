@@ -32,7 +32,7 @@ Vue.component("token-edit", {
             if (this.token_edit_state === false) {token = null;}
             else {token = [this.token_edit_m1.length, this.token_edit_m1 + this.token_edit_m2];}
 
-            utils.ajax('PUT', `/api/sandbox/mol/${mol}/pnet/${pnet_id}`,
+            utils.ajax('PUT', `/api/sandbox/amol/${mol}/pnet/${pnet_id}`,
                        ["Update_token",token,place_index]).done(
                            data => {this.$store.commit("pnet/set_pnet", data.data.pnet);}
                        );

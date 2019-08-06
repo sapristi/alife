@@ -8,15 +8,35 @@ open Easy_logging_yojson
 let logger = Logging.get_logger "Yaac.Reactor.Sandbox"
                
 
+let bact_states = ref []
 
-                  
+let init_states bact_states_path =
+  bact_states :=
+    Misc_library.list_files ~file_type:"json" bact_states_path
+    |> List.map (fun x ->
+        logger#sdebug x;
+          Filename.remove_extension (Filename.basename x),
+          Yojson.Safe.from_file x)
+
 type t =
   {
     bact : Bacterie.t ref;
     env : Environment.t ref;
   }
   
-  
+
+let make_empty () =
+  let (env: Environment.t) = {transition_rate = Numeric.Num.num_of_int 10;
+                              grab_rate = Numeric.Num.num_of_int 1;
+                              break_rate = Numeric.Num.num_of_int 0;
+                              collision_rate = Numeric.Num.num_of_int 0}
+  in let renv = ref env in
+  {
+    bact= ref (Bacterie.make renv);
+    env= renv;
+  }
+
+
 let to_yojson (sandbox : t) =
   `Assoc ["bact", Bacterie.to_sig !(sandbox.bact)
                   |> Bacterie.bact_sig_to_yojson;
@@ -34,5 +54,8 @@ let of_yojson   json : t=
      and renv = renv in
      {bact = bact; env = renv}
   | _  -> failwith  "error loading sandbox json" 
-  
-  
+
+let of_state state_name =
+  List.find (fun (n,_) -> n = state_name) !bact_states
+  |> fun (_, state) -> of_yojson state
+                       

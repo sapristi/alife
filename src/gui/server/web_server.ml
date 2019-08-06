@@ -96,9 +96,11 @@ let start_srv port files_prefix routes =
   App.empty
   |> App.port port
   |> middleware log_in_out
+  (* |> middleware Middleware.debug *)
   |> get "**" (fun x -> serve_file files_prefix x.request.resource)
   |> get "/ping" (fun x -> `String "ok" |> respond')
   |> List.fold_right (fun (route,f) x -> x |> route (fun req -> f req |> handle_response) ) routes
+  (* |> middleware (Middleware.static ~local_path:files_prefix ~uri_prefix:"/" ()) *)
   |> App.start
   |> Lwt_main.run
 

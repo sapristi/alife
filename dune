@@ -1,6 +1,7 @@
 (alias
  (name default)
  (deps ./src/bin/yaacs_server.exe
+       (glob_files data/bact_states/*)   
        (glob_files src/gui/js_client/*)
        (glob_files src/gui/js_client/molbuilder/*)
        (glob_files src/gui/js_client/sandbox/*)

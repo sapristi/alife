@@ -186,3 +186,15 @@ let extract_from_list l a =
       else aux t (res@[h])
   in
   aux l []
+
+
+let list_files ?file_type dir =
+  Sys.readdir dir
+  |> Array.to_list
+  |> List.map (Filename.concat dir)
+  |> List.filter (fun x -> not (Sys.is_directory x))
+  |> List.filter ( 
+    match file_type with
+    | None -> fun x -> true
+    | Some suff -> fun x -> Filename.check_suffix x suff
+  )

@@ -26,54 +26,6 @@ var utils = {
 
     },
 
-    ajax_get : function(req_data) {
-	      console.log("sending:");
-	      console.log(req_data);
-        
-	      var connect_uri =
-            window.location.origin +
-            "/sim_commands/" +
-            req_data.target + "/" +
-            req_data.command;
-
-        delete req_data.target;
-        delete req_data.command;
-        
-	      var request = {
-            url: connect_uri,
-            dataType: 'json',
-            data: req_data,
-	          method:'GET',
-            success : function(json) {
-		            console.log("received :"); 
-                console.log(json);
-            },
-            error: function(jqXHR) {
-                console.log("ajax error " + jqXHR.status + " from sending :");
-		            console.log(req_data, "to", connect_uri);
-            }
-        };
-        return $.ajax(request);
-    },
-
-    ajax_post : function(req_data) {
-	var connect_uri = window.location.href + "sim_commands/";
-	var request = {
-            url: connect_uri,
-            dataType: 'json',
-            data: JSON.stringify(req_data),
-            contentType: "application/json; charset=utf-8",
-	    method:'post',
-            success : function(json) {
-		console.log("received :"); 
-                console.log(json);
-            },
-            error: function(jqXHR) {
-                console.log("ajax error " + jqXHR.status);
-            }
-        };
-        return $.ajax(request);
-    },
     
     string_rev : function(s) {
 	if (typeof s == "undefined") {

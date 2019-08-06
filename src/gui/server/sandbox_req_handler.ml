@@ -4,7 +4,7 @@ open Bacterie_libs
 open Reaction
 open Local_libs
 open Easy_logging_yojson
-let logger = Logging.get_logger "Yaac.Server.sandbox"
+let logger = Logging.get_logger "Server.sandbox"
               
 
 open Opium.Std
@@ -72,15 +72,19 @@ let remove_imol (sandbox : Sandbox.t) (req) =
   |> Bacterie.execute_actions !(sandbox.bact);
   get_bact_elements sandbox req
 
-let set_imol_quantity (sandbox : Sandbox.t) req = 
-  let mol = param req "mol"
-  and n = param req "qtt"
-          |> int_of_string
-  in
-  Reactants_maps.IRMap.Ext.set_qtt  n mol !(sandbox.bact).ireactants
-  |> Bacterie.execute_actions !(sandbox.bact);
-  get_bact_elements sandbox req
-
+let set_imol_quantity (sandbox : Sandbox.t) (req : Opium_kernel.Rock.Request.t) =
+  let uri = Uri.of_string req.request.resource in
+  match Uri.get_query_param uri "qtt" with
+  | None ->
+    `Error "bad parameters" |> Lwt.return
+  | Some n' ->
+    let n = int_of_string n' in
+    let mol = param req "mol"
+    in
+    Reactants_maps.IRMap.Ext.set_qtt n mol !(sandbox.bact).ireactants
+    |> Bacterie.execute_actions !(sandbox.bact);
+    get_bact_elements sandbox req
+      
 
 (** /sandbox/mol/:mol/pnet endpoints *)
 
@@ -213,19 +217,46 @@ let next_reactions (sandbox : Sandbox.t) (req) =
  *   Petri_net.show pnet *)
 
 
+
+
+let get_bact_states _ =
+  `Json (`List (
+      !Sandbox.bact_states
+      |> List.map (fun (n,_) -> `String n)
+    )) |> Lwt.return
+
+
+let from_bact_state (sandbox : Sandbox.t) req =
+  let state_name = param req "name" in
+  let new_sandbox = Sandbox.of_state state_name in
+  sandbox.bact := !(new_sandbox.bact);
+  sandbox.env := !(new_sandbox.env);
+  `Empty |> Lwt.return
+  
+
 let make_routes sandbox =
-  [ get    "/api/sandbox",                          get_sandbox sandbox ;
-    post   "/api/sandbox",                          set_sandbox sandbox ;
-    post   "/api/sandbox/reset",                    reset_sandbox sandbox;
-    get    "/api/sandbox/mol",                      get_bact_elements sandbox; 
-    get    "/api/sandbox/mol/:mol",                 pnet_ids_from_mol sandbox;
-    post   "/api/sandbox/mol/:mol",                 add_mol sandbox;
-    put    "/api/sandbox/mol/:mol/qtt/:qtt",        set_imol_quantity sandbox; 
-    delete "/api/sandbox/mol/:mol",                 remove_imol sandbox;
-    get    "/api/sandbox/mol/:mol/pnet/:pnet_id",   get_pnet sandbox;
-    put    "/api/sandbox/mol/:mol/pnet/:pnet_id",   pnet_action sandbox;
-    delete "/api/sandbox/mol/:mol/pnet/:pnet_id",   remove_amol sandbox;
+  [ get    "/api/sandbox",                           get_sandbox sandbox ;
+    post   "/api/sandbox",                           set_sandbox sandbox ;
+    post   "/api/sandbox/reset",                     reset_sandbox sandbox;
+
+    get    "/api/sandbox/amol",                      get_bact_elements sandbox; 
+    get    "/api/sandbox/amol/:mol",                 pnet_ids_from_mol sandbox;
+    get    "/api/sandbox/amol/:mol/pnet/:pnet_id",   get_pnet sandbox;
+    put    "/api/sandbox/amol/:mol/pnet/:pnet_id",   pnet_action sandbox;
+    delete "/api/sandbox/amol/:mol/pnet/:pnet_id",   remove_amol sandbox;
+
+    get    "/api/sandbox/imol",                      get_bact_elements sandbox;
+    put    "/api/sandbox/imol/:mol",                 set_imol_quantity sandbox;
+    delete "/api/sandbox/imol/:mol",                 remove_imol sandbox;
+
+    get    "/api/sandbox/mol",                       get_bact_elements sandbox; 
+    post   "/api/sandbox/mol/:mol",                  add_mol sandbox;
+
     (* get    "/sandbox/environment" *)
-    put    "/api/sandbox/environment",              set_environment sandbox;
-    get    "/api/sandbox/reaction",                 get_reactions sandbox;
-    post   "/api/sandbox/reaction/next/:n",         next_reactions sandbox]
+    put    "/api/sandbox/environment",               set_environment sandbox;
+    get    "/api/sandbox/reaction",                  get_reactions sandbox;
+    post   "/api/sandbox/reaction/next/:n",          next_reactions sandbox;
+
+    get    "/api/sandbox/state",                    get_bact_states ;
+    put    "/api/sandbox/state/:name",               from_bact_state sandbox;
+  ]
