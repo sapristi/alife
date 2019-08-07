@@ -314,8 +314,31 @@ sandbox_vue = new Vue({
             utils.ajax('PUT', "/api/sandbox/environment", this.env).done(
                 data => {}
             );
-        }
+        },
 
+        save_sandbox:  function() {
+            
+            utils.ajax('GET', "/api/sandbox"
+            ).done(
+                function(data) {
+                    str_data = JSON.stringify(data.data);
+                    blob_data = new Blob([str_data], {type: 'text/plain'});
+                    saveAs(blob_data, "sandbox.json");
+                }
+            );   
+        },
+
+        load_sandbox_file: function(evt) {
+	          var file = evt.target.files[0];
+	          var reader = new FileReader();
+	          
+            reader.onload = function(e) {
+	              utils.ajax("POST","/api/sandbox", reader.result
+                          ).done(self.set_bact_data);
+            };
+	          reader.readAsText(file);
+        }
+        
     },
     mounted: function() {
         this.update();
@@ -325,6 +348,9 @@ sandbox_vue = new Vue({
     created: function() {
         this.inert_mols_columns= inert_mols_columns;
         this.active_mols_columns= active_mols_columns;
+
+        document.getElementById('sandbox_load').addEventListener('change', self.load_sandbox_file, false);
+
         this.bc_receive = new BroadcastChannel("to_sandbox");
         var self = this;
         this.bc_receive.onmessage = function(msg) {
