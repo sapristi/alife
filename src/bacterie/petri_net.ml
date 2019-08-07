@@ -34,7 +34,7 @@ open Local_libs.Numeric.Num
 
 
 (* * the proteine module *)
-let logger = Logging.get_logger "Yaac.Bact.Internal.pnet"
+let logger = Logging.get_logger "Yaac.Pnet"
                
 
 type t =
@@ -111,7 +111,14 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
     |> logger#ldebug;
     
     (* simple filter to deactivate pnets without places or transitions *)
-    if Array.length places > 0 && Array.length transitions > 0
+    let filter =
+      if Config.build_inactive_pnets
+      then
+        fun p_l t_l -> p_l > 0
+      else
+        fun p_l t_l -> p_l > 0 && t_l > 0
+    in 
+    if filter (Array.length places) (Array.length transitions)
     then 
       Some {mol; transitions; places; uid; launchables_nb;}
     else

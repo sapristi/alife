@@ -18,8 +18,8 @@ type params = {
                               (** Set most log level to debug *)
     stats: bool;            [@default false]
                               (** Generates running stats *)
-    log_level : log_level option; [@enum [("debug", Easy_logging__.Easy_logging_types.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
-    data_path : string;     [@default "./"] [@docv "PATH"]
+    log_level : Logging.level option; [@enum [("debug", Easy_logging__.Easy_logging_types.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
+    data_path : string;     [@default "./data/bact_states"] [@docv "PATH"]
     log_config : string     [@default ""]
   } [@@deriving cmdliner,show]
 ;;
@@ -55,14 +55,14 @@ let run_yaacs p : unit=
     | Some lvl ->   let root_logger = Logging.get_logger "Yaac" in  
                     root_logger#set_level lvl;
   end;
-                  
-                  
-    Web_server.start_srv
-    (p.data_path ^ p.static_path)
-    (Bact_server.make_req_handler
+  Sandbox.init_states p.data_path; 
+  Web_server.start_srv
+    p.port
+    (p.static_path)
+    (Bact_server.make_routes
        (Simulator.make ())
-       (Sandbox.of_yojson (Yojson.Safe.from_file  @@ p.data_path^"bact.json")))
-    (p.host, p.port)
+       (Sandbox.make_empty ())
+    )
   
 
 let _ = 
