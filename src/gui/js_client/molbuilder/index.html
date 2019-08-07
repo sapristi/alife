@@ -110,7 +110,7 @@
 		                                Restore prot
 		                                <span class="tooltiptext">Revert changes</span>
 	                              </button>
-	                              <button class="ui button tooltip">
+	                              <button class="ui button tooltip" v-on:click="send">
 		                                Send to Sandbox
 		                                <span class="tooltiptext">Add to the sandbox (compile before using this)</span>
 	                              </button>
@@ -141,7 +141,7 @@
 		                                Restore mol
 		                                <span class="tooltiptext">Revert changes</span>
 	                              </button>
-	                              <button class="ui button tooltip">
+	                              <button class="ui button tooltip" v-on:click="send">
 		                                Send to Sandbox
 		                                <span class="tooltiptext">Add the current molecule to the sandbox</span>
 	                              </button>

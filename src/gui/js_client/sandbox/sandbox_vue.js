@@ -206,13 +206,14 @@ Vue.component("active-mols-controls",{
                                 mol: this.mol,
                                 pnet: data.data.pnet
                             });
-            })}
+                                });}
         },
         clear: function () {
              this.disabled=true; this.pnet_ids=[];
             this.selected_pnet = null;
             this.$store.commit('pnet/clear');
-        }
+        },
+        send_to_molbuilder() {this.$root.$emit("send_to_molbuilder", this.mol);}
     },
     watch: {
         mol: function(val) { this.update(); },
@@ -298,13 +299,12 @@ sandbox_vue = new Vue({
                 }
             );
         },
-        send_to_molbuilder: function(data) {
-            var mol = data.current_mol_name();
+        send_to_molbuilder: function(mol) {
             if (mol == "") {return;}
-            
+            console.log("Sending", mol, "to molbuilder");
             var bc_chan = new BroadcastChannel("to_molbuilder");
             bc_chan.postMessage({
-                command : "set data",
+                command : "set mol",
                 data : mol
             });
             bc_chan.close();
@@ -319,11 +319,28 @@ sandbox_vue = new Vue({
     },
     mounted: function() {
         this.update();
-        this.$on("send_to_molbuilder", data => send_to_molbuilder(data));
+        this.$on("send_to_molbuilder", mol => this.send_to_molbuilder(mol));
         this.$on("update", _ => this.update());
     },
     created: function() {
         this.inert_mols_columns= inert_mols_columns;
         this.active_mols_columns= active_mols_columns;
+        this.bc_receive = new BroadcastChannel("to_sandbox");
+        var self = this;
+        this.bc_receive.onmessage = function(msg) {
+            console.log("Received", msg);
+            switch (msg.data.command) {
+            case "update" :
+                this.update();
+                alert("update");
+                break;
+            case "add mol":
+                utils.ajax('POST', `/api/sandbox/mol/${msg.data.data}`).done(
+                    _ => {self.update();}
+                );
+            default : console.log("did not recognize command", msg.data.command);
+            }
+        };
+
     }
-})
+});
