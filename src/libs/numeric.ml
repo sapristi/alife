@@ -121,7 +121,7 @@ module ExactZ : NumericT =
     let float_of_num = to_float 
     let num_to_yojson n =
       `String (string_of_num n)
-    let num_of_yojson (json : Yojson.Safe.json) =
+    let num_of_yojson (json : Yojson.Safe.t) =
       match json with
       | `String s -> Ok (of_string s)
       | `Int n -> Ok (of_int n)
@@ -163,7 +163,7 @@ module ExactQ : NumericT =
     let float_of_num = to_float 
     let num_to_yojson n =
       `String (string_of_num n)
-    let num_of_yojson (json : Yojson.Safe.json) =
+    let num_of_yojson (json : Yojson.Safe.t) =
       logger#debug "Num from '%s'" (Yojson.Safe.to_string json);
       match json with
       | `String s -> Ok (of_string s)

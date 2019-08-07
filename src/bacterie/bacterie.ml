@@ -282,7 +282,7 @@ let to_sig (bact : t) : bact_sig =
 let to_sig_yojson bact =
   bact_sig_to_yojson (to_sig bact)
   
-let load_yojson_sig (json : Yojson.Safe.json) (bact :t ): (t,string) mresult =
+let load_yojson_sig (json : Yojson.Safe.t) (bact :t ): (t,string) mresult =
   match  bact_sig_of_yojson json with
   | Ok bact_sig -> Ok (from_sig bact_sig bact)
   | Error s -> (Error s)

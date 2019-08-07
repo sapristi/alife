@@ -68,7 +68,7 @@ module rec
           
         let pp (f : Format.formatter) (imd : t) =
           Format.pp_print_string f (show imd)
-        let to_yojson (imd : t) : Yojson.Safe.json =
+        let to_yojson (imd : t) : Yojson.Safe.t =
           `Assoc [ "mol" , Molecule.to_yojson imd.mol;
                    "qtt" , `Int  imd.qtt;
                    "ambient" , `Bool imd.ambient ]
@@ -108,7 +108,7 @@ module rec
           }
         let show am =
           Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol
-        let to_yojson am : Yojson.Safe.json =
+        let to_yojson am : Yojson.Safe.t =
           `Assoc [ "mol", Molecule.to_yojson am.mol;
                    "pnet_id", `Int am.pnet.uid]
         let pp f am =
@@ -227,7 +227,7 @@ module rec
                type t
                type build_t
                val show : t -> string
-               val to_yojson : t -> Yojson.Safe.json
+               val to_yojson : t -> Yojson.Safe.t
                val pp : Format.formatter -> t -> unit
                val compare : t -> t -> int
                val rate : t -> Num.num
@@ -270,7 +270,7 @@ module rec
              
                       [@@deriving show]
 
-           val to_yojson : t -> Yojson.Safe.json
+           val to_yojson : t -> Yojson.Safe.t
            val treat_reaction : t -> Reacs.effect list
            val compare : t -> t -> int
            val unlink : t -> unit
@@ -318,7 +318,7 @@ module rec
          (sig
            include CCSet.S with type elt =  Reaction.t
            val show : t -> string
-           val to_yojson : t -> Yojson.Safe.json
+           val to_yojson : t -> Yojson.Safe.t
            val pp : Format.formatter -> t -> unit
          end)
      =
@@ -331,7 +331,7 @@ module rec
              (Reaction.show reac)^"\n"^desc)
            rset
            ""
-       let to_yojson (rset :t) : Yojson.Safe.json=
+       let to_yojson (rset :t) : Yojson.Safe.t=
          `List (List.map Reaction.to_yojson (to_list rset))
        let pp =
          pp ~start:"Reac set:\n" Reaction.pp

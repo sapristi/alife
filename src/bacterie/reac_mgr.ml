@@ -57,7 +57,7 @@ module type ReacSet =
     type t
     val pp : Format.formatter -> t -> unit
     val show : t -> string
-    val to_yojson : t -> Yojson.Safe.json
+    val to_yojson : t -> Yojson.Safe.t
     val cardinal : t -> int
     val empty : unit -> t
     val total_rate : t -> Local_libs.Numeric.Num.num
@@ -327,7 +327,7 @@ let get_available_reac_nb rmgr =
   (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set,
    BSet.cardinal rmgr.b_set)
   
-let to_yojson (rmgr : t) : Yojson.Safe.json =
+let to_yojson (rmgr : t) : Yojson.Safe.t =
   `Assoc [
       "transitions", TSet.to_yojson rmgr.t_set;
       "grabs", GSet.to_yojson rmgr.g_set;

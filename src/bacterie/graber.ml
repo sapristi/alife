@@ -73,10 +73,10 @@ let get_match_pos (graber : t)  (mol : string) : int option =
   else
     None
   
-let to_yojson (g :t) : Yojson.Safe.json =
+let to_yojson (g :t) : Yojson.Safe.t =
   `String g.mol_repr
   
-let of_yojson (json : Yojson.Safe.json) : (t,string) result =
+let of_yojson (json : Yojson.Safe.t) : (t,string) result =
   match json with
   | `String s ->
      (
