@@ -109,14 +109,15 @@ active_mols_columns =  [
                     
                     <div class="six wide column">
                     <environment :env="env"></environment>
-                        </div>
+                    </div>
                     <div class="two wide column">
-                    <div class="ui button tooltip"
-			                           data-bind="click:commit_env">
-			                    Commit env.
-			                    <span class="tooltiptext">Send modified env constants to the sandbox</span>
-			                      </div>
-                        </div>
+                        <div class="ui button tooltip"
+                             v-on:click="commit_env"
+			                       data-bind="click:commit_env">
+			                      Commit env.
+			                      <span class="tooltiptext">Send modified env constants to the sandbox</span>
+			                  </div>
+                    </div>
                 </div>
 
 

@@ -1,5 +1,7 @@
 Vue.component("environment", {
-    props: ["env"],
+    computed: {
+        env() {return this.$store.state.env;}
+    },
     template: `
         <div>
             <div v-for="(v,k) in this.env" class="ui list" data-bind="foreach : Object.keys(env)">
@@ -90,7 +92,7 @@ Vue.component("sim-general-controls", {
 Vue.component("mols-list", {
     props: ["mols", "columns", "mol_type"],
     data: function () {
-        return {selected_mol_index: null};
+        return {selected_mol: null};
     },
     template: `
         <table class="ui fixed selectable table">
@@ -98,43 +100,52 @@ Vue.component("mols-list", {
 				        <th v-for="col in columns" v-bind:class="col.css_class" >{{col.title}}</th>
 			      </tr></thead>
 			      <tbody>
-				        <tr v-for="(mol,index) in mols" v-on:click="select(index)" v-bind:class="{ active: mol.selected }">
+				        <tr v-for="mol in mols" v-on:click="select(mol)" v-bind:class="{ active: mol.mol == selected_mol_mol() }" :key="mol.mol">
                     <td v-for="col in columns" v-bind:style="col.style">{{mol[col.property]}}</td>
 				        </tr>
 			      </tbody>
         </table>
     `,
     methods: {
-        select: function(index){
-            if (index === this.selected_mol_index) {
-                this.mols[this.selected_mol_index].selected = false;
-                this.selected_mol_index = null;
-            } else {
-                if (this.selected_mol_index !== null)
-                    this.mols[this.selected_mol_index].selected = false;
-                this.selected_mol_index = index;
-                this.mols[this.selected_mol_index].selected = true;
-            };
-            this.$forceUpdate();
+        select: function(mol) {
+            if (this.selected_mol == null) {this.selected_mol = mol;}
+            else if (mol.mol == this.selected_mol.mol) {this.selected_mol = null;}
+            else {this.selected_mol = mol;}
+        },
+        selected_mol_mol() {
+            if (this.selected_mol == null) return null;
+            else return this.selected_mol.mol;
         }
     },
     watch: {
-        selected_mol_index: function() {
-            if (this.selected_mol_index !== null) {
-                this.$store.commit('selected_mol_' + this.mol_type,
-                                   this.mols[this.selected_mol_index]);
-            } else {this.$store.commit('unselected_mol_'+ this.mol_type,);
-            }
+        selected_mol: function() {
+            if (this.selected_mol !== null) {
+                this.$store.commit('selected_mol_' + this.mol_type, this.selected_mol);
+            } else {this.$store.commit('unselected_mol_'+ this.mol_type);}
+        },
+        mols: function() {
+            if (this.selected_mol != null &&
+                this.selected_mol != undefined &&
+                this.mols.find(e => {return e.mol === this.selected_mol.mol;}) === undefined)
+            {this.selected_mol = null;}
         }
     }
 });
 
 Vue.component("inert-mols-controls",{
-    props: [],
     data: function () {
         return {mol: null,
                 qtt: null,
                 disabled: true};
+    },
+    computed: {
+        mol_data() {return this.$store.state.selected_imol;}
+    },
+    watch: {
+        mol_data(mol_data) {
+            if (this.mol_data == null) {this.mol = null; this.qtt = null; this.disabled=true;}
+            else {this.mol = this.mol_data.mol; this.qtt = this.mol_data.qtt; this.disabled=false;}
+        }
     },
     mounted: function(){
         this.$root.$on('selected_mol_inert', mol =>
@@ -150,7 +161,7 @@ Vue.component("inert-mols-controls",{
             utils.ajax('PUT', `/api/sandbox/imol/${this.mol}?qtt=${this.qtt}`).done(
                 data=> {this.$store.commit("set_imols", data.data.inert_mols);}
             );},
-        send_to_molbuilder() {this.$root.$emit("send_to_molbuilder", this.mol)}
+        send_to_molbuilder() {this.$root.$emit("send_to_molbuilder", this.mol);}
     }
 });
 
@@ -182,6 +193,8 @@ Vue.component("active-mols-controls",{
                 console.log(this);});
         },
         update_pnet(pnet_id) {
+            console.log("Update pnet with ", pnet_id, "in", this.pnet_ids);
+
             if (pnet_id == null) {this.$store.commit('pnet/clear');}
             else {
                 utils.ajax(
@@ -208,7 +221,7 @@ Vue.component("active-mols-controls",{
             else {this.update_pnet(this.selected_pnet);}
         },
         must_update() {
-            console.log("updating");
+            console.log("pnet update required");
             this.update();
             this.update_pnet(this.selected_pnet);
         }
@@ -243,13 +256,16 @@ const store = new Vuex.Store({
         amols: [],
         selected_amol: null,
 
-        update: false
+        update: false,
+
+        env: {}
     },
     mutations: {
         set_imols(state, imols) {state.imols = imols;},
         set_amols(state, amols) {state.amols = amols;},
-        selected_mol_inactive(state, mol) {state.selected_imol = mol;},
-        unselected_mol_inactive(state) {state.selected_imol = null;},
+        set_env(state, env) {state.env = env;},
+        selected_mol_inert(state, mol) {state.selected_imol = mol;},
+        unselected_mol_inert(state) {state.selected_imol = null;},
         selected_mol_active(state, mol) {state.selected_amol = mol;},
         unselected_mol_active(state) {state.selected_amol = null;},
         update(state) {state.update = !state.update;}
@@ -277,6 +293,7 @@ sandbox_vue = new Vue({
                     this.active_mols = data.data.bact.active_mols;
                     this.$store.commit("set_imols", this.inert_mols);
                     this.$store.commit("set_amols", this.active_mols);
+                    this.$store.commit("set_env", this.env);
                     this.$store.commit("update");
                 }
             );
@@ -291,7 +308,14 @@ sandbox_vue = new Vue({
                 data : mol
             });
             bc_chan.close();
+        },
+        commit_env() {
+            console.log("commit env", this.env);
+            utils.ajax('PUT', "/api/sandbox/environment", this.env).done(
+                data => {}
+            );
         }
+
     },
     mounted: function() {
         this.update();
