@@ -229,8 +229,61 @@ Vue.component("active-mols-controls",{
     }
 });
 
+Vue.component("reactant",{
+    data: function() {return {mol: null, pnet_id: null};}
+    
+});
 
 
+
+Vue.component("reactions", {
+    data: function () {return {
+        transitions: [],
+        breaks: [],
+        grabs: [],
+        raw_data: null
+    };},
+    methods: {
+        int_of_string (rate) {
+            var res;
+            if (rate.split("/").length > 1) {
+                var frac = rate.split("/");
+                var num = frac[0]; var det = frac[1];
+                res = (parseFloat(num) / parseFloat(det));
+            } else { res = parseFloat(rate);}
+            return res;
+        },
+        update() {
+            utils.ajax("GET", "/api/sandbox/reaction").done(
+                data => {
+                    this.transitions= data.transitions;
+                    this.grabs= data.grabs;
+                    this.breaks= data.breaks;
+                    
+                    this.raw_data = data;
+                }
+            );
+            $('#reactions-accordion').accordion({exclusive: false});
+        }
+    },
+    computed: {
+        must_update() {console.log("reactions saw store updating");return this.$store.state.update;},
+        
+        total_rates() {if (this.raw_data == null) {return {transitions:0, grabs: 0, breaks: 0};}
+                       
+                       return {transitions: this.int_of_string(this.raw_data.env.transition_rate) * this.int_of_string(this.transitions.total),
+                               grabs:  this.int_of_string(this.raw_data.env.grab_rate) * this.int_of_string(this.grabs.total),
+                               breaks: this.int_of_string(this.raw_data.env.break_rate) * this.int_of_string(this.breaks.total)
+                              };
+                      }
+    },
+    mounted: function() {
+        this.update();
+    },
+    watch: {
+        must_update() {console.log("reactions update required");this.update();}
+    }
+});
 
 
 inert_mols_columns = [
@@ -334,7 +387,7 @@ sandbox_vue = new Vue({
 	          
             reader.onload = function(e) {
 	              utils.ajax("POST","/api/sandbox", reader.result
-                          ).done(self.set_bact_data);
+                          ).done();
             };
 	          reader.readAsText(file);
         }
@@ -349,7 +402,7 @@ sandbox_vue = new Vue({
         this.inert_mols_columns= inert_mols_columns;
         this.active_mols_columns= active_mols_columns;
 
-        document.getElementById('sandbox_load').addEventListener('change', self.load_sandbox_file, false);
+        document.getElementById('sandbox_load').addEventListener('change', this.load_sandbox_file, false);
 
         this.bc_receive = new BroadcastChannel("to_sandbox");
         var self = this;

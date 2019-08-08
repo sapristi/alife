@@ -269,7 +269,49 @@ active_mols_columns =  [
                     Reactions
                 </h2>
                 <div class="row">
+                    <reactions inline-template>
+                        <div class="ui style accordion" id="reactions-accordion">
+                            <div class="title"><i class="dropdown icon"></i>
+                                Transitions (total rate={{total_rates.transitions}})
+                            </div>
+                            <div class="content">
+                                <div class="ui list">
+                                    <div class="item" v-for="reac in transitions.reactions">
+                                        <h5 class="ui top attached header">Rate: {{reac.rate}}; Pnet Id: {{reac.amd.pnet_id}}</h5>
+                                        <div class="ui attached segment" style="word-wrap:break-word">
+                                            {{reac.amd.mol}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="title"><i class="dropdown icon"></i>
+                                Grabs (total rate={{total_rates.grabs}})
+                            </div>
+                            <div class="content">
+                                <div class="ui list">
+                                    <div class="item" v-for="reac in grabs.reactions">
+                                        <h5 class="ui top attached header">Rate: {{reac.rate}}</h5>
+                                        <div class="ui attached segment" style="word-wrap:break-word">
+                                            {{reac.graber_data.mol}}
+                                        </div>
+                                        <div class="ui attached segment" style="word-wrap:break-word">
+                                            {{reac.grabed_data.mol}}
+                                        </div>
+                                    </div>
+                                </div>
 
+                            </div>
+                            <div class="title"><i class="dropdown icon"></i>
+                                Breaks(total rate={{total_rates.breaks}})
+
+                            </div>
+                            <div class="content">
+
+                            </div>
+
+                            
+                        </div>
+                    </reactions>
                 </div>
 	          </div>
         </div>
