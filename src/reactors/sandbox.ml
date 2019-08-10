@@ -50,12 +50,14 @@ let of_yojson   json : t=
   match (Environment.of_yojson env_json, Bacterie.bact_sig_of_yojson bact_sig_json) with
   | (Ok env, Ok bact_sig) ->
      let renv = ref env in 
-     let bact = ref (Bacterie.make ~bact_sig renv)
-     and renv = renv in
+     let bact = ref (Bacterie.make ~bact_sig renv) in
      {bact = bact; env = renv}
   | _  -> failwith  "error loading sandbox json" 
+
 
 let of_state state_name =
   List.find (fun (n,_) -> n = state_name) !bact_states
   |> fun (_, state) -> of_yojson state
-                       
+
+
+

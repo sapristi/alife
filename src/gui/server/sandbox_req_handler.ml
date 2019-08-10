@@ -5,7 +5,9 @@ open Reaction
 open Local_libs
 open Easy_logging_yojson
 let logger = Logging.get_logger "Server.sandbox"
-              
+(* let logger = Logging.make_logger "Server.Sandbox" Debug [Cli Debug];; *)
+
+(* logger#warning "WTF";; *)
 
 open Opium.Std
 open Lwt.Infix
@@ -169,6 +171,14 @@ let remove_amol (sandbox : Sandbox.t) (req) =
     Yojson.Safe.to_file "bact.json" data_json;
     "state saved"
  *)
+let get_environment (sandbox: Sandbox.t) (req) =
+  logger#info "sandbox: %s" (Environment.show !(sandbox.env));
+  logger#info "bact: %s" (Environment.show !(!(sandbox.bact).env));
+  logger#info "reac_mgr: %s" (Environment.show !(!(sandbox.bact).reac_mgr.env));
+
+  `Json (Environment.to_yojson !(sandbox.env))
+  |> Lwt.return
+
 
 let set_environment (sandbox : Sandbox.t) (req: Opium_kernel__Rock.Request.t) =
   match%lwt
@@ -178,7 +188,7 @@ let set_environment (sandbox : Sandbox.t) (req: Opium_kernel__Rock.Request.t) =
     >|= Environment.of_yojson
   with
   | Ok env ->
-     sandbox.env := env;
+     !(sandbox.bact).env := env;
      logger#debug "Commited new env: %s" (Environment.show env);
      `String "done" |> Lwt.return
   | Error s ->
@@ -186,9 +196,10 @@ let set_environment (sandbox : Sandbox.t) (req: Opium_kernel__Rock.Request.t) =
 
 
 let get_reactions (sandbox : Sandbox.t) (req) =
+   
   `Json( !(sandbox.bact).reac_mgr
          |> Reac_mgr.to_yojson) |> Lwt.return
-
+                                     
 
 let next_reactions (sandbox : Sandbox.t) (req) =
   let n = param req "n"
@@ -252,7 +263,7 @@ let make_routes sandbox =
     get    "/api/sandbox/mol",                       get_bact_elements sandbox; 
     post   "/api/sandbox/mol/:mol",                  add_mol sandbox;
 
-    (* get    "/sandbox/environment" *)
+    get    "/api/sandbox/environment",                   get_environment sandbox;
     put    "/api/sandbox/environment",               set_environment sandbox;
     get    "/api/sandbox/reaction",                  get_reactions sandbox;
     post   "/api/sandbox/reaction/next/:n",          next_reactions sandbox;
