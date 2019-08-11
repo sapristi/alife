@@ -77,7 +77,7 @@ molbuilder_vue = new Vue ({
         set_prot: function(prot) {
             this.prot = prot;
             utils.ajax(
-                'POST', "/api/utils/build/from_prot", JSON.parse(this.prot)
+                'POST', "/api/utils/build/from_prot", JSON.parse(this.prot.replace("\n", ""))
             ).done(
 	              data => {
                     this.mol = data.mol;

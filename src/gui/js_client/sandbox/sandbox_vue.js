@@ -213,7 +213,12 @@ Vue.component("active-mols-controls",{
             this.selected_pnet = null;
             this.$store.commit('pnet/clear');
         },
-        send_to_molbuilder() {this.$root.$emit("send_to_molbuilder", this.mol);}
+        send_to_molbuilder() {this.$root.$emit("send_to_molbuilder", this.mol);},
+        remove_mol() {
+            utils.ajax('DELETE', `/api/sandbox/amol/${this.mol}/pnet/${this.selected_pnet}`).done(
+                _ => {this.$store.commit("update");}
+            );
+        }
     },
     watch: {
         mol: function(val) { this.update(); },

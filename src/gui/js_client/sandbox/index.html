@@ -166,7 +166,6 @@ active_mols_columns =  [
 			                          </div>
 			                          <button class="ui icon button tooltip"
                                         v-on:click="send_to_molbuilder"
-                                        data-bind="click:$parent.send_to_molbuilder.bind($data)"
                                         v-bind:class="{disabled: disabled}" >
 			                              Send to Mol Builder
 			                              <span class="big tooltiptext">Initiate the Mol Builder with the selected molecule.<br> Use this to see how a particular Petri net is designed</span>
@@ -212,13 +211,14 @@ active_mols_columns =  [
 			                          <div>{{mol}}</div>
 			                          <button class="ui button tooltip"
                                         v-bind:class="{disabled: disabled}"
-				                                data-bind="click:remove_mol">Remove molecule
-
+                                        v-on:click="remove_mol">Remove molecule
+                                    
 			                              <span class="tooltiptext">Definitely removes the molecule from the bactery</span>
 			                          </button>
                                 
 			                          <button class="ui icon button tooltip"
                                         v-bind:class="{disabled: disabled}"
+                                        v-on:click="send_to_molbuilder"
                                         data-bind="click:$parent.send_to_molbuilder.bind($data)">
 			                              Send to Mol Builder
 			                              <span class="big tooltiptext">Initiate the Mol Builder with the selected molecule.<br> Use this to see how a particular Petri net is designed</span>
