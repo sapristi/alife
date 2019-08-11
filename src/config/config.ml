@@ -12,7 +12,7 @@ let default_log_config_str = {|
             {
                 "name": "Yaac",
                 "level": "debug",
-                "handlers": [ {"cli": {"level":"debug"}} ] },
+                "handlers": [ {"cli": {"level":"info"}},  {"file": {"filename": "yaac", "level": "debug"}} ] },
             {
                 "name": "Yaac.Bact",
                 "level": "info"},

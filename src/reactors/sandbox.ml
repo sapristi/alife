@@ -55,9 +55,24 @@ let of_yojson   json : t=
   | _  -> failwith  "error loading sandbox json" 
 
 
+let update_from_yojson sandbox json =
+  let env_json = Yojson.Safe.Util.member "env" json
+  and bact_sig_json = Yojson.Safe.Util.member "bact" json
+  in
+  match (Environment.of_yojson env_json, Bacterie.bact_sig_of_yojson bact_sig_json) with
+  | (Ok env, Ok bact_sig) ->
+    sandbox.env := env;
+    sandbox.bact := Bacterie.make ~bact_sig sandbox.env 
+  | _  -> failwith  "error loading sandbox json" 
+
+
 let of_state state_name =
   List.find (fun (n,_) -> n = state_name) !bact_states
   |> fun (_, state) -> of_yojson state
 
+let update_from_state sandbox state_name = 
+  List.find (fun (n,_) -> n = state_name) !bact_states
+  |> fun (_, state) -> update_from_yojson sandbox state
+  
 
 

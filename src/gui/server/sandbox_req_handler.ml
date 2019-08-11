@@ -239,9 +239,7 @@ let get_bact_states _ =
 
 let from_bact_state (sandbox : Sandbox.t) req =
   let state_name = param req "name" in
-  let new_sandbox = Sandbox.of_state state_name in
-  sandbox.bact := !(new_sandbox.bact);
-  sandbox.env := !(new_sandbox.env);
+  Sandbox.update_from_state sandbox state_name;
   `Empty |> Lwt.return
   
 
