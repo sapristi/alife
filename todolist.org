@@ -3,7 +3,8 @@
 ** TODO use the todolist
 
 * bugfixes/improvements
-
+** TODO seems like triggering transition bugs when mol release
+** TODO Debug pnet grab
 ** DONE Fix removing empty reactants
         - ok for imol, this needs testing for amols
 ** TODO Rework pnet creation, introduce variants (cyclic pnet)? 
@@ -13,11 +14,11 @@
     - [ ] update all molecules after transition (if needs be)
     - [ ] modify ambient 
     - [ ] clear button
-    - [ ] examples load
-    - [ ] error with refresh when pnet is removed
+    - [X] examples load
+    - [X] error with refresh when pnet is removed
     - [X] commit env fails
-    - [ ] refresh after loading
-    - [ ] display reactions
+    - [X] refresh after loading
+    - [X] display reactions
 ** STARTED Numeric module, that provides a swith to select 
    numeric implementation.
    Only mol quantities are still integers;
@@ -67,7 +68,7 @@
 ** TODO Use custom (binary?) trees to hold reactions in Reac_sets so as to speed up next reaction search.
 ** TODO use Pnet Set as reactants
 ** TODO use uniqueID lib
-** STARTED collisions
+** DONE STARTED collisions
 ** STARTED sanitize the use mutable/immutable and refs in structures
     - reactants do not use ref anymore
 

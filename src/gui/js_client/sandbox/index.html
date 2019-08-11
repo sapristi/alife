@@ -24,8 +24,6 @@
 	      <script src="/js-libs/cytoscape-automove.js"></script>
         <script src="/js-libs/vue.js"></script>
         <script src="/js-libs/vuex.js"></script>
-        <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
-        <!-- <script src="https://unpkg.com/vuex.js"></script> -->
 
 	      <!-- ** personnal css -->
 	      <link href="/custom_styles.css" rel="stylesheet">
@@ -218,8 +216,7 @@ active_mols_columns =  [
                                 
 			                          <button class="ui icon button tooltip"
                                         v-bind:class="{disabled: disabled}"
-                                        v-on:click="send_to_molbuilder"
-                                        data-bind="click:$parent.send_to_molbuilder.bind($data)">
+                                        v-on:click="send_to_molbuilder">
 			                              Send to Mol Builder
 			                              <span class="big tooltiptext">Initiate the Mol Builder with the selected molecule.<br> Use this to see how a particular Petri net is designed</span>
 			                          </button>
