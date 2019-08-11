@@ -55,11 +55,16 @@ let build_all_from_mol (req : Opium_kernel__Rock.Request.t)=
       
 
 let build_all_from_prot (req : Opium_kernel__Rock.Request.t) =
-  match%lwt
+  let%lwt body =
     req.body
     |> Cohttp_lwt.Body.to_string
-    >|= Yojson.Safe.from_string 
-    >|= Proteine.of_yojson
+  in
+  
+  logger#debug "Received %s" body;
+  match
+    body
+    |> Yojson.Safe.from_string 
+    |> Proteine.of_yojson
   with
   | Ok prot ->
     (
