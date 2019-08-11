@@ -28,10 +28,7 @@
 open Local_libs
 open Yaac_config
 open Easy_logging_yojson
-open Local_libs.Numeric.Num
-
-
-
+open Numeric
 
 (* * the proteine module *)
 let logger = Logging.get_logger "Yaac.Pnet"
@@ -43,19 +40,19 @@ type t =
     transitions : Transition.t array;
     places : Place.t array;
     uid : int;
-    mutable launchables_nb:num;
+    mutable launchables_nb:Q.t;
   } 
     [@@deriving show]
   
   
 let update_launchables (pnet :t) : unit =
 
-  pnet.launchables_nb <- zero;
+  pnet.launchables_nb <- Q.zero;
   Array.iter (fun t ->
 
       Transition.update_launchable t;
       if t.launchable
-      then pnet.launchables_nb <- pnet.launchables_nb + one;
+      then pnet.launchables_nb <- Q.(pnet.launchables_nb + one);
 
     ) pnet.transitions
   
@@ -103,8 +100,8 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
     let launchables_nb =
       
       Array.fold_left
-        (fun res t -> if t.Transition.launchable then res + one else res)
-        zero transitions
+        (fun res t -> if t.Transition.launchable then Q.(res + one) else res)
+        Q.zero transitions
     in
     lazy (Misc_library.show_array_prefix "Made places"
             Place.show places)
@@ -198,7 +195,7 @@ let ocan_grab (mol : Molecule.t) (opnet : t option) : bool =
             | Some _ -> true
        ) false pnet.places
     
-let grab_factor (mol : Molecule.t) (pnet : t) : num =
+let grab_factor (mol : Molecule.t) (pnet : t) : Q.t =
   Array.fold_left
     (fun res place ->
       if Place.is_empty place
@@ -208,10 +205,10 @@ let grab_factor (mol : Molecule.t) (pnet : t) : num =
         | Some g ->
            match Graber.get_match_pos g mol with
            | None -> res
-           | Some _ -> res + one
+           | Some _ -> Q.(res + one)
       else
         res
-    ) zero pnet.places
+    ) Q.zero pnet.places
   
 
 let can_react (mol1 : Molecule.t) (opnet1 : t option)

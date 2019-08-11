@@ -1,7 +1,7 @@
 
 open Local_libs
 open Misc_library
-open Numeric.Num
+open Numeric
 open Easy_logging
 
 open Reactions_effects
@@ -146,8 +146,8 @@ module ReactionsM (R : REACTANT) =
         val to_yojson : t -> Yojson.Safe.t
         val pp : Format.formatter -> t -> unit
         val compare : t -> t -> int
-        val rate : t -> num
-        val update_rate : t -> num
+        val rate : t -> Q.t 
+        val update_rate : t -> Q.t
         val make : build_t -> t
         val eval : t -> effect list
         val remove_reac_from_reactants : R.reac -> t -> unit
@@ -159,7 +159,7 @@ module ReactionsM (R : REACTANT) =
     (REAC with type build_t = (R.Amol.t * R.t)) =
       struct
         type t =  {
-            mutable rate : num;[@compare fun a b -> 0] 
+            mutable rate : Q.t;[@compare fun a b -> 0] 
             graber_data : R.Amol.t;
             grabed_data : R.t;
           }
@@ -170,22 +170,22 @@ module ReactionsM (R : REACTANT) =
         let calculate_rate ({graber_data; grabed_data;_} : t) =
           let mol = R.mol grabed_data
           and qtt = R.qtt grabed_data in
-          (Petri_net.grab_factor
-             mol
-             (graber_data.pnet)) *
-            (num_of_int qtt)
+          Q.((Petri_net.grab_factor
+               mol
+               (graber_data.pnet)) *
+             (of_int qtt))
           
-        let rate ({rate;_} : t) : num=
+        let rate ({rate;_} : t) : Q.t=
           rate
           
         let update_rate (({rate;_}) as g : t) =
           let old_rate = rate in
           g.rate <- calculate_rate g;
-          g.rate - old_rate
+          Q.(g.rate - old_rate)
           
         let make ((graber_data, grabed_data) : build_t) : t=
           {graber_data; grabed_data;
-           rate = calculate_rate ({graber_data; grabed_data; rate=zero})}
+           rate = calculate_rate ({graber_data; grabed_data; rate=Q.zero})}
           
         let eval (g : t) : effect list =
           ignore( asymetric_grab
@@ -211,7 +211,7 @@ module ReactionsM (R : REACTANT) =
       =
       struct
         type t = {
-            mutable rate : num;[@compare fun a b -> 0] 
+            mutable rate : Q.t;[@compare fun a b -> 0] 
             amd : R.Amol.t;
           }
                    [@@ deriving ord, show, to_yojson]
@@ -227,10 +227,10 @@ module ReactionsM (R : REACTANT) =
         let update_rate (({rate;_}) as t : t) =
           let old_rate = rate in
           t.rate <- calculate_rate t;
-          t.rate - old_rate
+          Q.(t.rate - old_rate)
           
         let make (amd : build_t)  =
-          { rate = calculate_rate {amd; rate = zero}; amd; }
+          { rate = calculate_rate {amd; rate = Q.zero}; amd; }
           
         let eval (trans : t) : effect list=
           let t_effects = Petri_net.launch_random_transition
@@ -255,7 +255,7 @@ module ReactionsM (R : REACTANT) =
     module Break :
     (REAC with type build_t = (R.t)) =
       struct
-        type t = {mutable rate : num; [@compare fun a b -> 0] 
+        type t = {mutable rate : Q.t; [@compare fun a b -> 0] 
                   reactant : R.t; 
                  }
                    [@@ deriving show, ord, to_yojson]
@@ -264,8 +264,8 @@ module ReactionsM (R : REACTANT) =
                     
         let calculate_rate ba =
           let mol = R.mol (ba.reactant) in
-          sqrt ((num_of_int (String.length mol) )- one) *
-            (num_of_int (R.qtt (ba.reactant)))
+          Q.(sqrt ((of_int (String.length mol) )- one) *
+            (of_int (R.qtt (ba.reactant))))
           
         let rate ba =
           ba.rate
@@ -273,10 +273,10 @@ module ReactionsM (R : REACTANT) =
         let update_rate ba = 
           let old_rate = ba.rate in
           ba.rate <- calculate_rate ba;
-          ba.rate - old_rate
+          Q.(ba.rate - old_rate)
           
         let make reactant =
-          {reactant; rate = calculate_rate {reactant; rate = zero}}
+          {reactant; rate = calculate_rate {reactant; rate = Q.zero}}
           
         let eval ba =
           let mol = R.mol (ba.reactant)  in
@@ -297,7 +297,7 @@ module ReactionsM (R : REACTANT) =
     module Collision :
     (REAC with type build_t = (R.t * R.t)) =
       struct
-        type t = {mutable rate : num; [@compare fun a b -> 0] 
+        type t = {mutable rate : Q.t; [@compare fun a b -> 0] 
                   r1 : R.t;
                   r2: R.t;
                  }
@@ -306,7 +306,7 @@ module ReactionsM (R : REACTANT) =
         type build_t = R.t * R.t
                      
         let calculate_rate c =
-          one
+          Q.one
           
         let rate c =
           logger#warning "This should not be used"; 
@@ -316,10 +316,10 @@ module ReactionsM (R : REACTANT) =
           logger#warning "This should not be used"; 
           let old_rate = c.rate in
           c.rate <- calculate_rate c;
-          c.rate - old_rate
+          Q.(c.rate - old_rate)
           
         let make (r1,r2) =
-          {r1; r2; rate = calculate_rate {r1; r2; rate = zero}}
+          {r1; r2; rate = calculate_rate {r1; r2; rate = Q.zero}}
           
         let eval {r1; r2; rate} =
           let m1 = (R.mol r1) and m2 = (R.mol r2) in

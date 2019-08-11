@@ -3,7 +3,7 @@ open Bacterie_libs
 open Local_libs
 open Yaac_config
 open Easy_logging_yojson
-
+open Numeric
 
 let logger = Logging.get_logger "Yaac.Reactor.Sandbox"
                
@@ -26,10 +26,10 @@ type t =
   
 
 let make_empty () =
-  let (env: Environment.t) = {transition_rate = Numeric.Num.num_of_int 10;
-                              grab_rate = Numeric.Num.num_of_int 1;
-                              break_rate = Numeric.Num.num_of_int 0;
-                              collision_rate = Numeric.Num.num_of_int 0}
+  let (env: Environment.t) = {transition_rate = Q.of_int 10;
+                              grab_rate = Q.of_int 1;
+                              break_rate = Q.of_int 0;
+                              collision_rate = Q.of_int 0}
   in let renv = ref env in
   {
     bact= ref (Bacterie.make renv);

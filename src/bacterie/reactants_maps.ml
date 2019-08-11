@@ -10,7 +10,7 @@ open Local_libs
 open Yaac_config
 open Easy_logging_yojson
 (*open Batteries*)
-open Local_libs.Numeric.Num
+open Local_libs.Numeric
 module MolMap =
   struct
     include CCMap.Make (struct type t = Molecule.t
@@ -64,7 +64,7 @@ module ARMap =
         let find_by_id pnet_id amolset  =
           let (dummy_pnet : Petri_net.t) ={
               mol = ""; transitions = [||];places = [||];
-              uid = pnet_id; launchables_nb = zero;} in
+              uid = pnet_id; launchables_nb = Q.zero;} in
           let dummy_amd = (Reactant.Amol.make_new dummy_pnet)
           in
           find dummy_amd amolset
@@ -143,7 +143,8 @@ module ARMap =
       [ Reacs.Update_reacs !(areactant.reacs)]
 
     let total_nb (armap :t) =
-      MolMap.fold (fun _ amset t -> t + (num_of_int (AmolSet.cardinal amset))) armap.v zero
+      let open Q in
+      MolMap.fold (fun _ amset t -> t + (of_int (AmolSet.cardinal amset))) armap.v zero
       
     let remove (areactant : Reactant.Amol.t) (armap : t) : Reacs.effect list =
       logger#trace "Removing Reactant.Amol %s" (Reactant.Amol.show areactant);

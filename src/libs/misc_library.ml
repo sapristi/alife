@@ -1,4 +1,3 @@
-
 open Numeric
 let logger = Easy_logging_yojson.Logging.get_logger  "Yaac.Libs.misc"
 
@@ -107,16 +106,16 @@ let common_elements l1 l2 =
   in common_elements_aux l1 l2 []
 
 
-let rec pick_from_list (bound : Num.num) (c : Num.num)
-          (value : 'a -> Num.num)
+let rec pick_from_list (bound : Q.t) (c : Q.t)
+          (value : 'a -> Q.t)
           (l : 'a list)  =
-  let open Num in
+  let open Q in
   match l with
   | h::t -> 
      let c' = c + value h in
 
      logger#debug "Fixed bound: %s; Current: %s; Cumul: %s"
-          (show_num bound) (show_num (value h)) (show_num c');
+          (Q.show bound) (Q.show (value h)) (Q.show c');
      
      if lt bound c'  then h
      else pick_from_list bound c' value t
@@ -155,7 +154,7 @@ let show_array_prefix prefix show_e l =
 
 
 let bernouil q =
-  let q' = Num.float_of_num q in 
+  let q' = Q.to_float q in 
   Random.float 1. < q'
   
 let bernouil_f q =

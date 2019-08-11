@@ -1,24 +1,24 @@
 open Bacterie_libs
 open Local_libs
 open Easy_logging_yojson
-open Numeric.Num
+open Numeric
 let () = Printexc.record_backtrace true;;
    
-let format_dummy : Default_handlers.log_formatter = fun item -> item.msg;;
-let handler = Default_handlers.make (File ("stats", Debug)) in
+let format_dummy : Handlers.log_formatter = fun item -> item.msg;;
+let handler = Handlers.make (File ("stats", Debug)) in
     let stats_reporter = Logging.get_logger "reacs_stats" in
     stats_reporter#add_handler handler;
     stats_reporter#set_level (Debug);
-    Default_handlers.set_formatter handler format_dummy;
+    Handlers.set_formatter handler format_dummy;
     stats_reporter#info "ireactants areactants transitions grabs breaks  picked_dur treated_dur actions_dur";;
 
 
 
 let env : Environment.t = {
-    transition_rate = (num_of_string "10");
-    grab_rate = num_of_string "1";
-    break_rate = num_of_string "1/1000";
-    collision_rate = num_of_string "0"
+    transition_rate = (Q.of_string "10");
+    grab_rate = Q.of_string "1";
+    break_rate = Q.of_string "1/1000";
+    collision_rate = Q.of_string "0"
   }
 
 

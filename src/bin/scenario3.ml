@@ -1,16 +1,16 @@
 open Bacterie_libs
 open Local_libs
-open Numeric.Num
+open Numeric
 
 
 let () = Printexc.record_backtrace true;;
    
 
 let env : Environment.t = {
-    transition_rate = (num_of_string "1");
-    grab_rate = num_of_string "1";
-    break_rate = num_of_string "1/1000";
-    collision_rate = zero
+    transition_rate = (Q.of_string "1");
+    grab_rate = Q.of_string "1";
+    break_rate = Q.of_string "1/1000";
+    collision_rate = Q.zero
   }
 
 

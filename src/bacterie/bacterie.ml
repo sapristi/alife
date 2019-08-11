@@ -228,7 +228,7 @@ let next_reaction (bact : t)  =
              let tnb, gnb, bnb = Lazy.force reac_nb in
              (Printf.sprintf "%d %s %d %d %d %f %f %f"
                (Lazy.force ir_card)
-               (Num.show_num (Lazy.force ar_card))
+               (Q.show (Lazy.force ar_card))
                tnb
                gnb
                bnb

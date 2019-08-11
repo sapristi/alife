@@ -19,7 +19,7 @@
 (*  - la liste des types de transition entrantes *)
 (*  - la liste des types de transitions sortantes *)
 
-open Local_libs.Numeric.Num
+open Local_libs.Numeric
 
 
 type input_arc = {source_place : int;

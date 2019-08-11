@@ -230,8 +230,8 @@ module rec
                val to_yojson : t -> Yojson.Safe.t
                val pp : Format.formatter -> t -> unit
                val compare : t -> t -> int
-               val rate : t -> Num.num
-               val update_rate : t -> Num.num
+               val rate : t -> Q.t
+               val update_rate : t -> Q.t
                val make : build_t -> t
                val eval : t -> effect list
                val remove_reac_from_reactants : Reaction.t -> t -> unit

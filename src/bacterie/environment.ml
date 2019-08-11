@@ -2,10 +2,10 @@ open Local_libs.Numeric
 
 
 type t = {
-    mutable transition_rate : Num.num;
-    mutable grab_rate : Num.num;
-    mutable break_rate : Num.num;
-    mutable collision_rate:Num.num
+    mutable transition_rate : Q.t;
+    mutable grab_rate : Q.t;
+    mutable break_rate : Q.t;
+    mutable collision_rate:Q.t
   }
            [@@ deriving show, yojson]       
 
