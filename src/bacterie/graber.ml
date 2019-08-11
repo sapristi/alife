@@ -1,4 +1,6 @@
+open Easy_logging_yojson
 
+let logger = Logging.get_logger "Yaac.Grab"
 (* * Graber *)
 
 (* This file implements the graber, which allows a proteine to grab *)
@@ -57,6 +59,7 @@ let make (m : string)  =
                                  ~by:".*?" m1
       in
       let m3 = "^"^m2^"$" in
+      logger#flash "Compiled %s\nfrom %s" m3 m;
       Some {mol_repr=m;
             str_repr=m2;
             re = Re.compile (Re.Perl.re m3)}
@@ -66,13 +69,18 @@ let make (m : string)  =
   | _ -> None
        
 let get_match_pos (graber : t)  (mol : string) : int option =
+  logger#flash "Get match for graber:%s\n with mol: %s" graber.str_repr mol;
+
   if Re.execp graber.re mol
   then 
     let g = Re.exec graber.re mol in
+    logger#debug "Match pos: %i" (Re.Group.start g 1);
     Some (Re.Group.start g 1)
   else
-    None
-  
+    (
+      logger#debug "no match pos";
+      None
+    )
 let to_yojson (g :t) : Yojson.Safe.t =
   `String g.mol_repr
   

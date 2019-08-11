@@ -58,8 +58,6 @@ module ARMap =
           empty
           
         let logger = Logging.get_logger "Yaac.Bact.Internal.Amolset"
-                       
-                   
 
         let find_by_id pnet_id amolset  =
           let (dummy_pnet : Petri_net.t) ={
@@ -68,7 +66,6 @@ module ARMap =
           let dummy_amd = (Reactant.Amol.make_new dummy_pnet)
           in
           find dummy_amd amolset
-          
           
         let add_reacs_with_new_reactant (new_reactant : Reactant.t) (amolset :t) reac_mgr : unit =
           if is_empty amolset
@@ -80,25 +77,25 @@ module ARMap =
             match new_reactant with
             | Amol new_amol ->
                
-               let is_graber = Petri_net.can_grab
-                                 (Reactant.mol new_reactant)
-                                 any_pnet
-               and is_grabed = Petri_net.can_grab
-                                any_pnet.mol
-                                new_amol.pnet  in
-               
-               iter
-                 (fun current_amd ->
+              let is_graber = Petri_net.can_grab
+                  (Reactant.mol new_reactant)
+                  any_pnet
+              and is_grabed = Petri_net.can_grab
+                  any_pnet.mol
+                  new_amol.pnet  in
+              
+              iter
+                (fun current_amd ->
                    if is_graber
                    then
                      (
-                       Reac_mgr.add_grab new_amol (Amol current_amd) reac_mgr;
+                       Reac_mgr.add_grab current_amd new_reactant reac_mgr;
                        logger#debug  "[%s] grabing %s" (Reactant.show (Amol current_amd)) (Reactant.show new_reactant);
                      );
                    if is_grabed
                    then
                      (
-                       Reac_mgr.add_grab current_amd new_reactant reac_mgr;
+                       Reac_mgr.add_grab new_amol (Amol current_amd) reac_mgr;
                        logger#debug "[%s] grabed by %s"  (Reactant.show (Amol current_amd)) (Reactant.show new_reactant);
                      );
                  ) amolset;
