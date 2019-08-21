@@ -4,7 +4,7 @@ open Easy_logging_yojson
 
 module Q =
   struct
-    let logger = Logging.get_logger "Yaac.Libs.Numeric"
+    let numlogger = Logging.get_logger "Yaac.Libs.Numeric"
     include Q
     let ( + ) = Q.add
     let ( - ) = Q.sub
@@ -20,13 +20,13 @@ module Q =
     let to_yojson n =
       `String (to_string n)
     let of_yojson (json : Yojson.Safe.t) =
-      logger#debug "Num from '%s'" (Yojson.Safe.to_string json);
+      numlogger#debug "Num from '%s'" (Yojson.Safe.to_string json);
       match json with
       | `String s -> Ok (of_string s)
       | `Int n -> Ok (of_int n)
       | `Float f -> Ok (of_float f)
   | _ ->
-    logger#error "Cannot decode num from %s" (Yojson.Safe.to_string json);
+    numlogger#error "Cannot decode num from %s" (Yojson.Safe.to_string json);
     Error "cannot load json " 
            
     (** [Warning] QUICK AND DIRTY

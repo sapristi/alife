@@ -75,7 +75,7 @@ module MakeReacSet
          (Reac : Reacs.REAC)
   = 
   struct
-    let logger = Logging.get_logger "Yaac.Bact.Reacs.ReacSet"
+    let logger = Logging.get_logger "Yaac.Bact.Reac_mgr.ReacSet"
     type elt = Reac.t
     module RSet= CCSet.Make(Reac)  
                
@@ -441,7 +441,6 @@ let add_collider md reac_mgr =
   (* let rc = Reaction.Collision  in
      Reactant.add_reac rc md; *)
   
-let logger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr"
                  
 (* ** pick next reaction *)
 (* replace to_list with to_enum ? *)
@@ -513,7 +512,6 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
           Reaction.Collision (CSet.pick_reaction reac_mgr.c_set)
       in
       logger#info ~tags:([tag reac_mgr]) "picked %s"  (Reaction.show res);
-      
       Some res
     )
     

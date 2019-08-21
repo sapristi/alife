@@ -59,7 +59,7 @@ let make (m : string)  =
                                  ~by:".*?" m1
       in
       let m3 = "^"^m2^"$" in
-      logger#flash "Compiled %s\nfrom %s" m3 m;
+      logger#debug "Compiled %s\nfrom %s" m3 m;
       Some {mol_repr=m;
             str_repr=m2;
             re = Re.compile (Re.Perl.re m3)}
@@ -69,7 +69,7 @@ let make (m : string)  =
   | _ -> None
        
 let get_match_pos (graber : t)  (mol : string) : int option =
-  logger#flash "Get match for graber:%s\n with mol: %s" graber.str_repr mol;
+  logger#debug "Get match for graber:%s\n with mol: %s" graber.str_repr mol;
 
   if Re.execp graber.re mol
   then 

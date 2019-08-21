@@ -15,12 +15,6 @@
                 "name": "Yaac.Bact",
                 "level": "debug"},
             {
-                "name": "Yaac.Bact.Reacs.ReacSet",
-                "level": "info"},
-            {
-                "name": "Yaac.Bact.Internal",
-                "level": "debug"},      
-            {
                 "name": "Yaac.Server",
                 "level" : "debug"},
             {

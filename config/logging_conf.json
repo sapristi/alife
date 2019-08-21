@@ -15,9 +15,6 @@
                 "name": "Yaac.Bact",
                 "level": "info"},
             {
-                "name": "Yaac.Bact.Internal",
-                "level": "warning"},
-            {
                 "name": "Yaac.Bact.React",
                 "level": "info"},
             {
@@ -29,6 +26,14 @@
                 "propagate" : false },
             {
                 "name" : "Yaac.Libs",
-                "level" : "warning"}
+                "level" : "warning"},
+            {
+                "name": "Yaac.Reactor",
+                "level": "info"
+            },
+            {
+                "name": "Yaac.Base_chem",
+                "level": "info"
+            }
         ]
 } 
