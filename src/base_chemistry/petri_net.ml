@@ -31,7 +31,7 @@ open Easy_logging_yojson
 open Numeric
 
 (* * the proteine module *)
-let logger = Logging.get_logger "Yaac.Pnet"
+let logger = Logging.get_logger "Yaac.Base_chem.Pnet"
                
 
 type t =

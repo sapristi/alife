@@ -2,7 +2,7 @@ open Opium.Std
 open Easy_logging_yojson
 open Lwt.Infix
 
-let logger = Logging.make_logger "Server" Debug [Cli Debug] ;;
+let logger = Logging.make_logger "Yaac.Server" Debug [Cli Debug] ;;
 
 let read_whole_file filename =
   let ch = open_in filename in

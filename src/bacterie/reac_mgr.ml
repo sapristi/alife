@@ -45,7 +45,7 @@ open Local_libs.Numeric
 (*    boilerplate in this file, especially if the number of reactions kind grows. *)
 
 
-let logger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr"
+let logger = Logging.get_logger "Yaac.Bact.Reac_mgr"
 
 (* * ReacSet modules *)
 (* Reaction containers *)

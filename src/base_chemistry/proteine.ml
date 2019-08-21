@@ -18,7 +18,7 @@ open Local_libs
 open Easy_logging_yojson
 (* * Proteine module *)
 
-let logger = Logging.make_logger "Yaac.Bact.Internal.proteine"
+let logger = Logging.make_logger "Yaac.Base_chem.Proteine"
                
 
 (* * A proteine *)                   

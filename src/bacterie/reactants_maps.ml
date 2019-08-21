@@ -9,7 +9,7 @@ open Reaction
 open Local_libs
 open Yaac_config
 open Easy_logging_yojson
-(*open Batteries*)
+open Base_chemistry
 open Local_libs.Numeric
 module MolMap =
   struct
@@ -57,7 +57,7 @@ module ARMap =
         let make mol =
           empty
           
-        let logger = Logging.get_logger "Yaac.Bact.Internal.Amolset"
+        let logger = Logging.get_logger "Yaac.Bact.Amolset"
 
         let find_by_id pnet_id amolset  =
           let (dummy_pnet : Petri_net.t) ={
@@ -119,7 +119,7 @@ module ARMap =
     let pp = MolMap.pp Molecule.pp AmolSet.pp 
     let show armap =
           Format.asprintf "%a" pp armap
-    let logger = Logging.get_logger "Yaac.Bact.Internal.ARMap"
+    let logger = Logging.get_logger "Yaac.Bact.ARMap"
 
     let make () = {v = MolMap.empty}
 
@@ -209,7 +209,7 @@ module IRMap =
     let pp = MolMap.pp Molecule.pp Reactant.ImolSet.pp 
     let show irmap =
           Format.asprintf "%a" pp irmap
-    let logger = Logging.get_logger "Yaac.Bact.Internal.IRMap"
+    let logger = Logging.get_logger "Yaac.Bact.IRMap"
 
 
     (** External API : should not be called from other internal functions *)

@@ -7,7 +7,7 @@
 
 open Easy_logging_yojson
 
-let logger = Logging.get_logger "Yaac.Molecule"
+let logger = Logging.get_logger "Yaac.Base_chem.Molecule"
     
 type t = string
            [@@deriving show, yojson, ord] 

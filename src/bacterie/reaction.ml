@@ -1,6 +1,7 @@
 open Reactions
 open Yojson
 open Local_libs.Numeric
+open Base_chemistry
 (* * file overview *)
 
 (* ** Reactant module *)

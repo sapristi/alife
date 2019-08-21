@@ -7,7 +7,8 @@ open Bacterie_libs
 open Reactors
 open Local_libs   
 open Easy_logging_yojson
-let logger = Logging.get_logger "Server.Bact"
+open Base_chemistry
+let logger = Logging.get_logger "Yaac.Server.Bact"
 
 
 open Lwt.Infix

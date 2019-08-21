@@ -1,5 +1,5 @@
 open Reaction
-
+open Base_chemistry
 module MolSet =
   struct
     include CCSet.Make (struct type t = Molecule.t

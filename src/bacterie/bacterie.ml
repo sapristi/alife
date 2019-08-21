@@ -11,6 +11,7 @@ open Yaac_config
 open Easy_logging_yojson
 open Local_libs.Numeric
 
+open Base_chemistry
 
 
 (* * Container module *)
@@ -37,7 +38,7 @@ open Local_libs.Numeric
 (*  + areactants : active reactants, molecules that fold into a petri net. *)
 (*     We thus have to have a distinct pnet for each present molecule *)
 
-let logger = Logging.get_logger "Yaac.Bact"
+let logger = Logging.get_logger "Yaac.Bact.Bacterie"
 
       
 type t ={

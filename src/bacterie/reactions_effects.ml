@@ -1,9 +1,9 @@
 open Local_libs
 open Misc_library
 open Easy_logging_yojson
-
+open Base_chemistry
 open CCList
-let logger = Logging.get_logger "Yaac.Bact.Reacs.Effects"
+let logger = Logging.get_logger "Yaac.Bact.Reacs_effects"
 
 (* * File overview *)
 

@@ -1,6 +1,6 @@
 open Easy_logging_yojson
 
-let logger = Logging.get_logger "Yaac.Grab"
+let logger = Logging.get_logger "Yaac.Base_chem.Graber"
 (* * Graber *)
 
 (* This file implements the graber, which allows a proteine to grab *)
