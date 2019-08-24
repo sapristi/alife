@@ -85,58 +85,62 @@ let canonical_bact_sig (bs : bact_sig) : bact_sig =
   
 let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
   
-  let new_opnet = Petri_net.make_from_mol mol in
-  match new_opnet with
-    
-  | Some pnet ->
-     logger#trace "adding active molecule  : %s" mol;
-     
-     let ar = Reactant.Amol.make_new pnet in
-     (* reactions : grabs with other amols*)
-     ARMap.add_reacs_with_new_reactant (Amol ar) bact.areactants bact.reac_mgr;
+  if Config.check_mol
+  then
+    match Molecule.check mol with
+    | Error e -> logger#warning "Ignoring add of bad molecule: %s" e
+    | Ok () -> 
+      let new_opnet = Petri_net.make_from_mol mol in
+      match new_opnet with
       
-     (* reactions : grabs with inert mols *)
-     IRMap.add_reacs_with_new_reactant (Amol ar) bact.ireactants bact.reac_mgr;
+      | Some pnet ->
+        logger#trace "adding active molecule  : %s" mol;
+        
+        let ar = Reactant.Amol.make_new pnet in
+        (* reactions : grabs with other amols*)
+        ARMap.add_reacs_with_new_reactant (Amol ar) bact.areactants bact.reac_mgr;
+        
+        (* reactions : grabs with inert mols *)
+        IRMap.add_reacs_with_new_reactant (Amol ar) bact.ireactants bact.reac_mgr;
+        
+        (* reaction : transition  *)
+        Reac_mgr.add_transition ar bact.reac_mgr;
+        
+        (* reaction : break *)
+        Reac_mgr.add_break (Amol ar) bact.reac_mgr;
+        
+        (* reaction : collisions *) 
+        Reac_mgr.add_collider (Amol ar) bact.reac_mgr;
+        
      
-     (* reaction : transition  *)
-     Reac_mgr.add_transition ar bact.reac_mgr;
-     
-     (* reaction : break *)
-     Reac_mgr.add_break (Amol ar) bact.reac_mgr;
-
-     (* reaction : collisions *) 
-     Reac_mgr.add_collider (Amol ar) bact.reac_mgr;
-
-     
-     (* we add the reactant after adding reactions 
-        because it must not react with itself *)
-     ARMap.add ar bact.areactants
-  | None ->
-     (
-       logger#trace "adding inactive molecule  : %s" mol;
-       match MolMap.get mol bact.ireactants.v with
-       | None -> 
-          let new_ireac = Reactant.ImolSet.make_new mol in
-          (* reactions : grabs *)
-          ARMap.add_reacs_with_new_reactant
-            (ImolSet new_ireac) bact.areactants bact.reac_mgr;
-          
-          (* reactions : break *)
-          Reac_mgr.add_break (ImolSet new_ireac) bact.reac_mgr;
- 
-          (* reactions : collision *)
-          Reac_mgr.add_collider (ImolSet new_ireac) bact.reac_mgr;
-          
-          (* add molecule *)
-          IRMap.add new_ireac bact.ireactants;
-
-          [ Reacs.Update_reacs !(new_ireac.reacs) ]
-          
-       | Some ireac ->
-         IRMap.add_to_qtt ireac 1 bact.ireactants
-     )
-    
-  
+        (* we add the reactant after adding reactions 
+           because it must not react with itself *)
+        ARMap.add ar bact.areactants
+      | None ->
+        (
+          logger#trace "adding inactive molecule  : %s" mol;
+          match MolMap.get mol bact.ireactants.v with
+          | None -> 
+            let new_ireac = Reactant.ImolSet.make_new mol in
+            (* reactions : grabs *)
+            ARMap.add_reacs_with_new_reactant
+              (ImolSet new_ireac) bact.areactants bact.reac_mgr;
+            
+            (* reactions : break *)
+            Reac_mgr.add_break (ImolSet new_ireac) bact.reac_mgr;
+            
+            (* reactions : collision *)
+            Reac_mgr.add_collider (ImolSet new_ireac) bact.reac_mgr;
+            
+            (* add molecule *)
+            IRMap.add new_ireac bact.ireactants;
+            
+            [ Reacs.Update_reacs !(new_ireac.reacs) ]
+            
+          | Some ireac ->
+            IRMap.add_to_qtt ireac 1 bact.ireactants
+        )
+        
     
 (* *** remove molecule *)
 (* totally removes a molecule from a bactery *)

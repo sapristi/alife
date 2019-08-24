@@ -183,7 +183,7 @@ module ARMap =
           AmolSet.find_by_id pnet_id amolset
       with
       | _   ->
-         logger#error "Cannot find %s:%d in %s" mol pnet_id (show armap.v);
+         logger#error "Cannot find %s:%d in:\n%s" mol pnet_id (show armap.v);
          raise Not_found
       
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)

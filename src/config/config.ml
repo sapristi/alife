@@ -37,6 +37,8 @@ type num_choice =
 
 let num = ExactQ
 let check_reac_rates = false
+let check_sqrt = true
+let check_mol = true
 
 (* *)
 let remove_empty_reactants = true

@@ -10,6 +10,11 @@
             {
                 "name": "Yaac",
                 "level": "warning",
-                "handlers": [ {"cli": {"level":"debug"}} ] },
+                "handlers": [ {"cli": {"level":"debug"}} ]
+            },
+            {
+                "name": "Yaac.Server",
+                "level": "trace"
+            }
         ]
 } 

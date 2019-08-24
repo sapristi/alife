@@ -11,6 +11,13 @@ module Q =
     let ( * ) = Q.mul
                   
     let sqrt {num=n;den=m} =
+      if Config.check_sqrt &&  (n < Z.zero || m < Z.zero)
+      then
+        begin
+          numlogger#error "Sqrt of %s / %s"
+            (Z.to_string n) (Z.to_string m);
+          failwith  "error"
+        end;
       {num=Z.sqrt n;den=Z.sqrt m}
     let compare_num = compare
     let show = to_string

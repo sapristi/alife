@@ -20,7 +20,8 @@ type params = {
                               (** Generates running stats *)
     log_level : Logging.level option; [@enum [("debug", Easy_logging__.Easy_logging_types.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
     data_path : string;     [@default "./data/bact_states"] [@docv "PATH"]
-    log_config : string     [@default ""]
+    log_config : string;     [@default ""]
+    random_seed: int option 
   } [@@deriving cmdliner,show]
 ;;
 
@@ -32,7 +33,12 @@ let logger = Logging.get_logger  "Yaac.Main"
 
 let run_yaacs p : unit= 
   logger#info "Starting Yaac with options :\n%s" @@ show_params p;
-  
+
+  begin
+    match p.random_seed with
+    | None -> Random.self_init ()
+    | Some i -> Random.init i
+  end;
   if p.log_config = ""
   then Logging.load_config_str Config.default_log_config_str
   else Logging.load_config_file p.log_config;

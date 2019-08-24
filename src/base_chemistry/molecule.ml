@@ -10,10 +10,16 @@ open Easy_logging_yojson
 let logger = Logging.get_logger "Yaac.Base_chem.Molecule"
     
 type t = string
-           [@@deriving show, yojson, ord] 
-       
+[@@deriving show, yojson, ord] 
+
+let check mol =
+  if String.length mol = 0
+  then
+    Error "empty molecule"
+  else Ok ()
+
 let break m =
-  let n = String.length m in
+  let n = String.length m in 
   let b = 1+ Random.int (n-1) in
   (String.sub m 0 b, String.sub m b (n-b))
 

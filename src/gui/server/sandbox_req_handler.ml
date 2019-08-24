@@ -215,6 +215,7 @@ let next_reactions (sandbox : Sandbox.t) (req) =
     | _ as e->
       logger#error "Error when picking reaction;\n%s\n%s"
         (Printexc.get_backtrace ()) (Printexc.to_string e);
+      failwith "error"
       ();
   );
   `Json (`Assoc

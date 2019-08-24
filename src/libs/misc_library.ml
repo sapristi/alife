@@ -113,9 +113,6 @@ let rec pick_from_list (bound : Q.t) (c : Q.t)
   match l with
   | h::t -> 
      let c' = c + value h in
-
-     logger#debug "Fixed bound: %s; Current: %s; Cumul: %s"
-          (Q.show bound) (Q.show (value h)) (Q.show c');
      
      if lt bound c'  then h
      else pick_from_list bound c' value t
