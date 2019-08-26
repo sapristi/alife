@@ -15,8 +15,8 @@ type t = string
 let check mol =
   if String.length mol = 0
   then
-    Error "empty molecule"
-  else Ok ()
+    (logger#info "Bad molecule: empty"; false)
+  else true
 
 let break m =
   let n = String.length m in 
@@ -72,7 +72,7 @@ and ext_bind_cre = Re.compile (Re.Perl.re ext_bind_re)
                  
 let rec mol_parser (s : t) : Proteine.t =
 
-  logger#debug "Parsing %s" s;
+  (* logger#debug "Parsing %s" s; *)
   if s = ""
   then []
   else

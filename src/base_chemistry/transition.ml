@@ -20,6 +20,9 @@
 (*  - la liste des types de transitions sortantes *)
 
 open Local_libs.Numeric
+open Easy_logging_yojson
+
+let logger = Logging.get_logger "Yaac.Base_chem.Transition"
 
 
 type input_arc = {source_place : int;
@@ -56,45 +59,50 @@ type output_arc = {dest_place : int;
 (*  - filtering input_arcs have a token with the right label *)
 (*  - arrival places are token-free *)
 
-    let launchable (transition : t) =
-  let launchable_input_arc 
-        (input_arc : Acid_types.input_arc)
-        (place : Place.t) =
-    match input_arc with
-    | Acid_types.Filter_iarc s ->
-       begin
-         match place.Place.token with
-         | None -> false
-         | Some token ->
-            s = Token.get_label token
-       end
-    | Acid_types.Filter_empty_iarc ->
-       begin
-         match place.Place.token with
-         | None -> false
-         | Some token ->
-            Token.get_label token = ""
-       end
-    | _ ->
-       not (Place.is_empty place)
-  and launchable_output_arc  
-        (output_arc : Acid_types.output_arc)
-        (place : Place.t) =
-    (Place.is_empty place) ||
-      (* we test if the place is in the source places, to allow cycle transitions *)
-      (List.exists (fun {source_place = sp; iatype = _} -> place.index=sp) transition.input_arcs )
-  in
-  List.fold_left
-    (fun res ia -> res && launchable_input_arc ia.iatype transition.places.(ia.source_place))
-    true
-    transition.input_arcs
-  &&
-    List.fold_left
-      (fun res oa -> res && launchable_output_arc oa.oatype transition.places.(oa.dest_place))
-      true
-      transition.output_arcs
-  
-let update_launchable t : unit = 
+let launchable (transition : t) =
+  if List.length transition.output_arcs = 0
+   || List.length transition.input_arcs = 0
+  then false
+  else
+    begin
+      let launchable_input_arc 
+          (input_arc : Acid_types.input_arc)
+          (place : Place.t) =
+        match input_arc with
+        | Acid_types.Filter_iarc s ->
+          begin
+            match place.Place.token with
+            | None -> false
+            | Some token ->
+              s = Token.get_label token
+          end
+        | Acid_types.Filter_empty_iarc ->
+          begin
+            match place.Place.token with
+            | None -> false
+            | Some token ->
+              Token.get_label token = ""
+          end
+        | _ ->
+          not (Place.is_empty place)
+      and launchable_output_arc  
+          (output_arc : Acid_types.output_arc)
+          (place : Place.t) =
+        (Place.is_empty place) ||
+        (* we test if the place is in the source places, to allow cycle transitions *)
+        (List.exists (fun {source_place = sp; iatype = _} -> place.index=sp) transition.input_arcs )
+      in
+      List.fold_left
+        (fun res ia -> res && launchable_input_arc ia.iatype transition.places.(ia.source_place))
+        true
+        transition.input_arcs
+      &&
+      List.fold_left
+        (fun res oa -> res && launchable_output_arc oa.oatype transition.places.(oa.dest_place))
+        true
+        transition.output_arcs
+    end
+let update_launchable t : unit =
   t.launchable <- launchable t
 (* ** make function       *)
 (* Creates a transition structure *)

@@ -46,7 +46,6 @@ type t =
   
   
 let update_launchables (pnet :t) : unit =
-
   pnet.launchables_nb <- Q.zero;
   Array.iter (fun t ->
 

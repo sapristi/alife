@@ -85,11 +85,11 @@ let canonical_bact_sig (bs : bact_sig) : bact_sig =
   
 let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
   
-  if Config.check_mol
-  then
-    match Molecule.check mol with
-    | Error e -> logger#warning "Ignoring add of bad molecule: %s" e
-    | Ok () -> 
+  if Config.check_mol && (not (Molecule.check mol))
+  then 
+       (logger#swarning "Ignoring add of bad molecule";  [])
+  else
+    begin
       let new_opnet = Petri_net.make_from_mol mol in
       match new_opnet with
       
@@ -140,8 +140,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
           | Some ireac ->
             IRMap.add_to_qtt ireac 1 bact.ireactants
         )
-        
-    
+    end
 (* *** remove molecule *)
 (* totally removes a molecule from a bactery *)
 
@@ -218,30 +217,36 @@ let next_reaction (bact : t)  =
   let picked_time = Sys.time () in
   match ro with
   | None ->
-     logger#warning "no more reactions";
-     ()
+    logger#warning "no more reactions";
+    ()
   | Some r ->
-     let ir_card = lazy (MolMap.cardinal bact.ireactants.v)
-     and ar_card = lazy (ARMap.total_nb bact.areactants) in
-     let actions = Reaction.treat_reaction r in
-     let treated_time = Sys.time () in 
-     execute_actions bact actions;
-     let end_time = Sys.time () in
+    let ir_card = lazy (MolMap.cardinal bact.ireactants.v)
+    and ar_card = lazy (ARMap.total_nb bact.areactants) in
+    try
+      let actions = Reaction.treat_reaction r in
+      let treated_time = Sys.time () in 
+      execute_actions bact actions;
+      let end_time = Sys.time () in
+      
+      stats_logger#linfo (
+        lazy (
+          let tnb, gnb, bnb = Lazy.force reac_nb in
+          (Printf.sprintf "%d %s %d %d %d %f %f %f"
+             (Lazy.force ir_card)
+             (Q.show (Lazy.force ar_card))
+             tnb
+             gnb
+             bnb
+             (picked_time -. begin_time)
+             (treated_time -. picked_time)
+             (end_time -. treated_time))
+        ))
+    with
+    | _ as e ->
+      logger#error "An error happened while treating reaction %s;\n%s%s" (Reaction.show r)
+        (Printexc.get_backtrace ())
+        (Printexc.to_string e)
 
-     stats_logger#linfo (
-         lazy (
-             let tnb, gnb, bnb = Lazy.force reac_nb in
-             (Printf.sprintf "%d %s %d %d %d %f %f %f"
-               (Lazy.force ir_card)
-               (Q.show (Lazy.force ar_card))
-               tnb
-               gnb
-               bnb
-               (picked_time -. begin_time)
-               (treated_time -. picked_time)
-               (end_time -. treated_time))
-           ))
-  
               
 (* ** json serialisation *)
 let from_sig (bact_sig : bact_sig) (bact : t): t  = 

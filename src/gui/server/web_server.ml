@@ -82,6 +82,24 @@ let log_in_out =
  in
  Rock.Middleware.create ~name:"Log in out" ~filter
 
+let index_resources = [
+  "/"; "/sandbox"; "/sandbox/"; "/molbuilder"; "/molbuilder/"; "/simulator"; "/simulator/"
+] 
+let index_redirect =
+  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
+      Opium_kernel__Rock.Filter.simple  = fun handler req ->
+    logger#sdebug req.request.resource;
+    if List.mem req.request.resource index_resources
+    then
+      let resource' = Filename.concat req.request.resource "index.html" in
+      logger#debug "Redirecting %s to %s" req.request.resource resource';
+      let request' = {req.request with resource = resource'} in
+      let req' = {req with request = request'} in
+      handler req'
+    else
+      handler req
+  in
+  Rock.Middleware.create ~name:"Index redirect" ~filter
 
 let handle_response r =
   match%lwt r with
@@ -99,6 +117,7 @@ let start_srv port files_prefix routes =
   (* |> get "**" (fun x -> serve_file files_prefix x.request.resource) *)
   |> get "/ping" (fun x -> `String "ok" |> respond')
   |> List.fold_right (fun (route,f) x -> x |> route (fun req -> f req |> handle_response) ) routes
+  |> middleware index_redirect
   |> middleware (Middleware.static ~local_path:files_prefix ~uri_prefix:"/" ())
   |> App.start
   |> Lwt_main.run
