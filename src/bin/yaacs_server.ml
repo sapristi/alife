@@ -51,7 +51,8 @@ let run_yaacs p : unit=
       let stats_reporter = Logging.get_logger "Yaac.stats" in
       stats_reporter#add_handler handler;
       Handlers.set_formatter handler format_dummy;
-      stats_reporter#info "ireactants areactants transitions grabs breaks  picked_dur treated_dur actions_dur";
+      stats_reporter#info "ireactants areactants transitions grabs breaks  picked_dur treated_dur actions_dur"
+      |> ignore
     end
   else
     ();
@@ -61,15 +62,28 @@ let run_yaacs p : unit=
     | Some lvl ->   let root_logger = Logging.get_logger "Yaac" in  
                     root_logger#set_level lvl;
   end;
-  Sandbox.init_states p.data_path; 
-  Web_server.start_srv
-    p.port
-    (p.static_path)
-    (Bact_server.make_routes
-       (Simulator.make ())
-       (Sandbox.make_empty ())
-    )
-  
+  Sandbox.init_states p.data_path;
+
+  let pipe = Lwt_pipe.create ~max_size:1000 () in
+
+
+  (* let pipe_handler : Easy_logging_yojson.Handlers.t = {
+   *   fmt = ;
+   *   level = Logging.Debug;
+   *   filters = [];
+   * 
+   * } *)
+
+
+  Lwt.join [ Web_server.run
+               p.port
+               (p.static_path)
+               (Bact_server.make_routes
+                  (Simulator.make ())
+                  (Sandbox.make_empty ())
+               );
+             Ws_server.run pipe () ]
+             |> Lwt_main.run
 
 let _ = 
   

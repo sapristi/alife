@@ -1,0 +1,14 @@
+(library
+  (name base_chemistry)
+  (flags -w)
+  (preprocess
+    (pps ppx_deriving.show
+         ppx_deriving.ord
+         ppx_deriving_yojson))
+  (libraries local_libs
+             ppx_deriving_yojson
+             easy_logging_yojson
+             re
+             str
+             ppx_deriving.show
+             ppx_deriving.ord))

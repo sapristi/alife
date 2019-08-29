@@ -2,7 +2,7 @@
 open Local_libs
 open Misc_library
 open Numeric
-open Easy_logging
+open Easy_logging_yojson
 open Base_chemistry
 open Reactions_effects
    

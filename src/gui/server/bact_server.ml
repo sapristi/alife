@@ -14,10 +14,6 @@ let logger = Logging.get_logger "Yaac.Server.Bact"
 open Lwt.Infix
 open Opium.Std
 
-type req_result =
-  | Res_Yojson of Yojson.Safe.t
-  | Res_String of string
-  | Res_Error of string
 
 let set_log_level (cgi: Netcgi.cgi) : string =
   let loggername = cgi#argument_value "logger" in

@@ -88,7 +88,6 @@ let index_resources = [
 let index_redirect =
   let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
       Opium_kernel__Rock.Filter.simple  = fun handler req ->
-    logger#sdebug req.request.resource;
     if List.mem req.request.resource index_resources
     then
       let resource' = Filename.concat req.request.resource "index.html" in
@@ -109,7 +108,7 @@ let handle_response r =
   | `Error (s : string ) -> s |> error_to_response  |> respond_error
 
 
-let start_srv port files_prefix routes =
+let run port files_prefix routes =
   App.empty
   |> App.port port
   |> middleware log_in_out
@@ -120,5 +119,4 @@ let start_srv port files_prefix routes =
   |> middleware index_redirect
   |> middleware (Middleware.static ~local_path:files_prefix ~uri_prefix:"/" ())
   |> App.start
-  |> Lwt_main.run
 
