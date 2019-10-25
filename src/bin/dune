@@ -7,8 +7,6 @@
     (libraries bacterie_libs
                local_libs
                server
-               batteries
-               nethttpd
                ppx_deriving_cmdliner )
     (modules ("yaacs_server"))
     )

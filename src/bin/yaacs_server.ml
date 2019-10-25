@@ -11,24 +11,24 @@ let () = Printexc.record_backtrace true;;
 
 
 type params = {
-    port: int;              [@default 1512] [@aka ["p"]] [@docv "PORT"]
-    host: string;           [@default "0.0.0.0"] [@aka ["h"]] [@docv "HOST"]
-    static_path : string;   [@default "_build/default/src/gui/js_client"] [@docv "PATH"]
-    debug: bool;            [@default false] [@aka ["d"]]
-                              (** Set most log level to debug *)
-    stats: bool;            [@default false]
-                              (** Generates running stats *)
-    log_level : Logging.level option; [@enum [("debug", Easy_logging__.Easy_logging_types.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
-    data_path : string;     [@default "./data/bact_states"] [@docv "PATH"]
-    log_config : string;     [@default ""]
-    random_seed: int option 
-  } [@@deriving cmdliner,show]
+  port: int;              [@default 1512] [@aka ["p"]] [@docv "PORT"]
+  host: string;           [@default "0.0.0.0"] [@aka ["h"]] [@docv "HOST"]
+  static_path : string;   [@default "_build/default/src/gui/js_client"] [@docv "PATH"]
+  debug: bool;            [@default false] [@aka ["d"]]
+  (** Set most log level to debug *)
+  stats: bool;            [@default false]
+  (** Generates running stats *)
+  log_level : Logging.level option; [@enum [("debug", Logging.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
+  data_path : string;     [@default "./data/bact_states"] [@docv "PATH"]
+  log_config : string;     [@default ""]
+  random_seed: int option 
+} [@@deriving cmdliner,show]
 ;;
 
 
 
 let logger = Logging.get_logger  "Yaac.Main"
-               
+
 
 
 let run_yaacs p : unit= 
@@ -40,9 +40,9 @@ let run_yaacs p : unit=
     | Some i -> Random.init i
   end;
   if p.log_config = ""
-  then Logging.load_config_str Config.default_log_config_str
-  else Logging.load_config_file p.log_config;
-  
+  then Logging.load_global_config_str Config.default_log_config_str
+  else Logging.load_global_config_file p.log_config;
+
   if p.stats
   then
     begin
@@ -60,20 +60,22 @@ let run_yaacs p : unit=
     match p.log_level with
     | None -> ()
     | Some lvl ->   let root_logger = Logging.get_logger "Yaac" in  
-                    root_logger#set_level lvl;
+      root_logger#set_level lvl;
   end;
   Sandbox.init_states p.data_path;
 
-  let pipe = Lwt_pipe.create ~max_size:1000 () in
+  let pipe = Lwt_pipe.create ~max_size:10 () in
 
 
-  (* let pipe_handler : Easy_logging_yojson.Handlers.t = {
-   *   fmt = ;
-   *   level = Logging.Debug;
-   *   filters = [];
-   * 
-   * } *)
-
+  let pipe_handler : Easy_logging_yojson.Handlers.t = {
+    fmt = Easy_logging__.Formatters.format_json;
+    level = Logging.Debug;
+    filters = [];
+    output = (fun s -> Lwt.async (fun () -> Lwt_pipe.write_exn pipe s))
+  } 
+  in
+  let root_logger = Logging.get_logger "Yaac" in
+  root_logger#add_handler pipe_handler;
 
   Lwt.join [ Web_server.run
                p.port
@@ -83,10 +85,10 @@ let run_yaacs p : unit=
                   (Sandbox.make_empty ())
                );
              Ws_server.run pipe () ]
-             |> Lwt_main.run
+  |> Lwt_main.run
 
 let _ = 
-  
+
   let term = Term.(const run_yaacs $ params_cmdliner_term ()) in
   let doc = "Runs the Yaac server" in
   let info = Term.info Sys.argv.(0) ~doc in

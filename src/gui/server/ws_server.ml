@@ -47,31 +47,31 @@ let handler id pipe client=
    *   in
    *   Connected_client.recv client >>= react >>= recv_forever; *)
 
-    let rec send_logs pipe ()=
-      (
-        match%lwt Lwt_pipe.read pipe with
-        | Some msg -> send @@ Frame.create ~content:msg ()
-        | None -> Lwt.return ()
-      ) >>=          
-      fun () -> send_logs pipe ()
-                  
+  let rec send_logs pipe ()=
+    (
+      match%lwt Lwt_pipe.read pipe with
+      | Some msg -> send @@ Frame.create ~content:msg ()
+      | None -> Lwt.return ()
+    ) >>=
+    fun () -> send_logs pipe ()
+
   in
   Lwt.catch
     (send_logs pipe)
     (fun exn ->
-       logger#info  "Connection to client %d lost" id |> Lwt.return >>= fun () ->
+       Lwt.return (logger#info  "Connection to client %d lost" id)  >>= fun () ->
        Lwt.fail exn)
 
 
 let check_request x = true;;
 
 let catch_exn exn = match exn with | _ as e ->
- print_endline (Printexc.get_backtrace ());
- print_endline  (Printexc.to_string e);;
+  print_endline (Printexc.get_backtrace ());
+  print_endline  (Printexc.to_string e);;
 
 let tcp_mode = `TCP (`Port 5000);;
 
 let run pipe () =
   logger#info "Running websocket server";
   Websocket_lwt_unix.establish_standard_server ~mode:tcp_mode ~on_exn:catch_exn ~check_request  (handler (ref (-1)) pipe)
-  
+

@@ -1,0 +1,15 @@
+{
+    "bact" : {
+        "active_mols" : [
+            {"mol":"AAACAAADDFAAAABAFFAAAFBFAAFFDDFBAAADDF","qtt":1},
+            {"mol":"AAAABAAAAFCFAAFFDDFBAAADDFAAACAAADDF", "qtt":1}
+        ],
+        "inert_mols" : []
+    },
+    "env": {
+        "transition_rate" : 1,
+        "grab_rate" : 1,
+        "break_rate" : 0,
+        "collision_rate" : 0
+    }
+}

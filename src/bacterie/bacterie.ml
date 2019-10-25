@@ -162,10 +162,10 @@ let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
 let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
   List.iter
     (fun (effect : Reacs.effect) ->
-      logger#ldebug (lazy (Printf.sprintf "Executing effect %s"
-                             (Reacs.show_effect effect)));
-      match effect with
-      | T_effects tel ->
+       logger#ldebug (lazy (Printf.sprintf "Executing effect %s"
+                                  (Reacs.show_effect effect)));
+       match effect with
+       | T_effects tel ->
          List.iter
            (fun teffect ->
              match teffect with
@@ -240,13 +240,13 @@ let next_reaction (bact : t)  =
              (picked_time -. begin_time)
              (treated_time -. picked_time)
              (end_time -. treated_time))
-        ))
+        )) |> ignore
     with
     | _ as e ->
       logger#error "An error happened while treating reaction %s;\n%s%s" (Reaction.show r)
         (Printexc.get_backtrace ())
         (Printexc.to_string e)
-
+    |> ignore
               
 (* ** json serialisation *)
 let from_sig (bact_sig : bact_sig) (bact : t): t  = 

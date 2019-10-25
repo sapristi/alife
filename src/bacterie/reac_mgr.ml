@@ -255,7 +255,8 @@ module CSet =
           logger#error "Stored and computed rates are not equal: %.20f != %.20f\n%s"
             (Q.to_float s.rates_sum)
             (Q.to_float (calculate_rate s))
-            (show s);
+            (show s)
+        |> ignore;
           failwith (Printf.sprintf "error %f %f\n %s"
                       (Q.to_float s.rates_sum)
                       (Q.to_float (calculate_rate s))
@@ -280,6 +281,7 @@ module CSet =
 
     let update_rate r (s:t) =
       logger#trace "Update rate"
+    |> ignore
 
       
     let pick_reaction (s:t) =

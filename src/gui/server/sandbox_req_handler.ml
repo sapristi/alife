@@ -222,6 +222,90 @@ let next_reactions (sandbox : Sandbox.t) (req) =
     ["purpose", `String "bactery_update_desc";
      "data", (Bacterie.to_sig_yojson !(sandbox.bact))]) |> Lwt.return
 
+let next_reactions_lwt (sandbox : Sandbox.t) (req) =
+  let n = param req "n"
+          |> int_of_string
+  in
+  for%lwt i = 0 to n-1 do
+    
+    Bacterie.next_reaction !(sandbox.bact);
+    (* Lwt_unix.sleep 0.001 *)
+    logger#info "step";
+    Lwt_io.flush_all ()
+  done
+  >|= (fun () -> 
+  `Json (`Assoc
+    ["purpose", `String "bactery_update_desc";
+     "data", (Bacterie.to_sig_yojson !(sandbox.bact))]))
+
+let n = ref 0
+let lwt_test (sandbox : Sandbox.t) (req) =
+  let p = param req "p"
+          |> int_of_string
+  in
+  print_endline (Printf.sprintf "Program: %i" p);
+
+  if p = 0
+  then
+    (
+      for i = 0 to 100 do
+        Unix.sleepf 0.01;
+        Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is 1;  message %i | %i\n" i !n);
+        Unix.sleepf 0.01;
+        Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is 2;  message %i | %i\n" i !n);
+        Unix.sleepf 0.01;
+
+      done;
+    )
+  else if p = -1
+  then 
+  (
+    for i = 0 to 100 do
+      Lwt.async (fun () ->
+          Unix.sleepf 0.01;
+          Lwt.async (fun () -> Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is 1;  message %i | %i\n" i !n));
+          Unix.sleepf 0.01;
+          Lwt.async (fun () -> Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is 2;  message %i | %i\n" i !n));
+          Unix.sleepf 0.01 |> Lwt.return
+                                
+        );
+    done;
+  )
+  
+  else if p = 1
+  then 
+  (
+    for i = 0 to 100 do
+      Lwt.async (fun () ->
+          Lwt_unix.sleep 0.1 >>=
+          (fun () ->
+          Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is a message %i | %i\n" i !n)));
+    done;
+  )
+  else if p = 2
+  then 
+  (
+    for i = 0 to 100 do
+      (* Unix.sleepf 0.1; *)
+      Lwt.async (fun () ->
+          Lwt_unix.sleep 0.1 <&>
+          Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is a message %i | %i\n" i !n));
+    done;
+  )
+  else if p = 3
+  then 
+  (
+    for i = 0 to 100 do
+      Lwt_unix.sleep 0.1 >>=
+      (fun () ->
+         Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is a message %i | %i\n" i !n));
+    done;
+  );
+  n := !n + 1;
+  `Empty|> Lwt.return
+
+
+
 (* let show_pnet (sandbox : Sandbox.t) (cgi : Netcgi.cgi) =
  *   let mol =cgi#argument_value "mol"
  *   and pnet_id = int_of_string @@ cgi#argument_value "pnet_id"  in
@@ -263,11 +347,14 @@ let make_routes sandbox =
     get    "/api/sandbox/mol",                       get_bact_elements sandbox; 
     post   "/api/sandbox/mol/:mol",                  add_mol sandbox;
 
-    get    "/api/sandbox/environment",                   get_environment sandbox;
+    get    "/api/sandbox/environment",               get_environment sandbox;
     put    "/api/sandbox/environment",               set_environment sandbox;
     get    "/api/sandbox/reaction",                  get_reactions sandbox;
-    post   "/api/sandbox/reaction/next/:n",          next_reactions sandbox;
+    post   "/api/sandbox/reaction/next/:n",          next_reactions_lwt sandbox;
 
-    get    "/api/sandbox/state",                    get_bact_states ;
+    get    "/api/sandbox/state",                     get_bact_states ;
     put    "/api/sandbox/state/:name",               from_bact_state sandbox;
+
+
+    get    "/api/sandbox/lwt_test/:p",                  lwt_test sandbox;
   ]

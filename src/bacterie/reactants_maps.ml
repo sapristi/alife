@@ -90,13 +90,13 @@ module ARMap =
                    then
                      (
                        Reac_mgr.add_grab current_amd new_reactant reac_mgr;
-                       logger#debug  "[%s] grabing %s" (Reactant.show (Amol current_amd)) (Reactant.show new_reactant);
+                       logger#debug  "[%s] grabing %s" (Reactant.show (Amol current_amd)) (Reactant.show new_reactant) |> ignore;
                      );
                    if is_grabed
                    then
                      (
                        Reac_mgr.add_grab new_amol (Amol current_amd) reac_mgr;
-                       logger#debug "[%s] grabed by %s"  (Reactant.show (Amol current_amd)) (Reactant.show new_reactant);
+                       logger#debug "[%s] grabed by %s"  (Reactant.show (Amol current_amd)) (Reactant.show new_reactant) |> ignore;
                      );
                  ) amolset;
                
@@ -257,7 +257,8 @@ module IRMap =
              then
                (
                  Reac_mgr.add_grab new_amol (ImolSet ireactant) reac_mgr;
-                 logger#debug "[%s] grabed by %s" ireactant.mol (Reactant.show new_reactant);
+                 logger#debug "[%s] grabed by %s" ireactant.mol (Reactant.show new_reactant)
+               |> ignore;
                )
            )
            irmap.v

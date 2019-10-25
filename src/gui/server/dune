@@ -4,4 +4,4 @@
   (preprocess
     (pps ppx_deriving_yojson lwt_ppx))
   (libraries
-	opium bacterie_libs nethttpd reactors lwt_ppx websocket-lwt-unix lwt-pipe  ))
+	opium bacterie_libs reactors lwt_ppx websocket-lwt-unix lwt-pipe  ))

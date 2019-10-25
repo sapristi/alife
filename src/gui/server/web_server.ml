@@ -66,7 +66,8 @@ let log_in_out =
            response
            >|= Response.code
            >|= Cohttp.Code.string_of_status
-           >|= logger#trace ~tags:[c] "Response: %s";
+           >|= logger#trace ~tags:[c] "Response: %s"
+           >|= ignore;
          )
          >>= ( fun () -> response)
        with
@@ -109,6 +110,7 @@ let handle_response r =
 
 
 let run port files_prefix routes =
+logger#info "Webserver running at http://localhost:%i" port;
   App.empty
   |> App.port port
   |> middleware log_in_out
