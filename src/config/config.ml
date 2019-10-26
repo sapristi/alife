@@ -7,12 +7,12 @@ let default_log_config_str = {|
              "truncate" : false
         }
     },
-    "loggers": 
+    "loggers":
         [
             {
                 "name": "Yaac",
                 "level": "debug",
-                "handlers": [ {"cli": {"level":"info"}},  {"file": {"filename": "yaac", "level": "debug"}} ] },
+                "handlers": [ {"cli": {"level":"info"}},  {"rotating_file": {"filename": "yaac", "level": "debug", "max_kb" : 20000, "backup_count": 4}} ] },
             {
                 "name": "Yaac.Bact",
                 "level": "info"},
