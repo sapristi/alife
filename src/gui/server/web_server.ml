@@ -37,55 +37,55 @@ let serve_file prefix path =
   let (res_body, headers, code) = match List.find_opt (fun (ext',_) -> ext = ext') config with
     | None -> response_not_found
     | Some (_, content_type ) ->
-       if Sys.file_exists full_path
-       then
-         let data = read_whole_file full_path in
-         `String data, Cohttp.Header.init_with "Content-Type" content_type, `OK
-       else
-         response_not_found
+      if Sys.file_exists full_path
+      then
+        let data = read_whole_file full_path in
+        `String data, Cohttp.Header.init_with "Content-Type" content_type, `OK
+      else
+        response_not_found
   in respond' ~headers:headers ~code:code res_body
 
 
 let req_counter = ref 0
 
-let log_in_out = 
- let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
-                 Opium_kernel__Rock.Filter.simple  = fun handler req -> 
-   let c = string_of_int (!req_counter) in
-   (
-     req_counter := !req_counter +1;
-     let resource = req.request.resource
-     and meth = Cohttp.Code.sexp_of_meth req.request.meth |> Base.Sexp.to_string_hum
-     in
-     logger#trace ~tags:[c] "Serving %s request at %s" meth resource;
-     let handler' = fun req ->
-       try%lwt
-         let response =
-         Lwt.bind (Lwt.return req) handler in
-         (
-           response
-           >|= Response.code
-           >|= Cohttp.Code.string_of_status
-           >|= logger#trace ~tags:[c] "Response: %s"
-           >|= ignore;
-         )
-         >>= ( fun () -> response)
-       with
-       | _ as e ->
-         logger#error ~tags:[c] "An error happened while treating the request:%s\n%s"
-           (Printexc.get_backtrace ())
-           (Printexc.to_string e);
-         "error" |> error_to_response  |> respond_error
+let log_in_out =
+  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
+      Opium_kernel__Rock.Filter.simple  = fun handler req ->
+    let c = string_of_int (!req_counter) in
+    (
+      req_counter := !req_counter +1;
+      let resource = req.request.resource
+      and meth = Cohttp.Code.sexp_of_meth req.request.meth |> Base.Sexp.to_string_hum
+      in
+      logger#trace ~tags:[c] "Serving %s request at %s" meth resource;
+      let handler' = fun req ->
+        try%lwt
+          let response =
+            Lwt.bind (Lwt.return req) handler in
+          (
+            response
+            >|= Response.code
+            >|= Cohttp.Code.string_of_status
+            >|= logger#trace ~tags:[c] "Response: %s"
+            >|= ignore;
+          )
+          >>= ( fun () -> response)
+        with
+        | _ as e ->
+          logger#error ~tags:[c] "An error happened while treating the request:%s\n%s"
+            (Printexc.get_backtrace ())
+            (Printexc.to_string e);
+          "error" |> error_to_response  |> respond_error
 
-     in
-     handler' req
-   )
- in
- Rock.Middleware.create ~name:"Log in out" ~filter
+      in
+      handler' req
+    )
+  in
+  Rock.Middleware.create ~name:"Log in out" ~filter
 
 let index_resources = [
   "/"; "/sandbox"; "/sandbox/"; "/molbuilder"; "/molbuilder/"; "/simulator"; "/simulator/"
-] 
+]
 let index_redirect =
   let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
       Opium_kernel__Rock.Filter.simple  = fun handler req ->
@@ -105,12 +105,12 @@ let handle_response r =
   match%lwt r with
   | `Empty -> `String "" |> respond' ~code:`No_content
   | `String s -> `String s |> respond'
-  | `Json (j : Yojson.Safe.t ) -> j |> json_to_response  |>  respond' ~headers:json_h 
+  | `Json (j : Yojson.Safe.t ) -> j |> json_to_response  |>  respond' ~headers:json_h
   | `Error (s : string ) -> s |> error_to_response  |> respond_error
 
 
 let run port files_prefix routes =
-logger#info "Webserver running at http://localhost:%i" port;
+  logger#info "Webserver running at http://localhost:%i" port;
   App.empty
   |> App.port port
   |> middleware log_in_out
@@ -121,4 +121,3 @@ logger#info "Webserver running at http://localhost:%i" port;
   |> middleware index_redirect
   |> middleware (Middleware.static ~local_path:files_prefix ~uri_prefix:"/" ())
   |> App.start
-

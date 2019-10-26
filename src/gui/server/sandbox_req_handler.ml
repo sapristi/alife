@@ -1,14 +1,11 @@
-
 open Reactors
 open Bacterie_libs
 open Reaction
 open Local_libs
 open Base_chemistry
 open Easy_logging_yojson
-let logger = Logging.get_logger "Yaac.Server.sandbox"
-(* let logger = Logging.make_logger "Server.Sandbox" Debug [Cli Debug];; *)
+let logger = Logging.get_logger "Yaac.Server.Sandbox"
 
-(* logger#warning "WTF";; *)
 
 open Opium.Std
 open Lwt.Infix
@@ -19,8 +16,8 @@ let get_sandbox (sandbox : Sandbox.t) req =
   `Json(
     `Assoc [
       "data", (Sandbox.to_yojson sandbox)])
-    |> Lwt.return 
-  
+  |> Lwt.return
+
 let reset_sandbox (sandbox : Sandbox.t) req =
   let data_json =  Yojson.Safe.from_file "bact.json" in
   let new_sandbox = Sandbox.of_yojson data_json in
@@ -29,7 +26,7 @@ let reset_sandbox (sandbox : Sandbox.t) req =
   get_sandbox sandbox req
 
 let set_sandbox (sandbox : Sandbox.t) (req: Opium_kernel__Rock.Request.t)  =
-  let%lwt new_sandbox = 
+  let%lwt new_sandbox =
     req.body
     |> Cohttp_lwt.Body.to_string
     >|= Yojson.Safe.from_string
@@ -45,8 +42,8 @@ let set_sandbox (sandbox : Sandbox.t) (req: Opium_kernel__Rock.Request.t)  =
 
 let get_bact_elements (sandbox : Sandbox.t) req =
   `Json (`Assoc
-    ["purpose", `String "bact_elements";
-     "data", (Bacterie.to_sig_yojson !(sandbox.bact))]
+           ["purpose", `String "bact_elements";
+            "data", (Bacterie.to_sig_yojson !(sandbox.bact))]
         )  |> Lwt.return
 
 
@@ -60,16 +57,16 @@ let pnet_ids_from_mol  (sandbox : Sandbox.t) (req) =
   `Json (
     `Assoc
       ["purpose", `String "pnet_ids";
-    "data", pnet_ids_json]
-  ) |> Lwt.return 
+       "data", pnet_ids_json]
+  ) |> Lwt.return
 
-let add_mol (sandbox : Sandbox.t) (req) = 
+let add_mol (sandbox : Sandbox.t) (req) =
   let mol = param req "mol" in
   Bacterie.add_molecule mol !(sandbox.bact)
   |> Bacterie.execute_actions !(sandbox.bact);
   get_bact_elements sandbox req
 
-let remove_imol (sandbox : Sandbox.t) (req) = 
+let remove_imol (sandbox : Sandbox.t) (req) =
   let mol = param req "mol" in
   Reactants_maps.IRMap.Ext.remove_all mol !(sandbox.bact).ireactants
   |> Bacterie.execute_actions !(sandbox.bact);
@@ -87,7 +84,7 @@ let set_imol_quantity (sandbox : Sandbox.t) (req : Opium_kernel.Rock.Request.t) 
     Reactants_maps.IRMap.Ext.set_qtt n mol !(sandbox.bact).ireactants
     |> Bacterie.execute_actions !(sandbox.bact);
     get_bact_elements sandbox req
-      
+
 
 (** /sandbox/mol/:mol/pnet endpoints *)
 
@@ -100,9 +97,9 @@ let get_pnet (sandbox : Sandbox.t) (req) =
     |> Petri_net.to_json
   in
   `Json (`Assoc
-             ["purpose", `String "pnet_from_mol";
-              "data",  `Assoc ["pnet", pnet_json]] 
-           )  |> Lwt.return 
+           ["purpose", `String "pnet_from_mol";
+            "data",  `Assoc ["pnet", pnet_json]]
+        )  |> Lwt.return
 
 
 
@@ -110,12 +107,12 @@ type pnet_action =
   | Update_token of (Token.t option) * int
   | Launch_transition of int
 [@@deriving yojson]
-      
+
 let pnet_action (sandbox: Sandbox.t) req =
   let mol = param req "mol"
   and pnet_id = int_of_string (param req "pnet_id") in
 
-  match%lwt 
+  match%lwt
     req.body
     |> Cohttp_lwt.Body.to_string
     >|= Yojson.Safe.from_string
@@ -124,39 +121,38 @@ let pnet_action (sandbox: Sandbox.t) req =
   | Error s -> Lwt.return (`Error "error decoding token")
   | Ok action -> match action with
     | Update_token (token_o, place_index) ->
-     (
-       let pnet = (Reactants_maps.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
-       (
-         match token_o with
-         | Some token -> 
+      (
+        let pnet = (Reactants_maps.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
+        (
+          match token_o with
+          | Some token ->
             Place.set_token token pnet.places.(place_index);
-         | None -> Place.remove_token pnet.places.(place_index);
-       );
-       Petri_net.update_launchables pnet;
-       
-       let pnet_json = Petri_net.to_json pnet in
-         `Json (`Assoc
-            ["purpose", `String "pnet_update";
-             "data",  `Assoc ["pnet", pnet_json]]   
-         )  |> Lwt.return
-     )
-    | Launch_transition trans_index -> 
+          | None -> Place.remove_token pnet.places.(place_index);
+        );
+        Petri_net.update_launchables pnet;
+
+        let pnet_json = Petri_net.to_json pnet in
+        `Json (`Assoc
+                 ["purpose", `String "pnet_update";
+                  "data",  `Assoc ["pnet", pnet_json]]
+              )  |> Lwt.return
+      )
+    | Launch_transition trans_index ->
 
       let pnet = (Reactants_maps.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
-      
       let p_actions = Petri_net.launch_transition_by_id trans_index pnet in
       let actions = List.map (fun x -> Reacs.T_effects x) [p_actions] in
       Bacterie.execute_actions !(sandbox.bact) actions;
-      
+
       let pnet_json = Petri_net.to_json pnet
       in
       `Json (
         `Assoc
           ["purpose", `String "pnet_update";
-           "data",  `Assoc ["pnet", pnet_json]]  
+           "data",  `Assoc ["pnet", pnet_json]]
       ) |> Lwt.return
-             
-let remove_amol (sandbox : Sandbox.t) (req) = 
+
+let remove_amol (sandbox : Sandbox.t) (req) =
   let mol = param req "mol"
   and pnet_id = int_of_string (param req "pnet_id") in
 
@@ -165,7 +161,7 @@ let remove_amol (sandbox : Sandbox.t) (req) =
   |> Bacterie.execute_actions !(sandbox.bact);
   get_bact_elements sandbox req
 
-               
+
 (*
   and save_state bact =
     let data_json = Bacterie.to_json bact in
@@ -189,18 +185,18 @@ let set_environment (sandbox : Sandbox.t) (req: Opium_kernel__Rock.Request.t) =
     >|= Environment.of_yojson
   with
   | Ok env ->
-     !(sandbox.bact).env := env;
-     logger#debug "Commited new env: %s" (Environment.show env);
-     `String "done" |> Lwt.return
+    !(sandbox.bact).env := env;
+    logger#debug "Commited new env: %s" (Environment.show env);
+    `String "done" |> Lwt.return
   | Error s ->
-     (`Error ("error decoding env from json " ^ s)) |> Lwt.return
+    (`Error ("error decoding env from json " ^ s)) |> Lwt.return
 
 
 let get_reactions (sandbox : Sandbox.t) (req) =
-   
+
   `Json( !(sandbox.bact).reac_mgr
          |> Reac_mgr.to_yojson) |> Lwt.return
-                                     
+
 
 let next_reactions (sandbox : Sandbox.t) (req) =
   let n = param req "n"
@@ -216,93 +212,26 @@ let next_reactions (sandbox : Sandbox.t) (req) =
       logger#error "Error when picking reaction;\n%s\n%s"
         (Printexc.get_backtrace ()) (Printexc.to_string e);
       failwith "error"
-      ();
   );
   `Json (`Assoc
-    ["purpose", `String "bactery_update_desc";
-     "data", (Bacterie.to_sig_yojson !(sandbox.bact))]) |> Lwt.return
+           ["purpose", `String "bactery_update_desc";
+            "data", (Bacterie.to_sig_yojson !(sandbox.bact))]) |> Lwt.return
 
 let next_reactions_lwt (sandbox : Sandbox.t) (req) =
   let n = param req "n"
           |> int_of_string
   in
   for%lwt i = 0 to n-1 do
-    
+
     Bacterie.next_reaction !(sandbox.bact);
     (* Lwt_unix.sleep 0.001 *)
     logger#info "step";
     Lwt_io.flush_all ()
   done
-  >|= (fun () -> 
-  `Json (`Assoc
-    ["purpose", `String "bactery_update_desc";
-     "data", (Bacterie.to_sig_yojson !(sandbox.bact))]))
-
-let n = ref 0
-let lwt_test (sandbox : Sandbox.t) (req) =
-  let p = param req "p"
-          |> int_of_string
-  in
-  print_endline (Printf.sprintf "Program: %i" p);
-
-  if p = 0
-  then
-    (
-      for i = 0 to 100 do
-        Unix.sleepf 0.01;
-        Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is 1;  message %i | %i\n" i !n);
-        Unix.sleepf 0.01;
-        Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is 2;  message %i | %i\n" i !n);
-        Unix.sleepf 0.01;
-
-      done;
-    )
-  else if p = -1
-  then 
-  (
-    for i = 0 to 100 do
-      Lwt.async (fun () ->
-          Unix.sleepf 0.01;
-          Lwt.async (fun () -> Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is 1;  message %i | %i\n" i !n));
-          Unix.sleepf 0.01;
-          Lwt.async (fun () -> Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is 2;  message %i | %i\n" i !n));
-          Unix.sleepf 0.01 |> Lwt.return
-                                
-        );
-    done;
-  )
-  
-  else if p = 1
-  then 
-  (
-    for i = 0 to 100 do
-      Lwt.async (fun () ->
-          Lwt_unix.sleep 0.1 >>=
-          (fun () ->
-          Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is a message %i | %i\n" i !n)));
-    done;
-  )
-  else if p = 2
-  then 
-  (
-    for i = 0 to 100 do
-      (* Unix.sleepf 0.1; *)
-      Lwt.async (fun () ->
-          Lwt_unix.sleep 0.1 <&>
-          Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is a message %i | %i\n" i !n));
-    done;
-  )
-  else if p = 3
-  then 
-  (
-    for i = 0 to 100 do
-      Lwt_unix.sleep 0.1 >>=
-      (fun () ->
-         Lwt_io.write Lwt_io.stdout (Printf.sprintf "This is a message %i | %i\n" i !n));
-    done;
-  );
-  n := !n + 1;
-  `Empty|> Lwt.return
+  >|= (fun () ->
+      `Json (`Assoc
+               ["purpose", `String "bactery_update_desc";
+                "data", (Bacterie.to_sig_yojson !(sandbox.bact))]))
 
 
 
@@ -310,7 +239,7 @@ let lwt_test (sandbox : Sandbox.t) (req) =
  *   let mol =cgi#argument_value "mol"
  *   and pnet_id = int_of_string @@ cgi#argument_value "pnet_id"  in
  *   let ar = Reactants_maps.ARMap.find mol pnet_id !(sandbox.bact).areactants in
- *   let pnet = ar.pnet in 
+ *   let pnet = ar.pnet in
  *   Petri_net.show pnet *)
 
 
@@ -327,14 +256,14 @@ let from_bact_state (sandbox : Sandbox.t) req =
   let state_name = param req "name" in
   Sandbox.update_from_state sandbox state_name;
   `Empty |> Lwt.return
-  
+
 
 let make_routes sandbox =
   [ get    "/api/sandbox",                           get_sandbox sandbox ;
     post   "/api/sandbox",                           set_sandbox sandbox ;
     post   "/api/sandbox/reset",                     reset_sandbox sandbox;
 
-    get    "/api/sandbox/amol",                      get_bact_elements sandbox; 
+    get    "/api/sandbox/amol",                      get_bact_elements sandbox;
     get    "/api/sandbox/amol/:mol",                 pnet_ids_from_mol sandbox;
     get    "/api/sandbox/amol/:mol/pnet/:pnet_id",   get_pnet sandbox;
     put    "/api/sandbox/amol/:mol/pnet/:pnet_id",   pnet_action sandbox;
@@ -344,7 +273,7 @@ let make_routes sandbox =
     put    "/api/sandbox/imol/:mol",                 set_imol_quantity sandbox;
     delete "/api/sandbox/imol/:mol",                 remove_imol sandbox;
 
-    get    "/api/sandbox/mol",                       get_bact_elements sandbox; 
+    get    "/api/sandbox/mol",                       get_bact_elements sandbox;
     post   "/api/sandbox/mol/:mol",                  add_mol sandbox;
 
     get    "/api/sandbox/environment",               get_environment sandbox;
@@ -355,6 +284,4 @@ let make_routes sandbox =
     get    "/api/sandbox/state",                     get_bact_states ;
     put    "/api/sandbox/state/:name",               from_bact_state sandbox;
 
-
-    get    "/api/sandbox/lwt_test/:p",                  lwt_test sandbox;
   ]

@@ -3,16 +3,16 @@ Vue.component("environment", {
         env() {return this.$store.state.env;}
     },
     template: `
-        <div>
-            <div v-for="(v,k) in this.env" class="ui list" data-bind="foreach : Object.keys(env)">
-                <div class="item">
-                    <div class="ui label" data-bind="text:$data">{{k}} </div>
-                    <input type="text" v-model="env[k]" ata-bind="textInput : $parent.env[$data]">
-                </div>
-            </div>
-        </div>
+  <div>
+    <div v-for="(v,k) in this.env" class="ui list" data-bind="foreach : Object.keys(env)">
+      <div class="item">
+        <div class="ui label" data-bind="text:$data">{{k}} </div>
+        <input type="text" v-model="env[k]" ata-bind="textInput : $parent.env[$data]">
+      </div>
+    </div>
+  </div>
     `
-})
+});
 
 Vue.component("sim-reaction-controls",{
     data: function() {return {reac_nb_input: null};},
@@ -26,32 +26,31 @@ Vue.component("sim-reaction-controls",{
         next_reactions() {this._next_reactions(this.reac_nb_input);}
     },
     template: `
-        <div class="ui fixed top sticky"
-		         style="max-width:100px;position:fixed;top:100px" id="left_sim_sticky">
-		        <div class="ui segment"
-			           style="max-width:100px; margin-left:110px; padding-left:0px; padding-right:0">
-			          <h4 class="ui horizontal divider header">Simulation ok</h4>
-                
-			          <button class="ui primary button tooltip"
-                    v-on:click="next_reaction"
-				                style="padding-left:5px;padding-right:5px">
-			              Next reaction
-			              <span class="tooltiptext">Evaluates the next reaction</span>
-			          </button>
-			          <div class="ui action input">
-			              <button class="ui primary button tooltip"
-                        v-on:click="next_reactions"
-				                    style="padding-left:5px;padding-right:5px">
-				                Next reactions
-				                <span class="tooltiptext">Evaluates the next reaction</span>
-			              </button>
-			              <input placeholder="number"
-				                   type="text"
-				                   size="4"
-                           v-model="reac_nb_input"/>
-			          </div>
-		        </div>
-        </div>
+  <div class="ui fixed top sticky"
+		   style="max-width:100px;position:fixed;top:100px" id="left_sim_sticky">
+		<div class="ui segment"
+			   style="max-width:100px; margin-left:110px; padding-left:0px; padding-right:0">
+			<h4 class="ui horizontal divider header">Simulation ok</h4>
+			<button class="ui primary button tooltip"
+        v-on:click="next_reaction"
+				      style="padding-left:5px;padding-right:5px">
+			  Next reaction
+			  <span class="tooltiptext">Evaluates the next reaction</span>
+			</button>
+			<div class="ui action input">
+			  <button class="ui primary button tooltip"
+          v-on:click="next_reactions"
+				        style="padding-left:5px;padding-right:5px">
+				  Next reactions
+				  <span class="tooltiptext">Evaluates the next reaction</span>
+			  </button>
+			  <input placeholder="number"
+				       type="text"
+				       size="4"
+               v-model="reac_nb_input"/>
+			</div>
+		</div>
+  </div>
 `
 });
 
@@ -74,18 +73,17 @@ Vue.component("sim-general-controls", {
             }
     },
     template: `
-        <div class="ui segment">
-            <select class="ui dropdown" id="state-dropdown"
-                v-model="selected_initial_state">
-                <option value="">Initial state</option>
-                <option v-for="state_name in initial_states"
-                        :value="state_name" :key="state_name">{{state_name}}</option>
-            </select>
-            <button class="ui primary button"
-                v-on:click="load_init_state">Load state</button>
-        </div>
+  <div class="ui segment">
+    <select class="ui dropdown" id="state-dropdown"
+            v-model="selected_initial_state">
+      <option value="">Initial state</option>
+      <option v-for="state_name in initial_states"
+        :value="state_name" :key="state_name">{{state_name}}</option>
+    </select>
+    <button class="ui primary button"
+      v-on:click="load_init_state">Load state</button>
+  </div>
     `
-
 });
 
 
@@ -95,16 +93,16 @@ Vue.component("mols-list", {
         return {selected_mol: null};
     },
     template: `
-        <table class="ui fixed selectable table">
-			      <thead><tr>
-				        <th v-for="col in columns" v-bind:class="col.css_class" >{{col.title}}</th>
-			      </tr></thead>
-			      <tbody>
-				        <tr v-for="mol in mols" v-on:click="select(mol)" v-bind:class="{ active: mol.mol == selected_mol_mol() }" :key="mol.mol">
-                    <td v-for="col in columns" v-bind:style="col.style">{{mol[col.property]}}</td>
-				        </tr>
-			      </tbody>
-        </table>
+  <table class="ui fixed selectable table">
+		<thead><tr>
+			<th v-for="col in columns" v-bind:class="col.css_class" >{{col.title}}</th>
+		</tr></thead>
+		<tbody>
+			<tr v-for="mol in mols" v-on:click="select(mol)" v-bind:class="{ active: mol.mol == selected_mol_mol() }" :key="mol.mol">
+        <td v-for="col in columns" v-bind:style="col.style">{{mol[col.property]}}</td>
+			</tr>
+		</tbody>
+  </table>
     `,
     methods: {
         select: function(mol) {
@@ -236,7 +234,7 @@ Vue.component("active-mols-controls",{
 
 Vue.component("reactant",{
     data: function() {return {mol: null, pnet_id: null};}
-    
+
 });
 
 
@@ -264,7 +262,7 @@ Vue.component("reactions", {
                     this.transitions= data.transitions;
                     this.grabs= data.grabs;
                     this.breaks= data.breaks;
-                    
+
                     this.raw_data = data;
                 }
             );
@@ -273,9 +271,9 @@ Vue.component("reactions", {
     },
     computed: {
         must_update() {console.log("reactions saw store updating");return this.$store.state.update;},
-        
+
         total_rates() {if (this.raw_data == null) {return {transitions:0, grabs: 0, breaks: 0};}
-                       
+
                        return {transitions: this.int_of_string(this.raw_data.env.transition_rate) * this.int_of_string(this.transitions.total),
                                grabs:  this.int_of_string(this.raw_data.env.grab_rate) * this.int_of_string(this.grabs.total),
                                breaks: this.int_of_string(this.raw_data.env.break_rate) * this.int_of_string(this.breaks.total)
@@ -311,7 +309,7 @@ const store = new Vuex.Store({
     state: {
         imols: [],
         selected_imol: null,
-        
+
         amols: [],
         selected_amol: null,
 
@@ -375,7 +373,7 @@ sandbox_vue = new Vue({
         },
 
         save_sandbox:  function() {
-            
+
             utils.ajax('GET', "/api/sandbox"
             ).done(
                 function(data) {
@@ -383,20 +381,20 @@ sandbox_vue = new Vue({
                     blob_data = new Blob([str_data], {type: 'text/plain'});
                     saveAs(blob_data, "sandbox.json");
                 }
-            );   
+            );
         },
 
         load_sandbox_file: function(evt) {
 	          var file = evt.target.files[0];
 	          var reader = new FileReader();
-	          
+
             reader.onload = function(e) {
 	              utils.ajax("POST","/api/sandbox", reader.result
                           ).done();
             };
 	          reader.readAsText(file);
         }
-        
+
     },
     mounted: function() {
         this.update();

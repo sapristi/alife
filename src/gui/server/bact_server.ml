@@ -111,3 +111,4 @@ let make_routes simulator sandbox =
     post "/api/utils/build/from_mol", build_all_from_mol;
     post "/api/utils/build/from_prot", build_all_from_prot ]
   @ (Sandbox_req_handler.make_routes sandbox)
+  @ (Logging_server.make_routes ())
