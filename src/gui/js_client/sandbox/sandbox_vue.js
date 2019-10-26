@@ -18,19 +18,28 @@ Vue.component("sim-reaction-controls",{
     data: function() {return {reac_nb_input: null};},
     methods: {
         _next_reactions(n) {
+            this.$root.$store.commit("computation_running");
             utils.ajax('POST', `/api/sandbox/reaction/next/${n}`).done(
-                data => {this.$root.$emit("update");}
+                data => {this.$root.$emit("update");
+                    this.$root.$store.commit("computation_done");}
             );
         },
         next_reaction() {this._next_reactions(1);},
         next_reactions() {this._next_reactions(this.reac_nb_input);}
+    },
+    computed: {
+        computation_state_icon() {
+            if (this.$root.$store.state.computation_running) return "orange spinner loading icon";
+            else return "green circle icon";
+            
+        }
     },
     template: `
   <div class="ui fixed top sticky"
 		   style="max-width:100px;position:fixed;top:100px" id="left_sim_sticky">
 		<div class="ui segment"
 			   style="max-width:100px; margin-left:110px; padding-left:0px; padding-right:0">
-			<h4 class="ui horizontal divider header">Simulation ok</h4>
+			<h4 class="ui horizontal divider header">Simulation</h4>
 			<button class="ui primary button tooltip"
         v-on:click="next_reaction"
 				      style="padding-left:5px;padding-right:5px">
@@ -49,6 +58,8 @@ Vue.component("sim-reaction-controls",{
 				       size="4"
                v-model="reac_nb_input"/>
 			</div>
+      <i v-bind:class="computation_state_icon"
+         style="align:center; font-size:200%; margin-left:10px; margin-top: 10px"></i>
 		</div>
   </div>
 `
@@ -315,7 +326,9 @@ const store = new Vuex.Store({
 
         update: false,
 
-        env: {}
+        env: {},
+
+        computation_running: false
     },
     mutations: {
         set_imols(state, imols) {state.imols = imols;},
@@ -325,7 +338,9 @@ const store = new Vuex.Store({
         unselected_mol_inert(state) {state.selected_imol = null;},
         selected_mol_active(state, mol) {state.selected_amol = mol;},
         unselected_mol_active(state) {state.selected_amol = null;},
-        update(state) {state.update = !state.update;}
+        update(state) {state.update = !state.update;},
+        computation_running(state) {state.computation_running = true;},
+        computation_done(state) {state.computation_running = false;}
     }
 });
 
