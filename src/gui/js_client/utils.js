@@ -5,17 +5,16 @@ var utils = {
     ajax : function(method, path, payload) {
 	      console.log(`${method} : ${path} with payload: `);
 	      console.log(payload);
-        
+
         var connect_uri = window.location.origin +  path;
-        
+
         var request = {
             url: connect_uri,
             datatype: 'json',
             data: JSON.stringify(payload),
             method: method,
             success: function(json) {
-                console.log("received ;");
-                console.log(json)
+                console.log("received :", json);
             },
             error: function(jqXHR) {
                 console.log("ajax error " + jqXHR.status + " from sending :");
@@ -26,19 +25,19 @@ var utils = {
 
     },
 
-    
+
     string_rev : function(s) {
 	if (typeof s == "undefined") {
 	    return "";
 	} else {
 	    var splitString = s.split("");
-	    var reverseArray = splitString.reverse(); 
+	    var reverseArray = splitString.reverse();
 	    var joinArray = reverseArray.join("");
 	    return joinArray;
 	}
     },
 
-    
+
 
     insertAtCursor : function (field, mystring) {
 	var cursorPosStart = field.prop('selectionStart');
