@@ -258,6 +258,16 @@ let from_bact_state (sandbox : Sandbox.t) req =
   `Empty |> Lwt.return
 
 
+let random_seed (req: Opium_kernel.Rock.Request.t) =
+  let%lwt b = req.body
+              |> Cohttp_lwt.Body.to_string in
+  let r = ref 1 in
+  for i=0 to (String.length b)-1 do
+    r := (!r) * Char.code (String.get b i)
+  done;
+  Random.init (!r);
+  `Empty |> Lwt.return
+
 let make_routes sandbox =
   [ get    "/api/sandbox",                           get_sandbox sandbox ;
     post   "/api/sandbox",                           set_sandbox sandbox ;
@@ -281,7 +291,8 @@ let make_routes sandbox =
     get    "/api/sandbox/reaction",                  get_reactions sandbox;
     post   "/api/sandbox/reaction/next/:n",          next_reactions_lwt sandbox;
 
-    get    "/api/sandbox/state",                     get_bact_states ;
+    get    "/api/sandbox/state",                     get_bact_states;
     put    "/api/sandbox/state/:name",               from_bact_state sandbox;
 
+    post   "/api/random_seed",                       random_seed;
   ]

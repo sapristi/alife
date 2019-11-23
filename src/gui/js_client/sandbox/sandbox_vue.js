@@ -84,7 +84,7 @@ Vue.component("sim-general-controls", {
             }
     },
     template: `
-  <div class="ui segment">
+  <div >
     <select class="ui dropdown" id="state-dropdown"
             v-model="selected_initial_state">
       <option value="">Initial state</option>
@@ -351,7 +351,9 @@ sandbox_vue = new Vue({
             env: null,
             inert_mols: [],
             active_mols: [],
-            test_mols: []};
+            test_mols: [],
+            seed_input: '',
+        };
     },
     el: "#sandbox_vue",
     store,
@@ -408,6 +410,10 @@ sandbox_vue = new Vue({
                           ).done();
             };
 	          reader.readAsText(file);
+        },
+
+        commit_seed: function() {
+            utils.ajax('POST', "/api/random_seed", this.seed_input);
         }
 
     },
