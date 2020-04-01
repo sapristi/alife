@@ -48,6 +48,22 @@ let serve_file prefix path =
 
 let req_counter = ref 0
 
+let add_cors_header =
+  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
+      Opium_kernel__Rock.Filter.simple  = fun handler req ->
+    (
+      let handler' = fun req ->
+        let response =
+          Lwt.bind (Lwt.return req) handler in
+        (
+          response >|= (fun response ->
+              let headers' =Cohttp.Header.add response.headers "Access-Control-Allow-Origin" "*" in
+              {response with headers = headers'} 
+            )
+        ) in
+      handler' req) in
+      Rock.Middleware.create ~name:"cors header" ~filter
+        
 let log_in_out =
   let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
       Opium_kernel__Rock.Filter.simple  = fun handler req ->
@@ -120,4 +136,5 @@ let run port files_prefix routes =
   |> List.fold_right (fun (route,f) x -> x |> route (fun req -> f req |> handle_response) ) routes
   |> middleware index_redirect
   |> middleware (Middleware.static ~local_path:files_prefix ~uri_prefix:"/" ())
+  |> middleware add_cors_header
   |> App.start
