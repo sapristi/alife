@@ -22,7 +22,7 @@ type params = {
   data_path : string;     [@default "./data/bact_states"] [@docv "PATH"]
   log_config : string;     [@default ""]
   random_seed: int option 
-} [@@deriving cmdliner,show]
+} [@@deriving show, cmdliner]
 ;;
 
 

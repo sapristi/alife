@@ -6,7 +6,7 @@ const outputDir = path.join(__dirname, dist);
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
-  entry: './frontend/Index.bs.js',
+  entry: './src/gui/client/Index.bs.js',
   mode: isProd ? 'production' : 'development',
   output: {
     path: path.resolve(__dirname, dist),
@@ -14,7 +14,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'frontend/index.html'
+      template: './src/gui/client/index.html'
     })
   ],
   devServer: {

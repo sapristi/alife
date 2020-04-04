@@ -5,18 +5,14 @@
   },
   "sources": [
     {
-      "dir": "frontend",
-      "subdirs": true
-    },
-    {
-      "dir": "shared",
+      "dir": "src/gui/client",
       "subdirs": true
     }
   ],
   "package-specs": [
     {
       "module": "es6",
-      "in-source": false
+      "in-source": true
     }
   ],
   "suffix": ".bs.js",

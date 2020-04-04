@@ -1,5 +1,5 @@
-[%raw {|require('../static/semantic.min.css')|}];
-[%raw "require('isomorphic-fetch')"]
+[%raw {|require('./static/semantic.min.css')|}];
+[%raw "require('isomorphic-fetch')"];
 module Main = {
   type window =
     | WSimulator
