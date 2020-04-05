@@ -2,7 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const dist = 'dist';
 const outputDir = path.join(__dirname, dist);
-
+const webpack = require('webpack')
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
@@ -15,7 +15,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/gui/client/index.html'
-    })
+    }),
   ],
   devServer: {
     compress: true,

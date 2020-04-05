@@ -1,40 +1,26 @@
-module GenericControls = {
-  /* [@bs.val] [@bs.scope ("window", "location")] external origin : string = "origin"; */
-  let origin = "http://localhost:1512";
-  let update = () => {
-    Js.Promise.(
-      Fetch.fetchWithInit(
-        origin ++ "/api/sandbox",
-        Fetch.RequestInit.make(~method_=Get, ()),
-      )
-      |> then_(Fetch.Response.json)
-      |> then_(json => Js.log(json) |> resolve)
-    );
-  };
-
-  [@react.component]
-  let make = () => {
-    <div />;
-  };
-};
+/* [@bs.val] [@bs.scope ("window", "location")] external origin : string = "origin"; */
+open MaterialUi;
 
 [@react.component]
 let make = () => {
-  ignore(GenericControls.update());
-  Js.log(GenericControls.origin);
-  Js.log(GenericControls.origin ++ "/api/sandbox");
-  <div className="ui divided grid">
-    <div className="centered row">
-      <h1
-        className="ui header"
-        style={ReactDOMRe.Style.make(~marginTop="5px", ())}>
-        {React.string("SandBox")}
-      </h1>
-    </div>
-    <div className="row">
-      <h2 className="ui horizontal divider header">
-        {React.string("Bactery view")}
-      </h2>
-    </div>
+  let (sandbox, setSandbox) =
+    Client_utils.useStateSimple(() => Client_types.default_sandbox);
+
+  let update = _ => {
+    ignore(
+      Client_utils.get("/api/sandbox", res => {
+        switch (Client_types.sandbox_decode(res)) {
+        | Ok(sandbox) => setSandbox(_ => sandbox)
+        | Error(e) => Js.log(("Error decoding", res, e))
+        }
+      }),
+    );
+  };
+  update();
+  <div>
+    <Typography variant=`H2> "Sandbox"->React.string </Typography>
+    <Divider />
+    <Typography variant=`H3> "Bactery view"->React.string </Typography>
+    <Generic_controls env={sandbox.env} update />
   </div>;
 };

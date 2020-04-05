@@ -11,7 +11,7 @@
   ],
   "package-specs": [
     {
-      "module": "es6",
+      "module": "commonjs",
       "in-source": true
     }
   ],
@@ -20,14 +20,17 @@
   "bs-dependencies": [
       "decco",
       "reason-react",
-      "bs-fetch"
+      "bs-fetch",
+      "reductive",
+      "@jsiebern/bs-material-ui",
+      "@mscharley/bs-material-ui-icons"
   ],
   "ppx-flags": [
-    "decco/ppx"
+      "decco/ppx"
   ],
   "refmt": 3,
   "warnings": {
     "number": "+A-40-42-48-105",
-    "error": "+A-3-44-102"
+    "error": "+A-3-44-102-41-10-27-26-20"
   }
 }

@@ -1,52 +1,28 @@
-[%raw {|require('./static/semantic.min.css')|}];
 [%raw "require('isomorphic-fetch')"];
-module Main = {
-  type window =
-    | WSimulator
-    | WSandbox
-    | WMolbuilder;
+[%raw "require('typeface-roboto')"];
+open MaterialUi;
 
-  let get_classname = (fixed, current) =>
-    if (fixed == current) {
-      "active item";
-    } else {
-      "item";
-    };
+module Main = {
   [@react.component]
   let make = () => {
-    let (current, setCurrent) = React.useState(() => WSimulator);
+    let (value, setValue) = React.useReducer((_, v) => v, 1);
 
-    React.useEffect1(
-      () => {
-        Js.log(current);
-        None;
-      },
-      [|current|],
-    );
-
+    let handleChange = (_, newValue: int) => {
+      setValue(newValue);
+    };
     <div>
-      <div className="ui top fixed menu">
-        <a
-          className={get_classname(WSimulator, current)}
-          onClick={_ => setCurrent(_ => WSimulator)}>
-          {React.string("Simulator")}
-        </a>
-        <a
-          className={get_classname(WSandbox, current)}
-          onClick={_ => setCurrent(_ => WSandbox)}>
-          {React.string("Sandbox")}
-        </a>
-        <a
-          className={get_classname(WMolbuilder, current)}
-          onClick={_ => setCurrent(_ => WMolbuilder)}>
-          {React.string("Molbuilder")}
-        </a>
-      </div>
+      <AppBar position=`Static>
+        <Tabs value onChange=handleChange>
+          <Tab label={"Simulator"->React.string} />
+          <Tab label={"Sandbox"->React.string} />
+          <Tab label={"Molbuilder"->React.string} />
+        </Tabs>
+      </AppBar>
       <div style={ReactDOMRe.Style.make(~paddingTop="40px", ())}>
-        {switch (current) {
-         | WSimulator => React.string("Simulator")
-         | WSandbox => <Sandbox />
-         | WMolbuilder => React.string("Molbuilder")
+        {switch (value) {
+         | 0 => React.string("Simulator")
+         | 1 => <Sandbox />
+         | _ => React.string("Molbuilder")
          }}
       </div>
     </div>;
