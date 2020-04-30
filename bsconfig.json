@@ -22,8 +22,8 @@
       "reason-react",
       "bs-fetch",
       "reductive",
-      "@jsiebern/bs-material-ui",
-      "@mscharley/bs-material-ui-icons"
+      "bs-css",
+      "bs-css-dom"
   ],
   "ppx-flags": [
       "decco/ppx"

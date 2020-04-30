@@ -1,28 +1,30 @@
 [%raw "require('isomorphic-fetch')"];
-[%raw "require('typeface-roboto')"];
-open MaterialUi;
-
+[%raw "require('bulma')"];
+[%raw "require('./style.css')"];
 module Main = {
+  type tab =
+    | TSimulator
+    | TSandbox
+    | TMolbuilder;
   [@react.component]
   let make = () => {
-    let (value, setValue) = React.useReducer((_, v) => v, 1);
+    let (activeTab, setActiveTab) = React.useReducer((_, v) => v, TSandbox);
 
-    let handleChange = (_, newValue: int) => {
-      setValue(newValue);
-    };
     <div>
-      <AppBar position=`Static>
-        <Tabs value onChange=handleChange>
-          <Tab label={"Simulator"->React.string} />
-          <Tab label={"Sandbox"->React.string} />
-          <Tab label={"Molbuilder"->React.string} />
-        </Tabs>
-      </AppBar>
-      <div style={ReactDOMRe.Style.make(~paddingTop="40px", ())}>
-        {switch (value) {
-         | 0 => React.string("Simulator")
-         | 1 => <Sandbox />
-         | _ => React.string("Molbuilder")
+      <Molecules.Tabs
+        tabs=[
+          (TSimulator, "Simulator"->React.string),
+          (TSandbox, "Sandbox"->React.string),
+          (TMolbuilder, "Molbuilder"->React.string),
+        ]
+        activeTab
+        setActiveTab
+      />
+      <div style={ReactDOMRe.Style.make(~paddingTop="20px", ())}>
+        {switch (activeTab) {
+         | TSimulator => React.string("Simulator")
+         | TSandbox => <Sandbox />
+         | TMolbuilder => React.string("Molbuilder")
          }}
       </div>
     </div>;

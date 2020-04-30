@@ -48,6 +48,19 @@ let serve_file prefix path =
 
 let req_counter = ref 0
 
+let filter_options = 
+  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
+      Opium_kernel__Rock.Filter.simple  = fun handler req ->
+    (
+    match req.request.meth with
+      | `OPTIONS -> let headers = Cohttp.Header.of_list
+                        [("Access-Control-Allow-Origin","*");
+                         ("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE")] in
+        Rock.Response.create ~headers:headers () |> Lwt.return
+      | _ -> handler req
+  ) in
+  Rock.Middleware.create ~name:"options filter" ~filter
+
 let add_cors_header =
   let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
       Opium_kernel__Rock.Filter.simple  = fun handler req ->
@@ -57,8 +70,10 @@ let add_cors_header =
           Lwt.bind (Lwt.return req) handler in
         (
           response >|= (fun response ->
-              let headers' =Cohttp.Header.add response.headers "Access-Control-Allow-Origin" "*" in
-              {response with headers = headers'} 
+              let headers' = Cohttp.Header.add_list response.headers
+                  [("Access-Control-Allow-Origin","*");
+                   ("Access-Control-Allow-Methods", "PUT, GET")] in
+              {response with headers = headers'}
             )
         ) in
       handler' req) in
@@ -130,7 +145,8 @@ let run port files_prefix routes =
   App.empty
   |> App.port port
   |> middleware log_in_out
-  (* |> middleware Middleware.debug *)
+  |> middleware Middleware.debug
+  |> middleware filter_options
   (* |> get "**" (fun x -> serve_file files_prefix x.request.resource) *)
   |> get "/ping" (fun x -> `String "ok" |> respond')
   |> List.fold_right (fun (route,f) x -> x |> route (fun req -> f req |> handle_response) ) routes

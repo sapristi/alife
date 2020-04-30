@@ -24,23 +24,31 @@ module.exports = {
     historyApiFallback: true
   },
     module: {
-    rules: [
-      {
-        test: /\.css$/i,
-          use: ['style-loader', 'css-loader'],
-      },
-        {
-        test: /\.(woff(2)?|ttf|eot|svg|png)(\?v=\d+\.\d+\.\d+)?$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name].[ext]',
-              outputPath: 'fonts/'
+        rules: [
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader'],
+            },
+            {
+                test: /\.s[ac]ss$/,
+                use: [
+                    'style-loader',
+                    "css-loader",
+                    "sass-loader"
+                ]
+            },
+            {
+                test: /\.(woff(2)?|ttf|eot|svg|png)(\?v=\d+\.\d+\.\d+)?$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: '[name].[ext]',
+                            outputPath: 'fonts/'
+                        }
+                    }
+                ]
             }
-          }
-        ]
-      }
-    ],
-  },
+        ],
+    },
 };
