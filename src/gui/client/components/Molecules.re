@@ -38,7 +38,10 @@ module NamedInput = {
             <input
               className="input"
               value
-              onChange={event => setValue(Generics.event_to_value(event))}
+              onChange={event => {
+                let new_value = Generics.event_to_value(event);
+                setValue(new_value);
+              }}
             />
           </p>
         </div>

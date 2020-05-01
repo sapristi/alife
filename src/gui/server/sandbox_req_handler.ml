@@ -166,7 +166,7 @@ let set_environment (sandbox : Sandbox.t) (req: Opium_kernel__Rock.Request.t) =
   | Ok env ->
     !(sandbox.bact).env := env;
     logger#debug "Commited new env: %s" (Environment.show env);
-    `String "null" |> Lwt.return
+    `Json (Environment.to_yojson env) |> Lwt.return
   | Error s ->
     (`Error ("error decoding env from json " ^ s)) |> Lwt.return
 
@@ -262,7 +262,7 @@ let make_routes sandbox =
     post   "/api/sandbox/mol/:mol",                  add_mol sandbox;
 
     get    "/api/sandbox/environment",               get_environment sandbox;
-    put   "/api/sandbox/environment",               set_environment sandbox;
+    put    "/api/sandbox/environment",               set_environment sandbox;
     get    "/api/sandbox/reaction",                  get_reactions sandbox;
     post   "/api/sandbox/reaction/next/:n",          next_reactions_lwt sandbox;
 

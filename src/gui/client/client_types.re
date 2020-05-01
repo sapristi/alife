@@ -41,3 +41,8 @@ type sandbox = {
 };
 
 let default_sandbox = {bact: default_bact, env: default_env};
+
+type sandbox_action =
+  | SetEnv(environment)
+  | SetBact(bact)
+  | SetSandbox(sandbox);
