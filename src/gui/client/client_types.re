@@ -45,4 +45,75 @@ let default_sandbox = {bact: default_bact, env: default_env};
 type sandbox_action =
   | SetEnv(environment)
   | SetBact(bact)
-  | SetSandbox(sandbox);
+  | SetSandbox(sandbox)
+  | SetSelectedPnet(option((string, int)));
+
+module Petri_net = {
+  [@decco]
+  type molecule = string;
+  [@decco]
+  type token = (int, molecule);
+
+  [@decco]
+  type acid_extension =
+    | Grab_ext(string)
+    | Release_ext
+    | Init_with_token_ext;
+
+  let acid_ext_to_cy = aext =>
+    switch (aext) {
+    | Grab_ext(s) => ("Grab_ext", [s])
+    | Release_ext => ("Release_ext", [])
+    | Init_with_token_ext => ("Init_with_token_ext", [])
+    };
+
+  [@decco]
+  type graber = string;
+
+  [@decco]
+  type place = {
+    token: option(token),
+    extensions: list(acid_extension),
+    index: int,
+    graber: option(graber),
+  };
+
+  [@decco]
+  type input_arc_kind =
+    | Regular_iarc
+    | Split_iarc
+    | Filter_iarc(string)
+    | Filter_empty_iarc;
+
+  [@decco]
+  type output_arc_kind =
+    | Regular_oarc
+    | Merge_oarc
+    | Move_oarc(bool);
+
+  [@decco]
+  type input_arc = {
+    source_place: int,
+    iatype: input_arc_kind,
+  };
+  [@decco]
+  type output_arc = {
+    dest_place: int,
+    oatype: output_arc_kind,
+  };
+
+  [@decco]
+  type transition = {
+    id: string,
+    input_arcs: list(input_arc),
+    output_arcs: list(output_arc),
+    index: int,
+  };
+
+  [@decco]
+  type petri_net = {
+    molecule,
+    transitions: array(transition),
+    places: array(place),
+  };
+};

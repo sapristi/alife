@@ -38,7 +38,8 @@ module YaacApi = {
     | (Some(json_decode'), Some(callback')) =>
       response
       |> Fetch.Response.json
-      |> Js.Promise.then_(response_json =>
+      |> Js.Promise.then_(response_json => {
+           Js.log2("Received", response_json);
            switch (json_decode'(response_json)) {
            | Ok(x_decoded) =>
              callback'(x_decoded);
@@ -46,9 +47,18 @@ module YaacApi = {
            | Error(e) =>
              Js.log3("Could not decode", response_json, e);
              ko_callback() |> Js.Promise.resolve;
-           }
-         )
-    | _ => after() |> Js.Promise.resolve
+           };
+         })
+    | _ =>
+      (
+        response
+        |> Fetch.Response.json
+        |> Js.Promise.then_(json =>
+             Js.log2("Received", json) |> Js.Promise.resolve
+           )
+      )
+      ->ignore;
+      after() |> Js.Promise.resolve;
     };
   };
 

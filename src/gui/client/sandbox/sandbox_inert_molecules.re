@@ -1,10 +1,9 @@
 open Client_utils;
 open Client_types;
-let make_width = (wpct: float) => Css.(style([width(pct(wpct))]));
 
 module ImolControls = {
   [@react.component]
-  let make = (~imol: option(inert_mol)) => {
+  let make = (~imol: option(inert_mol), ~dispatch) => {
     let (qtt, setQtt) = React.useState(() => "");
     let (disabled, setDisabled) = React.useState(() => true);
 
@@ -23,9 +22,21 @@ module ImolControls = {
       [|imol|],
     );
 
+    let remove_selected = _ => {
+      let imol_str = Belt.Option.getExn(imol).mol;
+      YaacApi.request(
+        Fetch.Delete,
+        "/sandbox/imol/" ++ imol_str,
+        ~json_decode=bact_decode,
+        ~callback=bact => dispatch(SetBact(bact)),
+        (),
+      )
+      ->ignore;
+    };
+
     <div className="tile is-vertical is-2">
       <div className="box">
-        <button className="button" disabled>
+        <button className="button" disabled onClick=remove_selected>
           "Remove molecule"->React.string
         </button>
         <Molecules.HFlex style=[]>
@@ -53,48 +64,30 @@ module ImolControls = {
 };
 
 [@react.component]
-let make = (~inert_mols, ~update) => {
+let make = (~inert_mols, ~update, ~dispatch) => {
   let (selected, setSelected) = React.useState(() => None);
 
-  let tr_classname = mol =>
-    if (Some(mol) == selected) {
-      "is-selected";
-    } else {
-      "";
-    };
+  let make_imol_row = (imol: inert_mol) =>
+    <React.Fragment>
+      <td style=Css.(style([overflowWrap(breakWord)]))>
+        imol.mol->React.string
+      </td>
+      <td> {imol.qtt->string_of_int->React.string} </td>
+      <td> {imol.ambient->string_of_bool->React.string} </td>
+    </React.Fragment>;
+
   <div className="tile">
     <div className="tile">
-      <table className="table is-fullwidth is-striped">
-        <colgroup>
-          <col span=1 style={make_width(70.)} />
-          <col span=1 style={make_width(15.)} />
-          <col span=1 style={make_width(15.)} />
-        </colgroup>
-        <thead>
-          <tr>
-            <th> "Molecule"->React.string </th>
-            <th> "Quantity"->React.string </th>
-            <th> "Ambient"->React.string </th>
-          </tr>
-        </thead>
-        <tbody>
-          {Generics.react_list(
-             List.map(
-               (imol: inert_mol) =>
-                 <tr
-                   key={imol.mol}
-                   onClick={_ => setSelected(_ => Some(imol))}
-                   className={tr_classname(imol)}>
-                   <td> imol.mol->React.string </td>
-                   <td> {imol.qtt->string_of_int->React.string} </td>
-                   <td> {imol.ambient->string_of_bool->React.string} </td>
-                 </tr>,
-               inert_mols,
-             ),
-           )}
-        </tbody>
-      </table>
+      <Sandbox_moltable
+        col_widths=[70., 15., 15.]
+        headers=["Molecule", "Quantity", "Ambient"]
+        data=inert_mols
+        make_row=make_imol_row
+        selected
+        setSelected
+        get_key={(imol: inert_mol) => imol.mol}
+      />
     </div>
-    <ImolControls imol=selected />
+    <ImolControls imol=selected dispatch />
   </div>;
 };

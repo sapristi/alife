@@ -3,19 +3,42 @@ open Client_utils;
 open Client_types;
 open Sandbox_components;
 
-let reducer = (state: sandbox, action) => {
+type sandboxState = {
+  sandbox,
+  selectedPnet: option((string, int)),
+};
+
+let reducer = (state: sandboxState, action) => {
   switch (action) {
-  | SetEnv(env) => {...state, env}
-  | SetBact(bact) => {...state, bact}
-  | SetSandbox(sandbox) => sandbox
+  | SetEnv(env) => {
+      ...state,
+      sandbox: {
+        ...state.sandbox,
+        env,
+      },
+    }
+  | SetBact(bact) => {
+      ...state,
+      sandbox: {
+        ...state.sandbox,
+        bact,
+      },
+    }
+  | SetSandbox(sandbox) => {...state, sandbox}
+  | SetSelectedPnet(selectedPnet) => {...state, selectedPnet}
   };
 };
 
 [@react.component]
 let make = () => {
-  let (sandbox, dispatch) = React.useReducer(reducer, default_sandbox);
+  let (state, dispatch) =
+    React.useReducer(
+      reducer,
+      {sandbox: default_sandbox, selectedPnet: None},
+    );
 
-  Js.log(("SANDBOX", sandbox));
+  Js.log2("Sandbox", state);
+
   let update = _ => {
     ignore(
       YaacApi.get("/sandbox", res => {
@@ -30,19 +53,32 @@ let make = () => {
     update();
     None;
   });
+  Js.log(("SANDBOX", state));
   <div>
     <h1 className="title"> "Sandbox"->React.string </h1>
     <section className="section">
       <h2 className="subtitle"> "Generic controls"->React.string </h2>
-      <Generic_controls env={sandbox.env} update dispatch />
+      <Generic_controls env={state.sandbox.env} update dispatch />
     </section>
     <section className="section">
       <h2 className="subtitle"> "Inert molecules"->React.string </h2>
-      <Inert_molecules inert_mols={sandbox.bact.inert_mols} update />
+      <Inert_molecules
+        inert_mols={state.sandbox.bact.inert_mols}
+        update
+        dispatch
+      />
     </section>
     <section className="section">
       <h2 className="subtitle"> "Active molecules"->React.string </h2>
-      <Active_molecules active_mols={sandbox.bact.active_mols} update />
+      <Active_molecules
+        active_mols={state.sandbox.bact.active_mols}
+        update
+        dispatch
+      />
+    </section>
+    <section className="section">
+      <h2 className="subtitle"> "Petri Net"->React.string </h2>
+      <Pnet_controls selectedPnet={state.selectedPnet} />
     </section>
   </div>;
 };

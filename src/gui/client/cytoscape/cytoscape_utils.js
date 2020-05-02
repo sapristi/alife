@@ -1,40 +1,41 @@
-"use strict";
+const cytoscape = require('cytoscape');
+const cola = require('cytoscape-cola');
+cytoscape.use( cola )
 
-// * cytoscape petri net
 
-// ** pnet short names
 
 // from http://www.mulinblog.com/a-color-palette-optimized-for-data-visualization/
-var pnet_colors = {
-    "place" : "#82bbe3",         // blue
-    "place_sel" : "#2f8dd0",     // deep blue
-    "trans" : "#c89dc8",         // deep purple
-    "trans_sel" : "#a35ca3",     // purple
-    "trans_launch": "#f17cb0",      // pink
-    "trans_sel_launch" : "#e71875", // deep pink
-    "token" : "#b2912f",        // brown
-    "trans_type" : "#faa43a",    // orange
-    "trans_type_sel" : "#f15854", // red
-    "extension" : "#60BD68"     // green
+const pnet_colors = {
+    place : "#82bbe3",         // blue
+    place_sel : "#2f8dd0",     // deep blue
+    trans : "#c89dc8",         // deep purple
+    trans_sel : "#a35ca3",     // purple
+    trans_launch: "#f17cb0",      // pink
+    trans_sel_launch : "#e71875", // deep pink
+    token : "#b2912f",        // brown
+    trans_type : "#faa43a",    // orange
+    trans_type_sel : "#f15854", // red
+    extension : "#60BD68"     // green
 }
-var arcs_short_names = {
-    "Regular_iarc" : "reg",
-    "Split_iarc"   : "split",
-    "Filter_iarc"  : "filter",
-    "Filter_empty_iarc" : "filter empty",
-    "Regular_oarc" : "reg",
-    "Merge_oarc"   : "merge",
-    "Move_oarc"    : "move"
+const arcs_short_names = {
+    Regular_iarc : "reg",
+    Split_iarc   : "split",
+    Filter_iarc  : "filter",
+    Filter_empty_iarc : "filter empty",
+    Regular_oarc : "reg",
+    Merge_oarc   : "merge",
+    Move_oarc    : "move"
 };
-var make_arc_short_name = function(arc_type) {
+const make_arc_short_name = function(arc_type) {
     var short_name = arcs_short_names[arc_type[0]];
     var args = arc_type.slice(1).reduce(
 	      function(a,b) {  return a + " " + String(b);},
 	      "");
     return short_name + " " + args;
 };
-// ** pnet style
-var pnet_style= [
+
+
+export const pnet_style= [
     {
 	      selector: ".compound",
 	      style : {
@@ -139,11 +140,10 @@ var pnet_style= [
         selector : '.arc.filter',
         style: {
 	          "mid-target-arrow-shape" : "triangle-tee",
-	          "label" : function(ele) {
-                if (ele._private.data.args.length > 0)
-                {
-		                return ele._private.data.args[0];
-                } else {return "∅";}
+	          label : function(ele) {
+                return (ele._private.data.args.length > 0)
+                    ? ele._private.data.args[0]
+                    : "∅"
             }
         }
     },
@@ -151,9 +151,9 @@ var pnet_style= [
         selector : '.arc.move',
         style: {
 	          "mid-target-arrow-shape" : "circle",
-	          "label" : function(ele) {
-		            if (ele._private.data.args[0]) {return "↷";}
-		            else {return "↶";}}
+	          label : function(ele) {
+                return (ele._private.data.args[0])
+                    ? "↷" :"↶"}
         }
     },
     {
@@ -201,42 +201,41 @@ var pnet_style= [
         }
     },
 ];
-// ** layouts
-// called when displaying the graph
-var make_cola_layout = function(cy_graph) {
+
+
+export const make_cola_layout = function(cy_graph) {
     return {
-	name:"cola",
-	padding:10,
-	avoidOverlap:false,
-	edgeLength : function(edge) {
-	    var res = 0;
-	    if (edge.hasClass("extension")) {res = 35;}
-	    else {res = 70;}
-	    return res;
-	},
-	infinite : true,
-	fit : false
+	      name:"cola",
+	      padding:10,
+	      avoidOverlap:false,
+	      edgeLength : function(edge) {
+            return (edge.hasClass("extension"))
+                ? 35 : 70
+	      },
+	      infinite : true,
+	      fit : false
     };
 };
 
-var make_coseblk_layout = function(cy_graph) {
+export const make_coseblk_layout = function(cy_graph) {
     return {
-	name : "cose-bilkent",
-	nestingFactor : 0.001,
-	gravity : 0,
-	nodeRepulsion : 500,
-	edgeElasticity : 0.1,
-	idealEdgeLength: 30,
-	randomize: true,
-	gravityCompound:50,
-	gravityRangeCompound :50,
-	animate : "during",
-	numIter : 100
+	      name : "cose-bilkent",
+	      nestingFactor : 0.001,
+	      gravity : 0,
+	      nodeRepulsion : 500,
+	      edgeElasticity : 0.1,
+	      idealEdgeLength: 30,
+	      randomize: true,
+	      gravityCompound:50,
+	      gravityRangeCompound :50,
+	      animate : "during",
+	      numIter : 100
     };
 }
 
-// ** main function : make pnet graph
-var make_pnet_graph = function(pnet_data, container, eventHandler) {
+
+
+export const make_pnet_graph = function(pnet_data, container, eventHandler) {
     var cy = null;
 
     if (cy != null) {cy.destroy();}
