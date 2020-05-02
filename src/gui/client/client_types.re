@@ -62,9 +62,9 @@ module Petri_net = {
 
   let acid_ext_to_cy = aext =>
     switch (aext) {
-    | Grab_ext(s) => ("Grab_ext", [s])
-    | Release_ext => ("Release_ext", [])
-    | Init_with_token_ext => ("Init_with_token_ext", [])
+    | Grab_ext(s) => ("Grab_ext", s)
+    | Release_ext => ("Release_ext", "")
+    | Init_with_token_ext => ("Init_with_token_ext", "")
     };
 
   [@decco]
@@ -85,11 +85,26 @@ module Petri_net = {
     | Filter_iarc(string)
     | Filter_empty_iarc;
 
+  let input_arc_to_cy = ia =>
+    switch (ia) {
+    | Regular_iarc => ("reg", "")
+    | Split_iarc => ("split", "")
+    | Filter_iarc(s) => ("filter", s)
+    | Filter_empty_iarc => ("filter empty", {js|∅|js})
+    };
+
   [@decco]
   type output_arc_kind =
     | Regular_oarc
     | Merge_oarc
     | Move_oarc(bool);
+
+  let output_arc_to_cy = oa =>
+    switch (oa) {
+    | Regular_oarc => ("reg", "")
+    | Merge_oarc => ("merge", "")
+    | Move_oarc(b) => ("move", if (b) {{js|↷|js}} else {{js|↶|js}})
+    };
 
   [@decco]
   type input_arc = {

@@ -140,11 +140,7 @@ export const pnet_style= [
         selector : '.arc.filter',
         style: {
 	          "mid-target-arrow-shape" : "triangle-tee",
-	          label : function(ele) {
-                return (ele._private.data.args.length > 0)
-                    ? ele._private.data.args[0]
-                    : "∅"
-            }
+	          label : function(ele) {return ele._private.data.label}
         }
     },
     {
@@ -152,8 +148,7 @@ export const pnet_style= [
         style: {
 	          "mid-target-arrow-shape" : "circle",
 	          label : function(ele) {
-                return (ele._private.data.args[0])
-                    ? "↷" :"↶"}
+                return (ele._private.data.label)}
         }
     },
     {
@@ -185,7 +180,7 @@ export const pnet_style= [
         selector : 'node.extension.Grab_ext',
         style: {
 	          "label" : function(node) {
-		            return node._private.data.args[0];},
+		            return node._private.data.label;},
         }
     },
     {
@@ -202,6 +197,18 @@ export const pnet_style= [
     },
 ];
 
+
+export const cola_layout_conf = {
+	  name:"cola",
+	  padding:10,
+	  avoidOverlap:false,
+	  edgeLength : function(edge) {
+        return (edge.hasClass("extension"))
+            ? 35 : 70
+	  },
+	  infinite : true,
+	  fit : false
+};
 
 export const make_cola_layout = function(cy_graph) {
     return {
