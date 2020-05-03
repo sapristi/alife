@@ -46,7 +46,8 @@ type sandbox_action =
   | SetEnv(environment)
   | SetBact(bact)
   | SetSandbox(sandbox)
-  | SetSelectedPnet(option((string, int)));
+  | SetSelectedPnet(option((string, int)))
+  | SwitchUpdate;
 
 module Petri_net = {
   [@decco]

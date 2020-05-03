@@ -1,7 +1,10 @@
 const cytoscape = require('cytoscape');
+
 const cola = require('cytoscape-cola');
 cytoscape.use( cola )
 
+let cxtmenu = require('cytoscape-cxtmenu');
+cytoscape.use( cxtmenu );
 
 
 // from http://www.mulinblog.com/a-color-palette-optimized-for-data-visualization/
@@ -17,22 +20,6 @@ const pnet_colors = {
     trans_type_sel : "#f15854", // red
     extension : "#60BD68"     // green
 }
-const arcs_short_names = {
-    Regular_iarc : "reg",
-    Split_iarc   : "split",
-    Filter_iarc  : "filter",
-    Filter_empty_iarc : "filter empty",
-    Regular_oarc : "reg",
-    Merge_oarc   : "merge",
-    Move_oarc    : "move"
-};
-const make_arc_short_name = function(arc_type) {
-    var short_name = arcs_short_names[arc_type[0]];
-    var args = arc_type.slice(1).reduce(
-	      function(a,b) {  return a + " " + String(b);},
-	      "");
-    return short_name + " " + args;
-};
 
 
 export const pnet_style= [
@@ -140,15 +127,14 @@ export const pnet_style= [
         selector : '.arc.filter',
         style: {
 	          "mid-target-arrow-shape" : "triangle-tee",
-	          label : function(ele) {return ele._private.data.label}
+	          label : ele => ele._private.data.label
         }
     },
     {
         selector : '.arc.move',
         style: {
 	          "mid-target-arrow-shape" : "circle",
-	          label : function(ele) {
-                return (ele._private.data.label)}
+	          label : ele => ele._private.data.label
         }
     },
     {
@@ -179,8 +165,7 @@ export const pnet_style= [
     {
         selector : 'node.extension.Grab_ext',
         style: {
-	          "label" : function(node) {
-		            return node._private.data.label;},
+	          label : ele => ele._private.data.label
         }
     },
     {
@@ -210,221 +195,103 @@ export const cola_layout_conf = {
 	  fit : false
 };
 
-export const make_cola_layout = function(cy_graph) {
-    return {
-	      name:"cola",
-	      padding:10,
-	      avoidOverlap:false,
-	      edgeLength : function(edge) {
-            return (edge.hasClass("extension"))
-                ? 35 : 70
-	      },
-	      infinite : true,
-	      fit : false
-    };
+window.cola_layout_conf = cola_layout_conf
+
+export const coseblk_layout_conf = {
+	  name : "cose-bilkent",
+	  nestingFactor : 0.001,
+	  gravity : 0,
+	  nodeRepulsion : 500,
+	  edgeElasticity : 0.1,
+	  idealEdgeLength: 30,
+	  randomize: true,
+	  gravityCompound:50,
+	  gravityRangeCompound :50,
+	  animate : "during",
+	  numIter : 100
 };
 
-export const make_coseblk_layout = function(cy_graph) {
-    return {
-	      name : "cose-bilkent",
-	      nestingFactor : 0.001,
-	      gravity : 0,
-	      nodeRepulsion : 500,
-	      edgeElasticity : 0.1,
-	      idealEdgeLength: 30,
-	      randomize: true,
-	      gravityCompound:50,
-	      gravityRangeCompound :50,
-	      animate : "during",
-	      numIter : 100
-    };
-}
-
-
-
-export const make_pnet_graph = function(pnet_data, container, eventHandler) {
-    var cy = null;
-
-    if (cy != null) {cy.destroy();}
-
-    cy = new cytoscape(
+export const setup_pnet_cy = function(elements, eventHandler) {
+    const cy = cytoscape(
 	      {
-            container:container,
 	          style:pnet_style,
+            elements,
 	          userZoomingEnabled:true,
 	          wheelSensitivity:0.2
 	      });
 
-    var selected = 0;
-
-    // *** places
-
-    for (var i = 0;i < pnet_data.places.length;i++){
-	      var node = pnet_data.places[i];
-	      var node_id = "p"+i;
-
-	      // place
-        cy.add({
-            group: "nodes",
-            data: {id :node_id,
-		               type : "place",
-		               index : i,
-		              },
-            classes: "place"});
-	      // extensions
-	      for (var j=0; j< node.extensions.length; j++) {
-
-	          var ext = node.extensions[j];
-	          var node_ext_id = node_id + "_" + ext[0];
-	          cy.add({
-		            group:"nodes",
-		            data: {id: node_ext_id,
-		                   type : ext[0],
-		                   args : ext.slice(1)
-		                  },
-		            classes : "extension " + ext[0]
-	          });
-	          cy.add({
-		            group:"edges",
-		            data:{
-		                source : node_id,
-		                target : node_ext_id,
-		                type : ext[0],
-		                args : ext.slice(1),
-		                directed : true
-		            },
-		            classes : "extension " + ext[0]
-	          });
-	      }
+    const select_edges = (node) => {
+        node.incomers('edge')
+	          .forEach(edge => edge.select())
+	      node.outgoers('edge')
+	          .forEach(edge => edge.select())
     }
 
-    // *** transitions
-    for (var i = 0; i < pnet_data.transitions.length;i++) {
-        var t = pnet_data.transitions[i];
-        var tname = "t" + i;
-
-        // ***** transition nodes
-
-	      var classes  = "transition";
-
-	      cy.add({
-            group: "nodes",
-            data: { id:tname,
-		                label:t.id,
-		                type : "transition",
-		                index : i
-		              },
-            classes : classes});
-
-        // ***** transition input_arcs
-        t.input_arcs.forEach(function(dp) {
-	          var label = make_arc_short_name(dp.iatype);
-	          var classes = "arc " + label;
-            var data = {
-                source : "p"+ dp.source_place,
-                target : tname,
-                directed : true,
-		            label: label,
-		            type : dp.iatype[0],
-		            args : dp.iatype.slice(1)
-	          }
-            cy.add({
-                group: "edges",
-                data: data,
-		            classes : classes
-            });
-        });
-
-        // ***** transition output_arcs
-        t.output_arcs.forEach(function(dp) {
-	          var label = make_arc_short_name(dp.oatype);
-	          var classes = "arc " + label;
-            cy.add({
-                group: "edges",
-                data: {
-                    source : tname,
-                    target : "p"+ dp.dest_place,
-                    directed : true,
-		                label: label,
-		                type : dp.oatype[0],
-		                args : dp.oatype.slice(1)
-		            },
-		            classes : classes
-            });
-        });
-
-
-    }
-
-    // *** interactions
-    cy.on('select', '.place, .transition', function(evt){
-    	  eventHandler.set_node_selected(evt.target.data());
-	      evt.target.incomers('edge')
-	          .forEach(function(edge){edge.select();});
-	      evt.target.outgoers('edge')
-	          .forEach(function(edge){edge.select();});
-    });
-
+    cy.on('select', '.place,.transition', function(evt){
+    	  eventHandler(evt.target.data().node_type);
+	      select_edges(evt.target)
+    })
 
     cy.on('unselect', 'node', function(evt){
-    	  eventHandler.set_node_unselected();
-    });
-    // *** layout
-    var layout = cy.layout(make_cola_layout(cy));
-    cy.contextMenus({
-	      menuItems: [
-	          {
-		            id:"start",
-		            content:"start",
-                tooltipText: 'select all edges',
-                coreAsWell: true,
-		            onClickFunction : function(event) {
-		                layout.run();
-		            }
-	          },
-	          {
-		            id:"stop",
-		            content:"stop",
-                tooltipText: 'select all edges',
-                coreAsWell: true,
-		            onClickFunction : function(event) {
-		                layout.stop();
-		            }
-	          },
-	      ]});
+    	  eventHandler(["NoNode"]);
+    })
 
-    // *** return value
-    var pnet_cy = {
-	      cy : cy,
-	      layout : layout,
-	      update : function( pnet) {
+    const layout = cy.layout(cola_layout_conf);
 
-	          for (var i = 0;i < pnet.places.length;i++){
+    // cy.contextMenus({
+	  //     menuItems: [
+	  //         {
+		//             id:"start",
+		//             content:"start",
+    //             tooltipText: 'select all edges',
+    //             coreAsWell: true,
+		//             onClickFunction : function(event) {
+		//                 layout.run();
+		//             }
+	  //         },
+	  //         {
+		//             id:"stop",
+		//             content:"stop",
+    //             tooltipText: 'select all edges',
+    //             coreAsWell: true,
+		//             onClickFunction : function(event) {
+		//                 layout.stop();
+		//             }
+	  //         },
+	  //     ]});
 
-		            if (pnet.places[i].token == null) {
-		                this.cy.$("#p"+i).removeClass("withToken");
-		            } else {
-		                this.cy.$("#p"+i).addClass("withToken");
-		            }
-	          }
+    const update_pnet = function(cy, pnet) {
 
-	          for (var i = 0; i < pnet.transitions.length;i++) {
+	      for (var i = 0;i < pnet.places.length;i++){
+		        if (pnet.places[i].token == null) {
+		            cy.$("#p"+i).removeClass("withToken");
+		        } else {
+		            cy.$("#p"+i).addClass("withToken");
+		        }
+	      }
 
-		            if (pnet.transitions[i].launchable) {
-		                this.cy.$("#t"+i).addClass("launchable");
-		            }else {
-		                this.cy.$("#t"+i).removeClass("launchable");
-		            }
-	          }
+	      for (var i = 0; i < pnet.transitions.length;i++) {
+		        if (pnet.transitions[i].launchable) {
+		            cy.$("#t"+i).addClass("launchable");
+		        }else {
+		            cy.$("#t"+i).removeClass("launchable");
+		        }
+	      }
+	  }
 
-	      },
-	      run : function() {
-	          // this.cy.layout(make_cola_layout(this.cy)).run()
-	          this.layout.run();
-	      },
-        destroy: function () {
-            this.cy.destroy();
-        }
-    };
-    return pnet_cy;
+    const replace_elements = (cy, newElements) => {
+        cy.elements().remove()
+        cy.add(newElements)
+        const layout = cy.layout(cola_layout_conf)
+        return layout
+    }
+
+    const res = {
+        cy: cy,
+        layout: layout,
+        update_pnet: update_pnet,
+        replace_elements: replace_elements
+    }
+    window.cy_wrapper = res;
+    return res
 }

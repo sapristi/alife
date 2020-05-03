@@ -3,25 +3,53 @@ open Client_types;
 %raw
 "const cytoscape_utils = require('./../cytoscape/cytoscape_utils')";
 
+type event_handler = Js.Json.t => unit;
+
+type pnet_cytoscape_wrapper = {
+  cy: Cytoscape.cy,
+  mutable layout: Cytoscape.layout,
+  update_pnet: (Cytoscape.cy, Petri_net.petri_net) => unit,
+  replace_elements: (Cytoscape.cy, Cytoscape.Elements.t) => Cytoscape.layout,
+};
+
 type cytoscape_utils = {
   pnet_style: Cytoscape.style,
   cola_layout_conf: Cytoscape.layout_conf,
+  setup_pnet_cy: (Cytoscape.Elements.t, event_handler) => pnet_cytoscape_wrapper,
 };
-
+let empty_elements = {Cytoscape.Elements.nodes: [||], edges: [||]};
 [@bs.val] external cytoscape_utils: cytoscape_utils = "cytoscape_utils";
 
 [@react.component]
-let make = (~selectedPnet) => {
-  let containerRef: React.Ref.t(Js.Nullable.t(Dom.element)) =
-    React.useRef(Js.Nullable.null);
-  let (pnet, setPnet) = React.useState(() => None);
-  /* let (cy, setCy) = React.useState(() => None); */
-  /* let (elements, setElements) = React.useState(() => [||]); */
-  Js.log2("Pnet controls", selectedPnet);
+let make = (~selectedPnet, ~updateSwitch) => {
+  let containerRef: React.Ref.t(Js.Nullable.t(Dom.element)) = React.useRef(Js.Nullable.null);
+  let (pnetData, setPnetData) = React.useState(() => None);
+  let (selectedNode, setSelectedNode) = React.useState(() => Cytoscape.Elements.NoNode);
+
+  let cyEHandler = x => {
+    switch (Cytoscape.Elements.node_type_decode(x)) {
+    | Ok(node) => setSelectedNode(_ => node)
+    | Error(e) =>
+      Js.log3("Could not decode", x, e);
+      setSelectedNode(_ => NoNode);
+    };
+  };
+
+  let (cyWrapper, _) = React.useState(() => cytoscape_utils.setup_pnet_cy(empty_elements, cyEHandler));
+
+  let setup_new_pnet = pnet => {
+    Js.log2("Replacing with", pnet);
+    let newLayout = cyWrapper.replace_elements(cyWrapper.cy, Cytoscape.pnet_to_cytoscape_elements(pnet));
+    cyWrapper.layout##stop();
+    cyWrapper.layout = newLayout;
+    cyWrapper.update_pnet(cyWrapper.cy, pnet);
+    cyWrapper.layout##run();
+  };
+
   React.useEffect1(
     () => {
       switch (selectedPnet) {
-      | None => ()
+      | None => setPnetData(_ => None)
       | Some((mol, pnet_id)) =>
         YaacApi.request(
           Fetch.Get,
@@ -30,7 +58,8 @@ let make = (~selectedPnet) => {
           ~callback=
             res => {
               Js.log2("Res", res);
-              setPnet(_ => Some(res));
+              setPnetData(_ => Some(res));
+              setup_new_pnet(res);
             },
           (),
         )
@@ -41,36 +70,63 @@ let make = (~selectedPnet) => {
     [|selectedPnet|],
   );
 
-  React.useEffect2(
+  React.useEffect1(
     () => {
-      let containerOpt = containerRef->React.Ref.current->Js.Nullable.to_opt;
-      switch (pnet, containerOpt) {
-      | (Some(pnet'), Some(container)) =>
-        /* setCy(_ => */
-        /* Some( */
-        let cy =
-          Cytoscape.cytoscape({
-            container,
-            elements: Cytoscape.pnet_to_cytoscape_elements(pnet'),
-            style: cytoscape_utils.pnet_style,
-          });
-        let layout = cy##layout(cytoscape_utils.cola_layout_conf);
-        layout##run();
-        ();
-      | _ => ()
+      switch (selectedPnet) {
+      | None => setPnetData(_ => None)
+      | Some((mol, pnet_id)) =>
+        YaacApi.request(
+          Fetch.Get,
+          "/sandbox/amol/" ++ mol ++ "/pnet/" ++ pnet_id->string_of_int,
+          ~json_decode=Petri_net.petri_net_decode,
+          ~callback=
+            res => {
+              Js.log2("Res", res);
+              setPnetData(_ => Some(res));
+              cyWrapper.update_pnet(cyWrapper.cy, res);
+            },
+          (),
+        )
+        ->ignore
       };
       None;
     },
-    (pnet, containerRef->React.Ref.current),
+    [|updateSwitch|],
   );
 
-  /* let cyEHandler = { */
-  /*   set_node_selected: n => Js.log2("Select", n), */
-  /*   set_node_unselected: () => Js.log("Unselect"), */
-  /* }; */
+  React.useEffect1(
+    () => {
+      let containerOpt = containerRef->React.Ref.current->Js.Nullable.to_opt;
+      switch (containerOpt) {
+      | Some(container) => cyWrapper.cy##mount(container)
+      | None => cyWrapper.cy##unmount()
+      };
+      None;
+    },
+    [|containerRef->React.Ref.current|],
+  );
 
-  <div
-    ref={ReactDOMRe.Ref.domRef(containerRef)}
-    style=Css.(style([width(px(600)), height(px(600))]))
-  />;
+  <div className="tile">
+    <div
+      className="box"
+      ref={ReactDOMRe.Ref.domRef(containerRef)}
+      style=Css.(style([width(pct(80.)), height(px(600)), resize(vertical), overflow(hidden)]))
+    />
+    <div className="tile is-vertical">
+      <div className="field has-addons">
+        <button className="button" onClick={_ => cyWrapper.layout##stop()}>
+          "Pause graph layout"->React.string
+        </button>
+        <button className="button" onClick={_ => cyWrapper.layout##run()}>
+          "Resume graph layout"->React.string
+        </button>
+      </div>
+      {switch (pnetData, selectedNode) {
+       | (None, _) => React.null
+       | (Some(pnet), NPlace(i)) => <Sandbox_pnet_place pnet place_id=i />
+       | (Some(pnet), NTransition(i)) => "Transition"->React.string
+       | (_, NoNode) => React.null
+       }}
+    </div>
+  </div>;
 };
