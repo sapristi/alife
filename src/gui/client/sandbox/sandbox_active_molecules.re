@@ -26,8 +26,7 @@ module AmolControls = {
                 Js.log3("Callback", pnet_ids', selectedPnet);
                 setPnet_ids(_ => pnet_ids');
                 switch (selectedPnet, pnet_ids') {
-                | (None, [pnet_id, ..._]) =>
-                  setSelectedPnet(_ => Some((amol'.mol, pnet_id)))
+                | (None, [pnet_id, ..._]) => setSelectedPnet(_ => Some((amol'.mol, pnet_id)))
                 | (Some((_, prev_pnet_id)), [pnet_id, ..._]) =>
                   if (!List.exists(x => x == prev_pnet_id, pnet_ids')) {
                     setSelectedPnet(_ => Some((amol'.mol, pnet_id)));
@@ -70,17 +69,12 @@ module AmolControls = {
         <Molecules.HFlex style=[]>
           "Pnet selection"->React.string
           <div className="select">
-            <select
-              onChange={event =>
-                event |> Generics.event_to_value |> handlePnetIdChange
-              }>
+            <select onChange={event => event |> Generics.event_to_value |> handlePnetIdChange}>
               {Generics.react_list(
                  List.map(
                    i => {
                      let i_str = i->string_of_int;
-                     <option key=i_str value=i_str>
-                       i_str->React.string
-                     </option>;
+                     <option key=i_str value=i_str> i_str->React.string </option>;
                    },
                    pnet_ids,
                  ),
@@ -88,12 +82,8 @@ module AmolControls = {
             </select>
           </div>
         </Molecules.HFlex>
-        <button className="button" disabled>
-          "Remove molecule"->React.string
-        </button>
-        <button className="button" disabled>
-          "Send to molbuilder"->React.string
-        </button>
+        <button className="button" disabled> "Remove molecule"->React.string </button>
+        <button className="button" disabled> "Send to molbuilder"->React.string </button>
       </div>
     </div>;
   };
@@ -105,13 +95,11 @@ let make = (~active_mols, ~update, ~dispatch) => {
 
   let make_amol_row = (amol: active_mol) =>
     <React.Fragment>
-      <td style=Css.(style([overflowWrap(breakWord)]))>
-        amol.mol->React.string
-      </td>
+      <td style=Css.(style([overflowWrap(breakWord)]))> amol.mol->React.string </td>
       <td> {amol.qtt->string_of_int->React.string} </td>
     </React.Fragment>;
 
-  <div className="tile">
+  <div className="tile" style=Css.(style([alignItems(center)]))>
     <div className="tile is-10">
       <Sandbox_moltable
         col_widths=[85., 15.]

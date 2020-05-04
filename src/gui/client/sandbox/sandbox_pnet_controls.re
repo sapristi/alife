@@ -21,7 +21,7 @@ let empty_elements = {Cytoscape.Elements.nodes: [||], edges: [||]};
 [@bs.val] external cytoscape_utils: cytoscape_utils = "cytoscape_utils";
 
 [@react.component]
-let make = (~selectedPnet, ~updateSwitch) => {
+let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
   let containerRef: React.Ref.t(Js.Nullable.t(Dom.element)) = React.useRef(Js.Nullable.null);
   let (pnetData, setPnetData) = React.useState(() => None);
   let (selectedNode, setSelectedNode) = React.useState(() => Cytoscape.Elements.NoNode);
@@ -39,8 +39,8 @@ let make = (~selectedPnet, ~updateSwitch) => {
 
   let setup_new_pnet = pnet => {
     Js.log2("Replacing with", pnet);
-    let newLayout = cyWrapper.replace_elements(cyWrapper.cy, Cytoscape.pnet_to_cytoscape_elements(pnet));
     cyWrapper.layout##stop();
+    let newLayout = cyWrapper.replace_elements(cyWrapper.cy, Cytoscape.pnet_to_cytoscape_elements(pnet));
     cyWrapper.layout = newLayout;
     cyWrapper.update_pnet(cyWrapper.cy, pnet);
     cyWrapper.layout##run();
@@ -49,8 +49,13 @@ let make = (~selectedPnet, ~updateSwitch) => {
   React.useEffect1(
     () => {
       switch (selectedPnet) {
-      | None => setPnetData(_ => None)
+      | None =>
+        setSelectedNode(_ => NoNode);
+        setPnetData(_ => None);
+        cyWrapper.layout##stop();
+        cyWrapper.replace_elements(cyWrapper.cy, empty_elements)->ignore;
       | Some((mol, pnet_id)) =>
+        setSelectedNode(_ => NoNode);
         YaacApi.request(
           Fetch.Get,
           "/sandbox/amol/" ++ mol ++ "/pnet/" ++ pnet_id->string_of_int,
@@ -63,7 +68,7 @@ let make = (~selectedPnet, ~updateSwitch) => {
             },
           (),
         )
-        ->ignore
+        ->ignore;
       };
       None;
     },
@@ -113,18 +118,16 @@ let make = (~selectedPnet, ~updateSwitch) => {
       style=Css.(style([width(pct(80.)), height(px(600)), resize(vertical), overflow(hidden)]))
     />
     <div className="tile is-vertical">
-      <div className="field has-addons">
-        <button className="button" onClick={_ => cyWrapper.layout##stop()}>
-          "Pause graph layout"->React.string
-        </button>
-        <button className="button" onClick={_ => cyWrapper.layout##run()}>
-          "Resume graph layout"->React.string
-        </button>
-      </div>
+      <button className="button" onClick={_ => cyWrapper.layout##stop()}>
+        "Pause graph layout"->React.string
+      </button>
+      <button className="button" onClick={_ => cyWrapper.layout##run()}>
+        "Resume graph layout"->React.string
+      </button>
       {switch (pnetData, selectedNode) {
        | (None, _) => React.null
        | (Some(pnet), NPlace(i)) => <Sandbox_pnet_place pnet place_id=i />
-       | (Some(pnet), NTransition(i)) => "Transition"->React.string
+       | (Some(pnet), NTransition(i)) => <Sandbox_pnet_transition pnet transition_id=i dispatch />
        | (_, NoNode) => React.null
        }}
     </div>

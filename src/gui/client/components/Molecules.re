@@ -29,9 +29,7 @@ module NamedInput = {
   [@react.component]
   let make = (~label, ~value, ~setValue) => {
     <div className="field is-horizontal">
-      <div className="field-label is-normal">
-        <label className="label"> label->React.string </label>
-      </div>
+      <div className="field-label is-normal"> <label className="label"> label->React.string </label> </div>
       <div className="field-body">
         <div className="field">
           <p className="control">
@@ -54,7 +52,13 @@ module HFlex = {
   let hflex = Css.[display(flexBox)];
 
   [@react.component]
-  let make = (~children, ~style) => {
-    <div style={Css.style(hflex @ style)}> children </div>;
+  let make = (~children, ~style, ~className=?) => {
+    let className =
+      switch (className) {
+      | None => ""
+      | Some(s) => s
+      };
+
+    <div style={Css.style(hflex @ style)} className> children </div>;
   };
 };

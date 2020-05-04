@@ -261,22 +261,21 @@ export const setup_pnet_cy = function(elements, eventHandler) {
 	  //     ]});
 
     const update_pnet = function(cy, pnet) {
-
-	      for (var i = 0;i < pnet.places.length;i++){
-		        if (pnet.places[i].token == null) {
+        pnet.places.forEach( (place, i) => {
+            if (place.token == null) {
 		            cy.$("#p"+i).removeClass("withToken");
 		        } else {
 		            cy.$("#p"+i).addClass("withToken");
 		        }
-	      }
 
-	      for (var i = 0; i < pnet.transitions.length;i++) {
-		        if (pnet.transitions[i].launchable) {
+        })
+        pnet.transitions.forEach( (transition, i) => {
+		        if (transition.launchable) {
 		            cy.$("#t"+i).addClass("launchable");
 		        }else {
 		            cy.$("#t"+i).removeClass("launchable");
 		        }
-	      }
+	      })
 	  }
 
     const replace_elements = (cy, newElements) => {

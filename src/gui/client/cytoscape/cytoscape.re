@@ -60,9 +60,7 @@ type cytoscape_event_handler = {
   set_node_unselected: unit => unit,
 };
 
-type cytoscape_manager_maker =
-  (Petri_net.petri_net, Dom.element, cytoscape_event_handler) =>
-  cytoscape_manager;
+type cytoscape_manager_maker = (Petri_net.petri_net, Dom.element, cytoscape_event_handler) => cytoscape_manager;
 
 type layout_conf;
 type layout = {
@@ -100,7 +98,7 @@ let pnet_to_cytoscape_elements = (pnet: Petri_net.petri_net): Elements.t => {
 
       List.iteri(
         (j, ext) => {
-          let (ext, label) = Petri_net.acid_ext_to_cy(ext);
+          let (ext, label) = Petri_net.place_ext_to_cy(ext);
           let ext_node_id = place_id ++ "_" ++ ext;
           let ext_node: Elements.node = {
             data: {

@@ -36,28 +36,22 @@ module ImolControls = {
 
     <div className="tile is-vertical is-2">
       <div className="box">
-        <button className="button" disabled onClick=remove_selected>
-          "Remove molecule"->React.string
-        </button>
+        <button className="button" disabled onClick=remove_selected> "Remove molecule"->React.string </button>
         <Molecules.HFlex style=[]>
-          <button className="button" disabled>
-            "Set quantity"->React.string
-          </button>
+          <button className="button" disabled> "Set quantity"->React.string </button>
           <input
             className="input"
             type_="text"
             value=qtt
-            width="10"
             disabled
+            size=3
             onChange={event => {
               let new_value = event->Generics.event_to_value;
               setQtt(_ => new_value);
             }}
           />
         </Molecules.HFlex>
-        <button className="button" disabled>
-          "Send to molbuilder"->React.string
-        </button>
+        <button className="button" disabled> "Send to molbuilder"->React.string </button>
       </div>
     </div>;
   };
@@ -69,14 +63,12 @@ let make = (~inert_mols, ~update, ~dispatch) => {
 
   let make_imol_row = (imol: inert_mol) =>
     <React.Fragment>
-      <td style=Css.(style([overflowWrap(breakWord)]))>
-        imol.mol->React.string
-      </td>
+      <td style=Css.(style([overflowWrap(breakWord)]))> imol.mol->React.string </td>
       <td> {imol.qtt->string_of_int->React.string} </td>
       <td> {imol.ambient->string_of_bool->React.string} </td>
     </React.Fragment>;
 
-  <div className="tile">
+  <div className="tile" style=Css.(style([alignItems(center)]))>
     <div className="tile">
       <Sandbox_moltable
         col_widths=[70., 15., 15.]

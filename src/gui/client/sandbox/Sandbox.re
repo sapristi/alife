@@ -3,6 +3,33 @@ open Client_utils;
 open Client_types;
 open Sandbox_components;
 
+module SidePanel = {
+  [@react.component]
+  let make = (~dispatch) => {
+    let (nr, setNr) = React.useState(() => 1);
+
+    let next_reactions = i => {
+      YaacApi.request(
+        Fetch.Post,
+        "/sandbox/reaction/next/" ++ i,
+        ~json_decode=bact_decode,
+        ~callback=
+          new_bact => {
+            dispatch(SetBact(new_bact));
+            dispatch(SwitchUpdate);
+          },
+        (),
+      )
+      ->ignore;
+    };
+    <div style=Css.(style([position(fixed), zIndex(1000), padding(rem(0.5))])) className="box">
+      <button className="button" onClick={_ => next_reactions("1")}> "React!"->React.string </button>
+      <input className="input" type_="text" size=1 />
+      <button className="button" onClick={_ => next_reactions("1")}> "React!"->React.string </button>
+    </div>;
+  };
+};
+
 type sandboxState = {
   sandbox,
   selectedPnet: option((string, int)),
@@ -34,27 +61,9 @@ let reducer = (state: sandboxState, action) => {
 [@react.component]
 let make = () => {
   let (state, dispatch) =
-    React.useReducer(
-      reducer,
-      {sandbox: default_sandbox, selectedPnet: None, updateSwitch: false},
-    );
+    React.useReducer(reducer, {sandbox: default_sandbox, selectedPnet: None, updateSwitch: false});
 
   Js.log2("Sandbox", state);
-
-  let next_reactions = i => {
-    YaacApi.request(
-      Fetch.Post,
-      "/sandbox/reaction/next/" ++ i,
-      ~json_decode=bact_decode,
-      ~callback=
-        new_bact => {
-          dispatch(SetBact(new_bact));
-          dispatch(SwitchUpdate);
-        },
-      (),
-    )
-    ->ignore;
-  };
 
   let update = _ => {
     ignore(
@@ -72,11 +81,7 @@ let make = () => {
   });
   Js.log(("SANDBOX", state));
   <div style=Css.(style([display(`flex), flexDirection(`row)]))>
-    <div style=Css.(style([position(fixed)]))>
-      <button className="button" onClick={_ => next_reactions("1")}>
-        "Next reaction"->React.string
-      </button>
-    </div>
+    <SidePanel dispatch />
     <div style=Css.(style([flexGrow(0.), paddingLeft(px(30))]))>
       <h1 className="title"> "Sandbox"->React.string </h1>
       <section className="section">
@@ -85,26 +90,15 @@ let make = () => {
       </section>
       <section className="section">
         <h2 className="subtitle"> "Inert molecules"->React.string </h2>
-        <Inert_molecules
-          inert_mols={state.sandbox.bact.inert_mols}
-          update
-          dispatch
-        />
+        <Inert_molecules inert_mols={state.sandbox.bact.inert_mols} update dispatch />
       </section>
       <section className="section">
         <h2 className="subtitle"> "Active molecules"->React.string </h2>
-        <Active_molecules
-          active_mols={state.sandbox.bact.active_mols}
-          update
-          dispatch
-        />
+        <Active_molecules active_mols={state.sandbox.bact.active_mols} update dispatch />
       </section>
       <section className="section">
         <h2 className="subtitle"> "Petri Net"->React.string </h2>
-        <Pnet_controls
-          selectedPnet={state.selectedPnet}
-          updateSwitch={state.updateSwitch}
-        />
+        <Pnet_controls selectedPnet={state.selectedPnet} updateSwitch={state.updateSwitch} dispatch />
       </section>
     </div>
   </div>;
