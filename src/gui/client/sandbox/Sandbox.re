@@ -1,7 +1,6 @@
 /* [@bs.val] [@bs.scope ("window", "location")] external origin : string = "origin"; */
 open Client_utils;
 open Client_types;
-open Sandbox_components;
 
 module SidePanel = {
   [@react.component]
@@ -11,7 +10,7 @@ module SidePanel = {
     let next_reactions = i => {
       YaacApi.request(
         Fetch.Post,
-        "/sandbox/reaction/next/" ++ i,
+        "/sandbox/reaction/next/" ++ i->string_of_int,
         ~json_decode=bact_decode,
         ~callback=
           new_bact => {
@@ -23,9 +22,24 @@ module SidePanel = {
       ->ignore;
     };
     <div style=Css.(style([position(fixed), zIndex(1000), padding(rem(0.5))])) className="box">
-      <button className="button" onClick={_ => next_reactions("1")}> "React!"->React.string </button>
-      <input className="input" type_="text" size=1 />
-      <button className="button" onClick={_ => next_reactions("1")}> "React!"->React.string </button>
+      <Components.VFlex>
+        <button className="button" onClick={_ => next_reactions(1)}> "React!"->React.string </button>
+        <input
+          className="input"
+          type_="text"
+          size=1
+          style=Css.(style([maxWidth(px(100))]))
+          value={nr->string_of_int}
+          onChange={e => {
+            let v = e->Generics.event_to_value;
+            switch (Belt.Int.fromString(v)) {
+            | None => ()
+            | Some(i) => setNr(_ => i)
+            };
+          }}
+        />
+        <button className="button" onClick={_ => next_reactions(nr)}> "React!"->React.string </button>
+      </Components.VFlex>
     </div>;
   };
 };
@@ -80,26 +94,26 @@ let make = () => {
     None;
   });
   Js.log(("SANDBOX", state));
-  <div style=Css.(style([display(`flex), flexDirection(`row)]))>
+  <Components.VFlex>
     <SidePanel dispatch />
-    <div style=Css.(style([flexGrow(0.), paddingLeft(px(30))]))>
+    <div style=Css.(style([flexGrow(0.), paddingLeft(px(100))]))>
       <h1 className="title"> "Sandbox"->React.string </h1>
       <section className="section">
         <h2 className="subtitle"> "Generic controls"->React.string </h2>
-        <Generic_controls env={state.sandbox.env} update dispatch />
+        <Sandbox_generic_controls env={state.sandbox.env} update dispatch />
       </section>
       <section className="section">
         <h2 className="subtitle"> "Inert molecules"->React.string </h2>
-        <Inert_molecules inert_mols={state.sandbox.bact.inert_mols} update dispatch />
+        <Sandbox_inert_molecules inert_mols={state.sandbox.bact.inert_mols} update dispatch />
       </section>
       <section className="section">
         <h2 className="subtitle"> "Active molecules"->React.string </h2>
-        <Active_molecules active_mols={state.sandbox.bact.active_mols} update dispatch />
+        <Sandbox_active_molecules active_mols={state.sandbox.bact.active_mols} update dispatch />
       </section>
       <section className="section">
         <h2 className="subtitle"> "Petri Net"->React.string </h2>
-        <Pnet_controls selectedPnet={state.selectedPnet} updateSwitch={state.updateSwitch} dispatch />
+        <Sandbox_pnet_controls selectedPnet={state.selectedPnet} updateSwitch={state.updateSwitch} dispatch />
       </section>
     </div>
-  </div>;
+  </Components.VFlex>;
 };

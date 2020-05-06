@@ -34,11 +34,23 @@ module ImolControls = {
       ->ignore;
     };
 
+    let setQuantity = _ => {
+      let imol_str = Belt.Option.getExn(imol).mol;
+      YaacApi.request(
+        Fetch.Put,
+        "/sandbox/imol/" ++ imol_str ++ "?qtt=" ++ qtt,
+        ~json_decode=bact_decode,
+        ~callback=bact => dispatch(SetBact(bact)),
+        (),
+      )
+      ->ignore;
+    };
+
     <div className="tile is-vertical is-2">
       <div className="box">
         <button className="button" disabled onClick=remove_selected> "Remove molecule"->React.string </button>
-        <Molecules.HFlex style=[]>
-          <button className="button" disabled> "Set quantity"->React.string </button>
+        <Components.HFlex style=[]>
+          <button className="button" disabled onClick=setQuantity> "Set quantity"->React.string </button>
           <input
             className="input"
             type_="text"
@@ -50,7 +62,7 @@ module ImolControls = {
               setQtt(_ => new_value);
             }}
           />
-        </Molecules.HFlex>
+        </Components.HFlex>
         <button className="button" disabled> "Send to molbuilder"->React.string </button>
       </div>
     </div>;

@@ -26,41 +26,29 @@ module EnvControls = {
     );
 
     <div className="tile is-vertical box">
-      <Molecules.NamedInput
+      <Components.NamedInput
         label="break rate"
         value={innerEnv.break_rate}
-        setValue={new_value =>
-          setInnerEnv(_ => {...innerEnv, break_rate: new_value})
-        }
+        setValue={new_value => setInnerEnv(_ => {...innerEnv, break_rate: new_value})}
       />
-      <Molecules.NamedInput
+      <Components.NamedInput
         label="grab rate"
         value={innerEnv.grab_rate}
-        setValue={new_value =>
-          setInnerEnv(_ => {...innerEnv, grab_rate: new_value})
-        }
+        setValue={new_value => setInnerEnv(_ => {...innerEnv, grab_rate: new_value})}
       />
-      <Molecules.NamedInput
+      <Components.NamedInput
         label="transition rate"
         value={innerEnv.transition_rate}
-        setValue={new_value =>
-          setInnerEnv(_ => {...innerEnv, transition_rate: new_value})
-        }
+        setValue={new_value => setInnerEnv(_ => {...innerEnv, transition_rate: new_value})}
       />
-      <Molecules.NamedInput
+      <Components.NamedInput
         label="collision rate"
         value={innerEnv.collision_rate}
-        setValue={new_value =>
-          setInnerEnv(_ => {...innerEnv, collision_rate: new_value})
-        }
+        setValue={new_value => setInnerEnv(_ => {...innerEnv, collision_rate: new_value})}
       />
       <div className="buttons has-addons">
-        <button className="button" onClick=commit>
-          "Commit"->React.string
-        </button>
-        <button className="button" onClick={_ => setInnerEnv(_ => env)}>
-          "Reset"->React.string
-        </button>
+        <button className="button" onClick=commit> "Commit"->React.string </button>
+        <button className="button" onClick={_ => setInnerEnv(_ => env)}> "Reset"->React.string </button>
       </div>
     </div>;
   };
@@ -87,38 +75,22 @@ module StateControls = {
       });
       let (state, setState) = React.useReducer((_, v) => v, "");
 
-      let commit = _ =>
-        YaacApi.request(
-          Fetch.Put,
-          "/sandbox/state/" ++ state,
-          ~side_effect=update,
-          (),
-        )
-        ->ignore;
+      let commit = _ => YaacApi.request(Fetch.Put, "/sandbox/state/" ++ state, ~side_effect=update, ())->ignore;
 
       <div>
         <div className="select">
-          <select
-            value=state onChange={e => setState(Generics.event_to_value(e))}>
-            {List.map(
-               v => <option value=v key=v> {React.string(v)} </option>,
-               values,
-             )
-             ->Generics.react_list}
+          <select value=state onChange={e => setState(Generics.event_to_value(e))}>
+            {List.map(v => <option value=v key=v> {React.string(v)} </option>, values)->Generics.react_list}
           </select>
         </div>
-        <button className="ui primary button" onClick=commit>
-          {React.string("Load state")}
-        </button>
+        <button className="ui primary button" onClick=commit> {React.string("Load state")} </button>
       </div>;
     };
   };
 
   [@react.component]
   let make = (~update) => {
-    <div
-      className="tile is-vertical box"
-      style=Css.(style([justifyContent(spaceEvenly)]))>
+    <div className="tile is-vertical box" style=Css.(style([justifyContent(spaceEvenly)]))>
       <div>
         <div className="buttons has-addons">
           /* <Tooltip title={<Typography> "update" </Typography>}> */
@@ -129,25 +101,20 @@ module StateControls = {
             /*   title={<Typography> "Reset sandbox to initial state" </Typography>}> */
             <button className="button"> "Reset"->React.string </button>
             /* </Tooltip> */
-            <button className="button">
-              "Load from file"->React.string
-            </button>
+            <button className="button"> "Load from file"->React.string </button>
             <button className="button"> "Reset"->React.string </button>
           </div>
       </div>
       <StateLoader update />
-      <Molecules.HFlex style=[]>
+      <Components.HFlex style=[]>
         <input className="input" type_="text" placeholder="Random seed" />
         <button className="button"> {React.string("Commit Seed")} </button>
-      </Molecules.HFlex>
+      </Components.HFlex>
     </div>;
   };
 };
 
 [@react.component]
 let make = (~env, ~update, ~dispatch) => {
-  <div className="tile">
-    <StateControls update />
-    <EnvControls env dispatch />
-  </div>;
+  <div className="tile"> <StateControls update /> <EnvControls env dispatch /> </div>;
 };

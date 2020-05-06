@@ -11,7 +11,7 @@ module Main = {
     let (activeTab, setActiveTab) = React.useReducer((_, v) => v, TSandbox);
 
     <div>
-      <Molecules.Tabs
+      <Components.Tabs
         tabs=[
           (TSimulator, "Simulator"->React.string),
           (TSandbox, "Sandbox"->React.string),
@@ -20,7 +20,7 @@ module Main = {
         activeTab
         setActiveTab
       />
-      <div style={ReactDOMRe.Style.make(~paddingTop="20px", ())}>
+      <div>
         {switch (activeTab) {
          | TSimulator => React.string("Simulator")
          | TSandbox => <Sandbox />

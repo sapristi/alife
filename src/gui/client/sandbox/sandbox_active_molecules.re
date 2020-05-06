@@ -66,7 +66,7 @@ module AmolControls = {
 
     <div className="tile is-vertical is-2">
       <div className="box">
-        <Molecules.HFlex style=[]>
+        <Components.HFlex style=[]>
           "Pnet selection"->React.string
           <div className="select">
             <select onChange={event => event |> Generics.event_to_value |> handlePnetIdChange}>
@@ -81,7 +81,7 @@ module AmolControls = {
                )}
             </select>
           </div>
-        </Molecules.HFlex>
+        </Components.HFlex>
         <button className="button" disabled> "Remove molecule"->React.string </button>
         <button className="button" disabled> "Send to molbuilder"->React.string </button>
       </div>
