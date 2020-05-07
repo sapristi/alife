@@ -8,7 +8,7 @@ module Main = {
     | TMolbuilder;
   [@react.component]
   let make = () => {
-    let (activeTab, setActiveTab) = React.useReducer((_, v) => v, TSandbox);
+    let (activeTab, setActiveTab) = React.useReducer((_, v) => v, TMolbuilder);
 
     <div>
       <Components.Tabs
@@ -24,7 +24,7 @@ module Main = {
         {switch (activeTab) {
          | TSimulator => React.string("Simulator")
          | TSandbox => <Sandbox />
-         | TMolbuilder => React.string("Molbuilder")
+         | TMolbuilder => <Molbuilder />
          }}
       </div>
     </div>;
