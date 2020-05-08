@@ -1,36 +1,40 @@
 {
-  "name": "alife-client",
-  "reason": {
-    "react-jsx": 3
-  },
-  "sources": [
-    {
-      "dir": "src/gui/client",
-      "subdirs": true
+    "name": "alife-client",
+    "namespace": true,
+    "reason": {
+        "react-jsx": 3
+    },
+    "sources": [
+        {
+            "dir": "src/gui/client",
+            "subdirs": true
+        },
+        {
+            "dir": "src/base_chemistry/types"
+        }
+
+    ],
+    "package-specs": [
+        {
+            "module": "commonjs",
+            "in-source": true
+        }
+    ],
+    "suffix": ".bs.js",
+    "bs-dependencies": [
+        "decco",
+        "reason-react",
+        "bs-fetch",
+        "reductive",
+        "bs-css",
+        "bs-css-dom"
+    ],
+    "ppx-flags": [
+        "decco/ppx"
+    ],
+    "refmt": 3,
+    "warnings": {
+        "number": "+A-40-42-48-105",
+        "error": "+A-3-44-102-41-10-27-26-20"
     }
-  ],
-  "package-specs": [
-    {
-      "module": "commonjs",
-      "in-source": true
-    }
-  ],
-  "suffix": ".bs.js",
-  "namespace": true,
-  "bs-dependencies": [
-      "decco",
-      "reason-react",
-      "bs-fetch",
-      "reductive",
-      "bs-css",
-      "bs-css-dom"
-  ],
-  "ppx-flags": [
-      "decco/ppx"
-  ],
-  "refmt": 3,
-  "warnings": {
-    "number": "+A-40-42-48-105",
-    "error": "+A-3-44-102-41-10-27-26-20"
-  }
 }

@@ -39,22 +39,25 @@
 
 (* *** place *)
 type place_type = Regular_place
-                    [@@deriving show, yojson]
-                
+                  [@decco]
+[@@deriving show, yojson]
+
 (* *** transition_input *)
-type input_arc = 
+type input_arc =
   | Regular_iarc
   | Split_iarc
   | Filter_iarc of string
   | Filter_empty_iarc
+    [@decco]
 [@@deriving show, yojson]
-  
+
 (* *** transition_output *)
-type output_arc = 
+type output_arc =
   | Regular_oarc
   | Merge_oarc
   | Move_oarc of bool
-                   [@@deriving show, yojson]
+                 [@decco]
+[@@deriving show, yojson]
 
 
 (* *** extension *)
@@ -65,16 +68,17 @@ type receive_pattern = string
                          [@@deriving show,  yojson]
 type msg_format = string
                     [@@deriving  show, yojson]
-                
+
 type extension =
   | Grab_ext of string
   | Release_ext
   | Init_with_token_ext
-               [@@deriving  show, yojson]
-  
-     
+    [@decco]
+[@@deriving  show, yojson]
 
-  
+
+
+
 (* ** type definitions *)
 (* *** acid type definition *)
 (*     We define how the abstract types get combined to form functional *)
@@ -85,17 +89,18 @@ type extension =
 (*       + a transition output : an outgoing edge into a transition of the *)
 (*       petri net *)
 (*       + a piece of information : ???? *)
-  
-type acid = 
+
+type acid =
   | Place
   | InputArc of string * input_arc
   | OutputArc of string * output_arc
   | Extension of extension
-               [@@deriving  show, yojson]
+                 [@decco]
+[@@deriving  show, yojson]
 
 (* * AcidExamples module *)
-  
-module Examples = 
+
+module Examples =
   struct
     let nodes = [ Place;]
     let input_arcs = [

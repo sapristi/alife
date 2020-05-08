@@ -4,4 +4,6 @@
   (pps ppx_deriving.show
        ppx_deriving.ord
        ppx_deriving_yojson))
- (flags -w))
+ (flags -w)
+ (libraries re)
+)

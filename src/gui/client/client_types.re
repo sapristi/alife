@@ -45,16 +45,11 @@ type sandbox_action =
   | SwitchUpdate;
 
 module Petri_net = {
+  open Acid_types;
   [@decco]
   type molecule = string;
   [@decco]
   type token = (int, molecule);
-
-  [@decco]
-  type place_extension =
-    | Grab_ext(string)
-    | Release_ext
-    | Init_with_token_ext;
 
   let place_ext_to_cy = aext =>
     switch (aext) {

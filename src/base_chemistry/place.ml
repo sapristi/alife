@@ -6,7 +6,7 @@
 
 
 (* ** divers *)
-   
+open Chemistry_types
 type place_exts = Acid_types.extension list
 
 type t =

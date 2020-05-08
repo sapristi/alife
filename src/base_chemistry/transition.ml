@@ -18,7 +18,7 @@
 (*  - la liste des pointeurs des places d'arrivée *)
 (*  - la liste des types de transition entrantes *)
 (*  - la liste des types de transitions sortantes *)
-
+open Chemistry_types
 open Local_libs.Numeric
 open Easy_logging_yojson
 

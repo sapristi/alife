@@ -8,6 +8,7 @@ open Reactors
 open Local_libs
 open Easy_logging_yojson
 open Base_chemistry
+open Chemistry_types
 let logger = Logging.get_logger "Yaac.Server.Bact"
 
 
