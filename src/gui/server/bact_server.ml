@@ -41,7 +41,7 @@ let build_all_from_mol (req : Opium_kernel__Rock.Request.t)=
     in
     let pnet_json =
       match Petri_net.make_from_mol mol with
-      | Some pnet -> Petri_net.to_json pnet
+      | Some pnet -> Petri_net.to_yojson pnet
       | None -> `Null
     in
     `Json (
@@ -70,7 +70,7 @@ let build_all_from_prot (req : Opium_kernel__Rock.Request.t) =
       let mol_json = `String mol in
       let pnet_json =
         match Petri_net.make_from_mol mol with
-        | Some pnet -> Petri_net.to_json pnet
+        | Some pnet -> Petri_net.to_yojson pnet
         | None -> `Null
       in
       `Json (`Assoc

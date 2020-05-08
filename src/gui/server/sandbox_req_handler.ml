@@ -84,7 +84,7 @@ let get_pnet (sandbox : Sandbox.t) (req) =
   and pnet_id = int_of_string (param req "pnet_id") in
   let pnet_json =
     (Reactants_maps.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet
-    |> Petri_net.to_json
+    |> Petri_net.to_yojson
   in
   `Json pnet_json|> Lwt.return
 
@@ -117,7 +117,7 @@ let pnet_action (sandbox: Sandbox.t) req =
         );
         Petri_net.update_launchables pnet;
 
-        let pnet_json = Petri_net.to_json pnet in
+        let pnet_json = Petri_net.to_yojson pnet in
         `Json pnet_json |> Lwt.return
       )
     | Launch_transition trans_index ->
@@ -127,7 +127,7 @@ let pnet_action (sandbox: Sandbox.t) req =
       let actions = List.map (fun x -> Reacs.T_effects x) [p_actions] in
       Bacterie.execute_actions !(sandbox.bact) actions;
 
-      let pnet_json = Petri_net.to_json pnet
+      let pnet_json = Petri_net.to_yojson pnet
       in
       `Json  pnet_json |> Lwt.return
 

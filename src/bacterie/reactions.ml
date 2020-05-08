@@ -219,7 +219,7 @@ module ReactionsM (R : REACTANT) =
         type build_t = R.Amol.t
                      
         let calculate_rate (t :t)  =
-           t.amd.pnet.launchables_nb
+           Q.of_int t.amd.pnet.launchables_nb
           
         let rate (t : t)  =
           t.rate
