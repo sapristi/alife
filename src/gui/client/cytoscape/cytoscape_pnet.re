@@ -1,13 +1,12 @@
 %raw
 "const cytoscape_utils = require('./../cytoscape/cytoscape_utils')";
-open Client_types;
 
 type event_handler = Js.Json.t => unit;
 
 type pnet_cytoscape_wrapper = {
   cy: Cytoscape.cy,
   mutable layout: Cytoscape.layout,
-  update_pnet: (Cytoscape.cy, Petri_net.petri_net) => unit,
+  update_pnet: (Cytoscape.cy, Types.Petri_net.t) => unit,
   replace_elements: (Cytoscape.cy, Cytoscape.Elements.t) => Cytoscape.layout,
 };
 

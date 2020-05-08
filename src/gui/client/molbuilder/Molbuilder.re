@@ -1,9 +1,9 @@
 /* open Client_utils; */
-open Client_types;
+open Types;
 
 type state = {
-  mol: Petri_net.molecule,
-  pnet: option(Petri_net.petri_net),
+  mol: Molecule.t,
+  pnet: option(Petri_net.t),
   prot: string,
 };
 

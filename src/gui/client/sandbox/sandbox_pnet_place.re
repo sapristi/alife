@@ -1,4 +1,4 @@
-open Client_types;
+open Types;
 open Client_utils;
 
 module TokenComponent = {
@@ -67,7 +67,7 @@ module TokenComponent = {
 };
 
 [@react.component]
-let make = (~pnet: Petri_net.petri_net, ~place_id) => {
+let make = (~pnet: Petri_net.t, ~place_id) => {
   let place = pnet.places[place_id];
   let place_body =
     switch (place.extensions) {
@@ -76,7 +76,7 @@ let make = (~pnet: Petri_net.petri_net, ~place_id) => {
       <React.Fragment>
         "Extensions:"->React.string
         <ul>
-          {List.map(e => <li> {Petri_net.place_ext_to_descr(e)->React.string} </li>, place.extensions)
+          {List.map(e => <li> {Client_types.place_ext_to_descr(e)->React.string} </li>, place.extensions)
            ->Generics.react_list}
         </ul>
       </React.Fragment>

@@ -1,5 +1,4 @@
 open Client_utils;
-open Client_types;
 
 type event_handler = Js.Json.t => unit;
 
@@ -28,7 +27,7 @@ let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
         YaacApi.request(
           Fetch.Get,
           "/sandbox/amol/" ++ mol ++ "/pnet/" ++ pnet_id->string_of_int,
-          ~json_decode=Petri_net.petri_net_decode,
+          ~json_decode=Types.Petri_net.t_decode,
           ~callback=
             res => {
               Js.log2("Res", res);
@@ -51,7 +50,7 @@ let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
         YaacApi.request(
           Fetch.Get,
           "/sandbox/amol/" ++ mol ++ "/pnet/" ++ pnet_id->string_of_int,
-          ~json_decode=Petri_net.petri_net_decode,
+          ~json_decode=Types.Petri_net.t_decode,
           ~callback=
             res => {
               Js.log2("Res", res);

@@ -1,7 +1,8 @@
 %raw
 "const cytoscape = require('cytoscape'); const cola = require('cytoscape-cola'); cytoscape.use( cola )";
 
-open Client_types;
+open Types;
+
 module Elements = {
   [@decco]
   type node_type =
@@ -50,7 +51,7 @@ type cytoscape_conf = {
 };
 
 type cytoscape_manager = {
-  update: Petri_net.petri_net => unit,
+  update: Types.Petri_net.t => unit,
   run: unit => unit,
 };
 type cy_node;
@@ -60,7 +61,7 @@ type cytoscape_event_handler = {
   set_node_unselected: unit => unit,
 };
 
-type cytoscape_manager_maker = (Petri_net.petri_net, Dom.element, cytoscape_event_handler) => cytoscape_manager;
+type cytoscape_manager_maker = (Types.Petri_net.t, Dom.element, cytoscape_event_handler) => cytoscape_manager;
 
 type layout_conf;
 type layout = {
@@ -79,12 +80,12 @@ type cy = {
 
 [@bs.module] external cytoscape: cytoscape_conf => cy = "cytoscape";
 
-let pnet_to_cytoscape_elements = (pnet: Petri_net.petri_net): Elements.t => {
+let pnet_to_cytoscape_elements = (pnet: Types.Petri_net.t): Elements.t => {
   let res_nodes = ref([]);
   let res_edges = ref([]);
 
   Array.iteri(
-    (i, place) => {
+    (i, place: Place.t) => {
       let place_id = "p" ++ i->string_of_int;
       let place_node: Elements.node = {
         data: {
@@ -98,7 +99,7 @@ let pnet_to_cytoscape_elements = (pnet: Petri_net.petri_net): Elements.t => {
 
       List.iteri(
         (j, ext) => {
-          let (ext, label) = Petri_net.place_ext_to_cy(ext);
+          let (ext, label) = Client_types.place_ext_to_cy(ext);
           let ext_node_id = place_id ++ "_" ++ ext;
           let ext_node: Elements.node = {
             data: {
@@ -122,14 +123,14 @@ let pnet_to_cytoscape_elements = (pnet: Petri_net.petri_net): Elements.t => {
           res_edges := [ext_edge, ...res_edges^];
           ();
         },
-        place.Petri_net.extensions,
+        place.extensions,
       );
     },
     pnet.places,
   );
 
   Array.iteri(
-    (i, transition: Petri_net.transition) => {
+    (i, transition: Transition.t) => {
       let transition_node: Elements.node = {
         data: {
           id: "t" ++ i->string_of_int,
@@ -141,8 +142,8 @@ let pnet_to_cytoscape_elements = (pnet: Petri_net.petri_net): Elements.t => {
       res_nodes := [transition_node, ...res_nodes^];
 
       List.iter(
-        (ia: Petri_net.input_arc) => {
-          let (ia_class, label) = Petri_net.input_arc_to_cy(ia.iatype);
+        (ia: Transition.input_arc) => {
+          let (ia_class, label) = Client_types.input_arc_to_cy(ia.iatype);
           let ia_edge: Elements.edge = {
             classes: "arc " ++ ia_class,
             data: {
@@ -157,9 +158,9 @@ let pnet_to_cytoscape_elements = (pnet: Petri_net.petri_net): Elements.t => {
         transition.input_arcs,
       );
       List.iter(
-        (oa: Petri_net.output_arc) => {
+        (oa: Transition.output_arc) => {
           /* Js.log2("Input arc", ia); */
-          let (oa_class, label) = Petri_net.output_arc_to_cy(oa.oatype);
+          let (oa_class, label) = Client_types.output_arc_to_cy(oa.oatype);
           let oa_edge: Elements.edge = {
             classes: "arc " ++ oa_class,
             data: {

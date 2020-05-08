@@ -39,7 +39,7 @@
 
 (* *** place *)
 type place_type = Regular_place
-                  [@decco]
+[@@decco]
 [@@deriving show, yojson]
 
 (* *** transition_input *)
@@ -48,7 +48,7 @@ type input_arc =
   | Split_iarc
   | Filter_iarc of string
   | Filter_empty_iarc
-    [@decco]
+[@@decco]
 [@@deriving show, yojson]
 
 (* *** transition_output *)
@@ -56,24 +56,24 @@ type output_arc =
   | Regular_oarc
   | Merge_oarc
   | Move_oarc of bool
-                 [@decco]
+[@@decco]
 [@@deriving show, yojson]
 
 
 (* *** extension *)
 (* Types used by the extensions. Usefull to use custom types for easier potential changes later on. *)
 type handle_id = string
-                   [@@deriving  show, yojson]
+[@@deriving  show, yojson]
 type receive_pattern = string
-                         [@@deriving show,  yojson]
+[@@deriving show,  yojson]
 type msg_format = string
-                    [@@deriving  show, yojson]
+[@@deriving  show, yojson]
 
 type extension =
   | Grab_ext of string
   | Release_ext
   | Init_with_token_ext
-    [@decco]
+[@@decco]
 [@@deriving  show, yojson]
 
 
@@ -95,27 +95,27 @@ type acid =
   | InputArc of string * input_arc
   | OutputArc of string * output_arc
   | Extension of extension
-                 [@decco]
+[@@decco]
 [@@deriving  show, yojson]
 
 (* * AcidExamples module *)
 
 module Examples =
-  struct
-    let nodes = [ Place;]
-    let input_arcs = [
-        InputArc ("A", Regular_iarc);
-        InputArc ("A", Split_iarc);
-        InputArc ("A", Filter_iarc "A");
-        InputArc ("A", Filter_empty_iarc);]
-    let output_arcs = [
-        OutputArc ("A", Regular_oarc);
-        OutputArc ("A", Merge_oarc);
-        OutputArc ("A", Move_oarc true);]
-    let extensions = [
-        Extension (Release_ext);
-        Extension (Init_with_token_ext);
-        Extension (Grab_ext "AAFBFAAFF");
-      ]
+struct
+  let nodes = [ Place;]
+  let input_arcs = [
+    InputArc ("A", Regular_iarc);
+    InputArc ("A", Split_iarc);
+    InputArc ("A", Filter_iarc "A");
+    InputArc ("A", Filter_empty_iarc);]
+  let output_arcs = [
+    OutputArc ("A", Regular_oarc);
+    OutputArc ("A", Merge_oarc);
+    OutputArc ("A", Move_oarc true);]
+  let extensions = [
+    Extension (Release_ext);
+    Extension (Init_with_token_ext);
+    Extension (Grab_ext "AAFBFAAFF");
+  ]
 
-  end;;
+end;;
