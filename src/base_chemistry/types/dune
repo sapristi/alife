@@ -1,0 +1,7 @@
+(library
+ (name chemistry_types)
+ (preprocess
+  (pps ppx_deriving.show
+       ppx_deriving.ord
+       ppx_deriving_yojson))
+ (flags -w))
