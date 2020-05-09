@@ -6,14 +6,7 @@ let make = (~pnet: Petri_net.t, ~transition_id, ~dispatch) => {
   let transition = pnet.transitions[transition_id];
 
   let launch = _ => {
-    YaacApi.request(
-      Fetch.Put,
-      "/sandbox/amol/" ++ pnet.mol ++ "/pnet/" ++ pnet.uid->string_of_int,
-      ~payload=pnet_action_encode(Launch_transition(transition_id)),
-      ~side_effect=() => dispatch(SwitchUpdate),
-      (),
-    )
-    ->ignore;
+    YaacApi.request(Fetch.Put, "/sandbox/amol/" ++ pnet.mol ++ "/pnet/" ++ pnet.uid->string_of_int, ~payload=pnet_action_encode(Launch_transition(transition_id)), ~side_effect=() => dispatch(SwitchUpdate), ())->ignore;
   };
 
   <div>
@@ -32,7 +25,10 @@ let make = (~pnet: Petri_net.t, ~transition_id, ~dispatch) => {
         <p>
           "Incoming arcs:"->React.string
           {List.map(
-             (ia: Transition.input_arc) => <li> Client_types.(input_arc_to_descr(ia.iatype))->React.string </li>,
+             (ia: Transition.input_arc) => {
+               let d = Client_types.Chemistry.input_arc_to_descr(ia.iatype);
+               <li key=d> d->React.string </li>;
+             },
              transition.input_arcs,
            )
            ->Generics.react_list}
@@ -40,7 +36,10 @@ let make = (~pnet: Petri_net.t, ~transition_id, ~dispatch) => {
         <p>
           "Outgoing arcs:"->React.string
           {List.map(
-             (oa: Transition.output_arc) => <li> Client_types.(output_arc_to_descr(oa.oatype))->React.string </li>,
+             (oa: Transition.output_arc) => {
+               let d = Client_types.Chemistry.output_arc_to_descr(oa.oatype);
+               <li key=d> d->React.string </li>;
+             },
              transition.output_arcs,
            )
            ->Generics.react_list}

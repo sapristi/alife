@@ -70,7 +70,8 @@ module StateControls = {
           ~json_decode=data_decode,
           ~callback=data => setValues(_ => data),
           (),
-        );
+        )
+        ->ignore;
         None;
       });
       let (state, setState) = React.useReducer((_, v) => v, "");

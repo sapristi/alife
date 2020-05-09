@@ -98,8 +98,8 @@ let pnet_to_cytoscape_elements = (pnet: Types.Petri_net.t): Elements.t => {
       res_nodes := [place_node, ...res_nodes^];
 
       List.iteri(
-        (j, ext) => {
-          let (ext, label) = Client_types.place_ext_to_cy(ext);
+        (_, ext) => {
+          let (ext, label) = Client_types.Chemistry.place_ext_to_cy(ext);
           let ext_node_id = place_id ++ "_" ++ ext;
           let ext_node: Elements.node = {
             data: {
@@ -143,7 +143,7 @@ let pnet_to_cytoscape_elements = (pnet: Types.Petri_net.t): Elements.t => {
 
       List.iter(
         (ia: Transition.input_arc) => {
-          let (ia_class, label) = Client_types.input_arc_to_cy(ia.iatype);
+          let (ia_class, label) = Client_types.Chemistry.input_arc_to_cy(ia.iatype);
           let ia_edge: Elements.edge = {
             classes: "arc " ++ ia_class,
             data: {
@@ -160,7 +160,7 @@ let pnet_to_cytoscape_elements = (pnet: Types.Petri_net.t): Elements.t => {
       List.iter(
         (oa: Transition.output_arc) => {
           /* Js.log2("Input arc", ia); */
-          let (oa_class, label) = Client_types.output_arc_to_cy(oa.oatype);
+          let (oa_class, label) = Client_types.Chemistry.output_arc_to_cy(oa.oatype);
           let oa_edge: Elements.edge = {
             classes: "arc " ++ oa_class,
             data: {

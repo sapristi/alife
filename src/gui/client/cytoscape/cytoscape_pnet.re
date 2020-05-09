@@ -20,20 +20,20 @@ let empty_elements = {Cytoscape.Elements.nodes: [||], edges: [||]};
 
 [@react.component]
 let make = (~pnetIdO: option(int), ~pnetO, ~styles, ~cyEHandler) => {
-  let containerRef: React.Ref.t(Js.Nullable.t(Dom.element)) = React.useRef(Js.Nullable.null);
+  let containerRef: React.ref(Js.Nullable.t(Dom.element)) = React.useRef(Js.Nullable.null);
   let (cyWrapper, _) = React.useState(() => cytoscape_utils.setup_pnet_cy(empty_elements, cyEHandler));
   let (previous_pnetIdO, setPrevious_pnetIdO) = React.useState(() => None);
 
   React.useEffect1(
     () => {
-      let containerOpt = containerRef->React.Ref.current->Js.Nullable.toOption;
+      let containerOpt = containerRef.current->Js.Nullable.toOption;
       switch (containerOpt) {
       | Some(container) => cyWrapper.cy##mount(container)
       | None => cyWrapper.cy##unmount()
       };
       None;
     },
-    [|containerRef->React.Ref.current|],
+    [|containerRef.current|],
   );
 
   let setup_new_pnet = pnetO => {

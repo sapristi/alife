@@ -2,8 +2,7 @@ open Types;
 open Client_utils;
 
 module TokenComponent = {
-  let token_separator =
-    <font style=Css.(style([color(red), fontWeight(bold)]))> {js|►|js}->React.string </font>;
+  let token_separator = <font style=Css.(style([color(red), fontWeight(bold)]))> {js|►|js}->React.string </font>;
 
   let token_to_parts = ((i, mol)) => {
     (String.sub(mol, 0, i), String.sub(mol, i, mol->String.length - i));
@@ -26,40 +25,15 @@ module TokenComponent = {
     <div className="message is-info">
       <div className="message-header"> "Token"->React.string </div>
       <div className="message-body">
-        <label className="checkbox">
-          <input type_="checkbox" value={editable->string_of_bool} onChange={_ => setEditable(p => !p)} />
-          "Editable"->React.string
-        </label>
+        <label className="checkbox"> <input type_="checkbox" value={editable->string_of_bool} onChange={_ => setEditable(p => !p)} /> "Editable"->React.string </label>
         <div className="control">
-          <label className="radio">
-            <input
-              type_="radio"
-              name="answer"
-              disabled={!editable}
-              checked={Belt.Option.isNone(innerToken)}
-              onChange={_ => setInnerToken(_ => None)}
-            />
-            "No token"->React.string
-          </label>
-          <label className="radio">
-            <input
-              type_="radio"
-              name="answer"
-              disabled={!editable}
-              checked={Belt.Option.isSome(innerToken)}
-              onChange={_ => setInnerToken(_ => Some((0, "")))}
-            />
-            "Token"->React.string
-          </label>
+          <label className="radio"> <input type_="radio" name="answer" disabled={!editable} checked={Belt.Option.isNone(innerToken)} onChange={_ => setInnerToken(_ => None)} /> "No token"->React.string </label>
+          <label className="radio"> <input type_="radio" name="answer" disabled={!editable} checked={Belt.Option.isSome(innerToken)} onChange={_ => setInnerToken(_ => Some((0, "")))} /> "Token"->React.string </label>
         </div>
         {token_to_elem(innerToken)}
         {switch (tokenParts) {
          | None => React.null
-         | Some((a, b)) =>
-           <div>
-             <input className="input" type_="text" value=a />
-             <input className="input" type_="text" value=b />
-           </div>
+         | Some((a, b)) => <div> <input className="input" type_="text" value=a /> <input className="input" type_="text" value=b /> </div>
          }}
       </div>
     </div>;
@@ -76,16 +50,16 @@ let make = (~pnet: Petri_net.t, ~place_id) => {
       <React.Fragment>
         "Extensions:"->React.string
         <ul>
-          {List.map(e => <li> {Client_types.place_ext_to_descr(e)->React.string} </li>, place.extensions)
+          {List.map(
+             e => {
+               let d = Client_types.Chemistry.place_ext_to_descr(e);
+               <li key=d> d->React.string </li>;
+             },
+             place.extensions,
+           )
            ->Generics.react_list}
         </ul>
       </React.Fragment>
     };
-  <div>
-    <div className="message is-info">
-      <div className="message-header"> "Place"->React.string </div>
-      <div className="message-body content"> place_body </div>
-    </div>
-    <TokenComponent token={place.token} />
-  </div>;
+  <div> <div className="message is-info"> <div className="message-header"> "Place"->React.string </div> <div className="message-body content"> place_body </div> </div> <TokenComponent token={place.token} /> </div>;
 };

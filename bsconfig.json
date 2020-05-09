@@ -27,7 +27,8 @@
         "bs-fetch",
         "reductive",
         "bs-css",
-        "bs-css-dom"
+        "bs-css-dom",
+        "re-dnd"
     ],
     "ppx-flags": [
         "decco/ppx"

@@ -41,47 +41,50 @@ type sandbox_action =
   | SetSelectedPnet(option((string, int)))
   | SwitchUpdate;
 
-open Acid_types;
-
-let place_ext_to_cy = aext =>
-  switch (aext) {
-  | Grab_ext(s) => ("Grab_ext", s)
-  | Release_ext => ("Release_ext", "")
-  | Init_with_token_ext => ("Init_with_token_ext", "")
-  };
-let place_ext_to_descr = aext =>
-  switch (aext) {
-  | Grab_ext(s) => "Grab (" ++ s ++ ")"
-  | Release_ext => "Release incoming token"
-  | Init_with_token_ext => "Init with token"
-  };
-let input_arc_to_cy = ia =>
-  switch (ia) {
-  | Regular_iarc => ("reg", "")
-  | Split_iarc => ("split", "")
-  | Filter_iarc(s) => ("filter", s)
-  | Filter_empty_iarc => ("filter empty", {js|∅|js})
-  };
-let input_arc_to_descr = ia =>
-  switch (ia) {
-  | Regular_iarc => "regular"
-  | Split_iarc => "split"
-  | Filter_iarc(s) => "filter (" ++ s ++ ")"
-  | Filter_empty_iarc => "filter empty"
-  };
-let output_arc_to_cy = oa =>
-  switch (oa) {
-  | Regular_oarc => ("reg", "")
-  | Merge_oarc => ("merge", "")
-  | Move_oarc(b) => ("move", if (b) {{js|↷|js}} else {{js|↶|js}})
-  };
-let output_arc_to_descr = oa =>
-  switch (oa) {
-  | Regular_oarc => "regular"
-  | Merge_oarc => "merge"
-  | Move_oarc(b) => "move " ++ (if (b) {"forward"} else {"backward"})
-  };
 [@decco]
 type pnet_action =
   | Update_token(option(Types.Token.t), int)
   | Launch_transition(int);
+
+module Chemistry = {
+  open Acid_types;
+  let place_ext_to_cy = aext =>
+    switch (aext) {
+    | Grab_ext(s) => ("Grab_ext", s)
+    | Release_ext => ("Release_ext", "")
+    | Init_with_token_ext => ("Init_with_token_ext", "")
+    };
+  let place_ext_to_descr = aext =>
+    switch (aext) {
+    | Grab_ext(s) => "Grab (" ++ s ++ ")"
+    | Release_ext => "Release incoming token"
+    | Init_with_token_ext => "Init with token"
+    };
+  let input_arc_to_cy = ia =>
+    switch (ia) {
+    | Regular_iarc => ("reg", "")
+    | Split_iarc => ("split", "")
+    | Filter_iarc(s) => ("filter", s)
+    | Filter_empty_iarc => ("filter empty", {js|∅|js})
+    };
+  let input_arc_to_descr = ia =>
+    switch (ia) {
+    | Regular_iarc => "regular"
+    | Split_iarc => "split"
+    | Filter_iarc(s) => "filter (" ++ s ++ ")"
+    | Filter_empty_iarc => "filter empty"
+    };
+  let output_arc_to_cy = oa =>
+    switch (oa) {
+    | Regular_oarc => ("reg", "")
+    | Merge_oarc => ("merge", "")
+    | Move_oarc(b) => ("move", if (b) {{js|↷|js}} else {{js|↶|js}})
+    };
+  let output_arc_to_descr = oa =>
+    switch (oa) {
+    | Regular_oarc => "regular"
+    | Merge_oarc => "merge"
+    | Move_oarc(b) => "move " ++ (if (b) {"forward"} else {"backward"})
+    };
+  [@decco];
+};

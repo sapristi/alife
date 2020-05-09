@@ -778,10 +778,20 @@ bs-fetch@^0.5.2:
   resolved "https://registry.yarnpkg.com/bs-fetch/-/bs-fetch-0.5.2.tgz#a9f4582ddb1414d3467b900305c738813481988c"
   integrity sha512-CYweTJcgLeLOqzR3vNsB+NmyEFhWThnPNdZmmF28nkFmo0CQEf+20eSHZJDO6EuAhhoRqJ0qp2VgxtH6zBB5xA==
 
+bs-log@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/bs-log/-/bs-log-1.1.0.tgz#5866c611d39b1a490d0d1772f91ed98162fef885"
+  integrity sha512-6LXOpFRfVHtIe81qjIRo2pAKWGonbJdm/3NjHm1Nbz8QqjKoYmtWOUaE9Zga4sNafi8iISeG3rWO9mIbpk507A==
+
 bs-platform@^7.0.1:
   version "7.3.2"
   resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-7.3.2.tgz#301f5c9b4e8cf5713cb60ca22e145e56e793affe"
   integrity sha512-seJL5g4anK9la4erv+B2o2sMHQCxDF6OCRl9en3hbaUos/S3JsusQ0sPp4ORsbx5eXfHLYBwPljwKXlgpXtsgQ==
+
+bs-webapi@0.15.9:
+  version "0.15.9"
+  resolved "https://registry.yarnpkg.com/bs-webapi/-/bs-webapi-0.15.9.tgz#d1dcfbd40499a3b0914daacc4ceef47a0f3c906f"
+  integrity sha512-bmzO6na2HmK01a34qB7afMwfVSrPxkP3EGzUslWObuxbHIlLC0PAMDu4lA8ZL5NasBUctlwnA1QZxox+1aNWWw==
 
 buffer-from@^1.0.0:
   version "1.1.1"
@@ -4095,6 +4105,14 @@ raw-body@2.4.0:
     http-errors "1.7.2"
     iconv-lite "0.4.24"
     unpipe "1.0.0"
+
+re-dnd@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/re-dnd/-/re-dnd-2.0.0.tgz#7693558d5b05101b5a5c87fd1112a3963ee651ea"
+  integrity sha512-rPkF/8h7PIc4UKSn375ufqy+Wx7shEY3X2T04wFAU8C7fAnNX+0/87NeGjORXmNSzFov9MNlpjNcdappmugpVA==
+  dependencies:
+    bs-log "1.1.0"
+    bs-webapi "0.15.9"
 
 react-dom@^16.8.1:
   version "16.13.1"
