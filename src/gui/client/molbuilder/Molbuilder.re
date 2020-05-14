@@ -1,41 +1,39 @@
-/* open Client_utils; */
-open Types;
+open Belt;
+open Utils;
+/* open Types; */
+open Acid_types;
+open Client_types;
+/* type state = { */
+/*   mol: Molecule.t, */
+/*   pnet: option(Petri_net.t), */
+/*   prot: string, */
+/* }; */
 
-type state = {
-  mol: Molecule.t,
-  pnet: option(Petri_net.t),
-  prot: string,
+/* let initial_state = {mol: "", pnet: None, prot: ""}; */
+
+module Styles = {
+  open Css;
+
+  global("container-hovered", [background(darkgray), minWidth(px(100)), minHeight(px(100))]);
 };
-
-let initial_state = {mol: "", pnet: None, prot: ""};
 
 [@react.component]
 let make = () => {
-  let (state, dispatch) = React.useReducer((x, y) => x, initial_state);
-
   <Components.VFlex>
-    <h1 className="title"> "Molbuilder"->React.string </h1>
-    <Components.HFlex>
-      <section className="section">
-        <Cytoscape_pnet
-          pnetIdO=None
-          pnetO=None
-          cyEHandler={_ => ()}
-          styles=Css.[width(px(200)), height(px(200))]
-        />
-      </section>
-      <section className="section">
-        <div className="panel">
-          <p className="panel-heading"> "Proteines"->React.string </p>
-          <div className="panel-block content">
-            <ul>
-              <li> "Place"->React.string </li>
-              <li> "Input arcs"->React.string <ul> <li> "Regular Input arc"->React.string </li> </ul> </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-      <section className="section"> <div className="box"> "List"->React.string </div> </section>
-    </Components.HFlex>
-  </Components.VFlex>;
+
+      <h1 className="title"> "Molbuilder"->React.string </h1>
+      <Components.HFlex>
+        <section className="section">
+          <Cytoscape_pnet
+            pnetIdO=None
+            pnetO=None
+            cyEHandler={_ => ()}
+            styles=Css.[width(px(200)), height(px(200))]
+          />
+        </section>
+        <Molbuilder__acids_panel />
+      </Components.HFlex>
+    </Components.VFlex>;
+    /* Js.log2("Molbuilder", acids); */
+    /* let (state, dispatch) = React.useReducer((x, y) => x, initial_state); */
 };

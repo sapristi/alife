@@ -1,4 +1,4 @@
-open Client_utils;
+open Utils;
 
 module EnvControls = {
   [@react.component]
@@ -6,7 +6,7 @@ module EnvControls = {
     let (innerEnv, setInnerEnv) = Generics.useStateSimple(() => env);
 
     let commit = _ => {
-      YaacApi.request(
+      Yaac.request(
         Fetch.Put,
         "/api/sandbox/environment",
         ~payload=Client_types.environment_encode(innerEnv),
@@ -64,7 +64,7 @@ module StateControls = {
       let (values, setValues) = React.useState(_ => []);
 
       React.useEffect0(() => {
-        YaacApi.request(
+        Yaac.request(
           Fetch.Get,
           "/sandbox/state",
           ~json_decode=data_decode,
@@ -76,7 +76,7 @@ module StateControls = {
       });
       let (state, setState) = React.useReducer((_, v) => v, "");
 
-      let commit = _ => YaacApi.request(Fetch.Put, "/sandbox/state/" ++ state, ~side_effect=update, ())->ignore;
+      let commit = _ => Yaac.request(Fetch.Put, "/sandbox/state/" ++ state, ~side_effect=update, ())->ignore;
 
       <div>
         <div className="select">
@@ -91,7 +91,7 @@ module StateControls = {
 
   [@react.component]
   let make = (~update) => {
-    <div className="tile is-vertical box" style=Css.(style([justifyContent(spaceEvenly)]))>
+    <div className={Cn.make(["tile is-vertical box", Css.(style([justifyContent(spaceEvenly)]))])}>
       <div>
         <div className="buttons has-addons">
           /* <Tooltip title={<Typography> "update" </Typography>}> */
@@ -107,7 +107,7 @@ module StateControls = {
           </div>
       </div>
       <StateLoader update />
-      <Components.HFlex style=[]>
+      <Components.HFlex>
         <input className="input" type_="text" placeholder="Random seed" />
         <button className="button"> {React.string("Commit Seed")} </button>
       </Components.HFlex>

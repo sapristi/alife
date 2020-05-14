@@ -1,4 +1,4 @@
-open Client_utils;
+open Utils;
 open Client_types;
 
 module ImolControls = {
@@ -24,7 +24,7 @@ module ImolControls = {
 
     let remove_selected = _ => {
       let imol_str = Belt.Option.getExn(imol).mol;
-      YaacApi.request(
+      Yaac.request(
         Fetch.Delete,
         "/sandbox/imol/" ++ imol_str,
         ~json_decode=bact_decode,
@@ -36,7 +36,7 @@ module ImolControls = {
 
     let setQuantity = _ => {
       let imol_str = Belt.Option.getExn(imol).mol;
-      YaacApi.request(
+      Yaac.request(
         Fetch.Put,
         "/sandbox/imol/" ++ imol_str ++ "?qtt=" ++ qtt,
         ~json_decode=bact_decode,
@@ -49,7 +49,7 @@ module ImolControls = {
     <div className="tile is-vertical is-2">
       <div className="box">
         <button className="button" disabled onClick=remove_selected> "Remove molecule"->React.string </button>
-        <Components.HFlex style=[]>
+        <Components.HFlex>
           <button className="button" disabled onClick=setQuantity> "Set quantity"->React.string </button>
           <input
             className="input"
@@ -75,12 +75,12 @@ let make = (~inert_mols, ~update, ~dispatch) => {
 
   let make_imol_row = (imol: inert_mol) =>
     <React.Fragment>
-      <td style=Css.(style([overflowWrap(breakWord)]))> imol.mol->React.string </td>
-      <td> {imol.qtt->string_of_int->React.string} </td>
+      <td className=Css.(style([overflowWrap(breakWord)]))> imol.mol->React.string </td>
+      <td> imol.qtt->React.int </td>
       <td> {imol.ambient->string_of_bool->React.string} </td>
     </React.Fragment>;
 
-  <div className="tile" style=Css.(style([alignItems(center)]))>
+  <div className={Cn.make(["tile", Css.(style([alignItems(center)]))])}>
     <div className="tile">
       <Sandbox_moltable
         col_widths=[70., 15., 15.]

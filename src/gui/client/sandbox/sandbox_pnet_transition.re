@@ -1,12 +1,19 @@
 open Client_types;
-open Client_utils;
+open Utils;
 open Types;
 [@react.component]
 let make = (~pnet: Petri_net.t, ~transition_id, ~dispatch) => {
   let transition = pnet.transitions[transition_id];
 
   let launch = _ => {
-    YaacApi.request(Fetch.Put, "/sandbox/amol/" ++ pnet.mol ++ "/pnet/" ++ pnet.uid->string_of_int, ~payload=pnet_action_encode(Launch_transition(transition_id)), ~side_effect=() => dispatch(SwitchUpdate), ())->ignore;
+    Utils.Yaac.request(
+      Fetch.Put,
+      "/sandbox/amol/" ++ pnet.mol ++ "/pnet/" ++ pnet.uid->string_of_int,
+      ~payload=pnet_action_encode(Launch_transition(transition_id)),
+      ~side_effect=() => dispatch(SwitchUpdate),
+      (),
+    )
+    ->ignore;
   };
 
   <div>

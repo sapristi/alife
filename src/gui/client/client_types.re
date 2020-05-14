@@ -87,4 +87,12 @@ module Chemistry = {
     | Move_oarc(b) => "move " ++ (if (b) {"forward"} else {"backward"})
     };
   [@decco];
+
+  let acid_to_descr = a =>
+    switch (a) {
+    | Place => "Place"
+    | InputArc(ia_id, ia_type) => input_arc_to_descr(ia_type) ++ "; " ++ ia_id
+    | OutputArc(oa_id, oa_type) => output_arc_to_descr(oa_type) ++ "; " ++ oa_id
+    | Extension(ext) => place_ext_to_descr(ext)
+    };
 };

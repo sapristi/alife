@@ -1,5 +1,5 @@
 open Client_types;
-open Client_utils;
+open Utils;
 let make_width = (wpct: float) => Css.(style([width(pct(wpct))]));
 
 module AmolControls = {
@@ -17,7 +17,7 @@ module AmolControls = {
         switch (amol) {
         | Some(amol') =>
           setDisabled(_ => false);
-          YaacApi.request(
+          Yaac.request(
             Fetch.Get,
             "/sandbox/amol/" ++ amol'.mol,
             ~json_decode=pnet_ids_decode,
@@ -66,7 +66,7 @@ module AmolControls = {
 
     <div className="tile is-vertical is-2">
       <div className="box">
-        <Components.HFlex style=[]>
+        <Components.HFlex>
           "Pnet selection"->React.string
           <div className="select">
             <select onChange={event => event |> Generics.event_to_value |> handlePnetIdChange}>
@@ -95,11 +95,11 @@ let make = (~active_mols, ~update, ~dispatch) => {
 
   let make_amol_row = (amol: active_mol) =>
     <React.Fragment>
-      <td style=Css.(style([overflowWrap(breakWord)]))> amol.mol->React.string </td>
-      <td> {amol.qtt->string_of_int->React.string} </td>
+      <td className=Css.(style([overflowWrap(breakWord)]))> amol.mol->React.string </td>
+      <td> amol.qtt->React.int </td>
     </React.Fragment>;
 
-  <div className="tile" style=Css.(style([alignItems(center)]))>
+  <div className={Cn.make(["tile", Css.(style([alignItems(center)]))])}>
     <div className="tile is-10">
       <Sandbox_moltable
         col_widths=[85., 15.]

@@ -1,5 +1,5 @@
 /* [@bs.val] [@bs.scope ("window", "location")] external origin : string = "origin"; */
-open Client_utils;
+open Utils;
 open Client_types;
 
 module SidePanel = {
@@ -8,7 +8,7 @@ module SidePanel = {
     let (nr, setNr) = React.useState(() => 1);
 
     let next_reactions = i => {
-      YaacApi.request(
+      Yaac.request(
         Fetch.Post,
         "/sandbox/reaction/next/" ++ i->string_of_int,
         ~json_decode=bact_decode,
@@ -21,14 +21,13 @@ module SidePanel = {
       )
       ->ignore;
     };
-    <div style=Css.(style([position(fixed), zIndex(1000), padding(rem(0.5))])) className="box">
+    <div className={Cn.make(["box", Css.(style([position(fixed), zIndex(1000), padding(rem(0.5))]))])}>
       <Components.VFlex>
         <button className="button" onClick={_ => next_reactions(1)}> "React!"->React.string </button>
         <input
-          className="input"
+          className={Cn.make(["input", Css.(style([maxWidth(px(100))]))])}
           type_="text"
           size=1
-          style=Css.(style([maxWidth(px(100))]))
           value={nr->string_of_int}
           onChange={e => {
             let v = e->Generics.event_to_value;
@@ -81,7 +80,7 @@ let make = () => {
 
   let update = _ => {
     ignore(
-      YaacApi.get("/sandbox", res => {
+      Yaac.get("/sandbox", res => {
         switch (Client_types.sandbox_decode(res)) {
         | Ok(sandbox) => dispatch(SetSandbox(sandbox))
         | Error(e) => Js.log3("Error decoding", res, e)
@@ -96,7 +95,7 @@ let make = () => {
   Js.log(("SANDBOX", state));
   <Components.VFlex>
     <SidePanel dispatch />
-    <div style=Css.(style([flexGrow(0.), paddingLeft(px(100))]))>
+    <div className=Css.(style([flexGrow(0.), paddingLeft(px(100))]))>
       <h1 className="title"> "Sandbox"->React.string </h1>
       <section className="section">
         <h2 className="subtitle"> "Generic controls"->React.string </h2>

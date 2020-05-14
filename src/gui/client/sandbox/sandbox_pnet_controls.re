@@ -1,4 +1,4 @@
-open Client_utils;
+open Utils;
 
 type event_handler = Js.Json.t => unit;
 
@@ -24,7 +24,7 @@ let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
         setPnetData(_ => None);
       | Some((mol, pnet_id)) =>
         setSelectedNode(_ => NoNode);
-        YaacApi.request(
+        Yaac.request(
           Fetch.Get,
           "/sandbox/amol/" ++ mol ++ "/pnet/" ++ pnet_id->string_of_int,
           ~json_decode=Types.Petri_net.t_decode,
@@ -47,7 +47,7 @@ let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
       switch (selectedPnet) {
       | None => setPnetData(_ => None)
       | Some((mol, pnet_id)) =>
-        YaacApi.request(
+        Yaac.request(
           Fetch.Get,
           "/sandbox/amol/" ++ mol ++ "/pnet/" ++ pnet_id->string_of_int,
           ~json_decode=Types.Petri_net.t_decode,
