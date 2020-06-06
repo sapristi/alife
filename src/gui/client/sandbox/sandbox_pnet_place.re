@@ -3,7 +3,7 @@ open Utils;
 
 module TokenComponent = {
   let token_separator =
-    <font className=Css.(style([color(red), fontWeight(bold)]))> {js|►|js}->React.string </font>;
+    <font style=Css.(style([color(red), fontWeight(bold)]))> {js|►|js}->React.string </font>;
 
   let token_to_parts = ((i, mol)) => {
     (String.sub(mol, 0, i), String.sub(mol, i, mol->String.length - i));

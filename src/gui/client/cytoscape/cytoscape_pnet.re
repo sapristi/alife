@@ -73,15 +73,11 @@ let make = (~pnetIdO: option(int), ~pnetO, ~styles, ~cyEHandler) => {
     },
     (pnetIdO, pnetO),
   );
-  <div
-    className={Cn.make(["box", Css.(style([resize(vertical), overflow(hidden), padding(px(0)), ...styles]))])}>
-    <div className={Cn.make(["field has-addons", Css.(style([position(absolute), zIndex(10)]))])}>
+  <div className="box" style=Css.(style([resize(vertical), overflow(hidden), padding(px(0)), ...styles]))>
+    <div className="field has-addons" style=Css.(style([position(absolute), zIndex(10)]))>
       <button onClick={_ => cyWrapper.layout##run()} className="button"> "Play"->React.string </button>
       <button onClick={_ => cyWrapper.layout##stop()} className="button"> "Stop"->React.string </button>
     </div>
-    <div
-      className=Css.(style([width(pct(100.)), height(pct(100.))]))
-      ref={ReactDOMRe.Ref.domRef(containerRef)}
-    />
+    <div style=Css.(style([width(pct(100.)), height(pct(100.))])) ref={ReactDOMRe.Ref.domRef(containerRef)} />
   </div>;
 };

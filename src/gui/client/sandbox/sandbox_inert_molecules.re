@@ -75,12 +75,12 @@ let make = (~inert_mols, ~update, ~dispatch) => {
 
   let make_imol_row = (imol: inert_mol) =>
     <React.Fragment>
-      <td className=Css.(style([overflowWrap(breakWord)]))> imol.mol->React.string </td>
+      <td style=Css.(style([overflowWrap(breakWord)]))> imol.mol->React.string </td>
       <td> imol.qtt->React.int </td>
       <td> {imol.ambient->string_of_bool->React.string} </td>
     </React.Fragment>;
 
-  <div className={Cn.make(["tile", Css.(style([alignItems(center)]))])}>
+  <div className="tile" style=Css.(style([alignItems(center)]))>
     <div className="tile">
       <Sandbox_moltable
         col_widths=[70., 15., 15.]

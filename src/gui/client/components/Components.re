@@ -48,23 +48,8 @@ module NamedInput = {
   };
 };
 
-module HFlex = {
-  let hflex = Css.(style([display(flexBox)]));
-
-  [@react.component]
-  let make = (~children, ~classNames=[]) => {
-    <div className={Cn.make([hflex, ...classNames])}> children </div>;
-  };
-};
-
-module VFlex = {
-  let vflex = Css.(style([display(flexBox), flexDirection(column)]));
-
-  [@react.component]
-  let make = (~children, ~classNames=[]) => {
-    <div className={Cn.make([vflex, ...classNames])}> children </div>;
-  };
-};
+module HFlex = Components__flex.HFlex;
+module VFlex = Components__flex.VFlex;
 
 module Yaac = Utils__yaac;
 module ArrayExt = Utils__ArrayExt;

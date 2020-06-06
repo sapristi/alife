@@ -38,8 +38,8 @@ let reinsert = (arr: array('a), ~value: 'a, ~place: Dnd.ReorderResult.placement(
   arr;
 };
 
-let placement = p =>
-  switch ((p: Dnd.ReorderResult.placement('a))) {
-  | Before(id) => `Before(id)
-  | Last => `Last
-  };
+let replace = (arr, index, new_value) => {
+  let arr = arr->Js.Array.copy;
+  arr->Js.Array2.spliceInPlace(~pos=index, ~remove=1, ~add=[|new_value|])->ignore;
+  arr;
+};

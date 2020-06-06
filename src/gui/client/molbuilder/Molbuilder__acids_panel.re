@@ -3,7 +3,7 @@ open Client_types;
 open Belt;
 open Utils;
 
-module EditableAcid = Molbuilder_editable_acids;
+module EditableAcid = Molbuilder__editable_acids;
 
 module Id = {
   type t = int;
@@ -68,17 +68,25 @@ type state = {
   other: unit,
 };
 
+type action =
+  | DndAction(Dnd.result(Item.t, Container.t))
+  | UpdateAction(int, acid);
+
 [@react.component]
 let make = () => {
-  let reducer = (prev_state, action: Dnd.result(Item.t, Container.t)) => {
+  let reducer = (prev_state, action: action) => {
     switch (action) {
-    | Some(SameContainer(ProtElem(id, acid), placement)) => {
+    | DndAction(Some(SameContainer(ProtElem(id, acid), placement))) => {
         ...prev_state,
         acidItems: prev_state.acidItems->ArrayExt.reinsert(~value=Item.ProtElem(id, acid), ~place=placement),
       }
-    | Some(NewContainer(Source(_, acid), AcidsList, placement)) => {
+    | DndAction(Some(NewContainer(Source(_, acid), AcidsList, placement))) => {
         ...prev_state,
         acidItems: ArrayExt.insert(prev_state.acidItems, ~value=ProtElem(Id.make(), acid), ~place=placement),
+      }
+    | UpdateAction(index, new_acid) => {
+        ...prev_state,
+        acidItems: ArrayExt.replace(prev_state.acidItems, index, ProtElem(Id.make(), new_acid)),
       }
     | _ => prev_state
     };
@@ -86,11 +94,13 @@ let make = () => {
 
   let (state, dispatchState) = React.useReducer(reducer, {acidItems: [||], other: ()});
 
+  Js.log2("Acids", state.acidItems);
+
   <MolBuilder.DndManager
     onDragStart={(~itemId as _itemId) => [%log.info "AppHook"; ("Event", "DragStart"); ("ItemId", _itemId)]}
     onDropStart={(~itemId as _itemId) => [%log.info "AppHook"; ("Event", "DropStart"); ("ItemId", _itemId)]}
     onDropEnd={(~itemId as _itemId) => [%log.info "AppHook"; ("Event", "DropEnd"); ("ItemId", _itemId)]}
-    onReorder={res => dispatchState(res)}>
+    onReorder={res => dispatchState(DndAction(res))}>
     <div className="panel">
       <p className="panel-heading"> "Acids"->React.string </p>
       <div className="panel-block content">
@@ -141,7 +151,7 @@ let make = () => {
         </MolBuilder.DroppableContainer>
       </div>
     </div>
-    <div className={Cn.make(["box", Css.(style([minWidth(px(200))]))])}>
+    <div className="box" style=Css.(style([minWidth(px(200))]))>
       <MolBuilder.DroppableContainer id=AcidsList axis=Y className=Container.style>
         <ul>
           {Array.mapWithIndex(state.acidItems, (index, elem) =>
@@ -150,7 +160,8 @@ let make = () => {
                  {`Children(
                     switch (elem) {
                     | Source(_) => React.null
-                    | ProtElem(id, acid) => <EditableAcid id acid dispatch={_ => ()} />
+                    | ProtElem(id, acid) =>
+                      <EditableAcid id acid update={new_acid => dispatchState(UpdateAction(index, new_acid))} />
                     },
                   )}
                </MolBuilder.DraggableItem>

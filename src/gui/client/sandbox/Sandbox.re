@@ -21,11 +21,12 @@ module SidePanel = {
       )
       ->ignore;
     };
-    <div className={Cn.make(["box", Css.(style([position(fixed), zIndex(1000), padding(rem(0.5))]))])}>
+    <div className="box" style=Css.(style([position(fixed), zIndex(1000), padding(rem(0.5))]))>
       <Components.VFlex>
         <button className="button" onClick={_ => next_reactions(1)}> "React!"->React.string </button>
         <input
-          className={Cn.make(["input", Css.(style([maxWidth(px(100))]))])}
+          className="input"
+          style=Css.(style([maxWidth(px(100))]))
           type_="text"
           size=1
           value={nr->string_of_int}
@@ -95,7 +96,7 @@ let make = () => {
   Js.log(("SANDBOX", state));
   <Components.VFlex>
     <SidePanel dispatch />
-    <div className=Css.(style([flexGrow(0.), paddingLeft(px(100))]))>
+    <div style=Css.(style([flexGrow(0.), paddingLeft(px(100))]))>
       <h1 className="title"> "Sandbox"->React.string </h1>
       <section className="section">
         <h2 className="subtitle"> "Generic controls"->React.string </h2>

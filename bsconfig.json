@@ -27,7 +27,7 @@
         "bs-fetch",
         "reductive",
         "bs-css",
-        "bs-css-emotion",
+        "bs-css-dom",
         "re-dnd",
         "bs-log",
         "re-classnames"

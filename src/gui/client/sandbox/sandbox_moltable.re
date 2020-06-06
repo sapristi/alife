@@ -1,6 +1,6 @@
 open Utils;
 
-let make_width = (wpct: float) => Css.(style([width(pct(wpct))]));
+let make_width = (wpct: float) => Css.[width(pct(wpct))];
 
 [@react.component]
 let make = (~col_widths, ~headers, ~data, ~make_row, ~selected, ~setSelected, ~get_key) => {
@@ -35,10 +35,13 @@ let make = (~col_widths, ~headers, ~data, ~make_row, ~selected, ~setSelected, ~g
       }
     );
 
-  <table className={Cn.make(["table is-fullwidth is-striped", Css.(style([tableLayout(fixed)]))])}>
+  <table style=Css.(style([tableLayout(fixed)])) className="table is-fullwidth is-striped">
     <colgroup>
       {Generics.react_list(
-         List.mapi((i, w) => <col span=1 className={make_width(w)} key={i->Js.Int.toString} />, col_widths),
+         List.mapi(
+           (i, w) => <col span=1 style={Css.style(make_width(w))} key={i->Js.Int.toString} />,
+           col_widths,
+         ),
        )}
     </colgroup>
     <thead> <tr> {Generics.react_list(List.map(h => <th key=h> h->React.string </th>, headers))} </tr> </thead>

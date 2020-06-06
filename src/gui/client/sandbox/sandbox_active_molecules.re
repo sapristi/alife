@@ -95,11 +95,11 @@ let make = (~active_mols, ~update, ~dispatch) => {
 
   let make_amol_row = (amol: active_mol) =>
     <React.Fragment>
-      <td className=Css.(style([overflowWrap(breakWord)]))> amol.mol->React.string </td>
+      <td style=Css.(style([overflowWrap(breakWord)]))> amol.mol->React.string </td>
       <td> amol.qtt->React.int </td>
     </React.Fragment>;
 
-  <div className={Cn.make(["tile", Css.(style([alignItems(center)]))])}>
+  <div className="tile" style=Css.(style([alignItems(center)]))>
     <div className="tile is-10">
       <Sandbox_moltable
         col_widths=[85., 15.]

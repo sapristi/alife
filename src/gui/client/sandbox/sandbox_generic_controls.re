@@ -91,7 +91,7 @@ module StateControls = {
 
   [@react.component]
   let make = (~update) => {
-    <div className={Cn.make(["tile is-vertical box", Css.(style([justifyContent(spaceEvenly)]))])}>
+    <div className="tile is-vertical box" style=Css.(style([justifyContent(spaceEvenly)]))>
       <div>
         <div className="buttons has-addons">
           /* <Tooltip title={<Typography> "update" </Typography>}> */
