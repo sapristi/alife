@@ -28,10 +28,9 @@ module ImolControls = {
         Fetch.Delete,
         "/sandbox/imol/" ++ imol_str,
         ~json_decode=bact_decode,
-        ~callback=bact => dispatch(SetBact(bact)),
         (),
       )
-      ->ignore;
+      ->Promise.getOk(bact => dispatch(SetBact(bact)));
     };
 
     let setQuantity = _ => {
@@ -40,17 +39,20 @@ module ImolControls = {
         Fetch.Put,
         "/sandbox/imol/" ++ imol_str ++ "?qtt=" ++ qtt,
         ~json_decode=bact_decode,
-        ~callback=bact => dispatch(SetBact(bact)),
         (),
       )
-      ->ignore;
+      ->Promise.getOk(bact => dispatch(SetBact(bact)));
     };
 
     <div className="tile is-vertical is-2">
       <div className="box">
-        <button className="button" disabled onClick=remove_selected> "Remove molecule"->React.string </button>
+        <button className="button" disabled onClick=remove_selected>
+          "Remove molecule"->React.string
+        </button>
         <Components.HFlex>
-          <button className="button" disabled onClick=setQuantity> "Set quantity"->React.string </button>
+          <button className="button" disabled onClick=setQuantity>
+            "Set quantity"->React.string
+          </button>
           <input
             className="input"
             type_="text"
@@ -63,7 +65,9 @@ module ImolControls = {
             }}
           />
         </Components.HFlex>
-        <button className="button" disabled> "Send to molbuilder"->React.string </button>
+        <button className="button" disabled>
+          "Send to molbuilder"->React.string
+        </button>
       </div>
     </div>;
   };
@@ -75,7 +79,9 @@ let make = (~inert_mols, ~update, ~dispatch) => {
 
   let make_imol_row = (imol: inert_mol) =>
     <React.Fragment>
-      <td style=Css.(style([overflowWrap(breakWord)]))> imol.mol->React.string </td>
+      <td style=Css.(style([overflowWrap(breakWord)]))>
+        imol.mol->React.string
+      </td>
       <td> imol.qtt->React.int </td>
       <td> {imol.ambient->string_of_bool->React.string} </td>
     </React.Fragment>;

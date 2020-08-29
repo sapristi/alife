@@ -5,7 +5,8 @@ type event_handler = Js.Json.t => unit;
 [@react.component]
 let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
   let (pnetData, setPnetData) = React.useState(() => None);
-  let (selectedNode, setSelectedNode) = React.useState(() => Cytoscape.Elements.NoNode);
+  let (selectedNode, setSelectedNode) =
+    React.useState(() => Cytoscape.Elements.NoNode);
 
   let cyEHandler = x => {
     switch (Cytoscape.Elements.node_type_decode(x)) {
@@ -28,14 +29,12 @@ let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
           Fetch.Get,
           "/sandbox/amol/" ++ mol ++ "/pnet/" ++ pnet_id->string_of_int,
           ~json_decode=Types.Petri_net.t_decode,
-          ~callback=
-            res => {
-              Js.log2("Res", res);
-              setPnetData(_ => Some(res));
-            },
           (),
         )
-        ->ignore;
+        ->Promise.getOk(res => {
+            Js.log2("Res", res);
+            setPnetData(_ => Some(res));
+          });
       };
       None;
     },
@@ -51,14 +50,12 @@ let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
           Fetch.Get,
           "/sandbox/amol/" ++ mol ++ "/pnet/" ++ pnet_id->string_of_int,
           ~json_decode=Types.Petri_net.t_decode,
-          ~callback=
-            res => {
-              Js.log2("Res", res);
-              setPnetData(_ => Some(res));
-            },
           (),
         )
-        ->ignore
+        ->Promise.getOk(res => {
+            Js.log2("Res", res);
+            setPnetData(_ => Some(res));
+          })
       };
       None;
     },
@@ -76,7 +73,8 @@ let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
       {switch (pnetData, selectedNode) {
        | (None, _) => React.null
        | (Some(pnet), NPlace(i)) => <Sandbox_pnet_place pnet place_id=i />
-       | (Some(pnet), NTransition(i)) => <Sandbox_pnet_transition pnet transition_id=i dispatch />
+       | (Some(pnet), NTransition(i)) =>
+         <Sandbox_pnet_transition pnet transition_id=i dispatch />
        | (_, NoNode) => React.null
        }}
     </div>

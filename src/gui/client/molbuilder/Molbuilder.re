@@ -48,7 +48,7 @@ let make = () => {
   let (state, setState) =
     React.useState(() => {proteine: [||], molecule: "", pnet: None});
   let commitAcidItems = prot =>
-    Yaac.request_p(
+    Yaac.request(
       Fetch.Post,
       "/utils/build/from_prot",
       ~payload=proteine_encode(prot),

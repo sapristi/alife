@@ -12,18 +12,22 @@ module SidePanel = {
         Fetch.Post,
         "/sandbox/reaction/next/" ++ i->string_of_int,
         ~json_decode=bact_decode,
-        ~callback=
-          new_bact => {
-            dispatch(SetBact(new_bact));
-            dispatch(SwitchUpdate);
-          },
         (),
       )
-      ->ignore;
+      ->Promise.getOk(new_bact => {
+          dispatch(SetBact(new_bact));
+          dispatch(SwitchUpdate);
+        });
     };
-    <div className="box" style=Css.(style([position(fixed), zIndex(1000), padding(rem(0.5))]))>
+    <div
+      className="box"
+      style=Css.(
+        style([position(fixed), zIndex(1000), padding(rem(0.5))])
+      )>
       <Components.VFlex>
-        <button className="button" onClick={_ => next_reactions(1)}> "React!"->React.string </button>
+        <button className="button" onClick={_ => next_reactions(1)}>
+          "React!"->React.string
+        </button>
         <input
           className="input"
           style=Css.(style([maxWidth(px(100))]))
@@ -38,7 +42,9 @@ module SidePanel = {
             };
           }}
         />
-        <button className="button" onClick={_ => next_reactions(nr)}> "React!"->React.string </button>
+        <button className="button" onClick={_ => next_reactions(nr)}>
+          "React!"->React.string
+        </button>
       </Components.VFlex>
     </div>;
   };
@@ -75,19 +81,16 @@ let reducer = (state: sandboxState, action) => {
 [@react.component]
 let make = () => {
   let (state, dispatch) =
-    React.useReducer(reducer, {sandbox: default_sandbox, selectedPnet: None, updateSwitch: false});
+    React.useReducer(
+      reducer,
+      {sandbox: default_sandbox, selectedPnet: None, updateSwitch: false},
+    );
 
   Js.log2("Sandbox", state);
 
   let update = _ => {
-    ignore(
-      Yaac.get("/sandbox", res => {
-        switch (Client_types.sandbox_decode(res)) {
-        | Ok(sandbox) => dispatch(SetSandbox(sandbox))
-        | Error(e) => Js.log3("Error decoding", res, e)
-        }
-      }),
-    );
+    Yaac.request(Fetch.Get, "/sandbox", ~json_decode=sandbox_decode, ())
+    ->Promise.getOk(sandbox => dispatch(SetSandbox(sandbox)));
   };
   React.useEffect0(() => {
     update();
@@ -104,15 +107,27 @@ let make = () => {
       </section>
       <section className="section">
         <h2 className="subtitle"> "Inert molecules"->React.string </h2>
-        <Sandbox_inert_molecules inert_mols={state.sandbox.bact.inert_mols} update dispatch />
+        <Sandbox_inert_molecules
+          inert_mols={state.sandbox.bact.inert_mols}
+          update
+          dispatch
+        />
       </section>
       <section className="section">
         <h2 className="subtitle"> "Active molecules"->React.string </h2>
-        <Sandbox_active_molecules active_mols={state.sandbox.bact.active_mols} update dispatch />
+        <Sandbox_active_molecules
+          active_mols={state.sandbox.bact.active_mols}
+          update
+          dispatch
+        />
       </section>
       <section className="section">
         <h2 className="subtitle"> "Petri Net"->React.string </h2>
-        <Sandbox_pnet_controls selectedPnet={state.selectedPnet} updateSwitch={state.updateSwitch} dispatch />
+        <Sandbox_pnet_controls
+          selectedPnet={state.selectedPnet}
+          updateSwitch={state.updateSwitch}
+          dispatch
+        />
       </section>
     </div>
   </Components.VFlex>;

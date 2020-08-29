@@ -6,14 +6,13 @@ let make = (~pnet: Petri_net.t, ~transition_id, ~dispatch) => {
   let transition = pnet.transitions[transition_id];
 
   let launch = _ => {
-    Utils.Yaac.request(
+    Utils.Yaac.request_unit(
       Fetch.Put,
       "/sandbox/amol/" ++ pnet.mol ++ "/pnet/" ++ pnet.uid->string_of_int,
       ~payload=pnet_action_encode(Launch_transition(transition_id)),
-      ~side_effect=() => dispatch(SwitchUpdate),
       (),
     )
-    ->ignore;
+    ->Promise.getOk(() => dispatch(SwitchUpdate));
   };
 
   <div>
@@ -28,7 +27,9 @@ let make = (~pnet: Petri_net.t, ~transition_id, ~dispatch) => {
           }
         )
         ->React.string
-        <button className="button" disabled=true onClick=launch> "Launch (needs debug)"->React.string </button>
+        <button className="button" disabled=true onClick=launch>
+          "Launch (needs debug)"->React.string
+        </button>
         <p>
           "Incoming arcs:"->React.string
           {List.map(
