@@ -24,7 +24,14 @@ module Text = {
 
     let inputStyle = style->Option.getWithDefault(ReactDOMRe.Style.make());
 
-    <input className="input" style=inputStyle type_="text" value=innerValue onChange=handleChange onBlur=commit />;
+    <input
+      className="input"
+      style=inputStyle
+      type_="text"
+      value=innerValue
+      onChange=handleChange
+      onBlur=commit
+    />;
   };
 };
 
@@ -51,7 +58,13 @@ module TextInline = {
       setEnabled(_ => false);
     };
 
-    let buttonStyle = ReactDOMRe.Style.make(~padding="0px", ~height="1.5em", ~paddingLeft="2px", ());
+    let buttonStyle =
+      ReactDOMRe.Style.make(
+        ~padding="0px",
+        ~height="1.5em",
+        ~paddingLeft="2px",
+        (),
+      );
 
     if (enabled) {
       <input
@@ -65,9 +78,16 @@ module TextInline = {
       />;
     } else {
       <Components__flex.HFlex
-        style=Css.[border(px(1), `solid, lightgrey), borderRadius(px(4)), padding(px(1))]>
+        style=Css.[
+          border(px(1), `solid, lightgrey),
+          borderRadius(px(4)),
+          padding(px(1)),
+        ]>
         value->React.string
-        <button style=buttonStyle className="button" onClick={_ => setEnabled(_ => true)}>
+        <button
+          style=buttonStyle
+          className="button"
+          onClick={_ => setEnabled(_ => true)}>
           <Components__icons.EditIcon />
         </button>
       </Components__flex.HFlex>;
@@ -77,15 +97,18 @@ module TextInline = {
 
 module Select = {
   [@react.component]
-  let make = (~options, ~initValue, ~setValue) => {
+  let make = (~options, ~initValue, ~setValue, ~modifiers=[]) => {
     let handleChange = event => {
       let v = event->Generics.event_to_value;
       setValue(_ => v);
     };
 
-    <div className="select">
+    <div className=Cn.("select" + fromList(modifiers))>
       <select value=initValue onChange=handleChange>
-        {List.map(options, ((value, text)) => <option value> text->React.string </option>)->Generics.react_list}
+        {List.map(options, ((value, text)) =>
+           <option value key=value> text->React.string </option>
+         )
+         ->Generics.react_list}
       </select>
     </div>;
   };

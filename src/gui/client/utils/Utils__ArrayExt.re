@@ -4,7 +4,8 @@ let findIndexOf = (arr: array('a), x: 'a) =>
   | _ as i => i
   };
 
-let insert = (arr: array('a), ~value: 'a, ~place: Dnd.ReorderResult.placement('a)) => {
+let insert =
+    (arr: array('a), ~value: 'a, ~place: Dnd.ReorderResult.placement('a)) => {
   let arr = arr->Js.Array2.copy;
   arr
   ->Js.Array2.spliceInPlace(
@@ -20,7 +21,8 @@ let insert = (arr: array('a), ~value: 'a, ~place: Dnd.ReorderResult.placement('a
   arr;
 };
 
-let reinsert = (arr: array('a), ~value: 'a, ~place: Dnd.ReorderResult.placement('a)) => {
+let reinsert =
+    (arr: array('a), ~value: 'a, ~place: Dnd.ReorderResult.placement('a)) => {
   let arr = arr->Js.Array.copy;
   let from = arr->findIndexOf(value);
   arr->Js.Array2.spliceInPlace(~pos=from, ~remove=1, ~add=[||])->ignore;
@@ -40,6 +42,14 @@ let reinsert = (arr: array('a), ~value: 'a, ~place: Dnd.ReorderResult.placement(
 
 let replace = (arr, index, new_value) => {
   let arr = arr->Js.Array.copy;
-  arr->Js.Array2.spliceInPlace(~pos=index, ~remove=1, ~add=[|new_value|])->ignore;
+  arr
+  ->Js.Array2.spliceInPlace(~pos=index, ~remove=1, ~add=[|new_value|])
+  ->ignore;
+  arr;
+};
+
+let delete = (arr, index) => {
+  let arr = arr->Js.Array.copy;
+  arr->Js.Array2.removeCountInPlace(~pos=index, ~count=1)->ignore;
   arr;
 };

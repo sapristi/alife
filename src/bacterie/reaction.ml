@@ -8,12 +8,12 @@ open Base_chemistry
 
 (*    Reactant.t is defined as a sum type of various possible reactants, *)
 (*    Reactants can be : *)
-   
+
 (*     + ImolSet contains inactive molecules, that is molecules that could not *)
 (*       be folded into a petri net (or possible molecules with degenerate petri nets) *)
-      
+
 (*     + Amol contains a unique active molecule, with the associated petri net *)
-      
+
 (*     + ASet (work in progress) is intended to hold a set of active molecules. *)
 (*       (the molecule would be unique, but petri nets in various states could be *)
 (*       present). It is still unknown if a good implementation is possible, because *)
@@ -39,44 +39,44 @@ open Base_chemistry
 module rec
 
 (* ** Reactant : contains a reactant (ImolSet or Amol or Aset) *)
-    
+
     Reactant :
-      (sig 
+      (sig
         include REACTANT with type reac = Reaction.t
-                          and type reacSet = ReacSet.t 
+                          and type reacSet = ReacSet.t
       end)
   =
   struct
     type reac = Reaction.t
     type reacSet = ReacSet.t
-                 
+
     module type REACTANT_DEFAULT =
       (Reactant.REACTANT_DEFAULT)
-      
+
 (* *** ImolSet : reactant with inert molecules *)
-      
+
     module ImolSet =
       struct
         type t = {
             mol : Molecule.t;
-            mutable qtt : int; 
+            mutable qtt : int;
             reacs : ReacSet.t ref;
             mutable ambient:bool;
           }
-               
+
         let show (imd : t) =
           Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol
-          
+
         let pp (f : Format.formatter) (imd : t) =
           Format.pp_print_string f (show imd)
         let to_yojson (imd : t) : Yojson.Safe.t =
           `Assoc [ "mol" , Molecule.to_yojson imd.mol;
                    "qtt" , `Int  imd.qtt;
                    "ambient" , `Bool imd.ambient ]
-          
+
         let show_reacSet = ReacSet.show
         let pp_reacSet = ReacSet.pp
-                       
+
         let compare (imd1 : t) (imd2 : t) =
           Molecule.compare imd1.mol imd2.mol
         let mol ims = ims.mol
@@ -85,7 +85,7 @@ module rec
         let add_to_qtt deltaqtt ims =
           if not ims.ambient
           then ims.qtt <- ims.qtt + deltaqtt
-          
+
         let set_qtt qtt (ims : t)=
           ims.qtt <- qtt
         let make_new mol : t =
@@ -98,7 +98,7 @@ module rec
           ims.ambient <- ambient
 
       end
-      
+
 (* *** Amol :    reactant with one active molecule *)
     module Amol =
       struct
@@ -154,7 +154,7 @@ module rec
         reacs = ref ReacSet.empty}
 
      let add_reac reac (amsd : t) =
-       amsd.reacs := ReacSet.add reac !(amsd.reacs) 
+       amsd.reacs := ReacSet.add reac !(amsd.reacs)
 
      let compare
            (amsd1 : t) (amsd2 : t) =
@@ -175,7 +175,7 @@ module rec
       | ImolSet of ImolSet.t
       | Dummy
                      [@@ deriving show, ord]
-                 
+
     let to_yojson reactant =
       match reactant with
       | Amol amol -> Amol.to_yojson amol
@@ -204,16 +204,16 @@ module rec
       | Amol amol -> Amol.remove_reac reaction amol
       | ImolSet ims -> ImolSet.remove_reac reaction ims
   end
-  
+
 (* ** Reacs : implementation of the reactions *)
 
 (*    We need to copy the entire signature because we use the recursively *)
 (*    defined Reactant. *)
 (*    See reactions.ml for more details. *)
-  
+
    and Reacs :
          (sig
-           
+
            type effect =
              | T_effects of Place.transition_effect list
              | Update_launchables of Reactant.Amol.t
@@ -253,7 +253,7 @@ module rec
            module Collision :
              (REAC with type build_t = (Reactant.t * Reactant.t))
 
-           
+
          end)
      = struct
      include ReactionsM(Reactant)
@@ -268,7 +268,7 @@ module rec
              | Transition of Reacs.Transition.t
              | Break of Reacs.Break.t
              | Collision of Reacs.Collision.t
-             
+
                       [@@deriving show]
 
            val to_yojson : t -> Yojson.Safe.t
@@ -285,7 +285,7 @@ module rec
          | Transition of Transition.t
          | Break of Break.t
          | Collision of Collision.t
-         
+
                       [@@ deriving ord, show, to_yojson]
 
        let rate r =
@@ -294,7 +294,7 @@ module rec
          | Grab g -> Grab.rate g
          | Break b -> Break.rate b
          | Collision c -> Collision.rate c
-         
+
 
        let treat_reaction r  : effect list=
          match r with
@@ -302,7 +302,7 @@ module rec
          | Grab g -> Grab.eval g
          | Break b -> Break.eval b
          | Collision c -> Collision.eval c
-                     
+
        let unlink r =
          match r with
          | Transition t -> Transition.remove_reac_from_reactants r t
@@ -310,11 +310,11 @@ module rec
          | Break b -> Break.remove_reac_from_reactants r b
          | Collision c -> Collision.remove_reac_from_reactants r c
      end
-     
-     
+
+
 
  (* ** ReacSet module *)
-        
+
    and ReacSet :
          (sig
            include CCSet.S with type elt =  Reaction.t
@@ -324,9 +324,9 @@ module rec
          end)
      =
      struct
-       
+
        include CCSet.Make (Reaction)
-           
+
        let show (rset :t) : string =
          fold (fun (reac : Reaction.t) desc ->
              (Reaction.show reac)^"\n"^desc)
@@ -337,4 +337,3 @@ module rec
        let pp =
          pp ~start:"Reac set:\n" Reaction.pp
   end
-

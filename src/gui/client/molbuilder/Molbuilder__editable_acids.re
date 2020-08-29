@@ -2,7 +2,12 @@ open Utils;
 open Acid_types;
 open Components;
 
-let inputStyle = Css.[padding2(~v=px(0), ~h=px(3)), height(em(1.5)), fontFamily(`monospace)];
+let inputStyle =
+  Css.[
+    padding2(~v=px(0), ~h=px(3)),
+    height(em(1.5)),
+    fontFamily(`monospace),
+  ];
 
 module InputArcComp = {
   [@react.component]
@@ -13,7 +18,11 @@ module InputArcComp = {
     | Filter_iarc(filter) =>
       <>
         "Filter"->React.string
-        <Input.TextInline value=filter setValue={new_filter => update(Filter_iarc(new_filter))} style=inputStyle />
+        <Input.TextInline
+          value=filter
+          setValue={new_filter => update(Filter_iarc(new_filter))}
+          style=inputStyle
+        />
       </>
     | Filter_empty_iarc => "Filter empty"->React.string
     };
@@ -33,6 +42,7 @@ module OutputArcComp = {
           options=[("true", "forward"), ("false", "backward")]
           initValue={string_of_bool(b)}
           setValue={new_b => update(Move_oarc(bool_of_string(new_b())))}
+          modifiers=["is-small"]
         />
       </>
     };
@@ -46,7 +56,11 @@ module ExtensionComp = {
     | Grab_ext(pattern) =>
       <>
         "Grab"->React.string
-        <Input.TextInline value=pattern setValue={new_pattern => update(Grab_ext(new_pattern))} style=inputStyle />
+        <Input.TextInline
+          value=pattern
+          setValue={new_pattern => update(Grab_ext(new_pattern))}
+          style=inputStyle
+        />
       </>
     | Release_ext => "Release"->React.string
     | Init_with_token_ext => "Init with token"->React.string
@@ -55,13 +69,17 @@ module ExtensionComp = {
 };
 
 [@react.component]
-let make = (~id, ~acid, ~update) => {
+let make = (~id, ~acid, ~update, ~delete) => {
   let inner =
     switch (acid) {
     | Place => "Place"->React.string
     | InputArc(tid, iarc_type) =>
       <>
-        <InputArcComp id iarc_type update={new_iarc_type => update(InputArc(tid, new_iarc_type))} />
+        <InputArcComp
+          id
+          iarc_type
+          update={new_iarc_type => update(InputArc(tid, new_iarc_type))}
+        />
         <HFlex style=Css.[marginLeft(px(5))]>
           "InputArc"->React.string
           <Input.TextInline
@@ -73,7 +91,11 @@ let make = (~id, ~acid, ~update) => {
       </>
     | OutputArc(tid, oarc_type) =>
       <>
-        <OutputArcComp id oarc_type update={new_oarc_type => update(OutputArc(tid, new_oarc_type))} />
+        <OutputArcComp
+          id
+          oarc_type
+          update={new_oarc_type => update(OutputArc(tid, new_oarc_type))}
+        />
         <HFlex style=Css.[marginLeft(px(5))]>
           "OutputArc"->React.string
           <Input.TextInline
@@ -85,12 +107,30 @@ let make = (~id, ~acid, ~update) => {
       </>
     | Extension(extension_type) =>
       <>
-        <ExtensionComp id extension_type update={new_ext => Extension(new_ext)} />
+        <ExtensionComp
+          id
+          extension_type
+          update={new_ext => Extension(new_ext)}
+        />
         <div> "Extension"->React.string </div>
       </>
     };
-
+  let marginSize =
+    switch (acid) {
+    | Place => 0
+    | _ => 10
+    };
   <div style=Css.(style([borderBottom(px(1), `solid, black)]))>
-    <HFlex style=Css.[justifyContent(spaceBetween)]> inner </HFlex>
+    <HFlex
+      style=Css.[
+        justifyContent(spaceBetween),
+        alignItems(center),
+        marginLeft(px(marginSize)),
+      ]>
+      inner
+      <button onClick=delete className="button is-small">
+        <Icons.DeleteIcon />
+      </button>
+    </HFlex>
   </div>;
 };

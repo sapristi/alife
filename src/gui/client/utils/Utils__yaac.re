@@ -5,7 +5,10 @@ let origin = "http://localhost:1512/api";
 let get = (endpoint, callback) => {
   Js.log("Requesting " ++ endpoint);
   Js.Promise.(
-    Fetch.fetchWithInit(origin ++ endpoint, Fetch.RequestInit.make(~method_=Get, ()))
+    Fetch.fetchWithInit(
+      origin ++ endpoint,
+      Fetch.RequestInit.make(~method_=Get, ()),
+    )
     |> then_(Fetch.Response.json)
     |> then_(json =>
          {
@@ -17,7 +20,8 @@ let get = (endpoint, callback) => {
   );
 };
 
-let handle_ok_response = (response, json_decode, callback, side_effect, ko_callback: unit => unit) => {
+let handle_ok_response =
+    (response, json_decode, callback, side_effect, ko_callback: unit => unit) => {
   let after =
     switch (side_effect) {
     | None => (() => ())
@@ -39,13 +43,29 @@ let handle_ok_response = (response, json_decode, callback, side_effect, ko_callb
          };
        })
   | _ =>
-    (response |> Fetch.Response.json |> Js.Promise.then_(json => Js.log2("Received", json) |> Js.Promise.resolve))
+    (
+      response
+      |> Fetch.Response.json
+      |> Js.Promise.then_(json =>
+           Js.log2("Received", json) |> Js.Promise.resolve
+         )
+    )
     ->ignore;
     after() |> Js.Promise.resolve;
   };
 };
 
-let request = (method_, endpoint, ~payload=?, ~json_decode=?, ~callback=?, ~ko_callback=?, ~side_effect=?, ()) => {
+let request =
+    (
+      method_,
+      endpoint,
+      ~payload=?,
+      ~json_decode=?,
+      ~callback=?,
+      ~ko_callback=?,
+      ~side_effect=?,
+      (),
+    ) => {
   let ko_callback' =
     switch (ko_callback) {
     | Some(ko_callback') => ko_callback'
@@ -64,7 +84,13 @@ let request = (method_, endpoint, ~payload=?, ~json_decode=?, ~callback=?, ~ko_c
     Fetch.fetchWithInit(origin ++ endpoint, request)
     |> then_(response =>
          if (Fetch.Response.ok(response)) {
-           handle_ok_response(response, json_decode, callback, side_effect, ko_callback');
+           handle_ok_response(
+             response,
+             json_decode,
+             callback,
+             side_effect,
+             ko_callback',
+           );
          } else {
            {
              Js.log("Error from " ++ endpoint);
@@ -74,4 +100,65 @@ let request = (method_, endpoint, ~payload=?, ~json_decode=?, ~callback=?, ~ko_c
          }
        )
   );
+};
+
+let request_p = (method_, endpoint, ~payload=?, ~json_decode, ()) => {
+  let request =
+    switch (payload) {
+    | None => Fetch.RequestInit.make(~method_, ())
+    | Some(r) =>
+      let body = Fetch.BodyInit.make(Js.Json.stringify(r));
+      Fetch.RequestInit.make(~method_, ~body, ());
+    };
+
+  Js.log("Requesting " ++ endpoint);
+  (
+    Fetch.fetchWithInit(origin ++ endpoint, request)
+    |> Js.Promise.then_(Fetch.Response.json)
+  )
+  ->Promise.Js.fromBsPromise
+  ->Promise.Js.toResult
+  ->Promise.map(response => {
+      switch (response) {
+      | Ok(response') =>
+        Js.log2("Received", response');
+        switch (json_decode(response')) {
+        | Ok(x_decoded) => Ok(x_decoded)
+        | Error(e) =>
+          Js.log3("Could not decode", response, e);
+          Error();
+        };
+      | Error(e) =>
+        Js.log("Error from " ++ endpoint);
+        Error();
+      }
+    });
+};
+
+let request_pn = (method_, endpoint, ~payload=?, ()) => {
+  let request =
+    switch (payload) {
+    | None => Fetch.RequestInit.make(~method_, ())
+    | Some(r) =>
+      let body = Fetch.BodyInit.make(Js.Json.stringify(r));
+      Fetch.RequestInit.make(~method_, ~body, ());
+    };
+
+  Js.log("Requesting " ++ endpoint);
+  Fetch.fetchWithInit(origin ++ endpoint, request)
+  ->Promise.Js.fromBsPromise
+  ->Promise.Js.toResult
+  ->Promise.map(response =>
+      switch (response) {
+      | Ok(response') =>
+        if (Fetch.Response.ok(response')) {
+          Ok();
+        } else {
+          Error();
+        }
+      | Error(e) =>
+        Js.log("Error from " ++ endpoint);
+        Error();
+      }
+    );
 };

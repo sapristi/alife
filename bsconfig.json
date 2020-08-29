@@ -30,7 +30,8 @@
         "bs-css-dom",
         "re-dnd",
         "bs-log",
-        "re-classnames"
+        "re-classnames",
+        "reason-promise"
     ],
     "ppx-flags": [
         "decco/ppx",

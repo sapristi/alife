@@ -29,7 +29,9 @@ module NamedInput = {
   [@react.component]
   let make = (~label, ~value, ~setValue) => {
     <div className="field is-horizontal">
-      <div className="field-label is-normal"> <label className="label"> label->React.string </label> </div>
+      <div className="field-label is-normal">
+        <label className="label"> label->React.string </label>
+      </div>
       <div className="field-body">
         <div className="field">
           <p className="control">
@@ -55,3 +57,5 @@ module Yaac = Utils__yaac;
 module ArrayExt = Utils__ArrayExt;
 
 module Input = Components__input;
+
+module Icons = Components__icons;
