@@ -2,75 +2,12 @@ open Acid_types;
 open Client_types;
 open Belt;
 open Utils;
+open Molbuilder__dnd;
 
 module EditableAcid = Molbuilder__editable_acids;
-
-module Id = {
-  type t = int;
-  let current = ref(0);
-
-  let make = () => {
-    current := 1 + current^;
-    current^ - 1;
-  };
-};
+module AcidsPicker = Molbuilder__acids_picker;
 
 /* open Belt; */
-module Item = {
-  type t =
-    | Source(Id.t, acid)
-    | ProtElem(Id.t, acid);
-  let eq = (x1, x2) =>
-    switch (x1, x2) {
-    | (Source(id1, _), Source(id2, _)) => id1 === id2
-    | (ProtElem(id1, _), ProtElem(id2, _)) => id1 === id2
-    | _ => false
-    };
-  let cmp = (x1, x2) =>
-    switch (x1, x2) {
-    | (Source(id1, _), Source(id2, _)) => compare(id1, id2)
-    | (ProtElem(id1, _), ProtElem(id2, _)) => compare(id1, id2)
-    | (Source(_), ProtElem(_)) => (-1)
-    | (ProtElem(_), Source(_)) => 1
-    };
-  let to_string = item =>
-    switch (item) {
-    | Source(id, acid) =>
-      "S" ++ string_of_int(id) ++ Chemistry.acid_to_descr(acid)
-    | ProtElem(id, acid) =>
-      "P" ++ string_of_int(id) ++ Chemistry.acid_to_descr(acid)
-    };
-
-  let to_component = to_string;
-  let to_acid = item =>
-    switch (item) {
-    | Source(_, acid) => acid
-    | ProtElem(_, acid) => acid
-    };
-};
-
-/* let acidMap = Map.make(~id=(module Item.Comparable)); */
-/* type t = Map.t(Item.t, AcidItem.t, Comparable.identity); */
-
-module Container = {
-  type t =
-    | AcidsSource
-    | AcidsList;
-  let eq = (x1, x2) => x1 === x2; // or more concise: let eq = (==);
-  let cmp = compare; // default comparator from Pervasives module
-
-  let style = (~draggingOver) =>
-    if (draggingOver) {"dnd-container-hovered"} else {"dnd-container"};
-};
-
-module MolBuilder = Dnd.Make(Item, Container);
-
-let acid_to_draggable = (acid, id) => {
-  <MolBuilder.DraggableItem
-    id={Source(id, acid)} containerId=AcidsSource index=id>
-    {`Children(Chemistry.acid_to_descr(acid)->React.string)}
-  </MolBuilder.DraggableItem>;
-};
 
 type state = {
   acidItems: array(Item.t),
@@ -100,7 +37,7 @@ let make = (~commit) => {
         acidItems:
           ArrayExt.insert(
             prev_state.acidItems,
-            ~value=ProtElem(Id.make(), acid),
+            ~value=ProtElem(DndId.make(), acid),
             ~place=placement,
           ),
       }
@@ -110,7 +47,7 @@ let make = (~commit) => {
           ArrayExt.replace(
             prev_state.acidItems,
             index,
-            ProtElem(Id.make(), new_acid),
+            ProtElem(DndId.make(), new_acid),
           ),
       }
     | DeleteAction(index) => {
@@ -126,7 +63,7 @@ let make = (~commit) => {
 
   Js.log2("Acids", state.acidItems);
 
-  <MolBuilder.DndManager
+  <MolBuilderDnd.DndManager
     onDragStart={(~itemId as _itemId) =>
       [%log.info "AppHook"; ("Event", "DragStart"); ("ItemId", _itemId)]
     }
@@ -137,65 +74,7 @@ let make = (~commit) => {
       [%log.info "AppHook"; ("Event", "DropEnd"); ("ItemId", _itemId)]
     }
     onReorder={res => dispatchState(DndAction(res))}>
-    <div className="panel">
-      <p className="panel-heading"> "Acids"->React.string </p>
-      <div className="panel-block content">
-        <MolBuilder.DroppableContainer
-          id=AcidsSource axis=Y accept={_ => false}>
-          <ul>
-            <li> {acid_to_draggable(Place, 0)} </li>
-            <li>
-              "Input Arcs"->React.string
-              <ul>
-                {List.mapWithIndex(
-                   List.mapWithIndex(Examples.input_arcs, (index, acid) =>
-                     acid_to_draggable(acid, index + 1)
-                   ),
-                   (index, x) => {
-                   <li key={index->string_of_int}> x </li>
-                 })
-                 ->Generics.react_list}
-              </ul>
-            </li>
-            <li>
-              "Output Arcs"->React.string
-              <ul>
-                {List.mapWithIndex(
-                   List.mapWithIndex(Examples.output_arcs, (index, acid) =>
-                     acid_to_draggable(
-                       acid,
-                       index + 1 + List.length(Examples.input_arcs),
-                     )
-                   ),
-                   (index, x) =>
-                   <li key={index->string_of_int}> x </li>
-                 )
-                 ->Generics.react_list}
-              </ul>
-            </li>
-            <li>
-              "Extensions"->React.string
-              <ul>
-                {List.mapWithIndex(
-                   List.mapWithIndex(Examples.extensions, (index, acid) =>
-                     acid_to_draggable(
-                       acid,
-                       index
-                       + 1
-                       + List.length(Examples.input_arcs)
-                       + List.length(Examples.output_arcs),
-                     )
-                   ),
-                   (index, x) =>
-                   <li key={index->string_of_int}> x </li>
-                 )
-                 ->Generics.react_list}
-              </ul>
-            </li>
-          </ul>
-        </MolBuilder.DroppableContainer>
-      </div>
-    </div>
+    <AcidsPicker />
     <div className="box" style=Css.(style([minWidth(px(400))]))>
       <div>
         <button
@@ -204,12 +83,13 @@ let make = (~commit) => {
           "Commit"->React.string
         </button>
       </div>
-      <MolBuilder.DroppableContainer
+      <MolBuilderDnd.DroppableContainer
         id=AcidsList axis=Y className=Container.style>
         <ul>
           {Array.mapWithIndex(state.acidItems, (index, elem) =>
              <li key={elem->Item.to_string}>
-               <MolBuilder.DraggableItem id=elem containerId=AcidsList index>
+               <MolBuilderDnd.DraggableItem
+                 id=elem containerId=AcidsList index>
                  {`Children(
                     switch (elem) {
                     | Source(_) => React.null
@@ -224,12 +104,12 @@ let make = (~commit) => {
                       />
                     },
                   )}
-               </MolBuilder.DraggableItem>
+               </MolBuilderDnd.DraggableItem>
              </li>
            )
            ->React.array}
         </ul>
-      </MolBuilder.DroppableContainer>
+      </MolBuilderDnd.DroppableContainer>
     </div>
-  </MolBuilder.DndManager>;
+  </MolBuilderDnd.DndManager>;
 };
