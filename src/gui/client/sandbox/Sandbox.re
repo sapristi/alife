@@ -1,7 +1,7 @@
 /* [@bs.val] [@bs.scope ("window", "location")] external origin : string = "origin"; */
 open Utils;
 open Client_types;
-
+open Components;
 module SidePanel = {
   [@react.component]
   let make = (~dispatch) => {
@@ -102,30 +102,40 @@ let make = () => {
     <div style=Css.(style([flexGrow(0.), paddingLeft(px(100))]))>
       <h1 className="title"> "Sandbox"->React.string </h1>
       <section className="section">
-        <div className="panel">
-          <p className="panel-heading"> "Generic controls"->React.string </p>
-          <Sandbox_generic_controls env={state.sandbox.env} update dispatch />
-        </div>
+        <Panel>
+          (
+            "Generic controls"->React.string,
+            <Sandbox_generic_controls
+              env={state.sandbox.env}
+              update
+              dispatch
+            />,
+          )
+        </Panel>
       </section>
       <section className="section">
-        <div className="panel">
-          <p className="panel-heading"> "Inert molecules"->React.string </p>
-          <Sandbox_inert_molecules
-            inert_mols={state.sandbox.bact.inert_mols}
-            update
-            dispatch
-          />
-        </div>
+        <Panel>
+          (
+            "Inert molecules"->React.string,
+            <Sandbox_inert_molecules
+              inert_mols={state.sandbox.bact.inert_mols}
+              update
+              dispatch
+            />,
+          )
+        </Panel>
       </section>
       <section className="section">
-        <div className="panel">
-          <p className="panel-heading"> "Active molecules"->React.string </p>
-          <Sandbox_active_molecules
-            active_mols={state.sandbox.bact.active_mols}
-            update
-            dispatch
-          />
-        </div>
+        <Panel>
+          (
+            "Active molecules"->React.string,
+            <Sandbox_active_molecules
+              active_mols={state.sandbox.bact.active_mols}
+              update
+              dispatch
+            />,
+          )
+        </Panel>
       </section>
       <section className="section">
         <Sandbox_pnet_controls

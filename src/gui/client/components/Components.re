@@ -59,3 +59,4 @@ module ArrayExt = Utils__ArrayExt;
 module Input = Components__input;
 
 module Icons = Components__icons;
+module Panel = Components__panel;
