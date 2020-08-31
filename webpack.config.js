@@ -4,7 +4,7 @@ const dist = 'dist';
 const outputDir = path.join(__dirname, dist);
 const webpack = require('webpack')
 const isProd = process.env.NODE_ENV === 'production';
-
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 new HtmlWebpackPlugin({
     favicon: "./favicon.ico"
 })
@@ -38,9 +38,14 @@ module.exports = {
             {
                 test: /\.s[ac]ss$/,
                 use: [
-                    'style-loader',
-                    "css-loader",
-                    "sass-loader"
+                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: "sass-loader",
+                        options: {
+                            sourceMap: true,
+                        }
+                    }
+                    ,
                 ]
             },
             {

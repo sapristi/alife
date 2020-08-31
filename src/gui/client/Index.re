@@ -1,6 +1,7 @@
 [%raw "require('isomorphic-fetch')"];
 [%raw "require('bulma')"];
 [%raw "require('./static/style.css')"];
+[%raw "require('./static/mystyles.scss')"];
 
 module Main = {
   type tab =
