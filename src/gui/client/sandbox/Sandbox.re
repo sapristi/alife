@@ -103,7 +103,7 @@ let make = () => {
       <h1 className="title"> "Sandbox"->React.string </h1>
       <section className="section">
         <div className="panel">
-          <p className="panel-heading"> "Genreric controls"->React.string </p>
+          <p className="panel-heading"> "Generic controls"->React.string </p>
           <Sandbox_generic_controls env={state.sandbox.env} update dispatch />
         </div>
       </section>

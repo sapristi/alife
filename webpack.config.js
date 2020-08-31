@@ -4,7 +4,7 @@ const dist = 'dist';
 const outputDir = path.join(__dirname, dist);
 const webpack = require('webpack')
 const isProd = process.env.NODE_ENV === 'production';
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
 new HtmlWebpackPlugin({
     favicon: "./favicon.ico"
 })
@@ -15,7 +15,7 @@ module.exports = {
   mode: isProd ? 'production' : 'development',
   output: {
     path: path.resolve(__dirname, dist),
-    filename: isProd ? '../dist/index.[contenthash].js' : 'dist/index.[contenthash].js'
+    filename: isProd ? 'index.[contenthash].js' : 'dist/index.[contenthash].js'
   },
   plugins: [
       new HtmlWebpackPlugin({
@@ -38,14 +38,9 @@ module.exports = {
             {
                 test: /\.s[ac]ss$/,
                 use: [
-                    MiniCssExtractPlugin.loader,
-                    {
-                        loader: "sass-loader",
-                        options: {
-                            sourceMap: true,
-                        }
-                    }
-                    ,
+                    'style-loader',
+                    "css-loader",
+                    "sass-loader"
                 ]
             },
             {
