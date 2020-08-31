@@ -3,65 +3,76 @@ open Client_types;
 open Belt;
 open Utils;
 open Molbuilder__dnd;
+open Components;
 
 module EditableAcid = Molbuilder__editable_acids;
 module AcidsPicker = Molbuilder__acids_picker;
 
 /* open Belt; */
 
-type state = {
-  acidItems: array(Item.t),
-  other: unit,
-};
+type acidItemsState = array(Item.t);
 
 type action =
   | DndAction(Dnd.result(Item.t, Container.t))
   | UpdateAction(int, acid)
-  | DeleteAction(int);
+  | DeleteAction(int)
+  | InitAction(proteine);
+
+let proteine_selector = (state: Store.appState) => state.molbuilder.proteine;
+let reducer = (prev_state, action: action) => {
+  switch (action) {
+  | DndAction(Some(SameContainer(ProtElem(id, acid), placement))) =>
+    prev_state->ArrayExt.reinsert(
+      ~value=Item.ProtElem(id, acid),
+      ~place=placement,
+    )
+  | DndAction(Some(NewContainer(Source(_, acid), AcidsList, placement))) =>
+    ArrayExt.insert(
+      prev_state,
+      ~value=ProtElem(DndId.make(), acid),
+      ~place=placement,
+    )
+  | UpdateAction(index, new_acid) =>
+    ArrayExt.replace(prev_state, index, ProtElem(DndId.make(), new_acid))
+  | DeleteAction(index) => ArrayExt.delete(prev_state, index)
+  | InitAction(proteine) =>
+    Array.map(proteine, acid => Item.ProtElem(DndId.make(), acid))
+  | _ => prev_state
+  };
+};
 
 [@react.component]
-let make = (~commit) => {
-  let reducer = (prev_state, action: action) => {
-    switch (action) {
-    | DndAction(Some(SameContainer(ProtElem(id, acid), placement))) => {
-        ...prev_state,
-        acidItems:
-          prev_state.acidItems
-          ->ArrayExt.reinsert(
-              ~value=Item.ProtElem(id, acid),
-              ~place=placement,
-            ),
-      }
-    | DndAction(Some(NewContainer(Source(_, acid), AcidsList, placement))) => {
-        ...prev_state,
-        acidItems:
-          ArrayExt.insert(
-            prev_state.acidItems,
-            ~value=ProtElem(DndId.make(), acid),
-            ~place=placement,
-          ),
-      }
-    | UpdateAction(index, new_acid) => {
-        ...prev_state,
-        acidItems:
-          ArrayExt.replace(
-            prev_state.acidItems,
-            index,
-            ProtElem(DndId.make(), new_acid),
-          ),
-      }
-    | DeleteAction(index) => {
-        ...prev_state,
-        acidItems: ArrayExt.delete(prev_state.acidItems, index),
-      }
-    | _ => prev_state
-    };
-  };
+let make = () => {
+  let storeDispatch = Store.useDispatch();
+  let (acidItems, dispatchAcidItems) = React.useReducer(reducer, [||]);
+  let (autocommit, setAutocommit) = React.useState(() => false);
+  let proteine = Store.useSelector(proteine_selector);
+  React.useEffect1(
+    () => {
+      Js.log3("Proteine changed", proteine, proteine_encode(proteine));
+      dispatchAcidItems(InitAction(proteine));
+      None;
+    },
+    [|Js.Json.stringifyAny(proteine)|],
+  );
 
-  let (state, dispatchState) =
-    React.useReducer(reducer, {acidItems: [||], other: ()});
+  let commitProteine = _ =>
+    Molbuilder__actions.commitProteine(
+      storeDispatch,
+      Array.map(acidItems, Item.to_acid),
+    );
+  React.useEffect1(
+    () => {
+      Js.log3("AcidItems changed", autocommit, acidItems);
+      if (autocommit) {
+        commitProteine();
+      };
+      None;
+    },
+    [|Js.Json.stringifyAny(acidItems)|],
+  );
 
-  Js.log2("Acids", state.acidItems);
+  Js.log2("Rendering Acids panel", acidItems);
 
   <MolBuilderDnd.DndManager
     onDragStart={(~itemId as _itemId) =>
@@ -73,20 +84,29 @@ let make = (~commit) => {
     onDropEnd={(~itemId as _itemId) =>
       [%log.info "AppHook"; ("Event", "DropEnd"); ("ItemId", _itemId)]
     }
-    onReorder={res => dispatchState(DndAction(res))}>
+    onReorder={res => dispatchAcidItems(DndAction(res))}>
     <AcidsPicker />
-    <div className="box" style=Css.(style([minWidth(px(400))]))>
-      <div>
-        <button
-          className="button"
-          onClick={_ => commit(Array.map(state.acidItems, Item.to_acid))}>
-          "Commit"->React.string
-        </button>
-      </div>
+    <div className="panel" style=Css.(style([minWidth(px(400))]))>
+      <HFlex
+        className="panel-heading"
+        style=Css.[alignItems(center), justifyContent(spaceBetween)]>
+        "Proteine"->React.string
+        <HFlex>
+          <button className="button" onClick=commitProteine>
+            "Commit"->React.string
+          </button>
+          <Input.Checkbox
+            state=autocommit
+            setState=setAutocommit
+            label="Auto-commit"
+            id="mol_auto_commit"
+          />
+        </HFlex>
+      </HFlex>
       <MolBuilderDnd.DroppableContainer
         id=AcidsList axis=Y className=Container.style>
         <ul>
-          {Array.mapWithIndex(state.acidItems, (index, elem) =>
+          {Array.mapWithIndex(acidItems, (index, elem) =>
              <li key={elem->Item.to_string}>
                <MolBuilderDnd.DraggableItem
                  id=elem containerId=AcidsList index>
@@ -98,9 +118,9 @@ let make = (~commit) => {
                         id
                         acid
                         update={new_acid =>
-                          dispatchState(UpdateAction(index, new_acid))
+                          dispatchAcidItems(UpdateAction(index, new_acid))
                         }
-                        delete={_ => dispatchState(DeleteAction(index))}
+                        delete={_ => dispatchAcidItems(DeleteAction(index))}
                       />
                     },
                   )}

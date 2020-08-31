@@ -113,3 +113,20 @@ module Select = {
     </div>;
   };
 };
+
+module Checkbox = {
+  [@react.component]
+  let make = (~state, ~setState, ~id, ~label) => {
+    let toggle = _ => setState(prev => !prev);
+    <div style=Css.(style([alignItems(`center), display(`flex)]))>
+      <input htmlFor=id type_="checkbox" onChange=toggle checked=state />
+      <label
+        className="checkbox"
+        onClick=toggle
+        id
+        style=Css.(style([fontSize(`initial), fontWeight(`initial)]))>
+        label->React.string
+      </label>
+    </div>;
+  };
+};

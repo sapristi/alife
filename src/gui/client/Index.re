@@ -5,29 +5,34 @@ module Main = {
   type tab =
     | TSimulator
     | TSandbox
-    | TMolbuilder;
+    | TMolbuilder
+    | Tests;
+
   [@react.component]
   let make = () => {
-    let (activeTab, setActiveTab) = React.useReducer((_, v) => v, TMolbuilder);
-
-    <div>
-      <Components.Tabs
-        tabs=[
-          (TSimulator, "Simulator"->React.string),
-          (TSandbox, "Sandbox"->React.string),
-          (TMolbuilder, "Molbuilder"->React.string),
-        ]
-        activeTab
-        setActiveTab
-      />
+    let (activeTab, setActiveTab) =
+      React.useReducer((_, v) => v, TMolbuilder);
+    <Store.Provider store=Store.appStore>
       <div>
-        {switch (activeTab) {
-         | TSimulator => React.string("Simulator")
-         | TSandbox => <Sandbox />
-         | TMolbuilder => <Molbuilder />
-         }}
+        <Components.Tabs
+          tabs=[
+            (TSimulator, "Simulator"->React.string),
+            (TSandbox, "Sandbox"->React.string),
+            (TMolbuilder, "Molbuilder"->React.string),
+          ]
+          activeTab
+          setActiveTab
+        />
+        <div>
+          {switch (activeTab) {
+           | TSimulator => React.string("Simulator")
+           | TSandbox => <Sandbox />
+           | TMolbuilder => <Molbuilder />
+           | Tests => <Tests.RenderApp />
+           }}
+        </div>
       </div>
-    </div>;
+    </Store.Provider>;
   };
 };
 

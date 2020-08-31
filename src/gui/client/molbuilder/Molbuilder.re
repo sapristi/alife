@@ -43,34 +43,35 @@ let reducer = (prev_state, action: action) => {
   };
 };
 
+module Selector = {
+  let pnet = (state: Store.appState) => state.molbuilder.pnet;
+  let mol = (state: Store.appState) => state.molbuilder.mol;
+  let proteine = (state: Store.appState) => state.molbuilder.proteine;
+};
+
+module MB_Cyto = {
+  [@react.component]
+  let make = () => {
+    let pnet = Store.useSelector(Selector.pnet);
+    <Cytoscape_pnet
+      pnetIdO=None
+      pnetO=pnet
+      cyEHandler={_ => ()}
+      styles=Css.[width(px(200)), height(px(200))]
+    />;
+  };
+};
+
 [@react.component]
 let make = () => {
-  let (state, setState) =
-    React.useState(() => {proteine: [||], molecule: "", pnet: None});
-  let commitAcidItems = prot =>
-    Yaac.request(
-      Fetch.Post,
-      "/utils/build/from_prot",
-      ~payload=proteine_encode(prot),
-      ~json_decode=commitAcidItemsResponse_decode,
-      (),
-    )
-    ->Promise.getOk(({mol, pnet}) => {
-        setState(prevState => {...prevState, molecule: mol, pnet})
-      });
+  let mol = Store.useSelector(Selector.mol);
 
   <Components.VFlex>
     <h1 className="title"> "Molbuilder"->React.string </h1>
+    <Molbuilder__mol_panel mol />
     <Components.HFlex>
-      <section className="section">
-        <Cytoscape_pnet
-          pnetIdO=None
-          pnetO={state.pnet}
-          cyEHandler={_ => ()}
-          styles=Css.[width(px(200)), height(px(200))]
-        />
-      </section>
-      <Acids_panel commit={prot => commitAcidItems(prot)} />
+      <section className="section"> <MB_Cyto /> </section>
+      <Acids_panel />
     </Components.HFlex>
   </Components.VFlex>;
 };

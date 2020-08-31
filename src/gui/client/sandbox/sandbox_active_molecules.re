@@ -11,6 +11,7 @@ module AmolControls = {
     let (disabled, setDisabled) = React.useState(() => true);
     let (pnet_ids, setPnet_ids) = React.useState(() => []);
     let (selectedPnet, setSelectedPnet) = React.useState(() => None);
+    let store_dispatch = Store.useDispatch();
 
     React.useEffect1(
       () => {
@@ -63,6 +64,12 @@ module AmolControls = {
       };
     };
 
+    let send_to_molbuilder = _ => {
+      switch (selectedPnet) {
+      | Some((mol, _)) => Molbuilder__actions.commitMol(store_dispatch, mol)
+      | None => ()
+      };
+    };
     <div className="tile is-vertical is-2">
       <div className="box">
         <Components.HFlex>
@@ -89,7 +96,7 @@ module AmolControls = {
         <button className="button" disabled>
           "Remove molecule"->React.string
         </button>
-        <button className="button" disabled>
+        <button className="button" disabled onClick=send_to_molbuilder>
           "Send to molbuilder"->React.string
         </button>
       </div>

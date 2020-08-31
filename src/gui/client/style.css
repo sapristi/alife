@@ -54,3 +54,7 @@
     height: 100%;
     background: lightgray;
 }
+
+.panel-heading .button {
+    height: 2em;
+}

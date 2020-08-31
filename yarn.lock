@@ -4267,10 +4267,10 @@ redent@^1.0.0:
     indent-string "^2.1.0"
     strip-indent "^1.0.1"
 
-reductive@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/reductive/-/reductive-2.1.0.tgz#2f3a25f7e1784960b7e519c11c1b826a4dae4f86"
-  integrity sha512-HJYrYGDju1Rz+APBJRDUP5HTAiPNHDcQYJSxFfiFaabuzhHsLJmMZVALNL9nz5lOGr4ALLi6/rnv0IUfHzicLQ==
+reductive@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/reductive/-/reductive-2.1.1.tgz#de39ccf6326a7713e563e35c5ad233917c554f21"
+  integrity sha512-i5xctIaWc3yyQ1bAGT9d4XmK1Z2nWrY9XWQzYqGbHOnTcxJE1AXq4ZaqDQLOpUYYxJz9Uhl+1TQz6svIB/Rc7g==
   dependencies:
     use-subscription "^1.0.0"
 

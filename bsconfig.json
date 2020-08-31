@@ -31,7 +31,8 @@
         "re-dnd",
         "bs-log",
         "re-classnames",
-        "reason-promise"
+        "reason-promise",
+        "reductive"
     ],
     "ppx-flags": [
         "decco/ppx",

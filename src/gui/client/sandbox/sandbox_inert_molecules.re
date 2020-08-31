@@ -6,6 +6,7 @@ module ImolControls = {
   let make = (~imol: option(inert_mol), ~dispatch) => {
     let (qtt, setQtt) = React.useState(() => "");
     let (disabled, setDisabled) = React.useState(() => true);
+    let store_dispatch = Store.useDispatch();
 
     React.useEffect1(
       () => {
@@ -42,6 +43,14 @@ module ImolControls = {
         (),
       )
       ->Promise.getOk(bact => dispatch(SetBact(bact)));
+    };
+
+    let send_to_molbuilder = _ => {
+      switch (imol) {
+      | Some(imol') =>
+        Molbuilder__actions.commitMol(store_dispatch, imol'.mol)
+      | None => ()
+      };
     };
 
     <div className="tile is-vertical is-2">
