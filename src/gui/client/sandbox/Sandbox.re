@@ -102,27 +102,32 @@ let make = () => {
     <div style=Css.(style([flexGrow(0.), paddingLeft(px(100))]))>
       <h1 className="title"> "Sandbox"->React.string </h1>
       <section className="section">
-        <h2 className="subtitle"> "Generic controls"->React.string </h2>
-        <Sandbox_generic_controls env={state.sandbox.env} update dispatch />
+        <div className="panel">
+          <p className="panel-heading"> "Genreric controls"->React.string </p>
+          <Sandbox_generic_controls env={state.sandbox.env} update dispatch />
+        </div>
       </section>
       <section className="section">
-        <h2 className="subtitle"> "Inert molecules"->React.string </h2>
-        <Sandbox_inert_molecules
-          inert_mols={state.sandbox.bact.inert_mols}
-          update
-          dispatch
-        />
+        <div className="panel">
+          <p className="panel-heading"> "Inert molecules"->React.string </p>
+          <Sandbox_inert_molecules
+            inert_mols={state.sandbox.bact.inert_mols}
+            update
+            dispatch
+          />
+        </div>
       </section>
       <section className="section">
-        <h2 className="subtitle"> "Active molecules"->React.string </h2>
-        <Sandbox_active_molecules
-          active_mols={state.sandbox.bact.active_mols}
-          update
-          dispatch
-        />
+        <div className="panel">
+          <p className="panel-heading"> "Active molecules"->React.string </p>
+          <Sandbox_active_molecules
+            active_mols={state.sandbox.bact.active_mols}
+            update
+            dispatch
+          />
+        </div>
       </section>
       <section className="section">
-        <h2 className="subtitle"> "Petri Net"->React.string </h2>
         <Sandbox_pnet_controls
           selectedPnet={state.selectedPnet}
           updateSwitch={state.updateSwitch}

@@ -66,7 +66,7 @@ let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
     <Cytoscape_pnet
       pnetIdO={Belt.Option.map(selectedPnet, ((_, y)) => y)}
       pnetO=pnetData
-      styles=Css.[width(pct(80.)), height(px(600))]
+      styles=Css.[width(pct(100.)), height(px(600))]
       cyEHandler
     />
     <div className="tile is-vertical">

@@ -291,6 +291,5 @@ export const setup_pnet_cy = function(elements, eventHandler) {
         update_pnet: update_pnet,
         replace_elements: replace_elements
     }
-    window.cy_wrapper = res;
     return res
 }

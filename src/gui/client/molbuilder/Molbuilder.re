@@ -1,15 +1,8 @@
 open Belt;
 open Utils;
-/* open Types; */
 open Acid_types;
 open Client_types;
-/* type state = { */
-/*   mol: Molecule.t, */
-/*   pnet: option(Petri_net.t), */
-/*   prot: string, */
-/* }; */
-
-/* let initial_state = {mol: "", pnet: None, prot: ""}; */
+open Components;
 
 module Styles = {
   open Css;
@@ -57,7 +50,7 @@ module MB_Cyto = {
       pnetIdO=None
       pnetO=pnet
       cyEHandler={_ => ()}
-      styles=Css.[width(pct(100.)), height(px(200))]
+      styles=Css.[width(pct(100.)), height(px(400))]
     />;
   };
 };
@@ -66,9 +59,12 @@ module MB_Cyto = {
 let make = () => {
   let mol = Store.useSelector(Selector.mol);
 
-  <Components.VFlex>
+  <VFlex>
     <h1 className="title"> "Molbuilder"->React.string </h1>
     <Molbuilder__mol_panel mol />
-    <Components.HFlex> <MB_Cyto /> <Acids_panel /> </Components.HFlex>
-  </Components.VFlex>;
+    <HFlex style=Css.[height(pct(100.))]>
+      <MB_Cyto />
+      <Acids_panel />
+    </HFlex>
+  </VFlex>;
 };

@@ -5,6 +5,11 @@ const outputDir = path.join(__dirname, dist);
 const webpack = require('webpack')
 const isProd = process.env.NODE_ENV === 'production';
 
+new HtmlWebpackPlugin({
+    favicon: "./favicon.ico"
+})
+
+
 module.exports = {
   entry: './src/gui/client/Index.bs.js',
   mode: isProd ? 'production' : 'development',
@@ -13,9 +18,10 @@ module.exports = {
     filename: isProd ? '../dist/index.[contenthash].js' : 'dist/index.[contenthash].js'
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: './src/gui/client/index.html'
-    }),
+      new HtmlWebpackPlugin({
+          template: './src/gui/client/static/index.html',
+          favicon: './src/gui/client/static/favicon.ico',
+      }),
   ],
   devServer: {
     compress: true,

@@ -17,8 +17,10 @@ let acid_to_draggable = (acid, id) => {
 
 [@react.component]
 let make = () => {
-  <div className="panel">
-    <p className="panel-heading"> "Acids"->React.string </p>
+  <div className="card">
+    <header className="card-header">
+      <p className="card-header-title"> "Acids"->React.string </p>
+    </header>
     <div className="panel-block content">
       <MolBuilderDnd.DroppableContainer
         id=AcidsSource axis=Y accept={_ => false}>

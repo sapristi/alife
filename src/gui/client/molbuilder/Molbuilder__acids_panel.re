@@ -85,7 +85,7 @@ let make = () => {
       [%log.info "AppHook"; ("Event", "DropEnd"); ("ItemId", _itemId)]
     }
     onReorder={res => dispatchAcidItems(DndAction(res))}>
-    <div className="panel" style=Css.(style([minWidth(px(400))]))>
+    <div className="panel" style=Css.(style([minWidth(px(600))]))>
       <HFlex
         className="panel-heading"
         style=Css.[alignItems(center), justifyContent(spaceBetween)]>
@@ -102,34 +102,38 @@ let make = () => {
           />
         </HFlex>
       </HFlex>
-      <MolBuilderDnd.DroppableContainer
-        id=AcidsList axis=Y className=Container.style>
-        <ul>
-          {Array.mapWithIndex(acidItems, (index, elem) =>
-             <li key={elem->Item.to_string}>
-               <MolBuilderDnd.DraggableItem
-                 id=elem containerId=AcidsList index>
-                 {`Children(
-                    switch (elem) {
-                    | Source(_) => React.null
-                    | ProtElem(id, acid) =>
-                      <EditableAcid
-                        id
-                        acid
-                        update={new_acid =>
-                          dispatchAcidItems(UpdateAction(index, new_acid))
-                        }
-                        delete={_ => dispatchAcidItems(DeleteAction(index))}
-                      />
-                    },
-                  )}
-               </MolBuilderDnd.DraggableItem>
-             </li>
-           )
-           ->React.array}
-        </ul>
-      </MolBuilderDnd.DroppableContainer>
+      <HFlex style=Css.[height(pct(100.))]>
+        <MolBuilderDnd.DroppableContainer
+          id=AcidsList axis=Y className=Container.style>
+          <ul>
+            {Array.mapWithIndex(acidItems, (index, elem) =>
+               <li key={elem->Item.to_string}>
+                 <MolBuilderDnd.DraggableItem
+                   id=elem containerId=AcidsList index>
+                   {`Children(
+                      switch (elem) {
+                      | Source(_) => React.null
+                      | ProtElem(id, acid) =>
+                        <EditableAcid
+                          id
+                          acid
+                          update={new_acid =>
+                            dispatchAcidItems(UpdateAction(index, new_acid))
+                          }
+                          delete={_ =>
+                            dispatchAcidItems(DeleteAction(index))
+                          }
+                        />
+                      },
+                    )}
+                 </MolBuilderDnd.DraggableItem>
+               </li>
+             )
+             ->React.array}
+          </ul>
+        </MolBuilderDnd.DroppableContainer>
+        <AcidsPicker />
+      </HFlex>
     </div>
-    <AcidsPicker />
   </MolBuilderDnd.DndManager>;
 };

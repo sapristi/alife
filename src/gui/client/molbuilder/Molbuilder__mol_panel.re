@@ -32,6 +32,7 @@ let make = (~mol) => {
       style=Css.[alignItems(center), justifyContent(spaceBetween)]>
       "Molecule"->React.string
       <HFlex>
+        <button className="button"> "Send to Sanbox"->React.string </button>
         <button className="button" onClick=commitMolecule>
           "Commit"->React.string
         </button>

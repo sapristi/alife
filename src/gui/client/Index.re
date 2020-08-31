@@ -1,6 +1,7 @@
 [%raw "require('isomorphic-fetch')"];
 [%raw "require('bulma')"];
-[%raw "require('./style.css')"];
+[%raw "require('./static/style.css')"];
+
 module Main = {
   type tab =
     | TSimulator

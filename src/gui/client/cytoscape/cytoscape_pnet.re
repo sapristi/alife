@@ -106,10 +106,6 @@ let make = (~pnetIdO: option(int), ~pnetO, ~styles, ~cyEHandler) => {
       </HFlex>
     </HFlex>
     <div
-      className="field has-addons"
-      style=Css.(style([position(absolute), zIndex(10)]))
-    />
-    <div
       style=Css.(style([width(pct(100.)), height(pct(100.))]))
       ref={ReactDOMRe.Ref.domRef(containerRef)}
     />
