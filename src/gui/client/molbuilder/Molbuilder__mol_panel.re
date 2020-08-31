@@ -18,7 +18,6 @@ let make = (~mol) => {
 
   React.useEffect1(
     () => {
-      Js.log3("innerMol chanfed", autocommit, innerMol);
       if (autocommit) {
         commitMolecule();
       };
@@ -45,7 +44,11 @@ let make = (~mol) => {
       </HFlex>
     </HFlex>
     <div className="panel-block content">
-      <Components.Input.Text value=innerMol setValue=setInnerMol />
+      <Components.Input.Text
+        value=innerMol
+        setValue=setInnerMol
+        multiline=true
+      />
     </div>
   </div>;
 };

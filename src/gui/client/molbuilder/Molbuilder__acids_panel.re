@@ -85,7 +85,6 @@ let make = () => {
       [%log.info "AppHook"; ("Event", "DropEnd"); ("ItemId", _itemId)]
     }
     onReorder={res => dispatchAcidItems(DndAction(res))}>
-    <AcidsPicker />
     <div className="panel" style=Css.(style([minWidth(px(400))]))>
       <HFlex
         className="panel-heading"
@@ -131,5 +130,6 @@ let make = () => {
         </ul>
       </MolBuilderDnd.DroppableContainer>
     </div>
+    <AcidsPicker />
   </MolBuilderDnd.DndManager>;
 };

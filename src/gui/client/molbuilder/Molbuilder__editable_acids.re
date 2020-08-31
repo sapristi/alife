@@ -16,14 +16,14 @@ module InputArcComp = {
     | Regular_iarc => "Regular"->React.string
     | Split_iarc => "Split"->React.string
     | Filter_iarc(filter) =>
-      <>
+      <HFlex style=Css.[alignItems(center)]>
         "Filter"->React.string
         <Input.TextInline
           value=filter
           setValue={new_filter => update(Filter_iarc(new_filter))}
           style=inputStyle
         />
-      </>
+      </HFlex>
     | Filter_empty_iarc => "Filter empty"->React.string
     };
   };
@@ -36,7 +36,7 @@ module OutputArcComp = {
     | Regular_oarc => "Regular"->React.string
     | Merge_oarc => "Merge"->React.string
     | Move_oarc(b) =>
-      <>
+      <HFlex style=Css.[alignItems(center)]>
         "Move"->React.string
         <Input.Select
           options=[("true", "forward"), ("false", "backward")]
@@ -44,7 +44,7 @@ module OutputArcComp = {
           setValue={new_b => update(Move_oarc(bool_of_string(new_b())))}
           modifiers=["is-small"]
         />
-      </>
+      </HFlex>
     };
   };
 };
@@ -54,14 +54,14 @@ module ExtensionComp = {
   let make = (~id, ~extension_type, ~update) => {
     switch (extension_type) {
     | Grab_ext(pattern) =>
-      <>
+      <HFlex style=Css.[alignItems(center)]>
         "Grab"->React.string
         <Input.TextInline
           value=pattern
           setValue={new_pattern => update(Grab_ext(new_pattern))}
           style=inputStyle
         />
-      </>
+      </HFlex>
     | Release_ext => "Release"->React.string
     | Init_with_token_ext => "Init with token"->React.string
     };
@@ -80,7 +80,12 @@ let make = (~id, ~acid, ~update, ~delete) => {
           iarc_type
           update={new_iarc_type => update(InputArc(tid, new_iarc_type))}
         />
-        <HFlex style=Css.[marginLeft(px(5))]>
+        <HFlex
+          style=Css.[
+            marginLeft(px(5)),
+            justifyContent(spaceBetween),
+            alignItems(center),
+          ]>
           "InputArc"->React.string
           <Input.TextInline
             value=tid
@@ -96,7 +101,12 @@ let make = (~id, ~acid, ~update, ~delete) => {
           oarc_type
           update={new_oarc_type => update(OutputArc(tid, new_oarc_type))}
         />
-        <HFlex style=Css.[marginLeft(px(5))]>
+        <HFlex
+          style=Css.[
+            marginLeft(px(5)),
+            justifyContent(spaceBetween),
+            alignItems(center),
+          ]>
           "OutputArc"->React.string
           <Input.TextInline
             value=tid
@@ -118,16 +128,25 @@ let make = (~id, ~acid, ~update, ~delete) => {
   let marginSize =
     switch (acid) {
     | Place => 0
-    | _ => 10
+    | _ => 15
     };
-  <div style=Css.(style([borderBottom(px(1), `solid, black)]))>
+
+  <div style=Css.(style([borderBottom(px(1), solid, black)]))>
     <HFlex
       style=Css.[
         justifyContent(spaceBetween),
         alignItems(center),
         marginLeft(px(marginSize)),
       ]>
-      inner
+      <HFlex
+        style=Css.[
+          justifyContent(spaceBetween),
+          alignItems(center),
+          width(pct(100.)),
+          marginRight(px(15)),
+        ]>
+        inner
+      </HFlex>
       <button onClick=delete className="button is-small">
         <Icons.DeleteIcon />
       </button>

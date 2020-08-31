@@ -3,7 +3,7 @@ open Belt;
 
 module Text = {
   [@react.component]
-  let make = (~value, ~setValue, ~style=?) => {
+  let make = (~value, ~setValue, ~multiline=false, ~style=?) => {
     let (innerValue, setInnerValue) = React.useState(() => "");
 
     React.useEffect2(
@@ -24,14 +24,25 @@ module Text = {
 
     let inputStyle = style->Option.getWithDefault(ReactDOMRe.Style.make());
 
-    <input
-      className="input"
-      style=inputStyle
-      type_="text"
-      value=innerValue
-      onChange=handleChange
-      onBlur=commit
-    />;
+    if (multiline) {
+      <textarea
+        className="input"
+        style=inputStyle
+        type_="text"
+        value=innerValue
+        onChange=handleChange
+        onBlur=commit
+      />;
+    } else {
+      <input
+        className="input"
+        style=inputStyle
+        type_="text"
+        value=innerValue
+        onChange=handleChange
+        onBlur=commit
+      />;
+    };
   };
 };
 
