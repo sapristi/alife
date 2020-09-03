@@ -31,10 +31,7 @@ let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
           ~json_decode=Types.Petri_net.t_decode,
           (),
         )
-        ->Promise.getOk(res => {
-            Js.log2("Res", res);
-            setPnetData(_ => Some(res));
-          });
+        ->Promise.getOk(res => {setPnetData(_ => Some(res))});
       };
       None;
     },
@@ -52,10 +49,7 @@ let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
           ~json_decode=Types.Petri_net.t_decode,
           (),
         )
-        ->Promise.getOk(res => {
-            Js.log2("Res", res);
-            setPnetData(_ => Some(res));
-          })
+        ->Promise.getOk(res => {setPnetData(_ => Some(res))})
       };
       None;
     },
@@ -66,8 +60,10 @@ let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
     <Cytoscape_pnet
       pnetIdO={Belt.Option.map(selectedPnet, ((_, y)) => y)}
       pnetO=pnetData
-      styles=Css.[width(pct(100.)), height(px(600))]
       cyEHandler
+      styles=Css.[width(pct(100.))]
+      collapsable=true
+      pxHeight=600
     />
     <div className="tile is-vertical">
       {switch (pnetData, selectedNode) {

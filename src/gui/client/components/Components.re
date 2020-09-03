@@ -60,3 +60,6 @@ module Input = Components__input;
 
 module Icons = Components__icons;
 module Panel = Components__panel;
+
+module Button = Components__button.Button;
+module ButtonIcon = Components__button.ButtonIcon;

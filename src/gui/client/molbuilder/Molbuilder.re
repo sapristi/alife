@@ -49,8 +49,9 @@ module MB_Cyto = {
     <Cytoscape_pnet
       pnetIdO=None
       pnetO=pnet
+      styles=Css.[width(pct(100.)), height(pct(100.))]
       cyEHandler={_ => ()}
-      styles=Css.[width(pct(100.)), height(px(400))]
+      pxHeight=400
     />;
   };
 };
@@ -62,9 +63,6 @@ let make = () => {
   <VFlex>
     <h1 className="title"> "Molbuilder"->React.string </h1>
     <Molbuilder__mol_panel mol />
-    <HFlex style=Css.[height(pct(100.))]>
-      <MB_Cyto />
-      <Acids_panel />
-    </HFlex>
+    <HFlex> <MB_Cyto /> <Acids_panel /> </HFlex>
   </VFlex>;
 };

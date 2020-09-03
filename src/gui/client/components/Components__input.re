@@ -99,7 +99,7 @@ module TextInline = {
           style=buttonStyle
           className="button"
           onClick={_ => setEnabled(_ => true)}>
-          <Components__icons.EditIcon />
+          <Components__icons.Edit size=18 />
         </button>
       </Components__flex.HFlex>;
     };

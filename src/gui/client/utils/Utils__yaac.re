@@ -1,5 +1,4 @@
 let origin = "http://localhost:1512/api";
-/* [%raw {|import {dropdown} require('./semantic_binds')|}]; */
 [@bs.module "path"] external dirname: string => string = "dirname";
 
 let request = (method_, endpoint, ~payload=?, ~json_decode, ()) => {

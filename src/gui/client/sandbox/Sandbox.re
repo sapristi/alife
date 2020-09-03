@@ -102,7 +102,7 @@ let make = () => {
     <div style=Css.(style([flexGrow(0.), paddingLeft(px(100))]))>
       <h1 className="title"> "Sandbox"->React.string </h1>
       <section className="section">
-        <Panel>
+        <Panel collapsable=true>
           (
             "Generic controls"->React.string,
             <Sandbox_generic_controls
@@ -114,7 +114,7 @@ let make = () => {
         </Panel>
       </section>
       <section className="section">
-        <Panel>
+        <Panel collapsable=true>
           (
             "Inert molecules"->React.string,
             <Sandbox_inert_molecules
@@ -126,7 +126,7 @@ let make = () => {
         </Panel>
       </section>
       <section className="section">
-        <Panel>
+        <Panel collapsable=true>
           (
             "Active molecules"->React.string,
             <Sandbox_active_molecules

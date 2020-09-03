@@ -20,7 +20,15 @@ let empty_elements = {Cytoscape.Elements.nodes: [||], edges: [||]};
 [@bs.val] external cytoscape_utils: cytoscape_utils = "cytoscape_utils";
 
 [@react.component]
-let make = (~pnetIdO: option(int), ~pnetO, ~styles, ~cyEHandler) => {
+let make =
+    (
+      ~pnetIdO: option(int),
+      ~pnetO,
+      ~styles=[],
+      ~cyEHandler,
+      ~collapsable=false,
+      ~pxHeight,
+    ) => {
   let containerRef: React.ref(Js.Nullable.t(Dom.element)) =
     React.useRef(Js.Nullable.null);
   let (cyWrapper, _) =
@@ -64,12 +72,14 @@ let make = (~pnetIdO: option(int), ~pnetO, ~styles, ~cyEHandler) => {
 
   React.useEffect2(
     () => {
-      Js.log4("Cytoscape", previous_pnetIdO, pnetIdO, pnetO);
+      Js.log4("Cytoscape: pnet_id", previous_pnetIdO, "->", pnetIdO);
       switch (previous_pnetIdO, pnetIdO, pnetO) {
       | (Some(id), Some(id'), Some(pnet)) =>
         if (id === id') {
+          Js.log("Update pnet");
           cyWrapper.update_pnet(cyWrapper.cy, pnet);
         } else {
+          Js.log("Set new pnet");
           setup_new_pnet(pnetO);
           setPrevious_pnetIdO(_ => Some(id'));
         }
@@ -82,32 +92,38 @@ let make = (~pnetIdO: option(int), ~pnetO, ~styles, ~cyEHandler) => {
     },
     (pnetIdO, pnetO),
   );
-  <div
-    className="panel"
-    style=Css.(
-      style([
-        resize(vertical),
-        overflow(hidden),
-        padding(px(0)),
-        ...styles,
-      ])
-    )>
-    <HFlex
-      className="panel-heading"
-      style=Css.[alignItems(center), justifyContent(spaceBetween)]>
-      "Petri Net"->React.string
-      <HFlex>
-        <button onClick={_ => cyWrapper.layout##run()} className="button">
-          "Play"->React.string
-        </button>
-        <button onClick={_ => cyWrapper.layout##stop()} className="button">
-          "Stop"->React.string
-        </button>
-      </HFlex>
-    </HFlex>
-    <div
-      style=Css.(style([width(pct(100.)), height(pct(100.))]))
-      ref={ReactDOMRe.Ref.domRef(containerRef)}
-    />
-  </div>;
+  <Panel collapsable styles>
+    (
+      <HFlex
+        style=Css.[
+          alignItems(center),
+          justifyContent(spaceBetween),
+          width(pct(100.)),
+        ]>
+        "Petri Net"->React.string
+        <HFlex>
+          <ButtonIcon onClick={_ => cyWrapper.layout##run()}>
+            <Icons.Play />
+          </ButtonIcon>
+          <ButtonIcon onClick={_ => cyWrapper.layout##stop()}>
+            <Icons.Pause />
+          </ButtonIcon>
+        </HFlex>
+      </HFlex>,
+      <div
+        style=Css.(
+          style([
+            resize(vertical),
+            overflow(hidden),
+            padding(px(0)),
+            height(px(pxHeight)),
+          ])
+        )>
+        <div
+          style=Css.(style([width(pct(100.)), height(pct(100.))]))
+          ref={ReactDOMRe.Ref.domRef(containerRef)}
+        />
+      </div>,
+    )
+  </Panel>;
 };

@@ -148,7 +148,7 @@ let make = (~id, ~acid, ~update, ~delete) => {
         inner
       </HFlex>
       <button onClick=delete className="button is-small">
-        <Icons.DeleteIcon />
+        <span className="icon"> <Icons.Delete /> </span>
       </button>
     </HFlex>
   </div>;
