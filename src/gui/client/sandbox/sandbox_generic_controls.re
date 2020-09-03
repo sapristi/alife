@@ -112,7 +112,7 @@ module StateControls = {
   let make = (~update) => {
     <div
       className="tile is-vertical box"
-      style=Css.(style([justifyContent(spaceEvenly)]))>
+      style=Css.(style([justifyContent(spaceEvenly), marginBottom(px(0))]))>
       <div>
         <div className="buttons has-addons">
           /* <Tooltip title={<Typography> "update" </Typography>}> */
