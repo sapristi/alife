@@ -1,6 +1,7 @@
 %raw
 "const cytoscape_utils = require('./../cytoscape/cytoscape_utils')";
 open Components;
+open Types;
 type event_handler = Js.Json.t => unit;
 
 type pnet_cytoscape_wrapper = {
@@ -22,8 +23,7 @@ let empty_elements = {Cytoscape.Elements.nodes: [||], edges: [||]};
 [@react.component]
 let make =
     (
-      ~pnetIdO: option(int),
-      ~pnetO,
+      ~pnetO: option((option(int), Petri_net.t)),
       ~styles=[],
       ~cyEHandler,
       ~collapsable=false,
@@ -49,48 +49,44 @@ let make =
     [|containerRef.current|],
   );
 
-  let setup_new_pnet = pnetO => {
-    Js.log2("Replacing with", pnetO);
-    cyWrapper.layout##stop();
-    switch (pnetO) {
-    | None =>
-      Js.log("Cytoscape clear");
-      cyWrapper.replace_elements(cyWrapper.cy, empty_elements)->ignore;
-    /* cyWrapper.cy##destroy(); */
-    | Some(pnet) =>
-      Js.log("Cytoscape new layout");
-      let newLayout =
-        cyWrapper.replace_elements(
-          cyWrapper.cy,
-          Cytoscape.pnet_to_cytoscape_elements(pnet),
-        );
-      cyWrapper.layout = newLayout;
-      cyWrapper.update_pnet(cyWrapper.cy, pnet);
-      cyWrapper.layout##run();
-    };
+  let setup_cytoscape = pnet => {
+    let newLayout =
+      cyWrapper.replace_elements(
+        cyWrapper.cy,
+        Cytoscape.pnet_to_cytoscape_elements(pnet),
+      );
+    cyWrapper.layout = newLayout;
+    cyWrapper.update_pnet(cyWrapper.cy, pnet);
+    cyWrapper.layout##run();
+  };
+  let clear_cytoscape = () => {
+    Js.log("Cytoscape clear");
+    cyWrapper.replace_elements(cyWrapper.cy, empty_elements)->ignore;
   };
 
-  React.useEffect2(
+  React.useEffect1(
     () => {
-      Js.log4("Cytoscape: pnet_id", previous_pnetIdO, "->", pnetIdO);
-      switch (previous_pnetIdO, pnetIdO, pnetO) {
-      | (Some(id), Some(id'), Some(pnet)) =>
+      Js.log4("Cytoscape: pnet_id", previous_pnetIdO, "->", pnetO);
+      switch (previous_pnetIdO, pnetO) {
+      | (Some(id), Some((Some(id'), pnet))) =>
         if (id === id') {
           Js.log("Update pnet");
           cyWrapper.update_pnet(cyWrapper.cy, pnet);
         } else {
           Js.log("Set new pnet");
-          setup_new_pnet(pnetO);
+          setup_cytoscape(pnet);
           setPrevious_pnetIdO(_ => Some(id'));
         }
-      | (_, _, None) => setup_new_pnet(None)
-      | (_, id, _) =>
-        setup_new_pnet(pnetO);
-        setPrevious_pnetIdO(_ => id);
+      | (_, None) =>
+        clear_cytoscape();
+        setPrevious_pnetIdO(_ => None);
+      | (_, Some((idO, pnet))) =>
+        setup_cytoscape(pnet);
+        setPrevious_pnetIdO(_ => idO);
       };
       None;
     },
-    (pnetIdO, pnetO),
+    [|pnetO|],
   );
   <Panel collapsable styles>
     (

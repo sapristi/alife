@@ -37,7 +37,9 @@ let reducer = (prev_state, action: action) => {
 };
 
 module Selector = {
-  let pnet = (state: Store.appState) => state.molbuilder.pnet;
+  let pnet = (state: Store.appState) => {
+    Belt.Option.map(state.molbuilder.pnet, pnet => (None, pnet));
+  };
   let mol = (state: Store.appState) => state.molbuilder.mol;
   let proteine = (state: Store.appState) => state.molbuilder.proteine;
 };
@@ -45,10 +47,10 @@ module Selector = {
 module MB_Cyto = {
   [@react.component]
   let make = () => {
-    let pnet = Store.useSelector(Selector.pnet);
+    let pnetO = Store.useSelector(Selector.pnet);
+
     <Cytoscape_pnet
-      pnetIdO=None
-      pnetO=pnet
+      pnetO
       styles=Css.[width(pct(100.)), height(pct(100.))]
       cyEHandler={_ => ()}
       pxHeight=400
