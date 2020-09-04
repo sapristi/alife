@@ -148,7 +148,7 @@ let make = () => {
            />
          </section>
        }}
-      <section>
+      <section className="section">
         <Sandbox__reactions updateSwitch={state.updateSwitch} />
       </section>
     </div>
