@@ -19,6 +19,12 @@ type active_mol = {
 };
 
 [@decco]
+type amd = {
+  mol: string,
+  pnet_id: int,
+};
+
+[@decco]
 type inert_mol = {
   qtt: int,
   mol: string,
@@ -106,3 +112,29 @@ module Chemistry = {
 
 [@decco]
 type proteine = array(Acid_types.acid);
+
+module Reactions = {
+  [@decco]
+  type reactant =
+    | ImolSet(inert_mol)
+    | Amol(amd);
+
+  [@decco]
+  type transition = {
+    rate: string,
+    amd,
+  };
+
+  [@decco]
+  type grab = {
+    rate: string,
+    graber_data: amd,
+    grabed_data: reactant,
+  };
+
+  [@decco]
+  type break = {
+    rate: string,
+    reactant,
+  };
+};

@@ -174,13 +174,13 @@ module rec
       | Amol of Amol.t
       | ImolSet of ImolSet.t
       | Dummy
-                     [@@ deriving show, ord]
+                     [@@ deriving show, ord, to_yojson]
 
-    let to_yojson reactant =
-      match reactant with
-      | Amol amol -> Amol.to_yojson amol
-      | ImolSet ims -> ImolSet.to_yojson ims
-      | Dummy -> `String "Dummy"
+    (* let to_yojson reactant =
+     *   match reactant with
+     *   | Amol amol -> `Assoc ["Amol", Amol.to_yojson amol]
+     *   | ImolSet ims -> `Assoc["ImolSet", ImolSet.to_yojson ims]
+     *   | Dummy -> `String "Dummy" *)
     let show_reacSet = ReacSet.show
     let pp_reacSet = ReacSet.pp
     let qtt reactant =

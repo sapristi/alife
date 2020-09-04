@@ -1,15 +1,15 @@
 (alias
  (name default)
  (deps ./src/bin/yaacs_server.exe
-       (glob_files data/bact_states/*)   
+       (glob_files data/bact_states/*)
        (glob_files src/gui/js_client/*)
        (glob_files src/gui/js_client/molbuilder/*)
        (glob_files src/gui/js_client/sandbox/*)
        (glob_files src/gui/js_client/simulator/*)
        )
- 
+
  (action
-  (progn     
+  (progn
     (bash "cp ./src/bin/yaacs_server.exe ../../yaacs_server ")
     (run tar -xf src/gui/js_client/libs.tar -C src/gui/js_client)
     ))
@@ -57,5 +57,3 @@
     )
   )
  )
-
-

@@ -1,4 +1,8 @@
 open Components;
+open Utils;
+
+let send_mol_to_sandbox = mol =>
+  Yaac.request_unit(Fetch.Post, "/sandbox/mol/" ++ mol, ())->ignore;
 
 [@react.component]
 let make = (~mol) => {
@@ -32,7 +36,10 @@ let make = (~mol) => {
       style=Css.[alignItems(center), justifyContent(spaceBetween)]>
       "Molecule"->React.string
       <HFlex>
-        <button className="button"> "Send to Sanbox"->React.string </button>
+        <button
+          className="button" onClick={_ => send_mol_to_sandbox(innerMol)}>
+          "Send to Sanbox"->React.string
+        </button>
         <button className="button" onClick=commitMolecule>
           "Commit"->React.string
         </button>

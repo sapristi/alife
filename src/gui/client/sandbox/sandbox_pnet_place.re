@@ -3,7 +3,9 @@ open Utils;
 
 module TokenComponent = {
   let token_separator =
-    <font style=Css.(style([color(red), fontWeight(bold)]))> {js|►|js}->React.string </font>;
+    <font style=Css.(style([color(red), fontWeight(bold)]))>
+      {js|►|js}->React.string
+    </font>;
 
   let token_to_parts = ((i, mol)) => {
     (String.sub(mol, 0, i), String.sub(mol, i, mol->String.length - i));
@@ -21,13 +23,18 @@ module TokenComponent = {
     let (editable, setEditable) = React.useState(() => false);
     let (innerToken, setInnerToken) = React.useState(() => token);
 
-    let (tokenParts, setTokenParts) = React.useState(() => Belt.Option.map(token, token_to_parts));
+    let (tokenParts, setTokenParts) =
+      React.useState(() => Belt.Option.map(token, token_to_parts));
 
     <div className="message is-info">
       <div className="message-header"> "Token"->React.string </div>
       <div className="message-body">
         <label className="checkbox">
-          <input type_="checkbox" value={editable->string_of_bool} onChange={_ => setEditable(p => !p)} />
+          <input
+            type_="checkbox"
+            value={editable->string_of_bool}
+            onChange={_ => setEditable(p => !p)}
+          />
           "Editable"->React.string
         </label>
         <div className="control">
@@ -53,16 +60,16 @@ module TokenComponent = {
           </label>
         </div>
         {token_to_elem(innerToken)}
-        {switch (tokenParts) {
-         | None => React.null
-         | Some((a, b)) =>
-           <div>
-             <input className="input" type_="text" value=a />
-             <input className="input" type_="text" value=b />
-           </div>
-         }}
       </div>
     </div>;
+    /* {switch (tokenParts) { */
+    /*  | None => React.null */
+    /*  | Some((a, b)) => */
+    /*    <div> */
+    /*      <input className="input" type_="text" value=a /> */
+    /*      <input className="input" type_="text" value=b /> */
+    /*    </div> */
+    /*  }} */
   };
 };
 

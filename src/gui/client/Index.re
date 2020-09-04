@@ -12,8 +12,7 @@ module Main = {
 
   [@react.component]
   let make = () => {
-    let (activeTab, setActiveTab) =
-      React.useReducer((_, v) => v, TMolbuilder);
+    let (activeTab, setActiveTab) = React.useReducer((_, v) => v, TSandbox);
     <Store.Provider store=Store.appStore>
       <div>
         <Components.Tabs

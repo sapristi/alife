@@ -1,15 +1,18 @@
 (executable
-    (name yaacs_server)
-    (flags -w)
-    (preprocess
-     (pps ppx_deriving.show
-          ppx_deriving_cmdliner))
-    (libraries bacterie_libs
-               local_libs
-               server
-               ppx_deriving_cmdliner )
-    (modules ("yaacs_server"))
-    )
+ (name yaacs_server)
+ (flags -w)
+ (preprocess
+  (pps
+    ppx_deriving.show
+    ppx_deriving_cmdliner
+ ))
+ (libraries bacterie_libs
+            local_libs
+            server
+            ppx_deriving
+            ppx_deriving_cmdliner )
+ (modules ("yaacs_server"))
+)
 
 
 (executables

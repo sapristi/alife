@@ -40,11 +40,11 @@ let make = (~selectedPnet, ~updateSwitch, ~dispatch) => {
     (selectedPnet, updateSwitch),
   );
 
-  <div className="tile">
+  <div className="tile" style=Css.(style([width(pct(100.))]))>
     <Cytoscape_pnet
       pnetO=pnetData
       cyEHandler
-      styles=Css.[width(pct(100.))]
+      styles=Css.[width(pct(75.))]
       collapsable=true
       pxHeight=600
     />

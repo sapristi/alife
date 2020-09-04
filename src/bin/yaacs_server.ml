@@ -9,7 +9,6 @@ open Easy_logging_yojson
 let () = Printexc.record_backtrace true;;
 
 
-
 type params = {
   port: int;              [@default 1512] [@aka ["p"]] [@docv "PORT"]
   host: string;           [@default "0.0.0.0"] [@aka ["h"]] [@docv "HOST"]
@@ -22,7 +21,7 @@ type params = {
   data_path : string;     [@default "./data/bact_states"] [@docv "PATH"]
   log_config : string;     [@default ""]
   random_seed: int option 
-} [@@deriving show, cmdliner]
+} [@@deriving cmdliner,show]
 ;;
 
 

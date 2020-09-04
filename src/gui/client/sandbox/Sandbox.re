@@ -137,12 +137,19 @@ let make = () => {
           )
         </Panel>
       </section>
-      <section className="section">
-        <Sandbox_pnet_controls
-          selectedPnet={state.selectedPnet}
-          updateSwitch={state.updateSwitch}
-          dispatch
-        />
+      {switch (state.selectedPnet) {
+       | None => React.null
+       | Some(_) =>
+         <section className="section">
+           <Sandbox_pnet_controls
+             selectedPnet={state.selectedPnet}
+             updateSwitch={state.updateSwitch}
+             dispatch
+           />
+         </section>
+       }}
+      <section>
+        <Sandbox__reactions updateSwitch={state.updateSwitch} />
       </section>
     </div>
   </Components.VFlex>;
