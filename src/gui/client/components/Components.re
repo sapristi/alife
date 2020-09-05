@@ -78,13 +78,18 @@ module ButtonIcon = Components__button.ButtonIcon;
 /*     "default"; */
 /* }; */
 
+module Tooltip = {
+  [@react.component]
+  let make = (~children, overlay) => {};
+};
+
 module MolTooltip = {
   [@react.component]
   let make = (~mol) => {
     <div
       style=Css.(
         style([
-          maxWidth(vw(30.)),
+          /* maxWidth(vw(30.)), */
           /* backgroundColor(white), */
           wordBreak(breakAll),
         ])

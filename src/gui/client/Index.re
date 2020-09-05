@@ -8,6 +8,7 @@ module Main = {
     | TSimulator
     | TSandbox
     | TMolbuilder
+    | TLogs
     | Tests;
 
   [@react.component]
@@ -20,6 +21,7 @@ module Main = {
             (TSimulator, "Simulator"->React.string),
             (TSandbox, "Sandbox"->React.string),
             (TMolbuilder, "Molbuilder"->React.string),
+            (TLogs, "Control logs"->React.string),
           ]
           activeTab
           setActiveTab
@@ -30,6 +32,7 @@ module Main = {
            | TSandbox => <Sandbox />
            | TMolbuilder => <Molbuilder />
            | Tests => <Tests.RenderApp />
+           | TLogs => <Log_tree />
            }}
         </div>
       </div>

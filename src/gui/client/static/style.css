@@ -18,8 +18,8 @@
 /* } */
 .tooltip .tooltiptext {
     visibility: hidden;
-    width: 180px;
-    background-color: brown;
+    max-width: 400px;
+    background-color: #6666CC;
     color: #fff;
     text-align: center;
     padding: 10px 5px;
@@ -59,6 +59,9 @@
     height: 2em;
 }
 
+
+
+/* title with horizontal lines*/
 h1 {
     overflow: hidden;
     text-align: center;

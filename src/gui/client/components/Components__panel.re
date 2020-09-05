@@ -15,7 +15,7 @@ module Panel_collapsable = {
     let toggleOpen = _ => setOpen(o => !o);
     let icon =
       if (opened) {
-        <Components__icons.ChevronRight />;
+        <Components__icons.ChevronUp />;
       } else {
         <Components__icons.ChevronDown />;
       };

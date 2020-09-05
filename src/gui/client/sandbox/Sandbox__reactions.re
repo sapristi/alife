@@ -2,14 +2,18 @@ open Utils;
 open Client_types;
 open Components;
 
-let molStyle = Css.(style([textOverflow(ellipsis), overflow(hidden)]));
-let reactantStyle = Css.(style([maxWidth(vw(80.))]));
+module Style = {
+  let reactant = Css.(style([maxWidth(vw(80.))]));
+  let reactant_info = Css.(style([marginRight(px(14))]));
+};
 module Amd = {
   [@react.component]
   let make = (~amd) => {
     let pnet_id = amd.pnet_id;
     <HFlex>
-      {j|Active(id:$(pnet_id)) |j}->React.string
+      <span style=Style.reactant_info>
+        {j|Active(id:$(pnet_id)) |j}->React.string
+      </span>
       <Molecule mol={amd.mol} />
     </HFlex>;
   };
@@ -19,7 +23,9 @@ module Inert = {
   let make = (~inert_mol) => {
     let qtt = inert_mol.qtt;
     <HFlex>
-      {j|Inert(qtt: $(qtt)) |j}->React.string
+      <span style=Style.reactant_info>
+        {j|Inert(qtt: $(qtt)) |j}->React.string
+      </span>
       <Molecule mol={inert_mol.mol} />
     </HFlex>;
   };
@@ -80,10 +86,27 @@ module MakeReacTree =
     (~reactions: array(reac_type), ~key: string=?, unit) =>
     {. "reactions": array(reac_type)};
   let make = (props: {. "reactions": array(reac_type)}) => {
+    let (opened, setOpen) = React.useState(() => false);
+    let icon = opened ? <Icons.ChevronUp /> : <Icons.ChevronDown />;
     <React.Fragment>
-      <tr> <td colSpan=2> Reacs.name->React.string </td> </tr>
-      {Array.map(reac => <Reacs reaction=reac />, props##reactions)
-       ->ReasonReact.array}
+      <tr>
+        <td colSpan=2>
+          <Button onClick={_ => setOpen(v => !v)}>
+            <h3 className="subtitle">
+              <HFlex style=Css.[alignContent(center)]>
+                icon
+                Reacs.name->React.string
+              </HFlex>
+            </h3>
+          </Button>
+        </td>
+      </tr>
+      {if (opened) {
+         Array.map(reac => <Reacs reaction=reac />, props##reactions)
+         ->ReasonReact.array;
+       } else {
+         React.null;
+       }}
     </React.Fragment>;
   };
 };
@@ -95,7 +118,7 @@ module TReacs: REACS with type reac_type = Reactions.transition = {
   let make = (~reaction: Reactions.transition) => {
     <tr>
       <td> reaction.rate->React.string </td>
-      <td style=reactantStyle> <Amd amd={reaction.amd} /> </td>
+      <td style=Style.reactant> <Amd amd={reaction.amd} /> </td>
     </tr>;
   };
 };
@@ -110,10 +133,10 @@ module GReacs: REACS with type reac_type = Reactions.grab = {
     <React.Fragment>
       <tr>
         <td rowSpan=2> reaction.rate->React.string </td>
-        <td style=reactantStyle> <Amd amd={reaction.graber_data} /> </td>
+        <td style=Style.reactant> <Amd amd={reaction.graber_data} /> </td>
       </tr>
       <tr>
-        <td style=reactantStyle>
+        <td style=Style.reactant>
           <Reactant reactant={reaction.grabed_data} />
         </td>
       </tr>
@@ -130,7 +153,7 @@ module BReacs: REACS with type reac_type = Reactions.break = {
   let make = (~reaction: Reactions.break) => {
     <tr>
       <td> reaction.rate->React.string </td>
-      <td style=reactantStyle> <Reactant reactant={reaction.reactant} /> </td>
+      <td style=Style.reactant> <Reactant reactant={reaction.reactant} /> </td>
     </tr>;
   };
 };
@@ -184,7 +207,7 @@ let make = (~updateSwitch) => {
         <thead>
           <tr>
             <th> "Rate"->React.string </th>
-            <th> "Reactants"->React.string </th>
+            <th colSpan=2> "Reactants"->React.string </th>
           </tr>
         </thead>
         <tbody>
