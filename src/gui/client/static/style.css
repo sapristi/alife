@@ -13,9 +13,9 @@
 .tooltiptext.special-text {
     font-weight: bold;
 }
-.tooltip {
-    position: relative;
-}
+/* .tooltip { */
+/*     position: relative; */
+/* } */
 .tooltip .tooltiptext {
     visibility: hidden;
     width: 180px;

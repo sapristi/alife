@@ -63,3 +63,53 @@ module Panel = Components__panel;
 
 module Button = Components__button.Button;
 module ButtonIcon = Components__button.ButtonIcon;
+
+/* module Tooltip = { */
+/*   [@react.component] [@bs.module "rc-tooltip"] */
+/*   external make: */
+/*     ( */
+/*       ~placement: string=?, */
+/*       ~children: React.element, */
+/*       ~overlay: React.element, */
+/*       ~trigger: array(string), */
+/*       ~destroyTooltipOnHide: bool */
+/*     ) => */
+/*     React.element = */
+/*     "default"; */
+/* }; */
+
+module MolTooltip = {
+  [@react.component]
+  let make = (~mol) => {
+    <div
+      style=Css.(
+        style([
+          maxWidth(vw(30.)),
+          /* backgroundColor(white), */
+          wordBreak(breakAll),
+        ])
+      )
+      className="tooltiptext">
+      mol->React.string
+    </div>;
+  };
+};
+
+module Molecule = {
+  [@react.component]
+  let make = (~mol) => {
+    <div
+      className="tooltip"
+      style=Css.(
+        style([
+          textOverflow(ellipsis),
+          overflow(hidden),
+          /* wordBreak(breakAll), */
+          /* maxWidth(vw(60.)), */
+        ])
+      )>
+      <MolTooltip mol />
+      mol->React.string
+    </div>;
+  };
+};

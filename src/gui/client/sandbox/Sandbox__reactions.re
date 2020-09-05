@@ -2,16 +2,36 @@ open Utils;
 open Client_types;
 open Components;
 
+let molStyle = Css.(style([textOverflow(ellipsis), overflow(hidden)]));
+let reactantStyle = Css.(style([maxWidth(vw(80.))]));
 module Amd = {
   [@react.component]
   let make = (~amd) => {
-    <div> {j|Active(id: {amd.pnet_id}) {amd.mol}|j}->React.string </div>;
+    let pnet_id = amd.pnet_id;
+    <HFlex>
+      {j|Active(id:$(pnet_id)) |j}->React.string
+      <Molecule mol={amd.mol} />
+    </HFlex>;
   };
 };
 module Inert = {
   [@react.component]
   let make = (~inert_mol) => {
-    <div> {j|Inert(qtt: {inert_mol.qtt}) {amd.mol}|j}->React.string </div>;
+    let qtt = inert_mol.qtt;
+    <HFlex>
+      {j|Inert(qtt: $(qtt)) |j}->React.string
+      <Molecule mol={inert_mol.mol} />
+    </HFlex>;
+  };
+};
+
+module Reactant = {
+  [@react.component]
+  let make = (~reactant: Reactions.reactant) => {
+    switch (reactant) {
+    | ImolSet(inert_mol) => <Inert inert_mol />
+    | Amol(amd) => <Amd amd />
+    };
   };
 };
 
@@ -60,16 +80,11 @@ module MakeReacTree =
     (~reactions: array(reac_type), ~key: string=?, unit) =>
     {. "reactions": array(reac_type)};
   let make = (props: {. "reactions": array(reac_type)}) => {
-    <div className="content">
-      Reacs.name->React.string
-      <ul>
-        {Array.map(
-           reac => <li> <Reacs reaction=reac /> </li>,
-           props##reactions,
-         )
-         ->ReasonReact.array}
-      </ul>
-    </div>;
+    <React.Fragment>
+      <tr> <td colSpan=2> Reacs.name->React.string </td> </tr>
+      {Array.map(reac => <Reacs reaction=reac />, props##reactions)
+       ->ReasonReact.array}
+    </React.Fragment>;
   };
 };
 module TReacs: REACS with type reac_type = Reactions.transition = {
@@ -78,11 +93,10 @@ module TReacs: REACS with type reac_type = Reactions.transition = {
   let name = "Transitions";
   [@react.component]
   let make = (~reaction: Reactions.transition) => {
-    let rate = reaction.rate;
-    <HFlex>
-      {j|Rate: $(rate)|j}->React.string
-      <Amd amd={reaction.amd} />
-    </HFlex>;
+    <tr>
+      <td> reaction.rate->React.string </td>
+      <td style=reactantStyle> <Amd amd={reaction.amd} /> </td>
+    </tr>;
   };
 };
 module TReacsC = MakeReacTree(TReacs);
@@ -90,10 +104,20 @@ module TReacsC = MakeReacTree(TReacs);
 module GReacs: REACS with type reac_type = Reactions.grab = {
   [@decco.decode]
   type reac_type = Reactions.grab;
-  let name = "Grab";
+  let name = "Grabs";
   [@react.component]
   let make = (~reaction: Reactions.grab) => {
-    <HFlex> reaction.rate->React.string </HFlex>;
+    <React.Fragment>
+      <tr>
+        <td rowSpan=2> reaction.rate->React.string </td>
+        <td style=reactantStyle> <Amd amd={reaction.graber_data} /> </td>
+      </tr>
+      <tr>
+        <td style=reactantStyle>
+          <Reactant reactant={reaction.grabed_data} />
+        </td>
+      </tr>
+    </React.Fragment>;
   };
 };
 module GReacsC = MakeReacTree(GReacs);
@@ -104,7 +128,10 @@ module BReacs: REACS with type reac_type = Reactions.break = {
   let name = "Breaks";
   [@react.component]
   let make = (~reaction: Reactions.break) => {
-    <HFlex> reaction.rate->React.string </HFlex>;
+    <tr>
+      <td> reaction.rate->React.string </td>
+      <td style=reactantStyle> <Reactant reactant={reaction.reactant} /> </td>
+    </tr>;
   };
 };
 module BReacsC = MakeReacTree(BReacs);
@@ -153,11 +180,19 @@ let make = (~updateSwitch) => {
   <Panel collapsable=true>
     (
       "Reactions"->React.string,
-      <React.Fragment>
-        <TReacsC reactions={state.transitions.reactions} />
-        <GReacsC reactions={state.grabs.reactions} />
-        <BReacsC reactions={state.breaks.reactions} />
-      </React.Fragment>,
+      <table className="table">
+        <thead>
+          <tr>
+            <th> "Rate"->React.string </th>
+            <th> "Reactants"->React.string </th>
+          </tr>
+        </thead>
+        <tbody>
+          <TReacsC reactions={state.transitions.reactions} />
+          <GReacsC reactions={state.grabs.reactions} />
+          <BReacsC reactions={state.breaks.reactions} />
+        </tbody>
+      </table>,
     )
   </Panel>;
 };
