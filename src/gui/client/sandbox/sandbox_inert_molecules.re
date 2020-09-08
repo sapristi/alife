@@ -1,5 +1,6 @@
 open Utils;
 open Client_types;
+open Components;
 
 module ImolControls = {
   [@react.component]
@@ -55,28 +56,23 @@ module ImolControls = {
 
     <div className="tile is-vertical is-2">
       <div className="box">
-        <button className="button" disabled onClick=remove_selected>
+        <Button disabled onClick=remove_selected>
           "Remove molecule"->React.string
-        </button>
+        </Button>
         <Components.HFlex>
-          <button className="button" disabled onClick=setQuantity>
+          <Button disabled onClick=setQuantity>
             "Set quantity"->React.string
-          </button>
-          <input
-            className="input"
-            type_="text"
+          </Button>
+          <Input.Text
             value=qtt
             disabled
             size=3
-            onChange={event => {
-              let new_value = event->Generics.event_to_value;
-              setQtt(_ => new_value);
-            }}
+            setValue={new_value => setQtt(_ => new_value)}
           />
         </Components.HFlex>
-        <button className="button" disabled>
+        <Button disabled onClick=send_to_molbuilder>
           "Send to molbuilder"->React.string
-        </button>
+        </Button>
       </div>
     </div>;
   };

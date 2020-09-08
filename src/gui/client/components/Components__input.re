@@ -3,7 +3,15 @@ open Belt;
 
 module Text = {
   [@react.component]
-  let make = (~value, ~setValue, ~multiline=false, ~style=?) => {
+  let make =
+      (
+        ~value,
+        ~setValue,
+        ~multiline=false,
+        ~styles=[],
+        ~size=5,
+        ~disabled=false,
+      ) => {
     let (innerValue, setInnerValue) = React.useState(() => "");
 
     React.useEffect2(
@@ -19,10 +27,10 @@ module Text = {
       setInnerValue(_ => v);
     };
     let commit = _ => {
-      setValue(_ => innerValue);
+      setValue(innerValue);
     };
 
-    let inputStyle = style->Option.getWithDefault(ReactDOMRe.Style.make());
+    let inputStyle = Css.style(styles);
 
     if (multiline) {
       <textarea
@@ -32,6 +40,7 @@ module Text = {
         value=innerValue
         onChange=handleChange
         onBlur=commit
+        disabled
       />;
     } else {
       <input
@@ -41,6 +50,8 @@ module Text = {
         value=innerValue
         onChange=handleChange
         onBlur=commit
+        size
+        disabled
       />;
     };
   };

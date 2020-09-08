@@ -19,32 +19,30 @@ module SidePanel = {
           dispatch(SwitchUpdate);
         });
     };
+
     <div
       className="box"
       style=Css.(
         style([position(fixed), zIndex(1000), padding(rem(0.5))])
       )>
       <Components.VFlex>
-        <button className="button" onClick={_ => next_reactions(1)}>
+        <Button onClick={_ => next_reactions(1)}>
           "React!"->React.string
-        </button>
-        <input
-          className="input"
-          style=Css.(style([maxWidth(px(100))]))
-          type_="text"
+        </Button>
+        <Input.Text
+          styles=Css.[maxWidth(px(100))]
           size=1
           value={nr->string_of_int}
-          onChange={e => {
-            let v = e->Generics.event_to_value;
+          setValue={v => {
             switch (Belt.Int.fromString(v)) {
             | None => ()
-            | Some(i) => setNr(_ => i)
-            };
+            | Some(i) => setNr(_' => i)
+            }
           }}
         />
-        <button className="button" onClick={_ => next_reactions(nr)}>
+        <Button onClick={_ => next_reactions(nr)}>
           "React!"->React.string
-        </button>
+        </Button>
       </Components.VFlex>
     </div>;
   };

@@ -30,33 +30,28 @@ let make = (~mol) => {
     [|innerMol|],
   );
 
-  <div className="panel">
-    <HFlex
-      className="panel-heading"
-      style=Css.[alignItems(center), justifyContent(spaceBetween)]>
-      "Molecule"->React.string
-      <HFlex>
-        <button
-          className="button" onClick={_ => send_mol_to_sandbox(innerMol)}>
-          "Send to Sanbox"->React.string
-        </button>
-        <button className="button" onClick=commitMolecule>
-          "Commit"->React.string
-        </button>
-        <Input.Checkbox
-          state=autocommit
-          setState=setAutocommit
-          label="Auto-commit"
-          id="mol_auto_commit"
-        />
-      </HFlex>
-    </HFlex>
-    <div className="panel-block content">
-      <Components.Input.Text
+  <Panel>
+    (
+      <HFlex style=Css.[alignItems(center), justifyContent(spaceBetween)]>
+        "Molecule"->React.string
+        <HFlex>
+          <Button onClick={_ => send_mol_to_sandbox(innerMol)}>
+            "Send to Sanbox"->React.string
+          </Button>
+          <Button onClick=commitMolecule> "Commit"->React.string </Button>
+          <Input.Checkbox
+            state=autocommit
+            setState=setAutocommit
+            label="Auto-commit"
+            id="mol_auto_commit"
+          />
+        </HFlex>
+      </HFlex>,
+      <Input.Text
         value=innerMol
-        setValue=setInnerMol
+        setValue={v => setInnerMol(_ => v)}
         multiline=true
-      />
-    </div>
-  </div>;
+      />,
+    )
+  </Panel>;
 };

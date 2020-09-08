@@ -1,5 +1,6 @@
 open Client_types;
 open Utils;
+open Components;
 let make_width = (wpct: float) => Css.(style([width(pct(wpct))]));
 
 module AmolControls = {
@@ -7,7 +8,7 @@ module AmolControls = {
   type pnet_ids = list(int);
 
   [@react.component]
-  let make = (~amol: option(active_mol), ~dispatch) => {
+  let make = (~amol: option(active_mol), ~dispatch, ~update) => {
     let (disabled, setDisabled) = React.useState(() => true);
     let (pnet_ids, setPnet_ids) = React.useState(() => []);
     let (selectedPnet, setSelectedPnet) = React.useState(() => None);
@@ -70,6 +71,20 @@ module AmolControls = {
       | None => ()
       };
     };
+
+    let remove_pnet = _ => {
+      switch (amol, selectedPnet) {
+      | (Some(amol'), Some(pnetId)) =>
+        let mol = amol'.mol;
+        Yaac.request_unit(
+          Fetch.Delete,
+          {j| /api/sandbox/amol/$(mol)/pnet/$(pnetId) |j},
+          (),
+        )
+        ->Promise.getOk(update);
+      | _ => ()
+      };
+    };
     <div className="tile is-vertical is-2">
       <div className="box">
         <Components.HFlex>
@@ -93,12 +108,12 @@ module AmolControls = {
             </select>
           </div>
         </Components.HFlex>
-        <button className="button" disabled>
+        <Button disabled onClick=remove_pnet>
           "Remove molecule"->React.string
-        </button>
-        <button className="button" disabled onClick=send_to_molbuilder>
+        </Button>
+        <Button disabled onClick=send_to_molbuilder>
           "Send to molbuilder"->React.string
-        </button>
+        </Button>
       </div>
     </div>;
   };
@@ -128,6 +143,6 @@ let make = (~active_mols, ~update, ~dispatch) => {
         get_key={(amol: active_mol) => amol.mol}
       />
     </div>
-    <AmolControls amol=selected dispatch />
+    <AmolControls amol=selected dispatch update />
   </div>;
 };
