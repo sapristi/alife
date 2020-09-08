@@ -85,6 +85,11 @@ module MakeReacTree =
   external makeProps:
     (~reactions: array(reac_type), ~key: string=?, unit) =>
     {. "reactions": array(reac_type)};
+  let make_key = elem =>
+    switch (Js.Json.stringifyAny(elem)) {
+    | Some(s) => s
+    | None => Js.Math.random()->Js.Float.toString
+    };
   let make = (props: {. "reactions": array(reac_type)}) => {
     let (opened, setOpen) = React.useState(() => false);
     let icon = opened ? <Icons.ChevronUp /> : <Icons.ChevronDown />;
@@ -102,7 +107,10 @@ module MakeReacTree =
         </td>
       </tr>
       {if (opened) {
-         Array.map(reac => <Reacs reaction=reac />, props##reactions)
+         Array.map(
+           reac => <Reacs key={make_key()} reaction=reac />,
+           props##reactions,
+         )
          ->ReasonReact.array;
        } else {
          React.null;
