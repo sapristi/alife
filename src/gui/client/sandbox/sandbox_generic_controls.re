@@ -86,7 +86,7 @@ module StateControls = {
       });
       let (state, setState) = React.useReducer((_, v) => v, "");
 
-      let commit = _ =>
+      let commitLoad = _ =>
         Yaac.request_unit(Fetch.Put, "/sandbox/state/" ++ state, ())
         ->Promise.getOk(update);
 
@@ -101,7 +101,7 @@ module StateControls = {
              ->Generics.react_list}
           </select>
         </div>
-        <button className="ui primary button" onClick=commit>
+        <button className="ui primary button" onClick=commitLoad>
           {React.string("Load state")}
         </button>
       </div>;

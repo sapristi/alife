@@ -88,15 +88,26 @@ let make = () => {
 
   Js.log2("Sandbox", state);
 
-  let update = _ => {
-    Yaac.request(Fetch.Get, "/sandbox", ~json_decode=sandbox_decode, ())
-    ->Promise.getOk(sandbox => dispatch(SetSandbox(sandbox)));
-  };
-  React.useEffect0(() => {
-    update();
-    None;
-  });
-  Js.log(("SANDBOX", state));
+  let loadState =
+    React.useCallback1(
+      _ => {
+        Yaac.request(Fetch.Get, "/sandbox", ~json_decode=sandbox_decode, ())
+        ->Promise.getOk(sandbox => dispatch(SetSandbox(sandbox)))
+      },
+      [|dispatch|],
+    );
+
+  let update =
+    React.useCallback1(_ => dispatch(SwitchUpdate), [|dispatch|]);
+
+  React.useEffect1(
+    () => {
+      loadState();
+      None;
+    },
+    [|state.updateSwitch|],
+  );
+
   <Components.VFlex>
     <SidePanel dispatch />
     <div style=Css.(style([flexGrow(0.), paddingLeft(px(100))]))>

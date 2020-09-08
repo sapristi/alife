@@ -5,7 +5,7 @@ module Generics = {
       state,
       state_reducer => {
         let new_state = state_reducer(state);
-        Js.log(("Compare", new_state, state));
+        /* Js.log4("Compare", new_state, state, new_state != state); */
         if (new_state != state) {
           setState(_ => new_state);
         };
@@ -21,7 +21,8 @@ module Generics = {
 module MiscTries = {
   type document;
   type domElement = {dropdown: unit => unit};
-  [@bs.send] external getElementById: (document, string) => domElement = "getElementById";
+  [@bs.send]
+  external getElementById: (document, string) => domElement = "getElementById";
   [@bs.val] external doc: document = "document";
 };
 
