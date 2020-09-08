@@ -2,9 +2,13 @@
 open Utils;
 open Client_types;
 open Components;
+
+let pendingSelector = (store: Store.appState) => store.pendingRequest;
+
 module SidePanel = {
   [@react.component]
   let make = (~dispatch) => {
+    let pending = Store.useSelector(pendingSelector);
     let (nr, setNr) = React.useState(() => 1);
 
     let next_reactions = i => {
@@ -43,6 +47,7 @@ module SidePanel = {
         <Button onClick={_ => next_reactions(nr)}>
           "React!"->React.string
         </Button>
+        <Loader active=pending />
       </Components.VFlex>
     </div>;
   };

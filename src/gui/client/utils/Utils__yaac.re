@@ -1,6 +1,8 @@
 let origin = "http://localhost:1512/api";
 [@bs.module "path"] external dirname: string => string = "dirname";
 
+open Store;
+
 let request = (method_, endpoint, ~payload=?, ~json_decode, ()) => {
   let request =
     switch (payload) {
@@ -10,6 +12,7 @@ let request = (method_, endpoint, ~payload=?, ~json_decode, ()) => {
       Fetch.RequestInit.make(~method_, ~body, ());
     };
 
+  Reductive.Store.dispatch(Store.appStore, Store.SetPending(true));
   Js.log("Requesting " ++ endpoint);
   (
     Fetch.fetchWithInit(origin ++ endpoint, request)
@@ -18,6 +21,7 @@ let request = (method_, endpoint, ~payload=?, ~json_decode, ()) => {
   ->Promise.Js.fromBsPromise
   ->Promise.Js.toResult
   ->Promise.map(response => {
+      Reductive.Store.dispatch(Store.appStore, Store.SetPending(false));
       switch (response) {
       | Ok(response') =>
         Js.log2("Received", response');
@@ -30,7 +34,7 @@ let request = (method_, endpoint, ~payload=?, ~json_decode, ()) => {
       | Error(e) =>
         Js.log("Error from " ++ endpoint);
         Error();
-      }
+      };
     });
 };
 

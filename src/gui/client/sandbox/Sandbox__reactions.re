@@ -208,9 +208,13 @@ let make = (~updateSwitch) => {
     [|updateSwitch|],
   );
 
+  let reactions_counter = "#" ++ state.reac_counter->string_of_int;
   <Panel collapsable=true>
     (
-      "Reactions"->React.string,
+      <HFlex>
+        "Reactions"->React.string
+        reactions_counter->React.string
+      </HFlex>,
       <table className="table">
         <thead>
           <tr>

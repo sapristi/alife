@@ -118,3 +118,4 @@ module Molecule = {
     </div>;
   };
 };
+module Loader = Components__loader;
