@@ -15,9 +15,7 @@
 
 YAACS is an artificial chemistry simulator, centered around petri nets.
 
-The project also includes a webserver that can interact 
-with the simulation, and a web interface
-
+This project includes a webserver, written in OCaml, as well as a web client, written in Rescript.
 
 <a id="org7fc668f"></a>
 
@@ -31,47 +29,34 @@ ideally set-up with opam. Dune is used as a build system.
 
 ## OCaml libs dependancies
 
--   oasis
--   batteries
--   ppx_deriving
--   ppx_deriving_yojson
--   ocamlgraph
--   re
--   logs
--   ocamlnet
-
-(install with opam)
-
+See output of `dune build`
 
 <a id="org195421f"></a>
 
-## Install
+## Building and running
 
-* Extract the archive `src/gui/js_client/js-libs/js-libs.tar`
-* Execute `dune build`
+Running `dune build @local_install` will output the `yaacs_server` binary as well as the client and some data into the `./dist` directory. You can then launch the program with 
 
+```bash
+cd ./dist
+./yaacs_server
+```
 
-<a id="org26734a9"></a>
+By default, the server will be accessible on `http://localhost:1512`.
 
-# Run
+Run `./yaacs_server --help` to see available options.
 
-`yaacs_server [-port port]`
+### Build the server
 
-Then visit `localhost:port`
+Run `dune build`
 
+### Build the client
 
-<a id="org17caa74"></a>
+Rune `dune build @client`
 
-# Usefull stuff
+## Dev mode for the client
 
-ocaml tools (Installed with opam) :
-
--   merlin (completion and errors detection in emacs)
--   utop (advanced top-level)
--   dune
-
-emacs tools (installed with melpa) : 
-
--   outshine / outorg
--   tuareg-mode
-
+ * Run `yarn install` from the root dir to install the dependancies.
+ * Run `bsb -make-world -w` to build rescript files into javascript (watch mode)
+ * From `.src/gui/client`, run `yarn server` to serve the built files
+ * Run the server

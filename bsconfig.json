@@ -1,0 +1,46 @@
+{
+    "name": "alife-client",
+    "namespace": true,
+    "reason": {
+        "react-jsx": 3
+    },
+    "sources": [
+        {
+            "dir": "src/gui/client",
+            "subdirs": true
+        },
+        {
+            "dir": "src/base_chemistry/types"
+        }
+
+    ],
+    "package-specs": [
+        {
+            "module": "commonjs",
+            "in-source": true
+        }
+    ],
+    "suffix": ".bs.js",
+    "bs-dependencies": [
+        "decco",
+        "reason-react",
+        "bs-fetch",
+        "reductive",
+        "bs-css",
+        "bs-css-dom",
+        "re-dnd",
+        "bs-log",
+        "re-classnames",
+        "reason-promise",
+        "reductive"
+    ],
+    "ppx-flags": [
+        "decco/ppx",
+        "bs-log/ppx"
+    ],
+    "refmt": 3,
+    "warnings": {
+        "number": "+A-40-42-48-105-4",
+        "error": "+A-3-44-102-41-10-27-26-20-4-33"
+    }
+}

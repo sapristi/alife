@@ -16,10 +16,11 @@ let config = [ ".txt", "text/plain";
                ".js", "text/javascript";
                ".ico", "img/ico"];;
 
-let response_not_found = `String "not found", Cohttp.Header.init (), `Not_found
+let default_header = Cohttp.Header.of_list []
 
+let response_not_found = `String "not found", default_header, `Not_found
 
-let json_h = Cohttp.Header.init_with "Content-Type" "application/json"
+let json_h = Cohttp.Header.add default_header "Content-Type" "application/json"
 
 let error_to_response e =
   `String (`Assoc ["error", `String e]
@@ -28,7 +29,6 @@ let error_to_response e =
 let json_to_response j =
   `String (j |> Yojson.Safe.to_string)
 let respond_error = respond' ~headers:json_h ~code:`Bad_request
-
 
 let serve_file prefix path =
   let ext = Filename.extension path
@@ -45,8 +45,20 @@ let serve_file prefix path =
         response_not_found
   in respond' ~headers:headers ~code:code res_body
 
-
 let req_counter = ref 0
+
+let filter_options =
+  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
+      Opium_kernel__Rock.Filter.simple  = fun handler req ->
+    (
+    match req.request.meth with
+      | `OPTIONS -> let headers = Cohttp.Header.of_list
+                        [("Access-Control-Allow-Origin","*");
+                         ("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE")] in
+        Rock.Response.create ~headers:headers () |> Lwt.return
+      | _ -> handler req
+  ) in
+  Rock.Middleware.create ~name:"options filter" ~filter
 
 let add_cors_header =
   let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
@@ -57,13 +69,14 @@ let add_cors_header =
           Lwt.bind (Lwt.return req) handler in
         (
           response >|= (fun response ->
-              let headers' =Cohttp.Header.add response.headers "Access-Control-Allow-Origin" "*" in
-              {response with headers = headers'} 
+              let headers' = Cohttp.Header.add response.headers
+                  "Access-Control-Allow-Origin" "*" in
+              {response with headers = headers'}
             )
         ) in
       handler' req) in
       Rock.Middleware.create ~name:"cors header" ~filter
-        
+
 let log_in_out =
   let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
       Opium_kernel__Rock.Filter.simple  = fun handler req ->
@@ -84,6 +97,8 @@ let log_in_out =
             >|= Cohttp.Code.string_of_status
             >|= logger#trace ~tags:[c] "Response: %s"
             >|= ignore;
+            response >|= Response.headers >|= Cohttp.Header.to_string
+            >|= logger#debug ~tags:[c] "Headers: %s";
           )
           >>= ( fun () -> response)
         with
@@ -129,12 +144,12 @@ let run port files_prefix routes =
   logger#info "Webserver running at http://localhost:%i" port;
   App.empty
   |> App.port port
+  |> middleware filter_options
+  |> middleware add_cors_header
   |> middleware log_in_out
-  (* |> middleware Middleware.debug *)
   (* |> get "**" (fun x -> serve_file files_prefix x.request.resource) *)
   |> get "/ping" (fun x -> `String "ok" |> respond')
   |> List.fold_right (fun (route,f) x -> x |> route (fun req -> f req |> handle_response) ) routes
   |> middleware index_redirect
   |> middleware (Middleware.static ~local_path:files_prefix ~uri_prefix:"/" ())
-  |> middleware add_cors_header
   |> App.start

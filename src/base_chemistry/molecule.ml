@@ -4,13 +4,12 @@
 (*   functions to help build a petri-net out of it and a module to help it *)
 (*   get managed by a petri-net (i.e. simulate chemical reactions *)
 
-
+open Chemistry_types
 open Easy_logging_yojson
 
 let logger = Logging.get_logger "Yaac.Base_chem.Molecule"
     
-type t = string
-[@@deriving show, yojson, ord] 
+include Chemistry_types.Types.Molecule
 
 let check mol =
   if String.length mol = 0

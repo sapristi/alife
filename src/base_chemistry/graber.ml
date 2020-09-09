@@ -21,11 +21,7 @@ let logger = Logging.get_logger "Yaac.Base_chem.Graber"
 (*    spéciaux) *)
 
 (* *** graber type *)
-type t =
-  {mol_repr : string;
-   str_repr : string;
-   re : Re.re [@opaque]}
-  [@@deriving show]
+include Chemistry_types.Types.Graber
 
 (* *** build_from_atom_list *)
 (*     Transforms a list of atoms into a string representing a regular *)
@@ -41,39 +37,52 @@ type t =
 
 let grab_location_re = "(.*?)F(.)F"
 and wildcard_re = "FF"
-                
+
 let grab_location_cre = Re.compile (Re.Perl.re grab_location_re)
 and wildcard_cre = Re.compile (Re.Perl.re wildcard_re)
-                 
+
 let make (m : string)  =
-  try 
+  try
     if Re.execp grab_location_cre m
     then
       let rep_loc (g : Re.Group.t) : string =
         Re.Group.get g 1 ^ "(" ^ Re.Group.get g 2 ^ ")"
       in
-      let m1 = Re.replace ~all:false
+      let mol_repr = Re.replace ~all:false
                           grab_location_cre
                           ~f:rep_loc m in
-      let m2 = Re.replace_string wildcard_cre
-                                 ~by:".*?" m1
+      let str_repr = Re.replace_string wildcard_cre
+                                 ~by:".*?" mol_repr
       in
-      let m3 = "^"^m2^"$" in
-      logger#debug "Compiled %s\nfrom %s" m3 m;
-      Some {mol_repr=m;
-            str_repr=m2;
-            re = Re.compile (Re.Perl.re m3)}
+      logger#debug "Compiled %s\nfrom %s" str_repr m;
+      Some {mol_repr;
+            str_repr;}
     else
       None
   with
   | _ -> None
-       
+
+module Re_store = struct
+  module M = Map.Make(String)
+
+  let m = ref M.empty
+
+  let get s  = match M.find_opt s (!m) with
+    | Some r -> r
+    | None ->
+      let r = Re.compile (Re.Perl.re s) in
+      m := (M.add s r (!m));
+      r
+end
+
+
 let get_match_pos (graber : t)  (mol : string) : int option =
   logger#debug "Get match for graber:%s\n with mol: %s" graber.str_repr mol;
+  let re = Re_store.get graber.str_repr in
 
-  if Re.execp graber.re mol
-  then 
-    let g = Re.exec graber.re mol in
+  if Re.execp re mol
+  then
+    let g = Re.exec re mol in
     logger#debug "Match pos: %i" (Re.Group.start g 1);
     Some (Re.Group.start g 1)
   else
@@ -81,16 +90,3 @@ let get_match_pos (graber : t)  (mol : string) : int option =
       logger#debug "no match pos";
       None
     )
-let to_yojson (g :t) : Yojson.Safe.t =
-  `String g.mol_repr
-  
-let of_yojson (json : Yojson.Safe.t) : (t,string) result =
-  match json with
-  | `String s ->
-     (
-       match make s with
-       | Some g -> Ok g
-       | None -> Error "graber : cannot build from json"
-     )
-  | _ -> Error "graber : cannot build from json"
-       

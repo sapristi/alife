@@ -40,4 +40,6 @@
     visibility: visible;
 }
 
-
+.box:not(:last-child) {
+    margin-bottom: 0;
+}

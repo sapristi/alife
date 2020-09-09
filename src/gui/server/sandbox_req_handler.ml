@@ -13,10 +13,7 @@ open Lwt.Infix
 (** /sandbox endopoints*)
 
 let get_sandbox (sandbox : Sandbox.t) req =
-  `Json(
-    `Assoc [
-      "data", (Sandbox.to_yojson sandbox)])
-  |> Lwt.return
+  `Json(Sandbox.to_yojson sandbox) |> Lwt.return
 
 let reset_sandbox (sandbox : Sandbox.t) req =
   let data_json =  Yojson.Safe.from_file "bact.json" in
@@ -41,10 +38,7 @@ let set_sandbox (sandbox : Sandbox.t) (req: Opium_kernel__Rock.Request.t)  =
 (**  /sandbox/mol   endpoints*)
 
 let get_bact_elements (sandbox : Sandbox.t) req =
-  `Json (`Assoc
-           ["purpose", `String "bact_elements";
-            "data", (Bacterie.to_sig_yojson !(sandbox.bact))]
-        )  |> Lwt.return
+  `Json  (Bacterie.to_sig_yojson !(sandbox.bact)) |> Lwt.return
 
 
 
@@ -54,11 +48,7 @@ let pnet_ids_from_mol  (sandbox : Sandbox.t) (req) =
   let pnet_ids_json =
     `List (List.map (fun i -> `Int i) pnet_ids)
   in
-  `Json (
-    `Assoc
-      ["purpose", `String "pnet_ids";
-       "data", pnet_ids_json]
-  ) |> Lwt.return
+  `Json (pnet_ids_json) |> Lwt.return
 
 let add_mol (sandbox : Sandbox.t) (req) =
   let mol = param req "mol" in
@@ -94,13 +84,9 @@ let get_pnet (sandbox : Sandbox.t) (req) =
   and pnet_id = int_of_string (param req "pnet_id") in
   let pnet_json =
     (Reactants_maps.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet
-    |> Petri_net.to_json
+    |> Petri_net.to_yojson
   in
-  `Json (`Assoc
-           ["purpose", `String "pnet_from_mol";
-            "data",  `Assoc ["pnet", pnet_json]]
-        )  |> Lwt.return
-
+  `Json pnet_json|> Lwt.return
 
 
 type pnet_action =
@@ -131,11 +117,8 @@ let pnet_action (sandbox: Sandbox.t) req =
         );
         Petri_net.update_launchables pnet;
 
-        let pnet_json = Petri_net.to_json pnet in
-        `Json (`Assoc
-                 ["purpose", `String "pnet_update";
-                  "data",  `Assoc ["pnet", pnet_json]]
-              )  |> Lwt.return
+        let pnet_json = Petri_net.to_yojson pnet in
+        `Json pnet_json |> Lwt.return
       )
     | Launch_transition trans_index ->
 
@@ -144,13 +127,9 @@ let pnet_action (sandbox: Sandbox.t) req =
       let actions = List.map (fun x -> Reacs.T_effects x) [p_actions] in
       Bacterie.execute_actions !(sandbox.bact) actions;
 
-      let pnet_json = Petri_net.to_json pnet
+      let pnet_json = Petri_net.to_yojson pnet
       in
-      `Json (
-        `Assoc
-          ["purpose", `String "pnet_update";
-           "data",  `Assoc ["pnet", pnet_json]]
-      ) |> Lwt.return
+      `Json  pnet_json |> Lwt.return
 
 let remove_amol (sandbox : Sandbox.t) (req) =
   let mol = param req "mol"
@@ -187,7 +166,7 @@ let set_environment (sandbox : Sandbox.t) (req: Opium_kernel__Rock.Request.t) =
   | Ok env ->
     !(sandbox.bact).env := env;
     logger#debug "Commited new env: %s" (Environment.show env);
-    `String "done" |> Lwt.return
+    `Json (Environment.to_yojson env) |> Lwt.return
   | Error s ->
     (`Error ("error decoding env from json " ^ s)) |> Lwt.return
 
@@ -213,9 +192,7 @@ let next_reactions (sandbox : Sandbox.t) (req) =
         (Printexc.get_backtrace ()) (Printexc.to_string e);
       failwith "error"
   );
-  `Json (`Assoc
-           ["purpose", `String "bactery_update_desc";
-            "data", (Bacterie.to_sig_yojson !(sandbox.bact))]) |> Lwt.return
+  `Json (Bacterie.to_sig_yojson !(sandbox.bact)) |> Lwt.return
 
 let next_reactions_lwt (sandbox : Sandbox.t) (req) =
   let n = param req "n"
@@ -229,9 +206,7 @@ let next_reactions_lwt (sandbox : Sandbox.t) (req) =
     Lwt_io.flush_all ()
   done
   >|= (fun () ->
-      `Json (`Assoc
-               ["purpose", `String "bactery_update_desc";
-                "data", (Bacterie.to_sig_yojson !(sandbox.bact))]))
+      `Json (Bacterie.to_sig_yojson !(sandbox.bact)))
 
 
 

@@ -62,7 +62,7 @@ module ARMap =
         let find_by_id pnet_id amolset  =
           let (dummy_pnet : Petri_net.t) ={
               mol = ""; transitions = [||];places = [||];
-              uid = pnet_id; launchables_nb = Q.zero;} in
+              uid = pnet_id; launchables_nb = 0;} in
           let dummy_amd = (Reactant.Amol.make_new dummy_pnet)
           in
           find dummy_amd amolset

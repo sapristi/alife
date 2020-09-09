@@ -164,11 +164,11 @@ Vue.component("inert-mols-controls",{
     },
     methods: {
         remove_mol() {utils.ajax('DELETE', `/api/sandbox/imol/${this.mol}`).done(
-            data => {this.$store.commit("set_imols", data.data.inert_mols);}
+            data => {this.$store.commit("set_imols", data.inert_mols);}
         );},
         set_mol_quantity() {
             utils.ajax('PUT', `/api/sandbox/imol/${this.mol}?qtt=${this.qtt}`).done(
-                data=> {this.$store.commit("set_imols", data.data.inert_mols);}
+                data=> {this.$store.commit("set_imols", data.inert_mols);}
             );},
         send_to_molbuilder() {this.$root.$emit("send_to_molbuilder", this.mol);}
     }
@@ -197,7 +197,7 @@ Vue.component("active-mols-controls",{
             this.disabled=false;
             utils.ajax('GET', `/api/sandbox/amol/${this.mol}`
 	          ).done(data => {
-	              this.pnet_ids = data.data;
+	              this.pnet_ids = data;
                 this.selected_pnet = this.pnet_ids[0];
                 console.log(this);});
         },
@@ -209,11 +209,11 @@ Vue.component("active-mols-controls",{
                 utils.ajax(
                     'GET', `/api/sandbox/amol/${this.mol}/pnet/${pnet_id}`).done(
                         data => {console.log("pnet updated with ", data);
-                            this.pnet = data.data.pnet;
+                            this.pnet = data.pnet;
                             this.$store.commit('pnet/set',{
                                 pnet_id: this.selected_pnet,
                                 mol: this.mol,
-                                pnet: data.data.pnet
+                                pnet: data.pnet
                             });
                                 });}
         },
@@ -362,9 +362,9 @@ sandbox_vue = new Vue({
             utils.ajax('GET', "/api/sandbox"
             ).done(
                 data =>  {
-                    this.env = data.data.env;
-                    this.inert_mols = data.data.bact.inert_mols;
-                    this.active_mols = data.data.bact.active_mols;
+                    this.env = data.env;
+                    this.inert_mols = data.bact.inert_mols;
+                    this.active_mols = data.bact.active_mols;
                     this.$store.commit("set_imols", this.inert_mols);
                     this.$store.commit("set_amols", this.active_mols);
                     this.$store.commit("set_env", this.env);
@@ -394,7 +394,7 @@ sandbox_vue = new Vue({
             utils.ajax('GET', "/api/sandbox"
             ).done(
                 function(data) {
-                    str_data = JSON.stringify(data.data);
+                    str_data = JSON.stringify(data);
                     blob_data = new Blob([str_data], {type: 'text/plain'});
                     saveAs(blob_data, "sandbox.json");
                 }
@@ -438,7 +438,7 @@ sandbox_vue = new Vue({
                 alert("update");
                 break;
             case "add mol":
-                utils.ajax('POST', `/api/sandbox/mol/${msg.data.data}`).done(
+                utils.ajax('POST', `/api/sandbox/mol/${msg.data}`).done(
                     _ => {self.update();}
                 );
             default : console.log("did not recognize command", msg.data.command);

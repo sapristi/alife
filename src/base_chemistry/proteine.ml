@@ -12,7 +12,7 @@
 
 (*open Misc_library*)
 
-open Acid_types
+open Chemistry_types.Acid_types
 open Yaac_config
 open Local_libs
 open Easy_logging_yojson

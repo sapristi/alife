@@ -6,7 +6,7 @@ open Easy_logging_yojson
 open Numeric
 
 let logger = Logging.get_logger "Yaac.Reactor.Sandbox"
-               
+
 
 let bact_states = ref []
 
@@ -23,7 +23,7 @@ type t =
     bact : Bacterie.t ref;
     env : Environment.t ref;
   }
-  
+
 
 let make_empty () =
   let (env: Environment.t) = {transition_rate = Q.of_int 10;
@@ -49,10 +49,10 @@ let of_yojson   json : t=
   in
   match (Environment.of_yojson env_json, Bacterie.bact_sig_of_yojson bact_sig_json) with
   | (Ok env, Ok bact_sig) ->
-     let renv = ref env in 
+     let renv = ref env in
      let bact = ref (Bacterie.make ~bact_sig renv) in
      {bact = bact; env = renv}
-  | _  -> failwith  "error loading sandbox json" 
+  | _  -> failwith  "error loading sandbox json"
 
 
 let update_from_yojson sandbox json =
@@ -62,17 +62,14 @@ let update_from_yojson sandbox json =
   match (Environment.of_yojson env_json, Bacterie.bact_sig_of_yojson bact_sig_json) with
   | (Ok env, Ok bact_sig) ->
     sandbox.env := env;
-    sandbox.bact := Bacterie.make ~bact_sig sandbox.env 
-  | _  -> failwith  "error loading sandbox json" 
+    sandbox.bact := Bacterie.make ~bact_sig sandbox.env
+  | _  -> failwith  "error loading sandbox json"
 
 
 let of_state state_name =
   List.find (fun (n,_) -> n = state_name) !bact_states
   |> fun (_, state) -> of_yojson state
 
-let update_from_state sandbox state_name = 
+let update_from_state sandbox state_name =
   List.find (fun (n,_) -> n = state_name) !bact_states
   |> fun (_, state) -> update_from_yojson sandbox state
-  
-
-

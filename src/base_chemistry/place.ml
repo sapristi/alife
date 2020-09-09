@@ -6,16 +6,10 @@
 
 
 (* ** divers *)
-   
+open Chemistry_types
 type place_exts = Acid_types.extension list
 
-type t =
-  {mutable token : Token.t option;
-   extensions : Acid_types.extension list;
-   index : int;
-   graber : Graber.t option;
-  }
-    [@@deriving show, yojson]
+include Chemistry_types.Types.Place
 (* **** make a place *)
 
 (*    Filters valid grab extensions from the *)

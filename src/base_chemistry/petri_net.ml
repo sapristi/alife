@@ -32,31 +32,21 @@ open Numeric
 
 (* * the proteine module *)
 let logger = Logging.get_logger "Yaac.Base_chem.Pnet"
-               
 
-type t =
-  {
-    mol : Molecule.t;
-    transitions : Transition.t array;
-    places : Place.t array;
-    uid : int;
-    mutable launchables_nb:Q.t;
-  } 
-    [@@deriving show]
-  
-  
+include Chemistry_types.Types.Petri_net
+
 let update_launchables (pnet :t) : unit =
-  pnet.launchables_nb <- Q.zero;
+  pnet.launchables_nb <- 0;
   Array.iter (fun t ->
 
-      Transition.update_launchable t;
+      Transition.update_launchable t pnet.places;
       if t.launchable
-      then pnet.launchables_nb <- Q.(pnet.launchables_nb + one);
+      then pnet.launchables_nb <- pnet.launchables_nb + 1;
 
     ) pnet.transitions
-  
+
 let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
-  
+
   lazy (Printf.sprintf "Building pnet from mol %s" mol)  |> logger#ldebug;
   lazy (Printf.sprintf "Proteine: %s" (Proteine.show prot)) |> logger#ldebug;
   try
@@ -71,23 +61,23 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
     lazy (Misc_library.show_list_prefix "Made places signature"
             Proteine.show_place_extensions places_signatures_list)
     |> logger#ldebug;
-    
+
     (* on crée de nouvelles places à partir de la liste de types données dans la molécule *)
     let places : Place.t array =
       let psigs = ref places_signatures_list in
       Array.init
         (List.length !psigs)
-        (fun index -> 
+        (fun index ->
           let p = List.hd !psigs in
           psigs := List.tl !psigs;
           Place.make p index)
-      
+
     in
-    let (transitions : Transition.t array) = 
+    let (transitions : Transition.t array) =
       let tsigs = ref transitions_signatures_list in
       Array.init
         (List.length !tsigs)
-        (fun index -> 
+        (fun index ->
           let (id, ila, ola) = List.hd !tsigs in
           tsigs := List.tl !tsigs;
           Transition.make id places ila ola index)
@@ -97,7 +87,7 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
 
     in
     let launchables_nb =
-      
+
       Array.fold_left
         (fun res t -> if t.Transition.launchable then Q.(res + one) else res)
         Q.zero transitions
@@ -105,7 +95,7 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
     lazy (Misc_library.show_array_prefix "Made places"
             Place.show places)
     |> logger#ldebug;
-    
+
     (* simple filter to deactivate pnets without places or transitions *)
     let filter =
       if Config.build_inactive_pnets
@@ -113,10 +103,10 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
         fun p_l t_l -> p_l > 0
       else
         fun p_l t_l -> p_l > 0 && t_l > 0
-    in 
+    in
     if filter (Array.length places) (Array.length transitions)
-    then 
-      Some {mol; transitions; places; uid; launchables_nb;}
+    then
+      Some {mol; transitions; places; uid; launchables_nb= Q.to_int launchables_nb;}
     else
       None
   with
@@ -126,11 +116,11 @@ let make_from_prot (prot : Proteine.t)  (mol : Molecule.t) : t option =
        (Printexc.to_string e);
 
      None
-     
+
 let make_from_mol (mol : Molecule.t) : t option =
   let prot = Molecule.to_proteine mol in
   make_from_prot prot mol
-  
+
 (* mettre à jour les transitions qui peuvent être lancées. *)
 (* Il faut prendre en compte la transition qui vient d'être lancée,  *)
 (* ainsi que les tokens qui ont pu arriver par message  *)
@@ -141,17 +131,17 @@ let make_from_mol (mol : Molecule.t) : t option =
 
 
 let launch_transition_by_id (tId : int) p =
-  Transition.apply_transition p.transitions.(tId)
-  
+  Transition.apply_transition p.transitions.(tId) p.places
+
 let launch_random_transition (p : t)
     : Place.transition_effect list =
   let launchables = CCArray.filter (fun (t:Transition.t) -> t.launchable) p.transitions in
   if Array.length launchables > 0
-  then 
+  then
     let t = Misc_library.random_pick_from_array launchables in
-    Transition.apply_transition t
+    Transition.apply_transition t p.places
   else []
-  
+
 (* returns a list of all the possible grabs of a molecule *)
 let get_possible_mol_grabs (mol : Molecule.t) (pnet : t) : (int*int) list =
   Array.fold_left
@@ -162,18 +152,18 @@ let get_possible_mol_grabs (mol : Molecule.t) (pnet : t) : (int*int) list =
     [] pnet.places
 
 let grab (mol : Molecule.t) (pos : int) (pid : int) (pnet : t)
-    : bool = 
+    : bool =
   let token = Token.make mol pos in
   Place.add_token_from_grab token (pnet.places.(pid))
-  
+
 (* *** functions to build the reactives *)
 (* can be optimized, but this will do for now *)
-  
+
 let can_grab (mol : Molecule.t) (pnet : t) : bool =
   Array.fold_left
     (fun res place ->
       match place.Place.graber with
-      | None -> res 
+      | None -> res
       | Some g ->
          match Graber.get_match_pos g mol with
          | None -> res
@@ -187,20 +177,20 @@ let ocan_grab (mol : Molecule.t) (opnet : t option) : bool =
      Array.fold_left
        (fun res place ->
          match place.Place.graber with
-         | None -> res 
+         | None -> res
          | Some g ->
             match Graber.get_match_pos g mol with
             | None -> res
             | Some _ -> true
        ) false pnet.places
-    
+
 let grab_factor (mol : Molecule.t) (pnet : t) : Q.t =
   Array.fold_left
     (fun res place ->
       if Place.is_empty place
-      then 
+      then
         match place.Place.graber with
-        | None -> res 
+        | None -> res
         | Some g ->
            match Graber.get_match_pos g mol with
            | None -> res
@@ -208,7 +198,7 @@ let grab_factor (mol : Molecule.t) (pnet : t) : Q.t =
       else
         res
     ) Q.zero pnet.places
-  
+
 
 let can_react (mol1 : Molecule.t) (opnet1 : t option)
               (mol2 : Molecule.t) (opnet2 : t option) =
@@ -219,19 +209,7 @@ let can_react (mol1 : Molecule.t) (opnet1 : t option)
   | Some pnet1, Some pnet2 ->
        can_grab mol1 pnet2 ||
          can_grab mol2 pnet1
-  
-  
-  
-let to_json (p : t) =
-  `Assoc [
-     "places",
-     `List (Array.to_list (Array.map Place.to_yojson p.places));
-     "transitions",
-     `List (Array.to_list (Array.map Transition.to_json p.transitions));
-     "molecule",
-     Molecule.to_yojson p.mol;
-     "id", `Int p.uid]
-  
+
 
 let get_tokens (pnet :t)  : Token.t list =
   Array.fold_left
