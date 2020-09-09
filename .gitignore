@@ -26,3 +26,5 @@ yaacs_server
 node_modules/
 lib/
 *.bs.js
+
+dist/

@@ -12,7 +12,7 @@ let () = Printexc.record_backtrace true;;
 type params = {
   port: int;              [@default 1512] [@aka ["p"]] [@docv "PORT"]
   host: string;           [@default "0.0.0.0"] [@aka ["h"]] [@docv "HOST"]
-  static_path : string;   [@default "_build/default/src/gui/js_client"] [@docv "PATH"]
+  static_path : string;   [@default "client"] [@docv "PATH"]
   debug: bool;            [@default false] [@aka ["d"]]
   (** Set most log level to debug *)
   stats: bool;            [@default false]
