@@ -18,9 +18,9 @@ type params = {
   stats: bool;            [@default false]
   (** Generates running stats *)
   log_level : Logging.level option; [@enum [("debug", Logging.Debug); ("info", Info); ("warning", Warning); ("none", NoLevel)]]
-  data_path : string;     [@default "./data/bact_states"] [@docv "PATH"]
+  data_path : string;     [@default "./data/"] [@docv "PATH"]
   log_config : string;     [@default ""]
-  random_seed: int option 
+  random_seed: int option
 } [@@deriving cmdliner,show]
 ;;
 
@@ -30,9 +30,11 @@ let logger = Logging.get_logger  "Yaac.Main"
 
 
 
-let run_yaacs p : unit= 
+
+let run_yaacs p : unit=
   logger#info "Starting Yaac with options :\n%s" @@ show_params p;
 
+  let db_uri = [%string "sqlite3:%{p.data_path}test.sqlite3"] in
   begin
     match p.random_seed with
     | None -> Random.self_init ()
@@ -55,13 +57,13 @@ let run_yaacs p : unit=
     end
   else
     ();
-  begin 
+  begin
     match p.log_level with
     | None -> ()
-    | Some lvl ->   let root_logger = Logging.get_logger "Yaac" in  
+    | Some lvl ->   let root_logger = Logging.get_logger "Yaac" in
       root_logger#set_level lvl;
   end;
-  Sandbox.init_states p.data_path;
+Sandbox.init_states (p.data_path^"/bact_states");
 
   let pipe = Lwt_pipe.create ~max_size:10 () in
 
@@ -71,7 +73,7 @@ let run_yaacs p : unit=
     level = Logging.Debug;
     filters = [];
     output = (fun s -> Lwt.async (fun () -> Lwt_pipe.write_exn pipe s))
-  } 
+  }
   in
   let root_logger = Logging.get_logger "Yaac" in
   root_logger#add_handler pipe_handler;
@@ -83,13 +85,14 @@ let run_yaacs p : unit=
                   (Simulator.make ())
                   (Sandbox.make_empty ())
                );
-             Ws_server.run pipe () ]
+             Ws_server.run pipe ();
+             Yaac_db.Db.init db_uri
+           ]
   |> Lwt_main.run
 
-let _ = 
+let _ =
 
   let term = Term.(const run_yaacs $ params_cmdliner_term ()) in
   let doc = "Runs the Yaac server" in
   let info = Term.info Sys.argv.(0) ~doc in
   Term.eval (term, info)
-

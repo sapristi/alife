@@ -1,0 +1,13 @@
+(library
+ (name yaac_db)
+ (flags -w)
+ (preprocess
+  (pps
+    ppx_string
+ ))
+ (libraries
+   caqti
+   caqti-lwt
+   easy_logging_yojson
+ )
+ )

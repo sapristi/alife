@@ -52,6 +52,20 @@
  ))
 )
 
+(rule
+ (alias install_server_local)
+ (deps
+  (file src/bin/yaacs_server.exe)
+  (glob_files data/bact_states/*)
+ )
+ (action
+  (progn
+   (bash "rm  ../../dist/yaacs_server ")
+   (bash "cp ./src/bin/yaacs_server.exe ../../dist/yaacs_server ")
+   (bash "rm -r ../../dist/data ")
+   (bash "cp -r ./data ../../dist/data ")
+ ))
+)
 
 ; (alias
 ;  (name scenarios)
