@@ -5,6 +5,7 @@ open Yaac_config
 open Server
 open Reactors
 open Easy_logging_yojson
+open Lwt.Infix
 
 let () = Printexc.record_backtrace true;;
 
@@ -24,17 +25,12 @@ type params = {
 } [@@deriving cmdliner,show]
 ;;
 
-
-
 let logger = Logging.get_logger  "Yaac.Main"
-
-
-
 
 let run_yaacs p : unit=
   logger#info "Starting Yaac with options :\n%s" @@ show_params p;
 
-  let db_uri = [%string "sqlite3:%{p.data_path}test.sqlite3"] in
+  let db_uri = Format.sprintf "sqlite3:%stest.sqlite3" p.data_path in
   begin
     match p.random_seed with
     | None -> Random.self_init ()
@@ -63,7 +59,7 @@ let run_yaacs p : unit=
     | Some lvl ->   let root_logger = Logging.get_logger "Yaac" in
       root_logger#set_level lvl;
   end;
-Sandbox.init_states (p.data_path^"/bact_states");
+  Sandbox.init_states (p.data_path^"/bact_states");
 
   let pipe = Lwt_pipe.create ~max_size:10 () in
 
@@ -78,16 +74,22 @@ Sandbox.init_states (p.data_path^"/bact_states");
   let root_logger = Logging.get_logger "Yaac" in
   root_logger#add_handler pipe_handler;
 
-  Lwt.join [ Web_server.run
-               p.port
-               (p.static_path)
-               (Bact_server.make_routes
-                  (Simulator.make ())
-                  (Sandbox.make_empty ())
-               );
-             Ws_server.run pipe ();
-             Yaac_db.Db.init db_uri
-           ]
+
+  let sandbox_init = List.map
+      (fun (x,y) -> (x, "", y))
+      (Sandbox.load_states (p.data_path^"/bact_states")) in
+  Lwt.join [
+    Yaac_db.init db_uri sandbox_init;
+    Web_server.run
+      p.port
+      (p.static_path)
+      (Bact_server.make_routes
+         (Simulator.make ())
+         (Sandbox.make_empty ())
+      );
+    Ws_server.run pipe ();
+  ]
+
   |> Lwt_main.run
 
 let _ =
