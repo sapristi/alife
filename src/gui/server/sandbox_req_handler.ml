@@ -4,6 +4,8 @@ open Reaction
 open Local_libs
 open Base_chemistry
 open Easy_logging_yojson
+open Yaac_db__.Infix
+open Lwt.Infix
 let logger = Logging.get_logger "Yaac.Server.Sandbox"
 
 
@@ -220,11 +222,21 @@ let next_reactions_lwt (sandbox : Sandbox.t) (req) =
 
 
 
-let get_bact_states _ =
-  `Json (`List (
-      !Sandbox.bact_states
-      |> List.map (fun (n,_) -> `String n)
-    )) |> Lwt.return
+let get_bact_states req =
+    (Request.env req
+    |> Opium.Hmap.get Env.db_key
+    >>=? fun (module Db: Caqti_lwt.CONNECTION) -> Db.collect_list Yaac_db.Sandbox.list_req ()
+    >|=? fun res ->
+      Ok (`List
+               (List.map (fun (name, desc, time) -> `String name) res)))
+    >|= (fun x -> `Db_res x)
+
+
+(* let get_bact_states _ =
+ *   `Json (`List (
+ *       YaacDb.Sandbox.
+ *       |> List.map (fun (n,_) -> `String n)
+ *     )) |> Lwt.return *)
 
 
 let from_bact_state (sandbox : Sandbox.t) req =

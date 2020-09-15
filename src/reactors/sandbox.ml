@@ -10,6 +10,7 @@ let logger = Logging.get_logger "Yaac.Reactor.Sandbox"
 
 let bact_states = ref []
 
+
 let init_states bact_states_path =
   bact_states :=
     Misc_library.list_files ~file_type:"json" bact_states_path
@@ -42,8 +43,7 @@ let to_yojson (sandbox : t) =
                   |> Bacterie.bact_sig_to_yojson;
           "env", Environment.to_yojson !(sandbox.env)]
 
-let of_yojson   json : t=
-
+let of_yojson json : t=
   let env_json = Yojson.Safe.Util.member "env" json
   and bact_sig_json = Yojson.Safe.Util.member "bact" json
   in
@@ -73,3 +73,9 @@ let of_state state_name =
 let update_from_state sandbox state_name =
   List.find (fun (n,_) -> n = state_name) !bact_states
   |> fun (_, state) -> update_from_yojson sandbox state
+
+let load_states bact_states_path =
+  Misc_library.list_files ~file_type:"json" bact_states_path
+  |> List.map (fun x ->
+      Filename.remove_extension (Filename.basename x),
+      x |> Yojson.Safe.from_file |> of_yojson)

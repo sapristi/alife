@@ -1,0 +1,17 @@
+(library
+ (name yaac_db)
+ (flags -w)
+ (preprocess
+  (pps
+    ppx_string
+ ))
+ (libraries
+   caqti
+   caqti-driver-sqlite3
+   caqti-lwt
+   easy_logging_yojson
+   ppx_string
+   ptime.clock.os
+   reactors
+ )
+ )

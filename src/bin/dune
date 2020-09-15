@@ -10,7 +10,9 @@
             local_libs
             server
             ppx_deriving
-            ppx_deriving_cmdliner )
+            ppx_deriving_cmdliner
+            yaac_db
+ )
  (modules ("yaacs_server"))
 )
 
