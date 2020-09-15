@@ -1,14 +1,9 @@
 open Lwt.Infix
 open Easy_logging_yojson
 open Make_table
-
+open Infix
 let logger = Logging.get_logger "Yaac.Db"
 
-let (>>=?) m f =
-  m >>= (function | Ok x -> f x | Error err ->  logger#serror (Caqti_error.show err); Lwt.return (Error err))
-
-let (>>==) m f =
-  m >>= (function | Ok x -> f x | Error err -> logger#serror (Caqti_error.show err); Lwt.return ())
 
 
 module Sandbox = MakeBaseTable(struct
@@ -35,16 +30,14 @@ module MolLibrary = MakeBaseTable(struct
 
 let create_tables (module Db : Caqti_lwt.CONNECTION) =
   Sandbox.setup_table (module Db) >>=?
-  fun () -> StateDump.setup_table (module Db) >>=?
-  fun () -> MolLibrary.setup_table (module Db) >>=?
-  fun () -> Ok (module Db: Caqti_lwt.CONNECTION) |> Lwt.return
+  fun _ -> StateDump.setup_table (module Db) >>=?
+  fun _ -> MolLibrary.setup_table (module Db) >>=?
+  fun _ -> Ok (module Db: Caqti_lwt.CONNECTION) |> Lwt.return
 
 
-let init uri sandbox_init =
+let init uri  sandbox_init =
+
   logger#info "Creating db at %s" uri;
   Caqti_lwt.connect (Uri.of_string uri)
   >>=? create_tables
   >>=? Sandbox.populate_static sandbox_init
-  >|= (function
-      | Ok _ -> ()
-      | Error err -> logger#serror (Caqti_error.show err); ())

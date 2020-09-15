@@ -2,48 +2,67 @@ open Opium.Std
 open Easy_logging_yojson
 open Lwt.Infix
 
-let logger = Logging.get_logger "Yaac.Server";;
+let logger = Logging.get_logger "Yaac.Server"
 
-let read_whole_file filename =
-  let ch = open_in filename in
-  let s = really_input_string ch (in_channel_length ch) in
-  close_in ch;
-  s
+module Resp = struct
+  let error_to_response e =
+    `String (`Assoc ["error", `String e]
+             |> Yojson.Safe.to_string)
 
-let config = [ ".txt", "text/plain";
-			         ".html", "text/html";
-               ".css", "text/css";
-               ".js", "text/javascript";
-               ".ico", "img/ico"];;
+  let json_to_response j =
+    `String (j |> Yojson.Safe.to_string)
 
-let default_header = Cohttp.Header.of_list []
+  let default_header = Cohttp.Header.of_list []
+  let json_h = Cohttp.Header.add default_header "Content-Type" "application/json"
+  let respond_error = respond' ~headers:json_h ~code:`Bad_request
 
-let response_not_found = `String "not found", default_header, `Not_found
+  let handle r =
+    match%lwt r with
+    | `Empty -> `String "" |> respond' ~code:`No_content
+    | `String s -> `String s |> respond'
+    | `Json (j : Yojson.Safe.t ) -> j |> json_to_response  |>  respond' ~headers:json_h
+    | `Error (s : string ) -> s |> error_to_response  |> respond_error
+    | `Db_res (res: (Yojson.Safe.t, Caqti_error.t) result) ->
+      match res with
+      | Ok j ->j |> json_to_response  |>  respond' ~headers:json_h
+      | Error err ->
+        let error_message = Caqti_error.show err in
+        logger#error "Db error: %s" error_message;
+        error_message |> error_to_response  |> respond_error
+end
 
-let json_h = Cohttp.Header.add default_header "Content-Type" "application/json"
+(* unused *)
+module FileServer = struct
+  let read_whole_file filename =
+    let ch = open_in filename in
+    let s = really_input_string ch (in_channel_length ch) in
+    close_in ch;
+    s
 
-let error_to_response e =
-  `String (`Assoc ["error", `String e]
-           |> Yojson.Safe.to_string)
+  let config = [ ".txt", "text/plain";
+			           ".html", "text/html";
+                 ".css", "text/css";
+                 ".js", "text/javascript";
+                 ".ico", "img/ico"]
 
-let json_to_response j =
-  `String (j |> Yojson.Safe.to_string)
-let respond_error = respond' ~headers:json_h ~code:`Bad_request
+  let response_not_found = `String "not found", Resp.default_header, `Not_found
 
-let serve_file prefix path =
-  let ext = Filename.extension path
-  and full_path = (prefix^path)in
-  logger#trace "Serving file %s" full_path;
-  let (res_body, headers, code) = match List.find_opt (fun (ext',_) -> ext = ext') config with
-    | None -> response_not_found
-    | Some (_, content_type ) ->
-      if Sys.file_exists full_path
-      then
-        let data = read_whole_file full_path in
-        `String data, Cohttp.Header.init_with "Content-Type" content_type, `OK
-      else
-        response_not_found
-  in respond' ~headers:headers ~code:code res_body
+  let serve_file prefix path =
+    let ext = Filename.extension path
+    and full_path = (prefix^path)in
+    logger#trace "Serving file %s" full_path;
+    let (res_body, headers, code) = match List.find_opt (fun (ext',_) -> ext = ext') config with
+      | None -> response_not_found
+      | Some (_, content_type ) ->
+        if Sys.file_exists full_path
+        then
+          let data = read_whole_file full_path in
+          `String data, Cohttp.Header.init_with "Content-Type" content_type, `OK
+        else
+          response_not_found
+    in respond' ~headers:headers ~code:code res_body
+end
+
 
 let req_counter = ref 0
 
@@ -51,13 +70,13 @@ let filter_options =
   let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
       Opium_kernel__Rock.Filter.simple  = fun handler req ->
     (
-    match req.request.meth with
+      match req.request.meth with
       | `OPTIONS -> let headers = Cohttp.Header.of_list
                         [("Access-Control-Allow-Origin","*");
                          ("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE")] in
         Rock.Response.create ~headers:headers () |> Lwt.return
       | _ -> handler req
-  ) in
+    ) in
   Rock.Middleware.create ~name:"options filter" ~filter
 
 let add_cors_header =
@@ -75,10 +94,10 @@ let add_cors_header =
             )
         ) in
       handler' req) in
-      Rock.Middleware.create ~name:"cors header" ~filter
+  Rock.Middleware.create ~name:"cors header" ~filter
 
 let log_in_out =
-  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
+  let filter : (Opium_kernel.Request.t, Opium_kernel.Response.t)
       Opium_kernel__Rock.Filter.simple  = fun handler req ->
     let c = string_of_int (!req_counter) in
     (
@@ -96,7 +115,7 @@ let log_in_out =
             >|= Response.code
             >|= Cohttp.Code.string_of_status
             >|= logger#trace ~tags:[c] "Response: %s"
-            >|= ignore;
+            |> ignore;
             response >|= Response.headers >|= Cohttp.Header.to_string
             >|= logger#debug ~tags:[c] "Headers: %s";
           )
@@ -106,7 +125,8 @@ let log_in_out =
           logger#error ~tags:[c] "An error happened while treating the request:%s\n%s"
             (Printexc.get_backtrace ())
             (Printexc.to_string e);
-          "error" |> error_to_response  |> respond_error
+          `Error (Printf.sprintf "An error happened while treating the request at %s" resource)
+          |> Lwt.return |> Resp.handle
 
       in
       handler' req
@@ -132,24 +152,18 @@ let index_redirect =
   in
   Rock.Middleware.create ~name:"Index redirect" ~filter
 
-let handle_response r =
-  match%lwt r with
-  | `Empty -> `String "" |> respond' ~code:`No_content
-  | `String s -> `String s |> respond'
-  | `Json (j : Yojson.Safe.t ) -> j |> json_to_response  |>  respond' ~headers:json_h
-  | `Error (s : string ) -> s |> error_to_response  |> respond_error
 
-
-let run port files_prefix routes =
+let run port files_prefix yaac_db routes =
   logger#info "Webserver running at http://localhost:%i" port;
   App.empty
   |> App.port port
+  |> middleware (Env.add_env_middleware Env.db_key yaac_db "env db")
   |> middleware filter_options
   |> middleware add_cors_header
   |> middleware log_in_out
   (* |> get "**" (fun x -> serve_file files_prefix x.request.resource) *)
   |> get "/ping" (fun x -> `String "ok" |> respond')
-  |> List.fold_right (fun (route,f) x -> x |> route (fun req -> f req |> handle_response) ) routes
+  |> List.fold_right (fun (route,f) x -> x |> route (fun req -> f req |> Resp.handle) ) routes
   |> middleware index_redirect
   |> middleware (Middleware.static ~local_path:files_prefix ~uri_prefix:"/" ())
   |> App.start
