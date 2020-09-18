@@ -16,7 +16,7 @@ module type TABLE_PARAMS = sig
   val init_values: (string * string * data_type) list
 
   val encode_data: data_type -> (string, _) result
-  val decode_data: string -> (data_type, _) result
+  val decode_data: string -> (data_type, string) result
 end
 
 module MakeBaseTable (TableParams: TABLE_PARAMS) = struct

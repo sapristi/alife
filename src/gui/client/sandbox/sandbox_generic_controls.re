@@ -8,7 +8,7 @@ module EnvControls = {
     let commit = _ => {
       Yaac.request(
         Fetch.Put,
-        "/api/sandbox/environment",
+        "/sandbox/environment",
         ~payload=Client_types.environment_encode(innerEnv),
         ~json_decode=Client_types.environment_decode,
         (),

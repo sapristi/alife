@@ -13,5 +13,6 @@
    ppx_string
    ptime.clock.os
    reactors
+   ppx_deriving_yojson
  )
  )

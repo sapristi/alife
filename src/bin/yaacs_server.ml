@@ -59,7 +59,6 @@ let run_yaacs p : unit=
     | Some lvl ->   let root_logger = Logging.get_logger "Yaac" in
       root_logger#set_level lvl;
   end;
-  Sandbox.init_states (p.data_path^"/bact_states");
 
   let pipe = Lwt_pipe.create ~max_size:10 () in
 
@@ -76,7 +75,7 @@ let run_yaacs p : unit=
 
   let sandbox_init = List.map
       (fun (x,y) -> (x, "", y))
-      (Reactors.Sandbox.load_states (p.data_path^"/bact_states")) in
+      (Reactors.Sandbox.load_sigs_from_dir (p.data_path^"/bact_states")) in
   let yaac_db = (Yaac_db.init db_uri sandbox_init) in
   Lwt.join [
     (* Yaac_db.init db_uri sandbox_init; *)

@@ -57,6 +57,8 @@ type bact_sig = {
   }
                  [@@ deriving yojson, show]
 
+let null_sig = {inert_mols=[]; active_mols=[]}
+
 let canonical_bact_sig (bs : bact_sig) : bact_sig =
   {
     inert_mols = List.sort compare_inert_bact_elem (List.filter (fun (im : inert_bact_elem) -> im.qtt > 0) bs.inert_mols);

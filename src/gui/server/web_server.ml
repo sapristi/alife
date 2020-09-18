@@ -4,33 +4,6 @@ open Lwt.Infix
 
 let logger = Logging.get_logger "Yaac.Server"
 
-module Resp = struct
-  let error_to_response e =
-    `String (`Assoc ["error", `String e]
-             |> Yojson.Safe.to_string)
-
-  let json_to_response j =
-    `String (j |> Yojson.Safe.to_string)
-
-  let default_header = Cohttp.Header.of_list []
-  let json_h = Cohttp.Header.add default_header "Content-Type" "application/json"
-  let respond_error = respond' ~headers:json_h ~code:`Bad_request
-
-  let handle r =
-    match%lwt r with
-    | `Empty -> `String "" |> respond' ~code:`No_content
-    | `String s -> `String s |> respond'
-    | `Json (j : Yojson.Safe.t ) -> j |> json_to_response  |>  respond' ~headers:json_h
-    | `Error (s : string ) -> s |> error_to_response  |> respond_error
-    | `Db_res (res: (Yojson.Safe.t, Caqti_error.t) result) ->
-      match res with
-      | Ok j ->j |> json_to_response  |>  respond' ~headers:json_h
-      | Error err ->
-        let error_message = Caqti_error.show err in
-        logger#error "Db error: %s" error_message;
-        error_message |> error_to_response  |> respond_error
-end
-
 (* unused *)
 module FileServer = struct
   let read_whole_file filename =
@@ -45,7 +18,7 @@ module FileServer = struct
                  ".js", "text/javascript";
                  ".ico", "img/ico"]
 
-  let response_not_found = `String "not found", Resp.default_header, `Not_found
+  let response_not_found = `String "not found", Utils.Resp.default_header, `Not_found
 
   let serve_file prefix path =
     let ext = Filename.extension path
@@ -126,7 +99,7 @@ let log_in_out =
             (Printexc.get_backtrace ())
             (Printexc.to_string e);
           `Error (Printf.sprintf "An error happened while treating the request at %s" resource)
-          |> Lwt.return |> Resp.handle
+          |> Lwt.return >|= Utils.Resp.handle
 
       in
       handler' req
@@ -163,7 +136,7 @@ let run port files_prefix yaac_db routes =
   |> middleware log_in_out
   (* |> get "**" (fun x -> serve_file files_prefix x.request.resource) *)
   |> get "/ping" (fun x -> `String "ok" |> respond')
-  |> List.fold_right (fun (route,f) x -> x |> route (fun req -> f req |> Resp.handle) ) routes
+  |> List.fold_right (fun (meth, route,f) x -> (meth route (fun req -> f req >|= Utils.Resp.handle)) x) routes
   |> middleware index_redirect
   |> middleware (Middleware.static ~local_path:files_prefix ~uri_prefix:"/" ())
   |> App.start

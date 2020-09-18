@@ -53,7 +53,6 @@ module NamedInput = {
 module HFlex = Components__flex.HFlex;
 module VFlex = Components__flex.VFlex;
 
-module Yaac = Utils__yaac;
 module ArrayExt = Utils__ArrayExt;
 
 module Input = Components__input;

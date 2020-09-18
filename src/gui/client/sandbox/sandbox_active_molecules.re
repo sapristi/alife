@@ -78,7 +78,7 @@ module AmolControls = {
         let mol = amol'.mol;
         Yaac.request_unit(
           Fetch.Delete,
-          {j| /api/sandbox/amol/$(mol)/pnet/$(pnetId) |j},
+          {j| /sandbox/amol/$(mol)/pnet/$(pnetId) |j},
           (),
         )
         ->Promise.getOk(update);

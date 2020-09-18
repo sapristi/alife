@@ -8,3 +8,9 @@ let (>|=?) m f =
 
 let (>>==) m f =
   m >>= (function | Ok x -> f x | Error err -> Lwt.return ())
+
+let (>>=.) m f =
+  m >>= (function | Ok x -> f x | Error err -> raise (Caqti_error.Exn err))
+
+let (>|=.) m f =
+  m >|= (function | Ok x -> f x | Error err -> raise (Caqti_error.Exn err))

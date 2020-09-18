@@ -9,10 +9,8 @@ type t = {
   }
            [@@ deriving show, yojson]       
 
-       (*
-let (default_env : t) =
-  {transition_rate = 10.;
-   grab_rate = 1.;
-   break_rate = 0.0000001;
-   collision_rate = 0.0000001}
-        *)
+let (null_env : t) =
+  {transition_rate = Q.zero;
+   grab_rate = Q.zero;
+   break_rate = Q.zero;
+   collision_rate = Q.zero}

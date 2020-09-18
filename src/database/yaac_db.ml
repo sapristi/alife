@@ -2,16 +2,16 @@ open Lwt.Infix
 open Easy_logging_yojson
 open Make_table
 open Infix
+open Ppx_deriving_yojson_runtime
 let logger = Logging.get_logger "Yaac.Db"
 
 
-
 module Sandbox = MakeBaseTable(struct
-    type data_type = Reactors.Sandbox.t
+    type data_type = Reactors.Sandbox.signature
     let table_name = "sandbox"
     let init_values = []
-    let encode_data x = Ok (x |> Reactors.Sandbox.to_yojson |> Yojson.Safe.to_string)
-    let decode_data x = Ok (x |> Yojson.Safe.from_string |> Reactors.Sandbox.of_yojson)
+    let encode_data x = Ok (x |> Reactors.Sandbox.signature_to_yojson |> Yojson.Safe.to_string)
+    let decode_data x : (data_type, string) result = x |> Yojson.Safe.from_string |> Reactors.Sandbox.signature_of_yojson
   end)
 module StateDump = MakeBaseTable(struct
     type data_type = string
