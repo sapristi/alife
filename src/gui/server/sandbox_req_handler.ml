@@ -201,15 +201,12 @@ end
 
 module SandboxState_req = struct
   let get_bact_states req =
-    (
-      Request.env req
-      |> Opium.Hmap.get Env.db_key
-      >>=? fun (module Db: Caqti_lwt.CONNECTION) -> Db.collect_list Yaac_db.Sandbox.list_req ()
-      >|=? (fun res ->
-          Ok (`List
-                (List.map (fun (name, desc, time) -> `String name) res)))
-    )
-    >|= (fun x -> `Db_res x)
+    Request.env req
+    |> Opium.Hmap.get Env.db_key
+    >>=? (fun (module Db: Caqti_lwt.CONNECTION) -> Db.collect_list Yaac_db.Sandbox.list_req ())
+    >|=? (fun res -> Ok (
+        `List (List.map (fun (name, desc, time) -> `String name) res)))
+    >|= fun x -> `Db_res x
 
   let set_from_sig_name (sandbox : Sandbox.t) req =
     let sig_name = param req "name" in
