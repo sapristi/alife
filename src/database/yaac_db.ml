@@ -34,6 +34,7 @@ let create_tables (module Db : Caqti_lwt.CONNECTION) =
   fun _ -> MolLibrary.setup_table (module Db) >>=?
   fun _ -> Ok (module Db: Caqti_lwt.CONNECTION) |> Lwt.return
 
+type connection = (module Caqti_lwt.CONNECTION) Lwt.t
 
 let init uri  sandbox_init =
 

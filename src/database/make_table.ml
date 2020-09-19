@@ -7,7 +7,7 @@ type 'a row_type_abs ={
   ts: Ptime.t;
   data: 'a
 }
-
+type connection = (Caqti_lwt.connection, Caqti_error.t) result Lwt.t
 
 module type TABLE_PARAMS = sig
   type data_type
@@ -78,6 +78,13 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
         WHERE name = ?
   |} ]
 
+  let add_req = Caqti_request.exec 
+      Caqti_type.(tup4 string string ptime DataType.t)
+      [%string {|
+INSERT INTO %{table_name} (name, description, ts, data)
+  VALUES(?, ?, ?, ?)
+|}]
+
   let populate_init_req = Caqti_request.exec
       Caqti_type.(tup4 string string ptime DataType.t)
       [%string {|
@@ -89,16 +96,28 @@ INSERT INTO %{table_name} (name, description, ts, data)
                 data=excluded.data
 |}]
 
-  let populate_static rows (module Db : Caqti_lwt.CONNECTION) =
+  let populate_static rows (module Conn : Caqti_lwt.CONNECTION) =
     Lwt_list.fold_left_s
       (fun res (name, description, data)-> match res with
-         | Ok () -> logger#info "Insert %s" name; Db.exec populate_init_req (name, description, Ptime_clock.now(), data)
+         | Ok () -> logger#info "Insert %s" name; Conn.exec populate_init_req (name, description, Ptime_clock.now(), data)
          | Error err -> Error err |> Lwt.return)
       (Ok ()) rows
-    >>=? fun _ -> (Ok (module Db : Caqti_lwt.CONNECTION)) |> Lwt.return
+    >>=? fun _ -> (Ok (module Conn : Caqti_lwt.CONNECTION)) |> Lwt.return
 
-  let setup_table (module Db : Caqti_lwt.CONNECTION) =
+  let add conn (name, description, data)=
+    conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
+    Conn.exec add_req (name, description, Ptime_clock.now(), data)
+
+  let list conn =
+    conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
+    Conn.collect_list list_req ()
+
+  let find_opt conn name = 
+    conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
+    Conn.find_opt get_opt_req name
+
+  let setup_table (module Conn : Caqti_lwt.CONNECTION) =
     logger#debug "creating table %s" table_name;
-    Db.exec create_table ()
-    >>=? fun () -> populate_static init_values (module Db)
+    Conn.exec create_table ()
+    >>=? fun () -> populate_static init_values (module Conn)
 end

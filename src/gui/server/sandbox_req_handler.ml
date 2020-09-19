@@ -200,46 +200,53 @@ module Reactions_req = struct
 end
 
 module SandboxState_req = struct
-  let get_bact_states req =
-    Request.env req
-    |> Opium.Hmap.get Env.db_key
-    >>=? (fun (module Db: Caqti_lwt.CONNECTION) -> Db.collect_list Yaac_db.Sandbox.list_req ())
+  let get_bact_states db_conn req =
+    Yaac_db.Sandbox.list db_conn
     >|=? (fun res -> Ok (
         `List (List.map (fun (name, desc, time) -> `String name) res)))
     >|= fun x -> `Db_res x
 
-  let set_from_sig_name (sandbox : Sandbox.t) req =
+  type sig_post = (string * string * Sandbox.signature)
+  [@@deriving yojson]
+
+  let add_sig db_conn (req: Request.t) =
+    req.body
+    |> Cohttp_lwt.Body.to_string
+    >|= Yojson.Safe.from_string
+    >|= sig_post_of_yojson
+    >>=? (fun sig_post -> (
+          (Yaac_db.Sandbox.add db_conn sig_post)
+          >|= Result.map_error Caqti_error.show
+        ))
+    >|=? (fun () -> Ok `Empty)
+    >|= fun res -> `Res res
+    (* Set the current sandbox from the stored signature;
+       Reset the Random seed from that of the sig.contents
+
+       TODO: it could be nice that the sandbox stores a random generator for itself.
+    *)
+  let set_from_sig_name (sandbox : Sandbox.t) db_conn req =
     let sig_name = param req "name" in
-    Request.env req
-    |> Opium.Hmap.get Env.db_key
-    >>=? (fun (module Db: Caqti_lwt.CONNECTION) ->
-        Db.find_opt Yaac_db.Sandbox.get_opt_req sig_name)
+    Yaac_db.Sandbox.find_opt db_conn sig_name
     >|=. Option.to_result ~none:("Cannot find "^sig_name)
     >|=? (fun (_,_,_,sandbox_sig) ->
         Sandbox.set_from_signature sandbox sandbox_sig;
+        Random.init sandbox_sig.seed;
         Ok `Empty)
     >|= fun res -> `Res res
 
-  let make_routes sandbox = [
+  let make_routes sandbox db = [
 
-    get,    "/state",                     get_bact_states;
-    put,    "/state/:name",               set_from_sig_name sandbox;
+    get,    "/state",                    get_bact_states db;
+    post,   "/state",                    add_sig db;
+    post,   "/state/:name/load",         set_from_sig_name sandbox db;
 
   ]
 end
-let random_seed (req: Opium_kernel.Rock.Request.t) =
-  let%lwt b = req.body
-              |> Cohttp_lwt.Body.to_string in
-  let r = ref 1 in
-  for i=0 to (String.length b)-1 do
-    r := (!r) * Char.code (String.get b i)
-  done;
-  Random.init (!r);
-  `Empty |> Lwt.return
 
-let make_routes sandbox =
+let make_routes sandbox db =
   [ get,    "/", get_sandbox sandbox]
   @ (Mol_req.make_routes sandbox)
   @ (Env_req.make_routes sandbox)
   @ (Reactions_req.make_routes sandbox)
-  @ (SandboxState_req.make_routes sandbox)
+  @ (SandboxState_req.make_routes sandbox db)

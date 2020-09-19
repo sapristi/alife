@@ -126,11 +126,10 @@ let index_redirect =
   Rock.Middleware.create ~name:"Index redirect" ~filter
 
 
-let run port files_prefix yaac_db routes =
+let run port files_prefix routes =
   logger#info "Webserver running at http://localhost:%i" port;
   App.empty
   |> App.port port
-  |> middleware (Env.add_env_middleware Env.db_key yaac_db "env db")
   |> middleware filter_options
   |> middleware add_cors_header
   |> middleware log_in_out

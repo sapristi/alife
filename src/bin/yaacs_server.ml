@@ -82,10 +82,10 @@ let run_yaacs p : unit=
     Web_server.run
       p.port
       (p.static_path)
-      yaac_db
       (Bact_server.make_routes
          (Simulator.make ())
          (Sandbox.make_empty ())
+         yaac_db
       );
     Ws_server.run pipe ();
   ]

@@ -107,9 +107,9 @@ let acids_list  =
   `Json json_data |> Lwt.return
 
 
-let make_routes simulator sandbox =
+let make_routes simulator sandbox db =
   [ get, "/api/utils/acids", (fun x -> acids_list );
     post, "/api/utils/build/from_mol", build_all_from_mol;
     post, "/api/utils/build/from_prot", build_all_from_prot ]
-  @ (Utils.add_prefix "/api/sandbox" (Sandbox_req_handler.make_routes sandbox))
+  @ (Utils.add_prefix "/api/sandbox" (Sandbox_req_handler.make_routes sandbox db))
   @ (Logs_server.make_routes ())
