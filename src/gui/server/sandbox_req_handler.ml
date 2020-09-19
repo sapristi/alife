@@ -220,11 +220,11 @@ module SandboxState_req = struct
         ))
     >|=? (fun () -> Ok `Empty)
     >|= fun res -> `Res res
+
     (* Set the current sandbox from the stored signature;
        Reset the Random seed from that of the sig.contents
 
-       TODO: it could be nice that the sandbox stores a random generator for itself.
-    *)
+       TODO: it could be nice that the sandbox stores a random generator for itself.   *)
   let set_from_sig_name (sandbox : Sandbox.t) db_conn req =
     let sig_name = param req "name" in
     Yaac_db.Sandbox.find_opt db_conn sig_name
@@ -236,11 +236,9 @@ module SandboxState_req = struct
     >|= fun res -> `Res res
 
   let make_routes sandbox db = [
-
     get,    "/state",                    get_bact_states db;
     post,   "/state",                    add_sig db;
     post,   "/state/:name/load",         set_from_sig_name sandbox db;
-
   ]
 end
 
