@@ -49,7 +49,7 @@ let make = (~mol) => {
       </HFlex>,
       <Input.Text
         value=innerMol
-        setValue={v => setInnerMol(_ => v)}
+        onChange={v => setInnerMol(_ => v)}
         multiline=true
       />,
     )

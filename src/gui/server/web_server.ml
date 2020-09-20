@@ -88,11 +88,15 @@ let log_in_out =
             >|= Response.code
             >|= Cohttp.Code.string_of_status
             >|= logger#trace ~tags:[c] "Response: %s"
-            |> ignore;
+            >|= fun () ->
             response >|= Response.headers >|= Cohttp.Header.to_string
             >|= logger#debug ~tags:[c] "Headers: %s";
+            response
+            >|= (fun r -> r.body)
+            >>= Cohttp_lwt.Body.to_string
+            >|= logger#debug ~tags:[c] "Body: %s"
           )
-          >>= ( fun () -> response)
+          >>= ( fun _ -> response)
         with
         | _ as e ->
           logger#error ~tags:[c] "An error happened while treating the request:%s\n%s"

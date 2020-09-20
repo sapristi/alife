@@ -28,3 +28,5 @@ lib/
 *.bs.js
 
 dist/
+
+.bsb.lock

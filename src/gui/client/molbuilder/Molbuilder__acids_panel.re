@@ -1,7 +1,6 @@
 open Acid_types;
 open Client_types;
 open Belt;
-open Utils;
 open Molbuilder__dnd;
 open Components;
 
@@ -113,9 +112,8 @@ let make = () => {
                    {`Children(
                       switch (elem) {
                       | Source(_) => React.null
-                      | ProtElem(id, acid) =>
+                      | ProtElem(_, acid) =>
                         <EditableAcid
-                          id
                           acid
                           update={new_acid =>
                             dispatchAcidItems(UpdateAction(index, new_acid))

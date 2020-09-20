@@ -1,6 +1,6 @@
 open Components;
 
-let log_levels = [
+let log_levels = [|
   "Debug",
   "Trace",
   "Info",
@@ -8,7 +8,7 @@ let log_levels = [
   "Error",
   "Flash",
   "NoLevel",
-];
+|];
 
 [@decco.decode]
 type log_node = {
@@ -33,17 +33,16 @@ let commitLevel = (logger, level) =>
   ->ignore;
 
 module LogItem = {
-  let log_level_to_option = level => (level, level);
-
   [@react.component]
   let make = (~name, ~level) => {
     let (newLevel, setNewLevel) = React.useState(() => level);
+
     <HFlex>
       name->React.string
-      <Components__input.Select
-        options={List.map(log_level_to_option, log_levels)}
-        initValue=level
-        setValue=setNewLevel
+      <Input.Select
+        options={Array.map(level => (level, level), log_levels)}
+        value=newLevel
+        onChange={v => {setNewLevel(_ => v)}}
         modifiers=["is-small"]
       />
       <Components__button.Button onClick={_ => commitLevel(name, newLevel)}>

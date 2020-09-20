@@ -200,11 +200,16 @@ module Reactions_req = struct
 end
 
 module SandboxState_req = struct
+
+  type sig_item = {name: string; description: string; time: string}
+  [@@deriving yojson]
+
   let get_bact_states db_conn req =
     Yaac_db.Sandbox.list db_conn
-    >|=? (fun res -> Ok (
-        `List (List.map (fun (name, desc, time) -> `String name) res)))
-    >|= fun x -> `Db_res x
+    (* >|=? (fun res -> Ok (
+     *     `List (List.map (fun (name, description, time) -> sig_item_to_yojson {name; description}) res))) *)
+    >|=. List.map (fun (name, description, time) -> sig_item_to_yojson {name; description; time=Ptime.to_rfc3339 time})
+    >|= fun data -> `Json (`List data)
 
   type sig_post = (string * string * Sandbox.signature)
   [@@deriving yojson]
@@ -243,7 +248,7 @@ module SandboxState_req = struct
 end
 
 let make_routes sandbox db =
-  [ get,    "/", get_sandbox sandbox]
+  [ get,    "", get_sandbox sandbox]
   @ (Mol_req.make_routes sandbox)
   @ (Env_req.make_routes sandbox)
   @ (Reactions_req.make_routes sandbox)

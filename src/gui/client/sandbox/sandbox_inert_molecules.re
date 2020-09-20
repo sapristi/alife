@@ -67,7 +67,7 @@ module ImolControls = {
             value=qtt
             disabled
             size=3
-            setValue={new_value => setQtt(_ => new_value)}
+            onChange={new_value => setQtt(_ => new_value)}
           />
         </Components.HFlex>
         <Button disabled onClick=send_to_molbuilder>

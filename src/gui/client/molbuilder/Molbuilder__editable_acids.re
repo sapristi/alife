@@ -1,4 +1,3 @@
-open Utils;
 open Acid_types;
 open Components;
 
@@ -11,7 +10,7 @@ let inputStyle =
 
 module InputArcComp = {
   [@react.component]
-  let make = (~id, ~iarc_type, ~update) => {
+  let make = (~iarc_type, ~update) => {
     switch (iarc_type) {
     | Regular_iarc => "Regular"->React.string
     | Split_iarc => "Split"->React.string
@@ -21,7 +20,7 @@ module InputArcComp = {
         <Input.TextInline
           value=filter
           setValue={new_filter => update(Filter_iarc(new_filter))}
-          style=inputStyle
+          styles=inputStyle
         />
       </HFlex>
     | Filter_empty_iarc => "Filter empty"->React.string
@@ -31,7 +30,7 @@ module InputArcComp = {
 
 module OutputArcComp = {
   [@react.component]
-  let make = (~id, ~oarc_type, ~update) => {
+  let make = (~oarc_type, ~update) => {
     switch (oarc_type) {
     | Regular_oarc => "Regular"->React.string
     | Merge_oarc => "Merge"->React.string
@@ -39,9 +38,9 @@ module OutputArcComp = {
       <HFlex style=Css.[alignItems(center)]>
         "Move"->React.string
         <Input.Select
-          options=[("true", "forward"), ("false", "backward")]
-          initValue={string_of_bool(b)}
-          setValue={new_b => update(Move_oarc(bool_of_string(new_b())))}
+          options=[|("true", "forward"), ("false", "backward")|]
+          value={string_of_bool(b)}
+          onChange={new_b => update(Move_oarc(bool_of_string(new_b)))}
           modifiers=["is-small"]
         />
       </HFlex>
@@ -51,7 +50,7 @@ module OutputArcComp = {
 
 module ExtensionComp = {
   [@react.component]
-  let make = (~id, ~extension_type, ~update) => {
+  let make = (~extension_type, ~update) => {
     switch (extension_type) {
     | Grab_ext(pattern) =>
       <HFlex style=Css.[alignItems(center)]>
@@ -59,7 +58,7 @@ module ExtensionComp = {
         <Input.TextInline
           value=pattern
           setValue={new_pattern => update(Grab_ext(new_pattern))}
-          style=inputStyle
+          styles=inputStyle
         />
       </HFlex>
     | Release_ext => "Release"->React.string
@@ -69,14 +68,13 @@ module ExtensionComp = {
 };
 
 [@react.component]
-let make = (~id, ~acid, ~update, ~delete) => {
+let make = (~acid, ~update, ~delete) => {
   let inner =
     switch (acid) {
     | Place => "Place"->React.string
     | InputArc(tid, iarc_type) =>
       <>
         <InputArcComp
-          id
           iarc_type
           update={new_iarc_type => update(InputArc(tid, new_iarc_type))}
         />
@@ -90,14 +88,13 @@ let make = (~id, ~acid, ~update, ~delete) => {
           <Input.TextInline
             value=tid
             setValue={new_tid => update(InputArc(new_tid, iarc_type))}
-            style=inputStyle
+            styles=inputStyle
           />
         </HFlex>
       </>
     | OutputArc(tid, oarc_type) =>
       <>
         <OutputArcComp
-          id
           oarc_type
           update={new_oarc_type => update(OutputArc(tid, new_oarc_type))}
         />
@@ -111,16 +108,15 @@ let make = (~id, ~acid, ~update, ~delete) => {
           <Input.TextInline
             value=tid
             setValue={new_tid => update(OutputArc(new_tid, oarc_type))}
-            style=inputStyle
+            styles=inputStyle
           />
         </HFlex>
       </>
     | Extension(extension_type) =>
       <>
         <ExtensionComp
-          id
           extension_type
-          update={new_ext => Extension(new_ext)}
+          update={new_ext => update(Extension(new_ext))}
         />
         <div> "Extension"->React.string </div>
       </>

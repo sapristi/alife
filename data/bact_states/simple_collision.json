@@ -10,5 +10,7 @@
         "grab_rate" : 0,
         "break_rate" : 0,
         "collision_rate" : 1
-    }
+    },
+    "seed": 0
+
 }

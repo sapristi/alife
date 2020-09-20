@@ -62,13 +62,13 @@
 
 
 /* title with horizontal lines*/
-h1 {
+.nice-title {
     overflow: hidden;
     text-align: center;
 }
 
-h1:before,
-h1:after {
+.nice-title:before,
+.nice-title:after {
     background-color: #AAA;
     content: "";
     display: inline-block;
@@ -78,12 +78,12 @@ h1:after {
     width: 50%;
 }
 
-h1:before {
+.nice-title:before {
     right: 1em;
     margin-left: -50%;
 }
 
-h1:after {
+.nice-title:after {
     left: 1em;
     margin-right: -50%;
 }

@@ -32,7 +32,7 @@ let request = (method_, endpoint, ~payload=?, ~json_decode, ()) => {
           Error();
         };
       | Error(e) =>
-        Js.log("Error from " ++ endpoint);
+        Js.log3("Error from ", endpoint, e);
         Error();
       };
     });
@@ -60,7 +60,7 @@ let request_unit = (method_, endpoint, ~payload=?, ()) => {
           Error();
         }
       | Error(e) =>
-        Js.log("Error from " ++ endpoint);
+        Js.log3("Error from ", endpoint, e);
         Error();
       }
     );

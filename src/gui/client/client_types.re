@@ -42,8 +42,9 @@ let default_bact = {active_mols: [], inert_mols: []};
 type sandbox = {
   env: environment,
   bact,
+  seed: int
 };
-let default_sandbox = {bact: default_bact, env: default_env};
+let default_sandbox = {bact: default_bact, env: default_env, seed: 0};
 
 type sandbox_action =
   | SetEnv(environment)

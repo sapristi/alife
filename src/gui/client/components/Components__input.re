@@ -1,65 +1,66 @@
 open Utils;
 open Belt;
-
 module Text = {
   [@react.component]
   let make =
+    React.forwardRef(
       (
         ~value,
-        ~setValue,
+        ~onChange,
         ~multiline=false,
         ~styles=[],
         ~size=5,
         ~disabled=false,
+        ~onBlur=_ => (),
+        ~autoFocus=false,
+        ref_,
       ) => {
-    let (innerValue, setInnerValue) = React.useState(() => "");
+      let handleChange = event => {
+        let v = event->Generics.event_to_value;
+        onChange(v);
+      };
 
-    React.useEffect2(
-      () => {
-        setInnerValue(_ => value);
-        None;
-      },
-      (value, setInnerValue),
-    );
-
-    let handleChange = event => {
-      let v = event->Generics.event_to_value;
-      setInnerValue(_ => v);
-    };
-    let commit = _ => {
-      setValue(innerValue);
-    };
-
-    let inputStyle = Css.style(styles);
-
-    if (multiline) {
-      <textarea
-        className="input"
-        style=inputStyle
-        type_="text"
-        value=innerValue
-        onChange=handleChange
-        onBlur=commit
-        disabled
-      />;
-    } else {
-      <input
-        className="input"
-        style=inputStyle
-        type_="text"
-        value=innerValue
-        onChange=handleChange
-        onBlur=commit
-        size
-        disabled
-      />;
-    };
-  };
+      let inputStyle = Css.style(styles);
+      if (multiline) {
+        <textarea
+          className="input"
+          style=inputStyle
+          type_="text"
+          value
+          onChange=handleChange
+          disabled
+          onBlur
+          autoFocus
+          rows=size
+          ref=?{
+            Js.Nullable.toOption(ref_)
+            ->Belt.Option.map(ReactDOMRe.Ref.domRef)
+          }
+        />;
+      } else {
+        <input
+          className="input"
+          style=inputStyle
+          type_="text"
+          value
+          onChange=handleChange
+          size
+          disabled
+          onBlur
+          autoFocus
+          ref=?{
+            Js.Nullable.toOption(ref_)
+            ->Belt.Option.map(ReactDOMRe.Ref.domRef)
+          }
+        />;
+      };
+    });
 };
 
 module TextInline = {
   [@react.component]
-  let make = (~value, ~setValue, ~style=[]) => {
+  let make =
+      (~value, ~setValue: string => unit, ~styles=[], ~multiline=false, ~size=4) => {
     let (innerValue, setInnerValue) = React.useState(() => "");
     let (enabled, setEnabled) = React.useState(() => false);
 
@@ -70,9 +71,8 @@ module TextInline = {
       },
       (value, setInnerValue),
     );
-
-    let handleChange = event => {
-      let v = event->Generics.event_to_value;
+    let inputRef = React.useRef(Js.Nullable.null);
+    let handleChange = v => {
       setInnerValue(_ => v);
     };
     let commit = _ => {
@@ -87,50 +87,57 @@ module TextInline = {
         ~paddingLeft="2px",
         (),
       );
+    let onClick = _ => {
+      setEnabled(_ => true);
+      Js.Global.setTimeout(
+        () =>
+          inputRef.current
+          ->Js.Nullable.toOption
+          ->Option.forEach(e => e##focus()),
+        50,
+      )
+      ->ignore;
+    };
 
-    if (enabled) {
-      <input
+    <Components__flex.HFlex
+      style=Css.[
+        border(px(1), `solid, lightgrey),
+        borderRadius(px(4)),
+        padding(px(1)),
+        justifyContent(spaceBetween),
+      ]>
+      <Text
         autoFocus=true
-        className="input"
-        style={Css.style(style)}
-        type_="text"
+        styles
         value=innerValue
         onChange=handleChange
         onBlur=commit
-      />;
-    } else {
-      <Components__flex.HFlex
-        style=Css.[
-          border(px(1), `solid, lightgrey),
-          borderRadius(px(4)),
-          padding(px(1)),
-        ]>
-        value->React.string
-        <button
-          style=buttonStyle
-          className="button"
-          onClick={_ => setEnabled(_ => true)}>
-          <Components__icons.Edit size=18 />
-        </button>
-      </Components__flex.HFlex>;
-    };
+        multiline
+        disabled={!enabled}
+        ref=inputRef
+        size
+      />
+      <button style=buttonStyle className="button" onClick>
+        <Components__icons.Edit size=18 />
+      </button>
+    </Components__flex.HFlex>;
   };
 };
 
 module Select = {
   [@react.component]
-  let make = (~options, ~initValue, ~setValue, ~modifiers=[]) => {
+  let make = (~options, ~value, ~onChange, ~modifiers=[]) => {
     let handleChange = event => {
       let v = event->Generics.event_to_value;
-      setValue(_ => v);
+      onChange(v);
     };
 
     <div className=Cn.("select" + fromList(modifiers))>
-      <select value=initValue onChange=handleChange>
-        {List.map(options, ((value, text)) =>
+      <select value onChange=handleChange>
+        {Array.map(options, ((value, text)) =>
            <option value key=value> text->React.string </option>
          )
-         ->Generics.react_list}
+         ->React.array}
       </select>
     </div>;
   };

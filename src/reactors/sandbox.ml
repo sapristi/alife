@@ -11,7 +11,7 @@ let logger = Logging.get_logger "Yaac.Reactor.Sandbox"
 type signature = {
   bact: Bacterie.bact_sig;
   env: Environment.t;
-  seed: int; [@default 0]
+  seed: int;
 }
 [@@deriving yojson]
 

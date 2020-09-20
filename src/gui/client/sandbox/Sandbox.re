@@ -3,6 +3,8 @@ open Utils;
 open Client_types;
 open Components;
 
+module GenericControls = Sandbox__generic_controls;
+
 let pendingSelector = (store: Store.appState) => store.pendingRequest;
 
 module SidePanel = {
@@ -37,7 +39,7 @@ module SidePanel = {
           styles=Css.[maxWidth(px(100))]
           size=1
           value={nr->string_of_int}
-          setValue={v => {
+          onChange={v => {
             switch (Belt.Int.fromString(v)) {
             | None => ()
             | Some(i) => setNr(_' => i)
@@ -114,13 +116,14 @@ let make = () => {
   <Components.VFlex>
     <SidePanel dispatch />
     <div style=Css.(style([flexGrow(0.), paddingLeft(px(100))]))>
-      <h1 className="title"> "Sandbox"->React.string </h1>
+      <h1 className="title nice-title"> "Sandbox"->React.string </h1>
       <section className="section">
         <Panel collapsable=true>
           (
             "Generic controls"->React.string,
-            <Sandbox_generic_controls
+            <GenericControls
               env={state.sandbox.env}
+              seed={state.sandbox.seed}
               update
               dispatch
             />,

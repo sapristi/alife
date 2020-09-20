@@ -1,6 +1,3 @@
-open Belt;
-open Utils;
-open Acid_types;
 open Client_types;
 open Components;
 
@@ -31,8 +28,8 @@ type commitAcidItemsResponse = {
 };
 let reducer = (prev_state, action: action) => {
   switch (action) {
-  | CommitAcidItems(proteine) => prev_state
-  | CommitMolecule(mol) => prev_state
+  | CommitAcidItems(_) => prev_state
+  | CommitMolecule(_) => prev_state
   };
 };
 
