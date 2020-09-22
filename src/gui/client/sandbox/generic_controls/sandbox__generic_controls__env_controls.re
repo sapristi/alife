@@ -2,7 +2,6 @@ open Utils;
 
 [@react.component]
 let make = (~env: Client_types.environment, ~setEnv) => {
-  Js.log2("ENV", env);
   <div className="tile is-vertical box">
     <Components.NamedInput
       label="break rate"

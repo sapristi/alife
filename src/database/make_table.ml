@@ -25,7 +25,6 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
   type row_type = data_type row_type_abs
   let logger = Logging.get_logger [%string "Yaac.Db.%{table_name}"]
 
-  let () = logger#serror "fail"
   let (>>=?) m f =
     m >>= (function
         | Ok x -> f x
@@ -41,34 +40,33 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
       Caqti_type.custom ~encode ~decode rep
   end
 
-  let create_table = Caqti_request.exec Caqti_type.unit
-      [%string {eot|
-  CREATE TABLE IF NOT EXISTS %{table_name} (
-    name TEXT PRIMARY KEY,
-    description TEXT NOT NULL,
-    ts TIME NOT NULL,
-    data TEXT NOT NULL
-  ) WITHOUT ROWID
-  |eot} ]
 
+  let add_one conn (name, description, data) =
   let add_one_req = Caqti_request.exec
       Caqti_type.(tup4 string string ptime DataType.t)
-      [%string {|
-  INSERT INTO %{table_name}
-  (name, description, ts, data) VALUES (?, ?, ?, ?)
-  |} ]
+      [%string {| INSERT INTO %{table_name}
+                  (name, description, ts, data)
+                  VALUES (?, ?, ?, ?) |} ]
+  in
+  conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
+  Conn.exec add_one_req (name, description, Ptime_clock.now (), data)
 
-  let add_one (module Db : Caqti_lwt.CONNECTION) (name, description, data) =
-    Db.exec add_one_req (name, description, Ptime_clock.now (), data)
+  let find_opt conn name = 
+    let get_opt_req = Caqti_request.find_opt
+        Caqti_type.string
+        Caqti_type.(tup4 string string ptime DataType.t)
+        [%string "SELECT * FROM %{table_name} WHERE name = ?" ]
+    in
+    conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
+    Conn.find_opt get_opt_req name
 
-  let get_opt_req = Caqti_request.find_opt
-      Caqti_type.string
-      Caqti_type.(tup4 string string ptime DataType.t)
-      [%string "SELECT * FROM %{table_name} WHERE name = ?" ]
-
-  let list_req = Caqti_request.collect
-      Caqti_type.unit Caqti_type.(tup3 string string ptime)
-      [%string "SELECT name, description, ts FROM %{table_name}" ]
+  let list conn =
+    let list_req = Caqti_request.collect
+        Caqti_type.unit Caqti_type.(tup3 string string ptime)
+        [%string "SELECT name, description, ts FROM %{table_name}" ]
+    in
+    conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
+    Conn.collect_list list_req ()
 
   let update_req = Caqti_request.exec
       Caqti_type.(tup4 string ptime DataType.t string)
@@ -78,25 +76,14 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
         WHERE name = ?
   |} ]
 
-  let add_req = Caqti_request.exec 
-      Caqti_type.(tup4 string string ptime DataType.t)
-      [%string {|
-INSERT INTO %{table_name} (name, description, ts, data)
-  VALUES(?, ?, ?, ?)
-|}]
 
-  let populate_init_req = Caqti_request.exec
-      Caqti_type.(tup4 string string ptime DataType.t)
-      [%string {|
-INSERT INTO %{table_name} (name, description, ts, data)
-  VALUES(?, ?, ?, ?)
-  ON CONFLICT(name)
-  DO UPDATE SET description=excluded.description,
-                ts=excluded.ts,
-                data=excluded.data
-|}]
-
-  let populate_static rows (module Conn : Caqti_lwt.CONNECTION) =
+  let populate_init rows (module Conn : Caqti_lwt.CONNECTION) =
+    let populate_init_req = Caqti_request.exec
+        Caqti_type.(tup4 string string ptime DataType.t)
+        [%string {| INSERT OR IGNORE INTO %{table_name}
+                    (name, description, ts, data)
+                    VALUES(?, ?, ?, ?)     |}]
+    in
     Lwt_list.fold_left_s
       (fun res (name, description, data)-> match res with
          | Ok () -> logger#info "Insert %s" name; Conn.exec populate_init_req (name, description, Ptime_clock.now(), data)
@@ -104,20 +91,19 @@ INSERT INTO %{table_name} (name, description, ts, data)
       (Ok ()) rows
     >>=? fun _ -> (Ok (module Conn : Caqti_lwt.CONNECTION)) |> Lwt.return
 
-  let add conn (name, description, data)=
-    conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
-    Conn.exec add_req (name, description, Ptime_clock.now(), data)
-
-  let list conn =
-    conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
-    Conn.collect_list list_req ()
-
-  let find_opt conn name = 
-    conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
-    Conn.find_opt get_opt_req name
 
   let setup_table (module Conn : Caqti_lwt.CONNECTION) =
+    let create_table_req = Caqti_request.exec Caqti_type.unit
+        [%string {eot|
+  CREATE TABLE IF NOT EXISTS %{table_name} (
+    name TEXT PRIMARY KEY,
+    description TEXT NOT NULL,
+    ts TIME NOT NULL,
+    data TEXT NOT NULL
+  ) WITHOUT ROWID
+  |eot} ]
+    in
     logger#debug "creating table %s" table_name;
-    Conn.exec create_table ()
-    >>=? fun () -> populate_static init_values (module Conn)
+    Conn.exec create_table_req ()
+    >>=? fun () -> populate_init init_values (module Conn)
 end

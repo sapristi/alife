@@ -63,6 +63,7 @@ module Panel = Components__panel;
 module Button = Components__button.Button;
 module ButtonIcon = Components__button.ButtonIcon;
 
+module Modal = Components__modal;
 /* module Tooltip = { */
 /*   [@react.component] [@bs.module "rc-tooltip"] */
 /*   external make: */

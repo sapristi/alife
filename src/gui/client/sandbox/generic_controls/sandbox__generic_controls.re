@@ -68,8 +68,9 @@ let make = (~env, ~seed, ~update, ~dispatch) => {
   let (currentValue, setCurrentValue) =
     React.useState(() => {StateLoader.name: "", description: "", time: ""});
 
-  let (innerEnv, setInnerEnv) = Generics.useStateSimple(() => env);
-  let (innerSeed, setInnerSeed) = Generics.useStateSimple(() => seed);
+  let (showDialog, setShowDialog) = React.useState(() => false);
+  let (innerEnv, setInnerEnv) = React.useState(() => env);
+  let (innerSeed, setInnerSeed) = React.useState(() => seed);
   React.useEffect1(
     () => {
       setInnerEnv(_ => env);
@@ -79,6 +80,15 @@ let make = (~env, ~seed, ~update, ~dispatch) => {
   );
 
   <HFlex className="tile">
+    <Modal isOpen=showDialog onRequestClose={_ => setShowDialog(_ => false)}
+
+        style=({
+    overlay: [],
+    content: Css.([width(px(200))])
+  }: Modal.style)
+        >
+      <div> "OKOKAPOJEPOAJZPOAJZPOAJZPO"->React.string </div>
+    </Modal>
     <VFlex
       className="box" style=Css.[marginBottom(px(0)), width(pct(50.))]>
       <h5 className="title nice-title is-5">
@@ -100,17 +110,21 @@ let make = (~env, ~seed, ~update, ~dispatch) => {
         setValue={new_seed => setInnerSeed(_ => int_of_string(new_seed))}
       />
     </VFlex>
-    <VFlex className="box" style=Css.[width(pct(50.))]>
-      <h5 className="title nice-title is-5"> "Environment"->React.string </h5>
+    <VFlex className="box">
+      <h5 className="title nice-title is-5">
+        "Runtime environment"->React.string
+      </h5>
       <EnvControls env=innerEnv setEnv=setInnerEnv />
       <div className="buttons has-addons">
-        <button
-          className="button" onClick={_ => commitEnv(innerEnv, dispatch)}>
+        <Button onClick={_ => commitEnv(innerEnv, dispatch)}>
           "Commit"->React.string
-        </button>
-        <button className="button" onClick={_ => setInnerEnv(_ => env)}>
+        </Button>
+        <Button onClick={_ => setInnerEnv(_ => env)}>
           "Reset"->React.string
-        </button>
+        </Button>
+        <Button onClick={_ => setShowDialog(_ => true)}>
+          "CLICK"->React.string
+        </Button>
       </div>
     </VFlex>
   </HFlex>;

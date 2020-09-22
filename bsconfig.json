@@ -16,7 +16,7 @@
     ],
     "package-specs": [
         {
-            "module": "commonjs",
+            "module": "es6-global",
             "in-source": true
         }
     ],
@@ -32,7 +32,7 @@
         "bs-log",
         "re-classnames",
         "reason-promise",
-        "reductive"
+        "reductive",
     ],
     "ppx-flags": [
         "decco/ppx",

@@ -220,7 +220,7 @@ module SandboxState_req = struct
     >|= Yojson.Safe.from_string
     >|= sig_post_of_yojson
     >>=? (fun sig_post -> (
-          (Yaac_db.Sandbox.add db_conn sig_post)
+          (Yaac_db.Sandbox.add_one db_conn sig_post)
           >|= Result.map_error Caqti_error.show
         ))
     >|=? (fun () -> Ok `Empty)
