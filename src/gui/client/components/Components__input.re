@@ -6,13 +6,14 @@ module Text = {
     React.forwardRef(
       (
         ~value,
-        ~onChange,
+        ~onChange=(_ => ()),
         ~multiline=false,
         ~styles=[],
         ~size=5,
         ~disabled=false,
         ~onBlur=_ => (),
         ~autoFocus=false,
+        ~readOnly=false,
         ref_,
       ) => {
       let handleChange = event => {
@@ -20,7 +21,7 @@ module Text = {
         onChange(v);
       };
 
-      let inputStyle = Css.style(styles);
+      let inputStyle = Css.(style([height(auto)] @ styles));
       if (multiline) {
         <textarea
           className="input"
@@ -32,10 +33,8 @@ module Text = {
           onBlur
           autoFocus
           rows=size
-          ref=?{
-            Js.Nullable.toOption(ref_)
-            ->Belt.Option.map(ReactDOMRe.Ref.domRef)
-          }
+          readOnly
+          ref=?{Js.Nullable.toOption(ref_)->Belt.Option.map(ReactDOMRe.Ref.domRef)}
         />;
       } else {
         <input
@@ -48,10 +47,8 @@ module Text = {
           disabled
           onBlur
           autoFocus
-          ref=?{
-            Js.Nullable.toOption(ref_)
-            ->Belt.Option.map(ReactDOMRe.Ref.domRef)
-          }
+          readOnly
+          ref=?{Js.Nullable.toOption(ref_)->Belt.Option.map(ReactDOMRe.Ref.domRef)}
         />;
       };
     });
@@ -59,8 +56,7 @@ module Text = {
 
 module TextInline = {
   [@react.component]
-  let make =
-      (~value, ~setValue: string => unit, ~styles=[], ~multiline=false, ~size=4) => {
+  let make = (~value, ~setValue: string => unit, ~styles=[], ~multiline=false, ~size=4) => {
     let (innerValue, setInnerValue) = React.useState(() => "");
     let (enabled, setEnabled) = React.useState(() => false);
 
@@ -81,19 +77,11 @@ module TextInline = {
     };
 
     let buttonStyle =
-      ReactDOMRe.Style.make(
-        ~padding="0px",
-        ~height="1.5em",
-        ~paddingLeft="2px",
-        (),
-      );
+      ReactDOMRe.Style.make(~padding="0px", ~height="1.5em", ~paddingLeft="2px", ());
     let onClick = _ => {
       setEnabled(_ => true);
       Js.Global.setTimeout(
-        () =>
-          inputRef.current
-          ->Js.Nullable.toOption
-          ->Option.forEach(e => e##focus()),
+        () => inputRef.current->Js.Nullable.toOption->Option.forEach(e => e##focus()),
         50,
       )
       ->ignore;
@@ -156,6 +144,20 @@ module Checkbox = {
         style=Css.(style([fontSize(`initial), fontWeight(`initial)]))>
         label->React.string
       </label>
+    </div>;
+  };
+};
+
+module NamedInput = {
+  [@react.component]
+  let make = (~label, ~children) => {
+    <div className="field is-horizontal">
+      <div className="field-label is-normal">
+        <label className="label"> label->React.string </label>
+      </div>
+      <div className="field-body">
+        <div className="field"> <p className="control"> children </p> </div>
+      </div>
     </div>;
   };
 };

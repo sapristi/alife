@@ -25,31 +25,6 @@ module Tabs = {
   };
 };
 
-module NamedInput = {
-  [@react.component]
-  let make = (~label, ~value, ~setValue) => {
-    <div className="field is-horizontal">
-      <div className="field-label is-normal">
-        <label className="label"> label->React.string </label>
-      </div>
-      <div className="field-body">
-        <div className="field">
-          <p className="control">
-            <input
-              className="input"
-              value
-              onChange={event => {
-                let new_value = Generics.event_to_value(event);
-                setValue(new_value);
-              }}
-            />
-          </p>
-        </div>
-      </div>
-    </div>;
-  };
-};
-
 module HFlex = Components__flex.HFlex;
 module VFlex = Components__flex.VFlex;
 
@@ -64,6 +39,8 @@ module Button = Components__button.Button;
 module ButtonIcon = Components__button.ButtonIcon;
 
 module Modal = Components__modal;
+
+module Table = Components__table;
 /* module Tooltip = { */
 /*   [@react.component] [@bs.module "rc-tooltip"] */
 /*   external make: */

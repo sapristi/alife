@@ -22,17 +22,30 @@ type style = {
   content: list(Css_Core.rule),
 };
 
-
 [@react.component]
 let make = (~isOpen, ~onRequestClose, ~children, ~style=?) => {
+  let defaultStyle: style = {
+    content:
+      Css.[
+        width(vw(50.)),
+        height(pct(70.)),
+        left(vw(25.)),
+        right(vw(25.)),
+        top(pct(15.)),
+      ],
+    overlay: Css.[],
+  };
+
   let styleInner: ModalImported.style =
-    switch (style) {
-    | None => {overlay: Css.style([]), content: Css.style([])}
-    | Some(style') => {
-        overlay: Css.style(style'.overlay),
-        content: Css.style(style'.content),
-      }
-    };
+    Belt.Option.getWithDefault(style, defaultStyle)
+    ->(
+        (s) => (
+          {
+            overlay: Css.style(defaultStyle.overlay @ s.overlay),
+            content: Css.style(defaultStyle.content @ s.content),
+          }: ModalImported.style
+        )
+      );
   <ModalImported isOpen onRequestClose ariaHideApp=false style=styleInner>
     children
   </ModalImported>;
