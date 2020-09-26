@@ -4,6 +4,7 @@
  (preprocess
   (pps
     ppx_string
+    ppx_deriving_yojson
  ))
  (libraries
    caqti

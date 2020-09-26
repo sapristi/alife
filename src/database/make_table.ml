@@ -9,14 +9,34 @@ type 'a row_type_abs ={
 }
 type connection = (Caqti_lwt.connection, Caqti_error.t) result Lwt.t
 
+module DBTime = struct
+  include Ptime
+  let to_yojson time : Yojson.Safe.t = `Float (Ptime.to_float_s time)
+  let of_yojson (json: Yojson.Safe.t) : (Ptime.t, string) result =
+    let float_res =
+      match json with
+      | `Float f -> Ok f
+      | `Int i -> Ok (float_of_int i)
+      | `String s -> (float_of_string_opt s)
+                     |> Option.to_result
+                       ~none:(Format.sprintf "string repr is not a number: %s" s)
+    in
+    Result.bind float_res
+      (fun f ->
+         Ptime.of_float_s f
+         |> Option.to_result ~none:(Format.sprintf "Cannot convert to date: %f" f)
+      )
+end
+
+
 module type TABLE_PARAMS = sig
   type data_type
 
   val table_name: string
   val init_values: (string * string * data_type) list
 
-  val encode_data: data_type -> (string, _) result
-  val decode_data: string -> (data_type, string) result
+  val data_type_to_yojson: data_type -> Yojson.Safe.t
+  val data_type_of_yojson: Yojson.Safe.t -> (data_type, string) result
 end
 
 module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
@@ -33,23 +53,36 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
 
   module DataType = struct
     type t = data_type
+    [@@deriving yojson]
     let t =
-      let encode = encode_data in
-      let decode = decode_data in
+      let encode = fun x -> Ok (Yojson.Safe.to_string (data_type_to_yojson x)) in
+      let decode = fun x -> data_type_of_yojson (Yojson.Safe.from_string x) in
       let rep = Caqti_type.string in
       Caqti_type.custom ~encode ~decode rep
   end
 
+  module FullType = struct
+    type t = {name: string; description: string; ts: DBTime.t; data: DataType.t}
+    [@@deriving yojson]
+
+    let t =
+      let encode {name; description; ts; data} =
+        Ok (name, description, ts, data) in
+      let decode (name, description, ts, data) =
+        Ok {name; description; ts; data = data} in
+      let rep = Caqti_type.(tup4 string string ptime DataType.t) in
+      Caqti_type.custom ~encode ~decode rep
+  end
 
   let add_one conn (name, description, data) =
-  let add_one_req = Caqti_request.exec
-      Caqti_type.(tup4 string string ptime DataType.t)
-      [%string {| INSERT INTO %{table_name}
+    let add_one_req = Caqti_request.exec
+        Caqti_type.(tup4 string string ptime DataType.t)
+        [%string {| INSERT INTO %{table_name}
                   (name, description, ts, data)
                   VALUES (?, ?, ?, ?) |} ]
-  in
-  conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
-  Conn.exec add_one_req (name, description, Ptime_clock.now (), data)
+    in
+    conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
+    Conn.exec add_one_req (name, description, Ptime_clock.now (), data)
 
   let find_opt conn name = 
     let get_opt_req = Caqti_request.find_opt
@@ -68,25 +101,24 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
     conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
     Conn.collect_list list_req ()
 
-  let update_req = Caqti_request.exec
-      Caqti_type.(tup4 string ptime DataType.t string)
-      [%string {|
-  UPDATE %{table_name}
-        SET description=?, ts=?, data=?
-        WHERE name = ?
-  |} ]
-
+  let dump conn = 
+    let dump_req = Caqti_request.collect
+        Caqti_type.unit FullType.t
+        [%string "SELECT * FROM %{table_name}" ]
+    in
+    conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
+    Conn.collect_list dump_req ()
 
   let populate_init rows (module Conn : Caqti_lwt.CONNECTION) =
     let populate_init_req = Caqti_request.exec
-        Caqti_type.(tup4 string string ptime DataType.t)
+        FullType.t
         [%string {| INSERT OR IGNORE INTO %{table_name}
                     (name, description, ts, data)
                     VALUES(?, ?, ?, ?)     |}]
     in
     Lwt_list.fold_left_s
       (fun res (name, description, data)-> match res with
-         | Ok () -> logger#info "Insert %s" name; Conn.exec populate_init_req (name, description, Ptime_clock.now(), data)
+         | Ok () -> logger#info "Insert %s" name; Conn.exec populate_init_req {name; description; ts = Ptime_clock.now(); data }
          | Error err -> Error err |> Lwt.return)
       (Ok ()) rows
     >>=? fun _ -> (Ok (module Conn : Caqti_lwt.CONNECTION)) |> Lwt.return
