@@ -8,9 +8,7 @@ open Yaac_db__.Infix
 open Lwt.Infix
 let logger = Logging.get_logger "Yaac.Server.Sandbox"
 
-
 open Opium.Std
-open Lwt.Infix
 
 let db_to_string_result res =
   match res with
@@ -209,13 +207,13 @@ module SandboxSignature_req = struct
   [@@deriving yojson]
 
   let get_bact_signatures db_conn req =
-    Yaac_db.Sandbox.list db_conn
+    Yaac_db.SandboxSigs.list db_conn
     >|=! List.map (fun (name, description, time) -> sig_item_to_yojson {name; description; time=Ptime.to_rfc3339 time})
     >|= fun data -> `Json (`List data)
 
   let get_signatures_dump db_conn req =
-    Yaac_db.Sandbox.dump db_conn
-    >|=! List.map Yaac_db.Sandbox.FullType.to_yojson
+    Yaac_db.SandboxSigs.dump db_conn
+    >|=! List.map Yaac_db.SandboxSigs.FullType.to_yojson
     >|= fun l -> `Json (`List l)
 
   type sig_post = (string * string * Sandbox.signature)
@@ -227,7 +225,7 @@ module SandboxSignature_req = struct
     >|= Yojson.Safe.from_string
     >|= sig_post_of_yojson
     >>=? (fun sig_post -> (
-          (Yaac_db.Sandbox.add_one db_conn sig_post)
+          (Yaac_db.SandboxSigs.add_one db_conn sig_post)
           >|= Result.map_error Caqti_error.show
         ))
     >|=? (fun () -> Ok `Empty)
@@ -239,7 +237,7 @@ module SandboxSignature_req = struct
        TODO: it could be nice that the sandbox stores a random generator for itself.   *)
   let set_from_sig_name (sandbox : Sandbox.t) db_conn req =
     let sig_name = param req "name" in
-    Yaac_db.Sandbox.find_opt db_conn sig_name
+    Yaac_db.SandboxSigs.find_opt db_conn sig_name
     >|=! Option.to_result ~none:("Cannot find "^sig_name)
     >|=? (fun (_,_,_,sandbox_sig) ->
         Sandbox.set_from_signature sandbox sandbox_sig;
