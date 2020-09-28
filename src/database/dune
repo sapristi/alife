@@ -15,5 +15,6 @@
    ptime.clock.os
    reactors
    ppx_deriving_yojson
+   opium
  )
  )

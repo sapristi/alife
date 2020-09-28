@@ -203,33 +203,7 @@ end
 
 module SandboxSignature_req = struct
 
-  type sig_item = {name: string; description: string; time: string}
-  [@@deriving yojson]
-
-  let get_bact_signatures db_conn req =
-    Yaac_db.SandboxSigs.list db_conn
-    >|=! List.map (fun (name, description, time) -> sig_item_to_yojson {name; description; time=Ptime.to_rfc3339 time})
-    >|= fun data -> `Json (`List data)
-
-  let get_signatures_dump db_conn req =
-    Yaac_db.SandboxSigs.dump db_conn
-    >|=! List.map Yaac_db.SandboxSigs.FullType.to_yojson
-    >|= fun l -> `Json (`List l)
-
-  type sig_post = (string * string * Sandbox.signature)
-  [@@deriving yojson]
-
-  let add_sig db_conn (req: Request.t) =
-    req.body
-    |> Cohttp_lwt.Body.to_string
-    >|= Yojson.Safe.from_string
-    >|= sig_post_of_yojson
-    >>=? (fun sig_post -> (
-          (Yaac_db.SandboxSigs.add_one db_conn sig_post)
-          >|= Result.map_error Caqti_error.show
-        ))
-    >|=? (fun () -> Ok `Empty)
-    >|= fun res -> `Res res
+  include Yaac_db.SandboxSig.RequestHandler
 
     (* Set the current sandbox from the stored signature;
        Reset the Random seed from that of the sig.contents
@@ -237,7 +211,7 @@ module SandboxSignature_req = struct
        TODO: it could be nice that the sandbox stores a random generator for itself.   *)
   let set_from_sig_name (sandbox : Sandbox.t) db_conn req =
     let sig_name = param req "name" in
-    Yaac_db.SandboxSigs.find_opt db_conn sig_name
+    Yaac_db.SandboxSig.find_opt db_conn sig_name
     >|=! Option.to_result ~none:("Cannot find "^sig_name)
     >|=? (fun (_,_,_,sandbox_sig) ->
         Sandbox.set_from_signature sandbox sandbox_sig;
@@ -245,13 +219,74 @@ module SandboxSignature_req = struct
         Ok `Empty)
     >|= fun res -> `Res res
 
+  type post_item = {name: string; description: string; env: Environment.t; seed: int}
+  [@@deriving yojson]
+
+  let add (sandbox : Sandbox.t) db_conn (req: Opium.Std.Request.t) =
+    req.body
+    |> Cohttp_lwt.Body.to_string
+    >|= Yojson.Safe.from_string
+    >|= post_item_of_yojson
+    >|= Result.get_ok
+    >>= (fun ({name; description; env; seed}) -> (
+          (Yaac_db.SandboxSig.add_one db_conn
+             (name, description, {bact = Bacterie.to_sig !(sandbox.bact); env; seed}))
+          >|= Result.get_ok
+        ))
+    >|= (fun () -> `Empty)
+
   let make_routes sandbox db = [
-    get,    "/signature",                    get_bact_signatures db;
-    get,    "/signature/dump",               get_signatures_dump db;
-    post,   "/signature",                    add_sig db;
+    get,    "/signature",                    list db;
+    get,    "/signature/dump",               dump db;
+    post,   "/signature",                    add sandbox db;
     post,   "/signature/:name/load",         set_from_sig_name sandbox db;
   ]
 end
+
+
+module SandboxDump_req = struct
+
+  include Yaac_db.SandboxDump.RequestHandler
+
+  (* Set the current sandbox from the stored signature;
+     Reset the Random seed from that of the sig.contents
+
+     TODO: it could be nice that the sandbox stores a random generator for itself.   *)
+  let set_from_dump_name (sandbox : Sandbox.t) db_conn req =
+    let dump_name = param req "name" in
+    Yaac_db.SandboxDump.find_opt db_conn dump_name
+    >|=! Option.to_result ~none:("Cannot find "^dump_name)
+    >|=? (fun (_,_,_,new_sandbox) ->
+        Sandbox.replace sandbox new_sandbox;
+        Random.init !(sandbox.seed);
+        Ok `Empty)
+    >|= fun res -> `Res res
+
+
+  type post_item = {name: string; description: string}
+  [@@deriving yojson]
+
+  let add  (sandbox : Sandbox.t) db_conn (req: Opium.Std.Request.t) =
+    req.body
+    |> Cohttp_lwt.Body.to_string
+    >|= Yojson.Safe.from_string
+    >|= post_item_of_yojson
+    >|= Result.get_ok
+    >>= (fun ({name; description}) -> (
+          (Yaac_db.SandboxDump.add_one db_conn (name, description, sandbox))
+          >|= Result.get_ok
+        ))
+    >|= (fun () -> `Empty)
+
+
+  let make_routes sandbox db = [
+    get,    "/dump",                    list db;
+    get,    "/dump/dump",               dump db;
+    post,   "/dump",                    add sandbox db;
+    post,   "/dump/:name/load",         set_from_dump_name sandbox db;
+  ]
+end
+
 
 let make_routes sandbox db =
   [ get,    "", get_sandbox sandbox]
@@ -259,3 +294,4 @@ let make_routes sandbox db =
   @ (Env_req.make_routes sandbox)
   @ (Reactions_req.make_routes sandbox)
   @ (SandboxSignature_req.make_routes sandbox db)
+  @ (SandboxDump_req.make_routes sandbox db)

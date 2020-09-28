@@ -64,3 +64,9 @@ let load_sigs_from_dir bact_states_path =
   |> List.map (fun x ->
       Filename.remove_extension (Filename.basename x),
       x |> Yojson.Safe.from_file |> signature_of_yojson |> Result.get_ok)
+
+
+let replace sandbox new_sandbox =
+  sandbox.bact := !(new_sandbox.bact);
+  sandbox.env := !(new_sandbox.env);
+  sandbox.seed := !(new_sandbox.seed)

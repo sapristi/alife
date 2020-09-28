@@ -144,4 +144,39 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
     in
     logger#debug "creating table %s" table_name;
     Conn.exec create_table_req ()
+
+
+  module RequestHandler = struct
+
+    type partial_item = {name: string; description: string; time: string}
+    [@@deriving yojson]
+
+    (* type post_item = (string * string * data_type)
+     * [@@deriving yojson] *)
+
+    let list db_conn req =
+      list db_conn
+      >|=! List.map (fun (name, description, time) ->
+          partial_item_to_yojson {name; description; time=Ptime.to_rfc3339 time})
+      >|= fun data -> `Json (`List data)
+
+    let dump db_conn req = 
+      dump db_conn
+      >|=! List.map FullType.to_yojson
+      >|= fun l -> `Json (`List l)
+
+    (* let add db_conn (req: Opium.Std.Request.t) =
+     *   req.body
+     *   |> Cohttp_lwt.Body.to_string
+     *   >|= Yojson.Safe.from_string
+     *   >|= post_item_of_yojson
+     *   >|= Result.get_ok
+     *   >>= (fun sig_post -> (
+     *         (add_one db_conn sig_post)
+     *         >|= Result.get_ok
+     *       ))
+     *   >|= (fun () -> `Empty) *)
+
+  end
+
 end

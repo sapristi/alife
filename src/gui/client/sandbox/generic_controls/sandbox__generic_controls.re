@@ -3,6 +3,9 @@ open Components;
 open Belt;
 
 module Signatures = Sandbox__generic_controls__signatures;
+module Dumps = Sandbox__generic_controls__dumps;
+
+
 
 module Runtime_controls = {
   module EnvControls = Sandbox__generic_controls__env_controls;
@@ -60,7 +63,7 @@ let make = (~env, ~seed, ~update, ~dispatch) => {
     <Panel.Tabs tabs activeTab setActiveTab />
     {switch (activeTab) {
      | SSigs => <Signatures update env seed />
-     | SDumps => <div />
+     | SDumps => <Dumps update/>
      | Runtime => <Runtime_controls update env seed dispatch />
      }}
   </React.Fragment>;
