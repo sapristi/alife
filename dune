@@ -16,6 +16,7 @@
   (glob_files src/gui/client/logs/*.re)
   (glob_files src/gui/client/molbuilder/*.re)
   (glob_files src/gui/client/sandbox/*.re)
+  (glob_files src/gui/client/sandbox/generic_controls/*.re)
   (glob_files src/gui/client/static/*)
   (glob_files src/gui/client/store/*.re)
   (glob_files src/gui/client/utils/*.re)
@@ -40,7 +41,7 @@
  (deps
   (file src/bin/yaacs_server.exe)
   (file client.tar)
-  (glob_files data/bact_states/*)
+  (glob_files data/dump/*)
  )
  (action
   (progn

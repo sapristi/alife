@@ -73,10 +73,7 @@ let run_yaacs p : unit=
   let root_logger = Logging.get_logger "Yaac" in
   root_logger#add_handler pipe_handler;
 
-  let sandbox_init = List.map
-      (fun (x,y) -> (x, "", y))
-      (Reactors.Sandbox.load_sigs_from_dir (p.data_path^"/bact_states")) in
-  let yaac_db = (Yaac_db.init db_uri sandbox_init) in
+  let db_conn = (Yaac_db.init db_uri p.data_path) in
   Lwt.join [
     (* Yaac_db.init db_uri sandbox_init; *)
     Web_server.run
@@ -85,7 +82,7 @@ let run_yaacs p : unit=
       (Bact_server.make_routes
          (Simulator.make ())
          (Sandbox.make_empty ())
-         yaac_db
+         db_conn
       );
     Ws_server.run pipe ();
   ]

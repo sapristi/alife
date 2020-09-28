@@ -2,7 +2,7 @@ open Utils;
 open Components;
 [@react.component]
 let make = (~env: Client_types.environment, ~setEnv) => {
-  <div className="tile is-vertical box">
+  <React.Fragment>
     <Input.NamedInput label="break rate">
       <Input.Text
         value={env.break_rate}
@@ -27,5 +27,5 @@ let make = (~env: Client_types.environment, ~setEnv) => {
         onChange={new_value => setEnv(_ => {...env, collision_rate: new_value})}
       />
     </Input.NamedInput>
-  </div>;
+  </React.Fragment>;
 };

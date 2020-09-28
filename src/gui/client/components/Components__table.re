@@ -66,7 +66,7 @@ type column('a) = {
       {Array.map(
          row =>
            <tr key={getRowKey(row)}>
-             {Array.map(column => <td>{column.makeCell(row)}</td>, columns)->React.array}
+             {Array.map(column => <td key=column.key>{column.makeCell(row)}</td>, columns)->React.array}
            </tr>,
          data,
        )

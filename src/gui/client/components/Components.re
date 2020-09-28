@@ -3,18 +3,11 @@ open Utils;
 module Tabs = {
   [@react.component]
   let make = (~tabs, ~activeTab, ~setActiveTab) => {
-    let getClassName = t =>
-      if (t == activeTab) {
-        "is-active";
-      } else {
-        "";
-      };
-
     <div className="tabs">
       <ul>
         {List.mapi(
            (i, (value, display)) =>
-             <li className={getClassName(value)} key={string_of_int(i)}>
+             <li className={Cn.on("is-active", value === activeTab)} key={string_of_int(i)}>
                <a onClick={_ => setActiveTab(value)}> display </a>
              </li>,
            tabs,

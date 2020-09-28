@@ -9,36 +9,31 @@ let logger = Logging.get_logger "Yaac.Db"
 module Sandbox = MakeBaseTable(struct
     type data_type = Reactors.Sandbox.signature
     let table_name = "sandbox"
-    let init_values = []
     let data_type_to_yojson = Reactors.Sandbox.signature_to_yojson
     let data_type_of_yojson = Reactors.Sandbox.signature_of_yojson
   end)
 (* module StateDump = MakeBaseTable(struct
  *     type data_type = string
  *     let table_name = "stat_dump"
- *     let init_values = []
  *     let encode_data x = Ok x
  *     let decode_data x = Ok x
  *   end)
  * module MolLibrary = MakeBaseTable(struct
  *     type data_type = string
  *     let table_name = "mol_library"
- *     let init_values = []
  *     let encode_data x = Ok x
  *     let decode_data x = Ok x
  *   end) *)
 
-let create_tables (module Db : Caqti_lwt.CONNECTION) =
-  Sandbox.setup_table (module Db) >>=?
+let create_tables conn =
+  Sandbox.setup_table conn
   (* fun _ -> StateDump.setup_table (module Db) >>=?
    * fun _ -> MolLibrary.setup_table (module Db) >>=? *)
-  fun _ -> Ok (module Db: Caqti_lwt.CONNECTION) |> Lwt.return
+  >|=? fun _ -> Ok conn
 
-type connection = (module Caqti_lwt.CONNECTION) Lwt.t
 
-let init uri  sandbox_init =
-
+let init uri data_path =
   logger#info "Creating db at %s" uri;
   Caqti_lwt.connect (Uri.of_string uri)
   >>=? create_tables
-  >>=? Sandbox.populate_init sandbox_init
+  >>=? fun conn -> Sandbox.load_dump_file conn (data_path ^ "/dump/signatures.json")

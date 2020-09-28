@@ -12,6 +12,10 @@ let logger = Logging.get_logger "Yaac.Server.Sandbox"
 open Opium.Std
 open Lwt.Infix
 
+let db_to_string_result res =
+  match res with
+  | Ok res -> Ok res
+  | Error r -> Error (Caqti_error.show r)
 
 (** /sandbox endopoints*)
 
@@ -206,14 +210,12 @@ module SandboxSignature_req = struct
 
   let get_bact_signatures db_conn req =
     Yaac_db.Sandbox.list db_conn
-    (* >|=? (fun res -> Ok (
-     *     `List (List.map (fun (name, description, time) -> sig_item_to_yojson {name; description}) res))) *)
-    >|=. List.map (fun (name, description, time) -> sig_item_to_yojson {name; description; time=Ptime.to_rfc3339 time})
+    >|=! List.map (fun (name, description, time) -> sig_item_to_yojson {name; description; time=Ptime.to_rfc3339 time})
     >|= fun data -> `Json (`List data)
 
   let get_signatures_dump db_conn req =
     Yaac_db.Sandbox.dump db_conn
-    >|=. List.map Yaac_db.Sandbox.FullType.to_yojson
+    >|=! List.map Yaac_db.Sandbox.FullType.to_yojson
     >|= fun l -> `Json (`List l)
 
   type sig_post = (string * string * Sandbox.signature)
@@ -238,7 +240,7 @@ module SandboxSignature_req = struct
   let set_from_sig_name (sandbox : Sandbox.t) db_conn req =
     let sig_name = param req "name" in
     Yaac_db.Sandbox.find_opt db_conn sig_name
-    >|=. Option.to_result ~none:("Cannot find "^sig_name)
+    >|=! Option.to_result ~none:("Cannot find "^sig_name)
     >|=? (fun (_,_,_,sandbox_sig) ->
         Sandbox.set_from_signature sandbox sandbox_sig;
         Random.init sandbox_sig.seed;

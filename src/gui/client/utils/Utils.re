@@ -28,3 +28,9 @@ module MiscTries = {
 
 module Yaac = Utils__yaac;
 module ArrayExt = Utils__ArrayExt;
+
+type blob;
+type blob_config = {. "type": string};
+[@bs.new] external makeBlob: (array(string), blob_config) => blob = "Blob";
+
+[@bs.module("file-saver")] external saveAs: (blob, string) => unit = "saveAs";

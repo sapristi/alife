@@ -1,4 +1,4 @@
-module Panel_simple = {
+module Simple = {
   [@react.component]
   let make = (~title, ~body, ~styles) => {
     <div className="panel" style=Css.(style(styles))>
@@ -8,7 +8,7 @@ module Panel_simple = {
   };
 };
 
-module Panel_collapsable = {
+module Collapsable = {
   [@react.component]
   let make = (~title, ~body, ~styles) => {
     let (opened, setOpen) = React.useState(() => true);
@@ -21,9 +21,8 @@ module Panel_collapsable = {
       };
 
     let title' =
-      <Components__flex.HFlex style=Css.[alignItems(center)]>
-        <Components__button.ButtonIcon
-          onClick=toggleOpen styles=Css.[marginRight(px(10))]>
+      <Components__flex.HFlex style=Css.[alignItems(center)] onClick={Some(toggleOpen)}>
+        <Components__button.ButtonIcon styles=Css.[marginRight(px(10))]>
           icon
         </Components__button.ButtonIcon>
         title
@@ -34,7 +33,7 @@ module Panel_collapsable = {
       } else {
         <div />;
       };
-    <Panel_simple title=title' body=body' styles />;
+    <Simple title=title' body=body' styles />;
   };
 };
 
@@ -44,8 +43,27 @@ let make = (~children, ~collapsable=false, ~styles=[]) => {
   let body = snd(children);
 
   if (collapsable) {
-    <Panel_collapsable title body styles />;
+    <Collapsable title body styles />;
   } else {
-    <Panel_simple title body styles />;
+    <Simple title body styles />;
+  };
+};
+
+module Tabs = {
+  [@react.component]
+  let make = (~tabs, ~activeTab, ~setActiveTab) => {
+    <p className="panel-tabs">
+      {Array.map(
+         ((tab, tab_s)) =>
+           <a
+             key=tab_s
+             className={Cn.on("is-active", tab === activeTab)}
+             onClick={_ => setActiveTab(tab)}>
+             tab_s->React.string
+           </a>,
+         tabs,
+       )
+       ->React.array}
+    </p>;
   };
 };

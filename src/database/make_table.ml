@@ -33,7 +33,6 @@ module type TABLE_PARAMS = sig
   type data_type
 
   val table_name: string
-  val init_values: (string * string * data_type) list
 
   val data_type_to_yojson: data_type -> Yojson.Safe.t
   val data_type_of_yojson: Yojson.Safe.t -> (data_type, string) result
@@ -63,6 +62,9 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
 
   module FullType = struct
     type t = {name: string; description: string; ts: DBTime.t; data: DataType.t}
+    [@@deriving yojson]
+
+    type dump = t list
     [@@deriving yojson]
 
     let t =
@@ -109,7 +111,7 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
     conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
     Conn.collect_list dump_req ()
 
-  let populate_init rows (module Conn : Caqti_lwt.CONNECTION) =
+  let load_dump (module Conn : Caqti_lwt.CONNECTION) dump =
     let populate_init_req = Caqti_request.exec
         FullType.t
         [%string {| INSERT OR IGNORE INTO %{table_name}
@@ -117,12 +119,17 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
                     VALUES(?, ?, ?, ?)     |}]
     in
     Lwt_list.fold_left_s
-      (fun res (name, description, data)-> match res with
-         | Ok () -> logger#info "Insert %s" name; Conn.exec populate_init_req {name; description; ts = Ptime_clock.now(); data }
+      (fun res item-> match res with
+         | Ok () -> Conn.exec populate_init_req item
          | Error err -> Error err |> Lwt.return)
-      (Ok ()) rows
+      (Ok ()) dump
     >>=? fun _ -> (Ok (module Conn : Caqti_lwt.CONNECTION)) |> Lwt.return
 
+  let load_dump_file conn dump_file =
+    Yojson.Safe.from_file dump_file
+    |> FullType.dump_of_yojson
+    |> Result.get_ok
+    |> load_dump conn
 
   let setup_table (module Conn : Caqti_lwt.CONNECTION) =
     let create_table_req = Caqti_request.exec Caqti_type.unit
@@ -137,5 +144,4 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
     in
     logger#debug "creating table %s" table_name;
     Conn.exec create_table_req ()
-    >>=? fun () -> populate_init init_values (module Conn)
 end
