@@ -1,1 +1,309 @@
-[{"name":"endless_duplication","description":"","ts":1601106395.654,"data":{"bact":{"inert_mols":[{"qtt":50,"mol":"A","ambient":true},{"qtt":50,"mol":"B","ambient":true},{"qtt":50,"mol":"C","ambient":true},{"qtt":50,"mol":"D","ambient":true},{"qtt":50,"mol":"F","ambient":true}],"active_mols":[{"qtt":1,"mol":"AAABAAAADDFCBAAADDFBAAABDDFCBAABDDFBAAACDDFCBAACDDFBAAADDDFCBAADDDFBAAAFDDFCBAAFDDFBAAAAADDFCAABBBDDFAAABAAAADDFABAFAFDDFAAABAAABDDFABAFBFDDFAAABAAACDDFABAFCFDDFAAABAAADDDFABAFDFDDFAAABAAAFDDFABAFFFDDFAAABCAAADDFCCAAADDFBCBABDDFCCAABDDFBCCACDDFCCAACDDFBCDADDDFCCAADDDFBCFAFDDFCCAAFDDFBABAAADDFCAABBBDDFAAACAAAAADDFABBAAACAAAAADDFABBAAABAABBBDDFCAACCCDDFAAABAABBBDDFABADFDFFFDDFAAABBACCCDDFCAACCCDDFABC"},{"qtt":1,"mol":"DDCBAFDDCCCAACFDDCCCABBAAAFDDFFFDFDABAFDDBBBAABAAAFDDCCCAACFDDBBBAABAAABBAFDDAAAAACAAABBAFDDAAAAACAAAFDDBBBAACFDDAAABABFDDFAACCFDDFAFCBFDDDAACCFDDDADCBFDDCAACCFDDCACCBFDDBAACCFDDBABCBFDDAAACCFDDAAACBAAAFDDFFFABAFDDFAAABAAAFDDFDFABAFDDDAAABAAAFDDFCFABAFDDCAAABAAAFDDFBFABAFDDBAAABAAAFDDFAFABAFDDAAAABAAAFDDBBBAACFDDAAAAABFDDFAABCFDDFAAABFDDDAABCFDDDAAABFDDCAABCFDDCAAABFDDBAABCFDDBAAABFDDAAABCFDDAAAABAAA"}]},"env":{"transition_rate":"10","grab_rate":"1","break_rate":"1/1000000","collision_rate":"1/100000"},"seed":0}},{"name":"grab_amol","description":"","ts":1601106395.644,"data":{"bact":{"inert_mols":[],"active_mols":[{"qtt":1,"mol":"AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB"},{"qtt":1,"mol":"AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB"}]},"env":{"transition_rate":"1","grab_rate":"1","break_rate":"0","collision_rate":"0"},"seed":0}},{"name":"ribosome_1","description":"","ts":1601106395.668,"data":{"bact":{"inert_mols":[{"qtt":50,"mol":"A","ambient":true},{"qtt":50,"mol":"B","ambient":true},{"qtt":50,"mol":"C","ambient":true},{"qtt":50,"mol":"D","ambient":true},{"qtt":50,"mol":"F","ambient":true},{"qtt":1,"mol":"DDBBAFDDAABCAAAFDDFBFABAFDDAAABAAAFDDAAABFDDFAFABAAAAA","ambient":false}],"active_mols":[{"qtt":1,"mol":"AAABAAAADDFCBAAADDFBAAABDDFCBAABDDFBAAACDDFCBAACDDFBAAADDDFCBAADDDFBAAAFDDFCBAAFDDFBAAAAADDFCAABBBDDFAAABAAAADDFABAFAFDDFAAABAAABDDFABAFBFDDFAAABAAACDDFABAFCFDDFAAABAAADDDFABAFDFDDFAAABAAAFDDFABAFFFDDFAAABCAAADDFCCAAADDFBCBABDDFCCAABDDFBCCACDDFCCAACDDFBCDADDDFCCAADDDFBCFAFDDFCCAAFDDFBABAAADDFCAABBBDDFAAACAAAAADDFABBAAACAAAAADDFABBAAABAABBBDDFCAACCCDDFAAABAABBBDDFABADFDFFFDDFAAABBACCCDDFCAACCCDDFABC"}]},"env":{"transition_rate":"10","grab_rate":"1","break_rate":"1152921504606847/1152921504606846976","collision_rate":"0"},"seed":0}},{"name":"simple_bind","description":"","ts":1601106395.678,"data":{"bact":{"inert_mols":[{"qtt":1,"mol":"A","ambient":false},{"qtt":1,"mol":"B","ambient":false}],"active_mols":[{"qtt":1,"mol":"AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB"}]},"env":{"transition_rate":"1","grab_rate":"1","break_rate":"0","collision_rate":"0"},"seed":0}},{"name":"simple_break","description":"","ts":1601106395.687,"data":{"bact":{"inert_mols":[{"qtt":1,"mol":"AA","ambient":false}],"active_mols":[{"qtt":1,"mol":"AAA"}]},"env":{"transition_rate":"0","grab_rate":"0","break_rate":"1","collision_rate":"0"},"seed":0}},{"name":"simple_collision","description":"","ts":1601106395.702,"data":{"bact":{"inert_mols":[{"qtt":1,"mol":"ABC","ambient":false},{"qtt":1,"mol":"BCA","ambient":false}],"active_mols":[]},"env":{"transition_rate":"0","grab_rate":"0","break_rate":"0","collision_rate":"1"},"seed":0}},{"name":"simple_cycle","description":"","ts":1601106395.708,"data":{"bact":{"inert_mols":[],"active_mols":[{"qtt":1,"mol":"AAAABCBAAADDFCAABDDFAAACAAADDFBAABDDF"}]},"env":{"transition_rate":"1","grab_rate":"1","break_rate":"0","collision_rate":"0"},"seed":0}},{"name":"simple_grab_release","description":"","ts":1601106395.714,"data":{"bact":{"inert_mols":[{"qtt":1,"mol":"A","ambient":false}],"active_mols":[{"qtt":1,"mol":"AAABAAADDFABAFAFDDFAAACAAADDFABB"}]},"env":{"transition_rate":"1","grab_rate":"1","break_rate":"0","collision_rate":"0"},"seed":0}},{"name":"simple_split","description":"","ts":1601106395.695,"data":{"bact":{"inert_mols":[{"qtt":1,"mol":"AB","ambient":false}],"active_mols":[{"qtt":1,"mol":"AAAABAAFBFDDFBBAADDFAAACAAADDFABBAAACAAADDFABB"}]},"env":{"transition_rate":"1","grab_rate":"1","break_rate":"0","collision_rate":"0"},"seed":0}}]
+[
+  {
+    "name": "endless_duplication",
+    "description": "Attempt at ribosome producing itself.",
+    "ts": 1601106395.654,
+    "data": {
+      "bact": {
+        "inert_mols": [
+          {
+            "qtt": 50,
+            "mol": "A",
+            "ambient": true
+          },
+          {
+            "qtt": 50,
+            "mol": "B",
+            "ambient": true
+          },
+          {
+            "qtt": 50,
+            "mol": "C",
+            "ambient": true
+          },
+          {
+            "qtt": 50,
+            "mol": "D",
+            "ambient": true
+          },
+          {
+            "qtt": 50,
+            "mol": "F",
+            "ambient": true
+          }
+        ],
+        "active_mols": [
+          {
+            "qtt": 1,
+            "mol": "AAABAAAADDFCBAAADDFBAAABDDFCBAABDDFBAAACDDFCBAACDDFBAAADDDFCBAADDDFBAAAFDDFCBAAFDDFBAAAAADDFCAABBBDDFAAABAAAADDFABAFAFDDFAAABAAABDDFABAFBFDDFAAABAAACDDFABAFCFDDFAAABAAADDDFABAFDFDDFAAABAAAFDDFABAFFFDDFAAABCAAADDFCCAAADDFBCBABDDFCCAABDDFBCCACDDFCCAACDDFBCDADDDFCCAADDDFBCFAFDDFCCAAFDDFBABAAADDFCAABBBDDFAAACAAAAADDFABBAAACAAAAADDFABBAAABAABBBDDFCAACCCDDFAAABAABBBDDFABADFDFFFDDFAAABBACCCDDFCAACCCDDFABC"
+          },
+          {
+            "qtt": 1,
+            "mol": "DDCBAFDDCCCAACFDDCCCABBAAAFDDFFFDFDABAFDDBBBAABAAAFDDCCCAACFDDBBBAABAAABBAFDDAAAAACAAABBAFDDAAAAACAAAFDDBBBAACFDDAAABABFDDFAACCFDDFAFCBFDDDAACCFDDDADCBFDDCAACCFDDCACCBFDDBAACCFDDBABCBFDDAAACCFDDAAACBAAAFDDFFFABAFDDFAAABAAAFDDFDFABAFDDDAAABAAAFDDFCFABAFDDCAAABAAAFDDFBFABAFDDBAAABAAAFDDFAFABAFDDAAAABAAAFDDBBBAACFDDAAAAABFDDFAABCFDDFAAABFDDDAABCFDDDAAABFDDCAABCFDDCAAABFDDBAABCFDDBAAABFDDAAABCFDDAAAABAAA"
+          }
+        ]
+      },
+      "env": {
+        "transition_rate": "10",
+        "grab_rate": "1",
+        "break_rate": "1/1000000",
+        "collision_rate": "1/100000"
+      },
+      "seed": 0
+    }
+  },
+  {
+    "name": "grab_amol",
+    "description": "",
+    "ts": 1601106395.644,
+    "data": {
+      "bact": {
+        "inert_mols": [],
+        "active_mols": [
+          {
+            "qtt": 1,
+            "mol": "AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB"
+          },
+          {
+            "qtt": 1,
+            "mol": "AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB"
+          }
+        ]
+      },
+      "env": {
+        "transition_rate": "1",
+        "grab_rate": "1",
+        "break_rate": "0",
+        "collision_rate": "0"
+      },
+      "seed": 0
+    }
+  },
+  {
+    "name": "ribosome_1",
+    "description": "Attempt at making a ribosome.",
+    "ts": 1601106395.668,
+    "data": {
+      "bact": {
+        "inert_mols": [
+          {
+            "qtt": 50,
+            "mol": "A",
+            "ambient": true
+          },
+          {
+            "qtt": 50,
+            "mol": "B",
+            "ambient": true
+          },
+          {
+            "qtt": 50,
+            "mol": "C",
+            "ambient": true
+          },
+          {
+            "qtt": 50,
+            "mol": "D",
+            "ambient": true
+          },
+          {
+            "qtt": 50,
+            "mol": "F",
+            "ambient": true
+          },
+          {
+            "qtt": 1,
+            "mol": "DDBBAFDDAABCAAAFDDFBFABAFDDAAABAAAFDDAAABFDDFAFABAAAAA",
+            "ambient": false
+          }
+        ],
+        "active_mols": [
+          {
+            "qtt": 1,
+            "mol": "AAABAAAADDFCBAAADDFBAAABDDFCBAABDDFBAAACDDFCBAACDDFBAAADDDFCBAADDDFBAAAFDDFCBAAFDDFBAAAAADDFCAABBBDDFAAABAAAADDFABAFAFDDFAAABAAABDDFABAFBFDDFAAABAAACDDFABAFCFDDFAAABAAADDDFABAFDFDDFAAABAAAFDDFABAFFFDDFAAABCAAADDFCCAAADDFBCBABDDFCCAABDDFBCCACDDFCCAACDDFBCDADDDFCCAADDDFBCFAFDDFCCAAFDDFBABAAADDFCAABBBDDFAAACAAAAADDFABBAAACAAAAADDFABBAAABAABBBDDFCAACCCDDFAAABAABBBDDFABADFDFFFDDFAAABBACCCDDFCAACCCDDFABC"
+          }
+        ]
+      },
+      "env": {
+        "transition_rate": "10",
+        "grab_rate": "1",
+        "break_rate": "1152921504606847/1152921504606846976",
+        "collision_rate": "0"
+      },
+      "seed": 0
+    }
+  },
+  {
+    "name": "simple_bind",
+    "description": "Demonstration of binding between two mols in pnet.",
+    "ts": 1601106395.678,
+    "data": {
+      "bact": {
+        "inert_mols": [
+          {
+            "qtt": 1,
+            "mol": "A",
+            "ambient": false
+          },
+          {
+            "qtt": 1,
+            "mol": "B",
+            "ambient": false
+          }
+        ],
+        "active_mols": [
+          {
+            "qtt": 1,
+            "mol": "AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB"
+          }
+        ]
+      },
+      "env": {
+        "transition_rate": "1",
+        "grab_rate": "1",
+        "break_rate": "0",
+        "collision_rate": "0"
+      },
+      "seed": 0
+    }
+  },
+  {
+    "name": "simple_break",
+    "description": "Demonstration of break reaction.",
+    "ts": 1601106395.687,
+    "data": {
+      "bact": {
+        "inert_mols": [
+          {
+            "qtt": 1,
+            "mol": "AA",
+            "ambient": false
+          }
+        ],
+        "active_mols": [
+          {
+            "qtt": 1,
+            "mol": "AAA"
+          }
+        ]
+      },
+      "env": {
+        "transition_rate": "0",
+        "grab_rate": "0",
+        "break_rate": "1",
+        "collision_rate": "0"
+      },
+      "seed": 0
+    }
+  },
+  {
+    "name": "simple_collision",
+    "description": "Demonstration of collision reaction.",
+    "ts": 1601106395.702,
+    "data": {
+      "bact": {
+        "inert_mols": [
+          {
+            "qtt": 1,
+            "mol": "ABC",
+            "ambient": false
+          },
+          {
+            "qtt": 1,
+            "mol": "BCA",
+            "ambient": false
+          }
+        ],
+        "active_mols": []
+      },
+      "env": {
+        "transition_rate": "0",
+        "grab_rate": "0",
+        "break_rate": "0",
+        "collision_rate": "1"
+      },
+      "seed": 0
+    }
+  },
+  {
+    "name": "simple_cycle",
+    "description": "Demonstration of cycling transitions.",
+    "ts": 1601106395.708,
+    "data": {
+      "bact": {
+        "inert_mols": [],
+        "active_mols": [
+          {
+            "qtt": 1,
+            "mol": "AAAABCBAAADDFCAABDDFAAACAAADDFBAABDDF"
+          }
+        ]
+      },
+      "env": {
+        "transition_rate": "1",
+        "grab_rate": "1",
+        "break_rate": "0",
+        "collision_rate": "0"
+      },
+      "seed": 0
+    }
+  },
+  {
+    "name": "simple_grab_release",
+    "description": "Demonstration of grab and release in pnet.",
+    "ts": 1601106395.714,
+    "data": {
+      "bact": {
+        "inert_mols": [
+          {
+            "qtt": 1,
+            "mol": "A",
+            "ambient": false
+          }
+        ],
+        "active_mols": [
+          {
+            "qtt": 1,
+            "mol": "AAABAAADDFABAFAFDDFAAACAAADDFABB"
+          }
+        ]
+      },
+      "env": {
+        "transition_rate": "1",
+        "grab_rate": "1",
+        "break_rate": "0",
+        "collision_rate": "0"
+      },
+      "seed": 0
+    }
+  },
+  {
+    "name": "simple_split",
+    "description": "Demonstration of split transition type.",
+    "ts": 1601106395.695,
+    "data": {
+      "bact": {
+        "inert_mols": [
+          {
+            "qtt": 1,
+            "mol": "AB",
+            "ambient": false
+          }
+        ],
+        "active_mols": [
+          {
+            "qtt": 1,
+            "mol": "AAAABAAFBFDDFBBAADDFAAACAAADDFABBAAACAAADDFABB"
+          }
+        ]
+      },
+      "env": {
+        "transition_rate": "1",
+        "grab_rate": "1",
+        "break_rate": "0",
+        "collision_rate": "0"
+      },
+      "seed": 0
+    }
+  }
+]
