@@ -5,19 +5,19 @@ let logger = Easy_logging_yojson.Logging.get_logger  "Yaac.Libs.misc"
 let rec cut_list l pos =
   match l with
   | [] -> [], []
-  | h :: t -> 
+  | h :: t ->
      if pos = 0
      then [],l
-     else 
-       let l1, l2 = (cut_list t (pos -1)) in 
+     else
+       let l1, l2 = (cut_list t (pos -1)) in
        h :: l1, l2
 ;;
 
 
-let rec insert l1 pos l2 = 
-  if pos = 0 
-  then l1 @ l2 
-  else 
+let rec insert l1 pos l2 =
+  if pos = 0
+  then l1 @ l2
+  else
     match l1 with
     | h :: t -> h :: insert t (pos-1) l2
     | [] ->  l2
@@ -29,16 +29,16 @@ let rec append_to_rev_list l1 l2 =
   | h :: l1' -> append_to_rev_list l1' (h::l2)
   | [] -> l2
 ;;
-  
-let rec unzip l = 
+
+let rec unzip l =
   match l with
-  | (a,b) :: l' -> 
+  | (a,b) :: l' ->
      let l1, l2 = unzip l' in
      a::l1, b::l2
   | [] -> [], []
 ;;
 
-let rec zip l1 l2 = 
+let rec zip l1 l2 =
   match l1, l2 with
   | h1 :: t1, h2 :: t2 -> (h1, h2) :: zip t1 t2
   | [], [] -> []
@@ -47,32 +47,32 @@ let rec zip l1 l2 =
 
 
 Random.init;;
-let random_pick_from_list l = 
-  let n = Random.int (List.length l) in 
+let random_pick_from_list l =
+  let n = Random.int (List.length l) in
   List.nth l n
 ;;
-let random_pick_from_array a = 
-  let n = Random.int (Array.length a) in 
+let random_pick_from_array a =
+  let n = Random.int (Array.length a) in
   a.(n)
 ;;
 
 
 
 
-let get_all_couples 
-    (l1 : 'a list) 
-    (l2 : 'b list) 
+let get_all_couples
+    (l1 : 'a list)
+    (l2 : 'b list)
     : ('a * 'b) list
-    = 
-  
-  List.fold_left 
-    (fun 
+    =
+
+  List.fold_left
+    (fun
       (l :  ('a * 'b) list)
-      (x : 'a) -> 
+      (x : 'a) ->
 	List.fold_left
-	  (fun 
+	  (fun
 	    (t :  ('a * 'b) list)
-	    (y : 'b) 
+	    (y : 'b)
 	  -> (x,y) :: t)
 	  l
 	  l2)
@@ -80,7 +80,7 @@ let get_all_couples
     l1
 
 
-    
+
 let idProvider = object
     val mutable id = 0
 
@@ -88,10 +88,10 @@ let idProvider = object
       let res = id in
       id <- id +1;
       res
-      
+
   end
-               
-let common_elements l1 l2 = 
+
+let common_elements l1 l2 =
   let rec common_elements_aux (l1 : (string*int) list) (l2 : (string*int) list) res =
     match l1, l2 with
     | (s1,i1)::l1', (s2, i2)::l2' ->
@@ -101,7 +101,7 @@ let common_elements l1 l2 =
          if s1 < s2
          then common_elements_aux l1' l2 res
          else common_elements_aux l1 l2' res
-      
+
     | _ -> res
   in common_elements_aux l1 l2 []
 
@@ -111,9 +111,9 @@ let rec pick_from_list (bound : Q.t) (c : Q.t)
           (l : 'a list)  =
   let open Q in
   match l with
-  | h::t -> 
+  | h::t ->
      let c' = c + value h in
-     
+
      if lt bound c'  then h
      else pick_from_list bound c' value t
   | [] ->
@@ -133,11 +133,11 @@ let pick_from_enum (bound : float)
     in
     Enum.find find_f enum
             *)
-  
+
 let show_list show_e l =
   List.fold_left
     (fun a -> fun b -> Printf.sprintf "%s\n%s" a b)
-    "" (List.map show_e l) 
+    "" (List.map show_e l)
 
 let show_list_prefix prefix show_e l =
   List.fold_left
@@ -151,9 +151,9 @@ let show_array_prefix prefix show_e l =
 
 
 let bernouil q =
-  let q' = Q.to_float q in 
+  let q' = Q.to_float q in
   Random.float 1. < q'
-  
+
 let bernouil_f q =
   Random.float 1. < q
 
@@ -173,9 +173,9 @@ let shuffle_list l =
   Array.to_list a
 
 let extract_from_list l a =
-  let rec aux l res = 
+  let rec aux l res =
     match l with
-    | [] -> Error "not found" 
+    | [] -> Error "not found"
     | h :: t ->
       if a = h
       then Ok (res@t)
@@ -189,7 +189,7 @@ let list_files ?file_type dir =
   |> Array.to_list
   |> List.map (Filename.concat dir)
   |> List.filter (fun x -> not (Sys.is_directory x))
-  |> List.filter ( 
+  |> List.filter (
     match file_type with
     | None -> fun x -> true
     | Some suff -> fun x -> Filename.check_suffix x suff

@@ -20,7 +20,7 @@ let db_to_string_result res =
 let get_sandbox (sandbox : Sandbox.t) req =
   `Json(Sandbox.to_yojson sandbox) |> Lwt.return
 
-let set_sandbox (sandbox : Sandbox.t) (req: Opium_kernel__Rock.Request.t)  =
+let set_sandbox (sandbox : Sandbox.t) (req: Request.t)  =
   req.body
   |> Cohttp_lwt.Body.to_string
   >|= Yojson.Safe.from_string
@@ -47,7 +47,7 @@ module Mol_req = struct
     |> Bacterie.execute_actions !(sandbox.bact);
     get_bact sandbox |> Lwt.return
 
-  let set_imol_quantity (sandbox : Sandbox.t) (req : Opium_kernel.Rock.Request.t) =
+  let set_imol_quantity (sandbox : Sandbox.t) (req : Request.t) =
     let mol = param req "mol" in
     let uri = Uri.of_string req.request.resource in
     Uri.get_query_param uri "qtt"
@@ -149,7 +149,7 @@ module Env_req = struct
     |> Lwt.return
 
 
-  let set_environment (sandbox : Sandbox.t) (req: Opium_kernel__Rock.Request.t) =
+  let set_environment (sandbox : Sandbox.t) (req: Request.t) =
     req.body
     |> Cohttp_lwt.Body.to_string
     >|= Yojson.Safe.from_string
@@ -157,6 +157,9 @@ module Env_req = struct
     >|= Result.get_ok
     >|= fun env ->
     !(sandbox.bact).env := env;
+    logger#debug "Bact env %s" (Environment.show !(!(sandbox.bact).env));
+    logger#debug "Sandbox env %s" (Environment.show !(sandbox.env));
+
     logger#debug "Commited new env: %s" (Environment.show env);
     `Json (Environment.to_yojson env)
 
@@ -205,10 +208,10 @@ module SandboxSignature_req = struct
 
   include Yaac_db.SandboxSig.RequestHandler
 
-    (* Set the current sandbox from the stored signature;
-       Reset the Random seed from that of the sig.contents
+  (* Set the current sandbox from the stored signature;
+     Reset the Random seed from that of the sig.contents
 
-       TODO: it could be nice that the sandbox stores a random generator for itself.   *)
+     TODO: it could be nice that the sandbox stores a random generator for itself.   *)
   let set_from_sig_name (sandbox : Sandbox.t) db_conn req =
     let sig_name = param req "name" in
     Yaac_db.SandboxSig.find_opt db_conn sig_name
@@ -244,7 +247,80 @@ module SandboxSignature_req = struct
 end
 
 
-module SandboxDump_req = struct
+module BactSignatureDB_req = struct
+
+  include Yaac_db.BactSig.RequestHandler
+  let set_from_sig_name (sandbox : Sandbox.t) db_conn req =
+    let sig_name = param req "name" in
+    Yaac_db.BactSig.find_res db_conn sig_name
+    >|=? (fun (_,_,_,bact_sig) ->
+        sandbox.bact := Bacterie.from_sig bact_sig sandbox.env;
+        Ok `Empty)
+    >|= fun res -> `Res res
+
+  type post_item = {name: string; description: string;}
+  [@@deriving yojson]
+
+  let add (sandbox : Sandbox.t) db_conn (req: Opium.Std.Request.t) =
+    req.body
+    |> Cohttp_lwt.Body.to_string
+    >|= Yojson.Safe.from_string
+    >|= post_item_of_yojson
+    >|= Result.get_ok
+    >>= (fun ({name; description}) -> (
+          (Yaac_db.BactSig.add_one db_conn
+             (name, description, Bacterie.to_sig !(sandbox.bact)))
+          >|= Result.get_ok
+        ))
+    >|= (fun () -> `Empty)
+
+  let make_routes sandbox db = [
+    get,    "/db/bactsig",                    list db;
+    get,    "/db/bactsig/dump",               dump db;
+    post,   "/db/bactsig",                    add sandbox db;
+    post,   "/db/bactsig/:name/load",         set_from_sig_name sandbox db;
+  ]
+end
+
+
+module EnvDB_req = struct
+
+  include Yaac_db.Environment.RequestHandler
+
+  let load_env (sandbox : Sandbox.t) db_conn req =
+    let env_name = param req "name" in
+    Yaac_db.Environment.find_res db_conn env_name
+    >|=? (fun (_,_,_,env) ->
+        sandbox.env := env;
+        Ok `Empty)
+    >|= fun res -> `Res res
+
+  type post_item = {name: string; description: string; data: Yaac_db.Environment.DataType.t}
+  [@@deriving yojson]
+
+  let add  db_conn (req: Opium.Std.Request.t) =
+    req.body
+    |> Cohttp_lwt.Body.to_string
+    >|= Yojson.Safe.from_string
+    >|= post_item_of_yojson
+    >|= Result.get_ok
+    >>= (fun ({name; description; data}) -> 
+          (Yaac_db.Environment.add_one db_conn
+             (name, description, data)
+          >|= Result.get_ok
+        ))
+    >|= (fun () -> `Empty)
+
+  let make_routes sandbox db = [
+    get,    "/db/environment",                    list db;
+    get,    "/db/environment/dump",               dump db;
+    post,   "/db/environment",                    add  db;
+    post,   "/db/environment/:name/load",         load_env sandbox db;
+  ]
+end
+
+
+module SandboxDumpDB_req = struct
 
   include Yaac_db.SandboxDump.RequestHandler
 
@@ -280,10 +356,10 @@ module SandboxDump_req = struct
 
 
   let make_routes sandbox db = [
-    get,    "/dump",                    list db;
-    get,    "/dump/dump",               dump db;
-    post,   "/dump",                    add sandbox db;
-    post,   "/dump/:name/load",         set_from_dump_name sandbox db;
+    get,    "/db/dump",                    list db;
+    get,    "/db/dump/dump",               dump db;
+    post,   "/db/dump",                    add sandbox db;
+    post,   "/db/dump/:name/load",         set_from_dump_name sandbox db;
   ]
 end
 
@@ -293,5 +369,6 @@ let make_routes sandbox db =
   @ (Mol_req.make_routes sandbox)
   @ (Env_req.make_routes sandbox)
   @ (Reactions_req.make_routes sandbox)
-  @ (SandboxSignature_req.make_routes sandbox db)
-  @ (SandboxDump_req.make_routes sandbox db)
+  @ (BactSignatureDB_req.make_routes sandbox db)
+  @ (SandboxDumpDB_req.make_routes sandbox db)
+  @ (EnvDB_req.make_routes sandbox db)

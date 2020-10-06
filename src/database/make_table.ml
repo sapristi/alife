@@ -86,6 +86,15 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
     conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
     Conn.exec add_one_req (name, description, Ptime_clock.now (), data)
 
+  let delete_one conn name =
+    let delete_one_req = Caqti_request.exec
+        Caqti_type.(string)
+        [%string {| DELETE from  %{table_name} where
+                  name = ? |} ]
+    in
+    conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
+    Conn.exec delete_one_req name
+
   let find_opt conn name = 
     let get_opt_req = Caqti_request.find_opt
         Caqti_type.string
@@ -94,6 +103,10 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
     in
     conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
     Conn.find_opt get_opt_req name
+
+  let find_res conn name =
+    find_opt conn name
+    >|=! Option.to_result ~none:("Cannot find "^name)
 
   let list conn =
     let list_req = Caqti_request.collect
@@ -126,9 +139,11 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
     >>=? fun _ -> (Ok (module Conn : Caqti_lwt.CONNECTION)) |> Lwt.return
 
   let load_dump_file conn dump_file =
+    logger#info "Loading file %s" dump_file;
     Yojson.Safe.from_file dump_file
     |> FullType.dump_of_yojson
-    |> Result.get_ok
+    |> (function | Ok ok -> logger#info "load ok %s" dump_file; ok
+                 | Error r -> logger#error "load ko %s" r; failwith "this is bad")
     |> load_dump conn
 
   let setup_table (module Conn : Caqti_lwt.CONNECTION) =
@@ -148,6 +163,8 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
 
   module RequestHandler = struct
 
+    open Opium.Std
+
     type partial_item = {name: string; description: string; time: string}
     [@@deriving yojson]
 
@@ -160,10 +177,15 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
           partial_item_to_yojson {name; description; time=Ptime.to_rfc3339 time})
       >|= fun data -> `Json (`List data)
 
-    let dump db_conn req = 
+    let dump db_conn req =
       dump db_conn
       >|=! List.map FullType.to_yojson
       >|= fun l -> `Json (`List l)
+
+
+    let delete db_conn (req: Request.t) =
+      let name = param req "name"
+      in delete_one db_conn name
 
     (* let add db_conn (req: Opium.Std.Request.t) =
      *   req.body

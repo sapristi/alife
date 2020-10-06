@@ -13,7 +13,7 @@ let logger = Logging.get_logger "Yaac.Bact.Reacs_effects"
 (* of implementation details *)
 
 (* * asymetric_grab auxiliary function *)
-let asymetric_grab mol pnet = 
+let asymetric_grab mol pnet =
   let grabs = Petri_net.get_possible_mol_grabs mol pnet
   in
   if not (grabs = [])
@@ -55,13 +55,13 @@ let break_l mol =
 let rec random_flip m =
   if bernouil_f 0.5
   then
-    let l = String.length m in 
+    let l = String.length m in
     String.init l (fun i -> m.[l-i-1])
   else m
 
 let collide mol1 mol2 =
   logger#debug "Colliding %s and %s" mol1 mol2;
-    
+
 (*
   let rec aux l res =
     match l, res with
@@ -69,7 +69,7 @@ let collide mol1 mol2 =
     | h::[],  [] -> [h]
     | h::t, [] -> aux t [h]
     | h::t, h'::t' ->
-       let res' = 
+       let res' =
          if bernouil_f 0.5
          then (h^h') :: res
          else h :: res
@@ -81,7 +81,7 @@ let collide mol1 mol2 =
     | [] -> res
     | h::[] -> h :: res
     | h::h'::t ->
-      if bernouil_f 0.5
+      if bernouil_f 0.8
       then aux (h'::t) (h::res)
       else aux t  ((h^h') :: res)
   in
@@ -104,5 +104,5 @@ let collide mol1 mol2 =
                 then break_l mol2 else [mol2]))
              |> List.map random_flip
              |> mix *)
-  
+
   aux mols []

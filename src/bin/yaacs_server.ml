@@ -30,7 +30,7 @@ let logger = Logging.get_logger  "Yaac.Main"
 let run_yaacs p : unit=
   logger#info "Starting Yaac with options :\n%s" @@ show_params p;
 
-  let db_uri = Format.sprintf "sqlite3:%stest.sqlite3" p.data_path in
+  let db_uri = Format.sprintf "sqlite3:%syaacdb.sqlite3" p.data_path in
   begin
     match p.random_seed with
     | None -> Random.self_init ()
@@ -74,8 +74,8 @@ let run_yaacs p : unit=
   root_logger#add_handler pipe_handler;
 
   let db_conn = (Yaac_db.init db_uri p.data_path) in
+
   Lwt.join [
-    (* Yaac_db.init db_uri sandbox_init; *)
     Web_server.run
       p.port
       (p.static_path)

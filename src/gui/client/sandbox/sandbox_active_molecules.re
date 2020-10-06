@@ -74,11 +74,11 @@ module AmolControls = {
 
     let remove_pnet = _ => {
       switch (amol, selectedPnet) {
-      | (Some(amol'), Some(pnetId)) =>
+      | (Some(amol'), Some((_, pnetId))) =>
         let mol = amol'.mol;
         Yaac.request_unit(
           Fetch.Delete,
-          {j| /sandbox/amol/$(mol)/pnet/$(pnetId) |j},
+          {j|/sandbox/amol/$(mol)/pnet/$(pnetId)|j},
           (),
         )
         ->Promise.getOk(update);

@@ -284,11 +284,15 @@ module CSet =
     |> ignore
 
 
+    (** TODO FIX Colliders.choose *)
     let pick_reaction (s:t) =
       let c1 = Colliders.choose s.colliders in
       let colliders' = Colliders.remove c1 s.colliders in
       let c2 = Colliders.choose colliders' in
       let c = Reacs.Collision.make (c1,c2) in
+      logger#debug "Picked %s %s from %s"
+        (Reactant.show c1) (Reactant.show c2)
+        (Format.asprintf "%a" (Colliders.pp Reactant.pp) s.colliders);
       c
   end
 module GSet = MakeReacSet(Reacs.Grab)

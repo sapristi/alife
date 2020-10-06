@@ -3,6 +3,11 @@
 ** TODO use the todolist
 
 * bugfixes/improvements
+** TODO Collision: not selecting from all possible couples
+** TODO collision reaction -> reversing molecules ?
+** TODO "endless_duplication", reaction 3307 => exception "not found"
+   - because of reverse
+   - reverse seems like intended behaviour, but state is not updated
 ** TODO seems like triggering transition bugs when mol release
 ** DONE Debug pnet grab
    between 
@@ -73,7 +78,7 @@
 ** TODO Use custom (binary?) trees to hold reactions in Reac_sets so as to speed up next reaction search.
 ** TODO use Pnet Set as reactants
 ** TODO use uniqueID lib
-** DONE STARTED collisions
+** DONE collisions
 ** STARTED sanitize the use mutable/immutable and refs in structures
     - reactants do not use ref anymore
 
@@ -108,7 +113,7 @@
 ** DONE mol quantity go under 0
    -> problem with references
 * features
-
+  
 ** STARTED random collisions
    - [X] Implement reaction in framework
    - [ ] Implement reaction effects :
@@ -126,12 +131,8 @@
    - release a grabed molecule
 
 ** TODO extended pnets (as graphs)
-
-
    
 * optional
-
-** TODO swith to ocsigen (or opium ?) for the web client/server (will never happen)
 
 ** TODO simple reactions to test against
 
