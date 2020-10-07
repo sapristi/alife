@@ -214,7 +214,7 @@ module SandboxSignature_req = struct
      TODO: it could be nice that the sandbox stores a random generator for itself.   *)
   let set_from_sig_name (sandbox : Sandbox.t) db_conn req =
     let sig_name = param req "name" in
-    Yaac_db.SandboxSig.find_opt db_conn sig_name
+    Yaac_db.SandboxSig.find_opt (db_conn ()) sig_name
     >|=! Option.to_result ~none:("Cannot find "^sig_name)
     >|=? (fun (_,_,_,sandbox_sig) ->
         Sandbox.set_from_signature sandbox sandbox_sig;
@@ -232,7 +232,7 @@ module SandboxSignature_req = struct
     >|= post_item_of_yojson
     >|= Result.get_ok
     >>= (fun ({name; description; env; seed}) -> (
-          (Yaac_db.SandboxSig.add_one db_conn
+          (Yaac_db.SandboxSig.add_one (db_conn ())
              (name, description, {bact = Bacterie.to_sig !(sandbox.bact); env; seed}))
           >|= Result.get_ok
         ))
@@ -252,7 +252,7 @@ module BactSignatureDB_req = struct
   include Yaac_db.BactSig.RequestHandler
   let set_from_sig_name (sandbox : Sandbox.t) db_conn req =
     let sig_name = param req "name" in
-    Yaac_db.BactSig.find_res db_conn sig_name
+    Yaac_db.BactSig.find_res (db_conn ()) sig_name
     >|=? (fun (_,_,_,bact_sig) ->
         sandbox.bact := Bacterie.from_sig bact_sig sandbox.env;
         Ok `Empty)
@@ -268,7 +268,7 @@ module BactSignatureDB_req = struct
     >|= post_item_of_yojson
     >|= Result.get_ok
     >>= (fun ({name; description}) -> (
-          (Yaac_db.BactSig.add_one db_conn
+          (Yaac_db.BactSig.add_one (db_conn ())
              (name, description, Bacterie.to_sig !(sandbox.bact)))
           >|= Result.get_ok
         ))
@@ -289,7 +289,7 @@ module EnvDB_req = struct
 
   let load_env (sandbox : Sandbox.t) db_conn req =
     let env_name = param req "name" in
-    Yaac_db.Environment.find_res db_conn env_name
+    Yaac_db.Environment.find_res (db_conn ()) env_name
     >|=? (fun (_,_,_,env) ->
         sandbox.env := env;
         Ok `Empty)
@@ -305,7 +305,7 @@ module EnvDB_req = struct
     >|= post_item_of_yojson
     >|= Result.get_ok
     >>= (fun ({name; description; data}) -> 
-          (Yaac_db.Environment.add_one db_conn
+          (Yaac_db.Environment.add_one (db_conn ())
              (name, description, data)
           >|= Result.get_ok
         ))
@@ -330,7 +330,7 @@ module SandboxDumpDB_req = struct
      TODO: it could be nice that the sandbox stores a random generator for itself.   *)
   let set_from_dump_name (sandbox : Sandbox.t) db_conn req =
     let dump_name = param req "name" in
-    Yaac_db.SandboxDump.find_opt db_conn dump_name
+    Yaac_db.SandboxDump.find_opt (db_conn ()) dump_name
     >|=! Option.to_result ~none:("Cannot find "^dump_name)
     >|=? (fun (_,_,_,new_sandbox) ->
         Sandbox.replace sandbox new_sandbox;
@@ -349,26 +349,26 @@ module SandboxDumpDB_req = struct
     >|= post_item_of_yojson
     >|= Result.get_ok
     >>= (fun ({name; description}) -> (
-          (Yaac_db.SandboxDump.add_one db_conn (name, description, sandbox))
+          (Yaac_db.SandboxDump.add_one (db_conn ()) (name, description, sandbox))
           >|= Result.get_ok
         ))
     >|= (fun () -> `Empty)
 
 
-  let make_routes sandbox db = [
-    get,    "/db/dump",                    list db;
-    get,    "/db/dump/dump",               dump db;
-    post,   "/db/dump",                    add sandbox db;
-    post,   "/db/dump/:name/load",         set_from_dump_name sandbox db;
+  let make_routes sandbox db_conn = [
+    get,    "/db/dump",                    list db_conn;
+    get,    "/db/dump/dump",               dump db_conn;
+    post,   "/db/dump",                    add sandbox db_conn;
+    post,   "/db/dump/:name/load",         set_from_dump_name sandbox db_conn;
   ]
 end
 
 
-let make_routes sandbox db =
+let make_routes sandbox db_conn =
   [ get,    "", get_sandbox sandbox]
   @ (Mol_req.make_routes sandbox)
   @ (Env_req.make_routes sandbox)
   @ (Reactions_req.make_routes sandbox)
-  @ (BactSignatureDB_req.make_routes sandbox db)
-  @ (SandboxDumpDB_req.make_routes sandbox db)
-  @ (EnvDB_req.make_routes sandbox db)
+  @ (BactSignatureDB_req.make_routes sandbox db_conn)
+  @ (SandboxDumpDB_req.make_routes sandbox db_conn)
+  @ (EnvDB_req.make_routes sandbox db_conn)

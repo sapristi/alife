@@ -172,20 +172,20 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
      * [@@deriving yojson] *)
 
     let list db_conn req =
-      list db_conn
+      list (db_conn ())
       >|=! List.map (fun (name, description, time) ->
           partial_item_to_yojson {name; description; time=Ptime.to_rfc3339 time})
       >|= fun data -> `Json (`List data)
 
     let dump db_conn req =
-      dump db_conn
+      dump (db_conn ())
       >|=! List.map FullType.to_yojson
       >|= fun l -> `Json (`List l)
 
 
     let delete db_conn (req: Request.t) =
       let name = param req "name"
-      in delete_one db_conn name
+      in delete_one (db_conn ()) name
 
     (* let add db_conn (req: Opium.Std.Request.t) =
      *   req.body

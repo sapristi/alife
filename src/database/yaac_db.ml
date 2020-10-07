@@ -46,11 +46,13 @@ let create_tables conn =
   (* fun _ -> MolLibrary.setup_table (module Db) >>=? *)
   >|=? fun _ -> Ok conn
 
+let get_conn uri = Caqti_lwt.connect (Uri.of_string uri)
+
 
 let init uri data_path =
-  logger#info "Creating db at %s" uri;
   let open Lwt.Infix in
-  Caqti_lwt.connect (Uri.of_string uri)
+  (
+  get_conn uri
   >|= log_res_debug logger "conn"
   >>=? create_tables
   >|= log_res_debug logger "tables"
@@ -58,4 +60,6 @@ let init uri data_path =
   >|= log_res_debug logger "load 1"
   >>=? fun conn -> Environment.load_dump_file conn (data_path ^ "/dump/envs.json")
   >|= log_res_debug logger "load 2"
+    )
+  >|= fun _ -> ()
 

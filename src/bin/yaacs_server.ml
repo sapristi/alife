@@ -73,8 +73,9 @@ let run_yaacs p : unit=
   let root_logger = Logging.get_logger "Yaac" in
   root_logger#add_handler pipe_handler;
 
-  let db_conn = (Yaac_db.init db_uri p.data_path) in
-
+  let db_conn = fun () -> Yaac_db.get_conn db_uri in
+  Yaac_db.init db_uri p.data_path
+  >>= (fun () ->
   Lwt.join [
     Web_server.run
       p.port
@@ -85,7 +86,7 @@ let run_yaacs p : unit=
          db_conn
       );
     Ws_server.run pipe ();
-  ]
+  ])
 
   |> Lwt_main.run
 

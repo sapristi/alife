@@ -2,6 +2,7 @@ open Components;
 open Utils;
 
 module SignatureForm = Sandbox__generic_controls__signature_form;
+module MakeTable = Sandbox__generic_controls__table.MakeTable;
 
 module DumpForm = {
   [@decco]
@@ -43,66 +44,6 @@ module DumpForm = {
   };
 };
 
-module DumpsTable = {
-  [@decco]
-  type data_item = {
-    name: string,
-    description: string,
-    time: string,
-  };
-  [@decco]
-  type data = array(data_item);
-
-  let makeColumns = (loadAction): array(Table.column(data_item)) => [|
-    {
-      style: [],
-      header: () => "Name"->React.string,
-      makeCell: row => row.name->React.string,
-      key: "name",
-    },
-    {
-      style: [],
-      header: () => "Description"->React.string,
-      makeCell: row => row.description->React.string,
-      key: "decription",
-    },
-    {
-      style: [],
-      header: () => "Actions"->React.string,
-      makeCell: row =>
-        <Button onClick={_ => loadAction(row.name)}> "Load"->React.string </Button>,
-      key: "action",
-    },
-  |];
-
-  let getRowKey = row => row.name;
-
-  [@react.component]
-  let make = (~update) => {
-    let (values, setValues) = React.useState(_ => [||]);
-
-    let commitLoad =
-      React.useCallback1(
-        name =>
-          Yaac.request_unit(Fetch.Post, "/sandbox/dump/" ++ name ++ "/load", ())
-          ->Promise.getOk(update),
-        [|update|],
-      );
-
-    let columns = makeColumns(commitLoad);
-
-    React.useEffect0(() => {
-      Yaac.request(Fetch.Get, "/sandbox/dump", ~json_decode=data_decode, ())
-      ->Promise.getOk(data => {setValues(_ => data)});
-      None;
-    });
-
-    <div style=Css.(style([maxHeight(px(300)), overflow(auto)]))>
-      <Table columns data=values getRowKey />
-    </div>;
-  };
-};
-
 let download_dumps = _ =>
   Yaac.request(Fetch.Get, "/sandbox/dump/dump", ~json_decode=x => Ok(x), ())
   ->Promise.getOk(res => {
@@ -112,6 +53,8 @@ let download_dumps = _ =>
       Js.log2("blob", blob);
       saveAs(blob, "dumps_dump.json");
     });
+
+module DumpsTable = MakeTable({let db_name = "dump"})
 
 [@react.component]
 let make = (~update) => {
