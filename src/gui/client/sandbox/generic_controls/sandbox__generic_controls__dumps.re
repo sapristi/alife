@@ -14,7 +14,7 @@ module DumpForm = {
   let post = (data: post) =>
     {
       let data_json = post_encode(data);
-      Yaac.request_unit(Fetch.Post, "/sandbox/dump", ~payload=data_json, ());
+      Yaac.request_unit(Fetch.Post, "/sandbox/db/dump", ~payload=data_json, ());
     }
     ->ignore;
 

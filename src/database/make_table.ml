@@ -183,9 +183,13 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
       >|= fun l -> `Json (`List l)
 
 
-    let delete db_conn (req: Request.t) =
+    let delete_one db_conn (req: Request.t) =
+      (
       let name = param req "name"
       in delete_one (db_conn ()) name
+      >>=?  fun () -> (Ok `Null) |> Lwt.return
+    )
+      >|= fun res -> `Db_res res
 
     (* let add db_conn (req: Opium.Std.Request.t) =
      *   req.body
