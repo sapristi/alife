@@ -4,9 +4,14 @@ open Utils;
 module Forms = Sandbox__generic_controls__forms;
 module MakeTable = Sandbox__generic_controls__table.MakeTable;
 
-module SignaturesTable = MakeTable({let db_name = "bactsig"});
-module EnvsTable = MakeTable({let db_name = "environment"});
-
+module SignaturesTable =
+  MakeTable({
+    let db_name = "bactsig";
+  });
+module EnvsTable =
+  MakeTable({
+    let db_name = "environment";
+  });
 
 [@react.component]
 let make = (~update, ~env, ~seed) => {
@@ -15,17 +20,26 @@ let make = (~update, ~env, ~seed) => {
 
   let (sigGlobalActions, envGlobalActions) =
     React.useMemo2(
-    () => {
-      ([|("Save current", updateChange => setShowSigDialog(_ => Some(updateChange)))|],
-      [|("Save current", updateChange => setShowEnvDialog(_ => Some(updateChange)))|])
-    }
-      ,
-    (setShowEnvDialog, setShowSigDialog),
-  );
-
+      () => {
+        (
+          [|
+            (
+              onClick => <ButtonIcon key="sig" onClick> <Icons.Save /> </ButtonIcon>,
+              updateChange => setShowSigDialog(_ => Some(updateChange)),
+            ),
+          |],
+          [|
+            (
+            onClick => <ButtonIcon key="env"  onClick> <Icons.Save /> </ButtonIcon>,
+              updateChange => setShowEnvDialog(_ => Some(updateChange)),
+            ),
+          |],
+        )
+      },
+      (setShowEnvDialog, setShowSigDialog),
+    );
 
   <div className="box">
-    <h5 className="title nice-title is-5"> "Predefined states"->React.string </h5>
     <HFlex style=Css.[marginBottom(px(0))]>
       <Modal isOpen={showEnvDialog != None} onRequestClose={_ => setShowEnvDialog(_ => None)}>
         <Forms.Env env seed setShow=setShowEnvDialog />
@@ -33,9 +47,14 @@ let make = (~update, ~env, ~seed) => {
       <Modal isOpen={showSigDialog != None} onRequestClose={_ => setShowSigDialog(_ => None)}>
         <Forms.NoData db_name="bactsig" setShow=setShowSigDialog />
       </Modal>
-
-      <SignaturesTable update globalActions=sigGlobalActions/>
-      <EnvsTable update globalActions=envGlobalActions/>
+      <div>
+        <h5 className="title nice-title is-5"> "Bact sigs"->React.string </h5>
+        <SignaturesTable update globalActions=sigGlobalActions />
+      </div>
+      <div>
+        <h5 className="title nice-title is-5"> "Environment"->React.string </h5>
+        <EnvsTable update globalActions=envGlobalActions />
+      </div>
     </HFlex>
   </div>;
 };

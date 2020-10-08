@@ -18,7 +18,8 @@ let print_bact b =
 let simple_bind test_ctx =
 
   let sandbox = Sandbox.of_yojson
-                  ( Yojson.Safe.from_file "../../data/bact_states/simple_bind.json" )
+      ( Yojson.Safe.from_file "../../data/bact_states/simple_bind.json" )
+                |> Result.get_ok
   in
   logger#debug "start";
   print_bact !(sandbox.bact);
@@ -56,7 +57,8 @@ let simple_bind test_ctx =
 and simple_split test_ctx =
 
   let sandbox = Sandbox.of_yojson
-                  ( Yojson.Safe.from_file "../../data/bact_states/simple_split.json" )
+      ( Yojson.Safe.from_file "../../data/bact_states/simple_split.json" )
+                |> Result.get_ok
   in
   Bacterie.next_reaction !(sandbox.bact);
   Bacterie.next_reaction !(sandbox.bact);
@@ -78,6 +80,7 @@ and simple_split test_ctx =
 and simple_break test_ctx =
   let sandbox = Sandbox.of_yojson
       ( Yojson.Safe.from_file "../../data/bact_states/simple_break.json" )
+                |> Result.get_ok
   in
   Bacterie.next_reaction !(sandbox.bact);
   Bacterie.next_reaction !(sandbox.bact);
@@ -104,6 +107,7 @@ and simple_grab_release test_ctx =
   logger#info "simple grab release";
   let sandbox = Sandbox.of_yojson
       ( Yojson.Safe.from_file "../../data/bact_states/simple_grab_release.json" )
+                |> Result.get_ok
   in
   logger#info "init ok";
   Bacterie.next_reaction !(sandbox.bact);
@@ -134,6 +138,7 @@ let grab_release_amol test_ctx =
   logger#info "grab release amol";
   let sandbox = Sandbox.of_yojson
       ( Yojson.Safe.from_file "../../data/bact_states/grab_amol.json" )
+                |> Result.get_ok
   in
   Bacterie.next_reaction !(sandbox.bact);
 

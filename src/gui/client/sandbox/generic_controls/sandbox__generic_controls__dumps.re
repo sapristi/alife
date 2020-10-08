@@ -71,7 +71,13 @@ let make = (~update) => {
   let (showDialog, setShowDialog) = React.useState(() => None);
   let globalActions =
     React.useMemo1(
-      () => [|("Save current", updateChange => setShowDialog(_ => Some(updateChange)))|],
+      () =>
+        [|
+          (
+            onClick => <ButtonIcon key="dumps" onClick> <Icons.Save /> </ButtonIcon>,
+            updateChange => setShowDialog(_ => Some(updateChange)),
+          ),
+        |],
       [|setShowDialog|],
     );
 

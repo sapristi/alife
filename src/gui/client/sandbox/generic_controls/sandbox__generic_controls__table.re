@@ -24,20 +24,24 @@ module MakeTable = (Endpoint: {let db_name: string;}) => {
           <div className="tooltiptext"> row.description->React.string </div>
           row.name->React.string
         </div>,
-
       key: "name",
+      sort: Some((row1, row2) => String.compare(row1.name, row2.name)),
+    },
+    {
+      style: [],
+      header: () => "TimeStamp"->React.string,
+      makeCell: row => String.sub(row.time, 0, 16)->React.string,
+      key: "time",
+      sort: Some((row1, row2) => String.compare(row1.time, row2.time)),
     },
     {
       style: [],
       header: () =>
         <HFlex style=Css.[alignItems(center)]>
           "Actions"->React.string
-          <Button onClick={_ => downloadAllAction()}> "Download all"->React.string </Button>
+          <ButtonIcon onClick={_ => downloadAllAction()}> <Icons.Download /> </ButtonIcon>
           {Array.map(
-             ((name, action)) =>
-               <Button onClick={_ => action(updateChange)} key=name>
-                 name->React.string
-               </Button>,
+             ((compMaker, action)) => {compMaker(_ => action(updateChange))},
              globalActions,
            )
            ->React.array}
@@ -49,6 +53,7 @@ module MakeTable = (Endpoint: {let db_name: string;}) => {
         </HFlex>,
 
       key: "action",
+      sort: None,
     },
   |];
 
