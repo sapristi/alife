@@ -210,8 +210,8 @@ module BactSignatureDB_req = struct
   let set_from_sig_name (sandbox : Sandbox.t) db_conn req =
     let sig_name = param req "name" in
     Yaac_db.BactSig.find_res (db_conn ()) sig_name
-    >|=? (fun (_,_,_,bact_sig) ->
-        sandbox.bact := Bacterie.from_sig bact_sig sandbox.env;
+    >|=? (fun ({data; _}: Yaac_db.BactSig.FullType.t) ->
+        sandbox.bact := Bacterie.from_sig data sandbox.env;
         Ok `Empty)
     >|= fun res -> `Res res
 
@@ -248,8 +248,8 @@ module EnvDB_req = struct
   let load_env (sandbox : Sandbox.t) db_conn req =
     let env_name = param req "name" in
     Yaac_db.Environment.find_res (db_conn ()) env_name
-    >|=? (fun (_,_,_,env) ->
-        sandbox.env := env;
+    >|=? (fun {data; _} ->
+        sandbox.env := data;
         Ok `Empty)
     >|= fun res -> `Res res
 
@@ -274,7 +274,7 @@ module EnvDB_req = struct
     get,    "/db/environment/dump",               dump db;
     post,   "/db/environment",                    add  db;
     post,   "/db/environment/:name/load",         load_env sandbox db;
-    delete,   "/db/environment/:name",            delete_one db;
+    delete, "/db/environment/:name",            delete_one db;
   ]
 end
 
@@ -291,8 +291,8 @@ module SandboxDumpDB_req = struct
     let dump_name = param req "name" in
     Yaac_db.SandboxDump.find_opt (db_conn ()) dump_name
     >|=! Option.to_result ~none:("Cannot find "^dump_name)
-    >|=? (fun (_,_,_,new_sandbox) ->
-        Sandbox.replace sandbox new_sandbox;
+    >|=? (fun {data; _} ->
+        Sandbox.replace sandbox data;
         Random.init !(sandbox.seed);
         Ok `Empty)
     >|= fun res -> `Res res
@@ -318,9 +318,40 @@ module SandboxDumpDB_req = struct
     get,    "/db/dump/dump",               dump db_conn;
     post,   "/db/dump",                    add sandbox db_conn;
     post,   "/db/dump/:name/load",         set_from_dump_name sandbox db_conn;
-    delete,   "/db/dump/:name",            delete_one db_conn;
+    delete, "/db/dump/:name",            delete_one db_conn;
   ]
 end
+
+
+module MolLibrary_req = struct
+
+  include Yaac_db.MolLibrary.RequestHandler
+
+  type post_item = {name: string; description: string; data: string}
+  [@@deriving yojson]
+
+  let add  (sandbox : Sandbox.t) db_conn (req: Opium.Std.Request.t) =
+    req.body
+    |> Cohttp_lwt.Body.to_string
+    >|= Yojson.Safe.from_string
+    >|= post_item_of_yojson
+    >|= Result.get_ok
+    >>= (fun ({name; description; data}) -> (
+          (Yaac_db.MolLibrary.insert_or_replace (db_conn ()) (name, description, data))
+          >|= Result.get_ok
+        ))
+    >|= (fun () -> `Empty)
+
+  let make_routes sandbox db_conn = [
+    get,    "/db/mol_library",                    list db_conn;
+    get,    "/db/mol_library/dump",               dump db_conn;
+    post,   "/db/mol_library",                    add sandbox db_conn;
+    get,    "/db/mol_library/:name",            find_one db_conn;
+    delete, "/db/mol_library/:name",            delete_one db_conn;
+  ]
+end
+
+
 
 let make_routes sandbox db_conn =
   [ get,    "", get_sandbox sandbox]
@@ -330,3 +361,4 @@ let make_routes sandbox db_conn =
   @ (BactSignatureDB_req.make_routes sandbox db_conn)
   @ (SandboxDumpDB_req.make_routes sandbox db_conn)
   @ (EnvDB_req.make_routes sandbox db_conn)
+  @ (MolLibrary_req.make_routes sandbox db_conn)

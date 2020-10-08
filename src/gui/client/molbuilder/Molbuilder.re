@@ -1,5 +1,16 @@
 open Client_types;
 open Components;
+open Utils;
+module MakeTable = Sandbox__generic_controls__table.MakeTable;
+module Forms = Sandbox__generic_controls__forms;
+
+
+module MolLibraryTable =
+  MakeTable({
+    let db_name = "mol_library";
+});
+
+module Form = Forms.Make({[@decco] type data_type = string});
 
 module Styles = {
   open Css;
@@ -55,12 +66,36 @@ module MB_Cyto = {
   };
 };
 
+[@decco]
+type data_full = {name: string, description: string, ts: float, data: string};
+
 [@react.component]
 let make = () => {
+  let (showDialog, setShowDialog) = React.useState(() => None);
   let mol = Store.useSelector(Selector.mol);
+  let storeDispatch = Store.useDispatch();
+
+  let globalActions =
+    React.useMemo1(
+      () =>
+        [|
+          (
+            onClick => <ButtonIcon key="dumps" onClick> <Icons.Save /> </ButtonIcon>,
+            updateChange => setShowDialog(_ => Some(updateChange)),
+          ),
+        |],
+      [|setShowDialog|],
+    );
+
+  let loadAction = name => Yaac.request(Fetch.Get, "/sandbox/db/mol_library/" ++ name, ~json_decode=data_full_decode, ())->Promise.getOk(res => Molbuilder__actions.commitMol(storeDispatch, res.data));
+
 
   <VFlex>
+    <Modal isOpen={showDialog != None} onRequestClose={_ => setShowDialog(_ => None)}>
+      <Form data=mol db_name="mol_library" setShow=setShowDialog />
+    </Modal>
     <h1 className="title"> "Molbuilder"->React.string </h1>
+    <MolLibraryTable update={() => ()} globalActions loadAction/>
     <Molbuilder__mol_panel mol />
     <HFlex> <MB_Cyto /> <Acids_panel /> </HFlex>
   </VFlex>;

@@ -101,7 +101,7 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
   let find_opt conn name = 
     let get_opt_req = Caqti_request.find_opt
         Caqti_type.string
-        Caqti_type.(tup4 string string ptime DataType.t)
+        FullType.t
         [%string "SELECT * FROM %{table_name} WHERE name = ?" ]
     in
     conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
@@ -193,6 +193,15 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
       >>=?  fun () -> (Ok `Null) |> Lwt.return
     )
       >|= fun res -> `Db_res res
+
+    let find_one db_conn (req: Request.t) =
+      (
+        let name = param req "name"
+        in find_res (db_conn ()) name
+        >|= Result.map FullType.to_yojson
+        >|= Result.map (fun x -> `Json x)
+      )
+      >|= fun res -> `Res res
 
     (* let add db_conn (req: Opium.Std.Request.t) =
      *   req.body

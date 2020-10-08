@@ -112,3 +112,60 @@ module Env = {
     </div>;
   };
 };
+
+module Make = (Model: {
+  [@decco]
+  type data_type;
+}) =>{
+  [@decco]
+  type post = {
+    name: string,
+    description: string,
+    data: Model.data_type,
+  };
+
+  let post = (data: post, db_name) =>
+    {
+      let data_json = post_encode(data);
+      Yaac.request_unit(Fetch.Post, "/sandbox/db/" ++ db_name, ~payload=data_json, ());
+    };
+
+  [@react.component]
+  let make = (~data, ~setShow, ~db_name) => {
+    let (description, setDescription) = React.useState(() => "");
+    let (name, setName) = React.useState(() => "");
+    let (innerData, setInnerDate) = React.useState(() => data);
+    let handleResponse =
+      React.useCallback1(
+      () =>
+        setShow(prev =>
+                switch (prev) {
+                | Some(callback) =>
+                  callback();
+                  None;
+                | None => None
+                }
+      ),
+      [|setShow|],
+    );
+
+    <div>
+      <Input.NamedInput label="Name">
+        <Input.Text value=name onChange={new_name => setName(_ => new_name)} />
+      </Input.NamedInput>
+      <Input.NamedInput label="Description">
+        <Input.Text
+          value=description
+          onChange={new_description => setDescription(_ => new_description)}
+          multiline=true
+        />
+      </Input.NamedInput>
+      <Button
+        onClick={_ => {
+          post({name, description, data: innerData}, db_name)->Promise.getOk(handleResponse);
+        }}>
+        "Post"->React.string
+      </Button>
+    </div>;
+  };
+};

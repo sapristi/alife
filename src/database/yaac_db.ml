@@ -31,19 +31,18 @@ module Environment = MakeBaseTable(struct
     let table_name = "environment"
   end)
 
-(* module MolLibrary = MakeBaseTable(struct
- *     type data_type = string
- *     let table_name = "mol_library"
- *     let encode_data x = Ok x
- *     let decode_data x = Ok x
- *   end) *)
+module MolLibrary = MakeBaseTable(struct
+    type data_type = string
+    [@@deriving yojson]
+    let table_name = "mol_library"
+  end)
 
 let create_tables conn =
   SandboxSig.setup_table conn
   >>=? fun _ -> SandboxDump.setup_table conn
   >>=? fun _ -> BactSig.setup_table conn
   >>=? fun _ -> Environment.setup_table conn
-  (* fun _ -> MolLibrary.setup_table (module Db) >>=? *)
+  >>=? fun _ -> MolLibrary.setup_table conn
   >|=? fun _ -> Ok conn
 
 let get_conn uri = Caqti_lwt.connect (Uri.of_string uri)

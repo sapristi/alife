@@ -60,19 +60,23 @@ module MakeTable = (Endpoint: {let db_name: string;}) => {
   let getRowKey = row => row.name;
 
   [@react.component]
-  let make = (~update, ~globalActions) => {
+  let make = (~update, ~globalActions, ~loadAction=?) => {
     let (values, setValues) = React.useState(_ => [||]);
     let (change, updateChange) = React.useReducer((s, ()) => !s, true);
 
     let columns =
       React.useMemo3(
         () => {
-          let loadAction = name =>
+        let loadActionDefault = switch(loadAction)
+          {
+          | None => name =>
             Yaac.request_unit(Fetch.Post, path_prefix ++ "/" ++ name ++ "/load", ())
             ->Promise.getOk(() => {
                 update();
                 updateChange();
-              });
+          })
+            | Some(action) => action
+        };
 
           let deleteAction = name =>
             Yaac.request_unit(Fetch.Delete, path_prefix ++ "/" ++ name, ())
@@ -89,7 +93,7 @@ module MakeTable = (Endpoint: {let db_name: string;}) => {
                 saveAs(blob, Endpoint.db_name ++ "_dump.json");
               });
 
-          makeColumns(loadAction, deleteAction, downloadAllAction, globalActions, updateChange);
+          makeColumns(loadActionDefault, deleteAction, downloadAllAction, globalActions, updateChange);
         },
         (update, updateChange, globalActions),
       );
