@@ -182,12 +182,34 @@ end
 module CSet =
   struct
 
-    module Colliders = CCSet.Make(Reactant)
-
     let collision_factor (reactant : Reactant.t) =
       match reactant with
       | Amol amol -> Q.one
       | ImolSet imolset -> Q.of_int imolset.qtt
+
+    module Colliders = struct
+      include CCSet.Make(Reactant)
+
+      let random_pick (ccset : t) =
+        let weighted_l = List.map
+            (fun elem -> collision_factor elem, elem) (to_list ccset)
+        in let total_weight = List.fold_left (
+            fun sum (weight, _) -> let open Numeric.Q in sum + weight
+          ) Q.zero weighted_l
+        in Misc_library.random_pick_from_weighted_list total_weight weighted_l
+
+      (** removes either Amol, or decrease imolset qtt by or
+          Used to compute reaction rates   *)
+      let remove_custom (elem: Reactant.t) ccset =
+        match elem with
+        | Amol amol -> remove elem ccset
+        | ImolSet imolset ->
+          let new_elem = Reactant.ImolSet.copy imolset in
+          Reactant.ImolSet.add_to_qtt (-1) new_elem;
+          ccset
+          |> remove elem
+          |> add (ImolSet new_elem)
+    end
     type elt = C
     type t = {
         mutable rates_sum: Q.t;
@@ -286,11 +308,11 @@ module CSet =
 
     (** TODO FIX Colliders.choose *)
     let pick_reaction (s:t) =
-      let c1 = Colliders.choose s.colliders in
-      let colliders' = Colliders.remove c1 s.colliders in
-      let c2 = Colliders.choose colliders' in
+      let c1 = Colliders.random_pick s.colliders in
+      let colliders' = Colliders.remove_custom c1 s.colliders in
+      let c2 = Colliders.random_pick colliders' in
       let c = Reacs.Collision.make (c1,c2) in
-      logger#debug "Picked %s %s from %s"
+      logger#debug "Picked %s and %s from %s"
         (Reactant.show c1) (Reactant.show c2)
         (Format.asprintf "%a" (Colliders.pp Reactant.pp) s.colliders);
       c

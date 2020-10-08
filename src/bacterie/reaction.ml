@@ -90,6 +90,8 @@ module rec
           ims.qtt <- qtt
         let make_new mol : t =
           {mol; qtt=1; reacs = (ref ReacSet.empty);ambient=false}
+        let copy ims =
+          {mol= ims.mol; qtt = ims.qtt; reacs= ref !(ims.reacs); ambient= ims.ambient}
         let add_reac (reac : Reaction.t) (imd : t) =
           imd.reacs := ReacSet.add reac !(imd.reacs)
         let remove_reac (reac : Reaction.t) (imd : t) =

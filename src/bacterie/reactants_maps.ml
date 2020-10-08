@@ -2,7 +2,7 @@
 
 modules defined in this file:
    - ARMap : structure holding active reactants (that is, molecules with PNet)
-   - IRMap : structure holding inactive reactants   
+   - IRMap : structure holding inactive reactants
 *)
 
 open Reaction
@@ -20,7 +20,7 @@ module MolMap =
       Format.sprintf pp t*)
                      (*   include Exceptionless *)
   end
-  
+
 (* ** module ARMap to interact with the active reactants *)
 (*    + add, remove : *)
 (*         takes a ref to an areactant and *)
@@ -33,7 +33,7 @@ module MolMap =
 (* apparently, AmolSet is a step toward splitting ARMap into
  * multiple sets, organised by molecule. For now, each AmolSet
  * holds at most one reactant *)
-  
+
 
 
 module ARMap =
@@ -56,7 +56,7 @@ module ARMap =
           Format.asprintf "%a" pp amolset
         let make mol =
           empty
-          
+
         let logger = Logging.get_logger "Yaac.Bact.Amolset"
 
         let find_by_id pnet_id amolset  =
@@ -66,24 +66,24 @@ module ARMap =
           let dummy_amd = (Reactant.Amol.make_new dummy_pnet)
           in
           find dummy_amd amolset
-          
+
         let add_reacs_with_new_reactant (new_reactant : Reactant.t) (amolset :t) reac_mgr : unit =
           if is_empty amolset
           then
             ()
           else
             let any_pnet = (choose amolset).pnet in
-            
+
             match new_reactant with
             | Amol new_amol ->
-               
+
               let is_graber = Petri_net.can_grab
                   (Reactant.mol new_reactant)
                   any_pnet
               and is_grabed = Petri_net.can_grab
                   any_pnet.mol
                   new_amol.pnet  in
-              
+
               iter
                 (fun current_amd ->
                    if is_graber
@@ -99,24 +99,24 @@ module ARMap =
                        logger#debug "[%s] grabed by %s"  (Reactant.show (Amol current_amd)) (Reactant.show new_reactant) |> ignore;
                      );
                  ) amolset;
-               
-            | ImolSet _ -> 
+
+            | ImolSet _ ->
                if Petri_net.can_grab (Reactant.mol new_reactant) any_pnet
-               then 
+               then
                  iter
                    (fun current_amol ->
                      logger#debug "[%s] grabing %s" (Reactant.show (Amol current_amol)) (Reactant.mol new_reactant);
                      Reac_mgr.add_grab current_amol new_reactant reac_mgr)
                    amolset
-               
+
       end
 
-(* *** ARMap defs *)      
+(* *** ARMap defs *)
     type t = {
         mutable v:  AmolSet.t MolMap.t
       }
-           
-    let pp = MolMap.pp Molecule.pp AmolSet.pp 
+
+    let pp = MolMap.pp Molecule.pp AmolSet.pp
     let show armap =
           Format.asprintf "%a" pp armap
     let logger = Logging.get_logger "Yaac.Bact.ARMap"
@@ -142,7 +142,7 @@ module ARMap =
     let total_nb (armap :t) =
       let open Q in
       MolMap.fold (fun _ amset t -> t + (of_int (AmolSet.cardinal amset))) armap.v zero
-      
+
     let remove (areactant : Reactant.Amol.t) (armap : t) : Reacs.effect list =
       logger#trace "Removing Reactant.Amol %s" (Reactant.Amol.show areactant);
 
@@ -157,7 +157,7 @@ module ARMap =
                raise Not_found
             | Some amolset ->
                if Config.remove_empty_reactants
-               then 
+               then
                  let new_aset = AmolSet.remove areactant amolset in
                  if AmolSet.is_empty new_aset
                  then None
@@ -165,10 +165,10 @@ module ARMap =
                else
                  Some (AmolSet.remove areactant amolset)
           ) armap.v;
-        
+
       [ Reacs.Remove_reacs !(areactant.reacs)]
 
-      
+
     let get_pnet_ids mol (armap :t) =
       MolMap.find mol armap.v
       |> AmolSet.to_list
@@ -179,25 +179,25 @@ module ARMap =
     let find mol pnet_id (armap : t) =
       try
         let amolset = MolMap.find mol armap.v in
-        
+
           AmolSet.find_by_id pnet_id amolset
       with
       | _   ->
          logger#error "Cannot find %s:%d in:\n%s" mol pnet_id (show armap.v);
          raise Not_found
-      
+
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
                                     (armap :t)  reac_mgr: unit =
-      
+
       logger#trace "adding reactions with %s" (Reactant.show new_reactant);
-      MolMap.iter 
-        (fun _ areac -> 
+      MolMap.iter
+        (fun _ areac ->
           AmolSet.add_reacs_with_new_reactant
             new_reactant
             areac
             reac_mgr)
         armap.v
-      
+
   end
 
 (* ** module IRMap to interact with inert reactants *)
@@ -206,7 +206,7 @@ module IRMap =
   struct
     type t = {mutable v : Reactant.ImolSet.t MolMap.t}
 
-    let pp = MolMap.pp Molecule.pp Reactant.ImolSet.pp 
+    let pp = MolMap.pp Molecule.pp Reactant.ImolSet.pp
     let show irmap =
           Format.asprintf "%a" pp irmap
     let logger = Logging.get_logger "Yaac.Bact.IRMap"
@@ -219,23 +219,23 @@ module IRMap =
           let imolset = MolMap.find mol irmap.v in
           Reactant.ImolSet.set_qtt qtt imolset;
           [ Reacs.Update_reacs !(imolset.reacs)]
-          
+
         let set_ambient ambient mol (irmap :t) =
           let imolset = MolMap.find mol irmap.v in
           Reactant.ImolSet.set_ambient ambient imolset
-      
+
         let remove_all mol (irmap : t) =
           let imolset = MolMap.find mol irmap.v in
           let reacs = Reactant.ImolSet.reacs imolset in
           irmap.v <- MolMap.remove mol irmap.v;
           [ Reacs.Remove_reacs reacs]
       end
-               
+
     let make () = {v = MolMap.empty}
 
     let add (ireac : Reactant.ImolSet.t) irmap =
       irmap.v <- MolMap.add ireac.mol ireac irmap.v
-                
+
     let add_to_qtt (ir : Reactant.ImolSet.t) deltaqtt (irmap : t)
         : Reacs.effect list =
       let imolset = MolMap.find ir.mol irmap.v in
@@ -246,11 +246,11 @@ module IRMap =
       else
       [Reacs.Update_reacs !(ir.reacs)]
 
-          
+
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
-          (irmap :t) reac_mgr =      
+          (irmap :t) reac_mgr =
       match new_reactant with
-      | Amol new_amol -> 
+      | Amol new_amol ->
          MolMap.iter
            (fun mol ireactant ->
              if Petri_net.can_grab mol new_amol.pnet
@@ -262,9 +262,8 @@ module IRMap =
                )
            )
            irmap.v
-        
+
       | ImolSet _ -> ()
-      
-        
+
+
   end
-  

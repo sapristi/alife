@@ -90,6 +90,7 @@ module type REACTANT =
       val add_to_qtt : int -> t -> unit
       val set_qtt : int ->  t -> unit
       val set_ambient : bool -> t -> unit
+      val copy: t -> t
       include REACTANT_DEFAULT
               with type t := t
               and type reac := reac

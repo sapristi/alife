@@ -91,10 +91,10 @@ let log_in_out =
             >|= fun () ->
             response >|= Response.headers >|= Cohttp.Header.to_string
             >|= logger#debug ~tags:[c] "Headers: %s";
-            response
-            >|= (fun r -> r.body)
-            >>= Cohttp_lwt.Body.to_string
-            >|= logger#debug ~tags:[c] "Body: %s"
+            (* response *)
+            (* >|= (fun r -> r.body)
+             * >>= Cohttp_lwt.Body.to_string
+             * >|= logger#debug ~tags:[c] "Body: %s" *)
           )
           >>= ( fun _ -> response)
         with

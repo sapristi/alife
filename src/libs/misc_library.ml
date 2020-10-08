@@ -6,11 +6,11 @@ let rec cut_list l pos =
   match l with
   | [] -> [], []
   | h :: t ->
-     if pos = 0
-     then [],l
-     else
-       let l1, l2 = (cut_list t (pos -1)) in
-       h :: l1, l2
+    if pos = 0
+    then [],l
+    else
+      let l1, l2 = (cut_list t (pos -1)) in
+      h :: l1, l2
 ;;
 
 
@@ -33,8 +33,8 @@ let rec append_to_rev_list l1 l2 =
 let rec unzip l =
   match l with
   | (a,b) :: l' ->
-     let l1, l2 = unzip l' in
-     a::l1, b::l2
+    let l1, l2 = unzip l' in
+    a::l1, b::l2
   | [] -> [], []
 ;;
 
@@ -56,68 +56,83 @@ let random_pick_from_array a =
   a.(n)
 ;;
 
-
-
+(* TODO: better algo: use streams ? *)
+let random_pick_from_weighted_list total_weight l =
+  let rec aux target_weight l =
+    match l with
+    | [] -> let msg ="Cannot pick from empty list"
+      in logger#serror msg; failwith  msg
+    | (weight, elem)::t ->
+      logger#info "Aux: weight (%s), target (%s)" (Numeric.Q.to_string weight) (Numeric.Q.to_string target_weight);
+      let open Numeric.Q in
+      (
+        if weight >= target_weight
+        then elem
+        else aux (target_weight - weight) t
+      )
+  in let target_weight = Numeric.Q.random (total_weight) in
+  logger#info "Random: total (%s), target (%s)" (Numeric.Q.to_string total_weight) (Numeric.Q.to_string target_weight);
+  aux target_weight l
 
 let get_all_couples
     (l1 : 'a list)
     (l2 : 'b list)
-    : ('a * 'b) list
-    =
+  : ('a * 'b) list
+  =
 
   List.fold_left
     (fun
       (l :  ('a * 'b) list)
       (x : 'a) ->
-	List.fold_left
-	  (fun
-	    (t :  ('a * 'b) list)
-	    (y : 'b)
-	  -> (x,y) :: t)
-	  l
-	  l2)
+	    List.fold_left
+	      (fun
+	        (t :  ('a * 'b) list)
+	        (y : 'b)
+	        -> (x,y) :: t)
+	      l
+	      l2)
     []
     l1
 
 
 
 let idProvider = object
-    val mutable id = 0
+  val mutable id = 0
 
-    method get_id () =
-      let res = id in
-      id <- id +1;
-      res
+  method get_id () =
+    let res = id in
+    id <- id +1;
+    res
 
-  end
+end
 
 let common_elements l1 l2 =
   let rec common_elements_aux (l1 : (string*int) list) (l2 : (string*int) list) res =
     match l1, l2 with
     | (s1,i1)::l1', (s2, i2)::l2' ->
-       if s1 = s2
-       then common_elements_aux l1' l2' ((s1, i1, i2) :: res)
-       else
-         if s1 < s2
-         then common_elements_aux l1' l2 res
-         else common_elements_aux l1 l2' res
+      if s1 = s2
+      then common_elements_aux l1' l2' ((s1, i1, i2) :: res)
+      else
+      if s1 < s2
+      then common_elements_aux l1' l2 res
+      else common_elements_aux l1 l2' res
 
     | _ -> res
   in common_elements_aux l1 l2 []
 
 
 let rec pick_from_list (bound : Q.t) (c : Q.t)
-          (value : 'a -> Q.t)
-          (l : 'a list)  =
+    (value : 'a -> Q.t)
+    (l : 'a list)  =
   let open Q in
   match l with
   | h::t ->
-     let c' = c + value h in
+    let c' = c + value h in
 
-     if lt bound c'  then h
-     else pick_from_list bound c' value t
+    if lt bound c'  then h
+    else pick_from_list bound c' value t
   | [] ->
-     raise Not_found
+    raise Not_found
 
            (*
 let pick_from_enum (bound : float)

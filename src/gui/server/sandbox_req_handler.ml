@@ -225,7 +225,7 @@ module BactSignatureDB_req = struct
     >|= post_item_of_yojson
     >|= Result.get_ok
     >>= (fun ({name; description}) -> (
-          (Yaac_db.BactSig.add_one (db_conn ())
+          (Yaac_db.BactSig.insert_or_replace (db_conn ())
              (name, description, Bacterie.to_sig !(sandbox.bact)))
           >|= Result.get_ok
         ))
@@ -263,7 +263,7 @@ module EnvDB_req = struct
     >|= post_item_of_yojson
     >|= Result.get_ok
     >>= (fun ({name; description; data}) -> 
-          (Yaac_db.Environment.add_one (db_conn ())
+          (Yaac_db.Environment.insert_or_replace (db_conn ())
              (name, description, data)
           >|= Result.get_ok
         ))
@@ -308,7 +308,7 @@ module SandboxDumpDB_req = struct
     >|= post_item_of_yojson
     >|= Result.get_ok
     >>= (fun ({name; description}) -> (
-          (Yaac_db.SandboxDump.add_one (db_conn ()) (name, description, sandbox))
+          (Yaac_db.SandboxDump.insert_or_replace (db_conn ()) (name, description, sandbox))
           >|= Result.get_ok
         ))
     >|= (fun () -> `Empty)

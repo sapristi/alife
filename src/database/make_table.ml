@@ -76,15 +76,18 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
       Caqti_type.custom ~encode ~decode rep
   end
 
-  let add_one conn (name, description, data) =
-    let add_one_req = Caqti_request.exec
+  let insert_or_replace conn (name, description, data) =
+    let insert_or_replace_req = Caqti_request.exec
         Caqti_type.(tup4 string string ptime DataType.t)
         [%string {| INSERT INTO %{table_name}
                   (name, description, ts, data)
-                  VALUES (?, ?, ?, ?) |} ]
+                  VALUES (?, ?, ?, ?)
+          ON CONFLICT(name)
+          DO UPDATE SET description=excluded.description, ts=excluded.ts, data=excluded.data
+|} ]
     in
     conn >>=? fun (module Conn : Caqti_lwt.CONNECTION) ->
-    Conn.exec add_one_req (name, description, Ptime_clock.now (), data)
+    Conn.exec insert_or_replace_req (name, description, Ptime_clock.now (), data)
 
   let delete_one conn name =
     let delete_one_req = Caqti_request.exec
