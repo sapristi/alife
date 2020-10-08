@@ -2,7 +2,7 @@ open Components;
 open Utils;
 
 module MakeTable = (Endpoint: {let db_name: string;}) => {
-  let path_prefix ="/sandbox/db/" ++ Endpoint.db_name;
+  let path_prefix = "/sandbox/db/" ++ Endpoint.db_name;
 
   [@decco]
   type data_item = {
@@ -14,7 +14,8 @@ module MakeTable = (Endpoint: {let db_name: string;}) => {
   type data = array(data_item);
 
   let makeColumns =
-      (loadAction, deleteAction, downloadAllAction): array(Table.column(data_item)) => [|
+      (loadAction, deleteAction, downloadAllAction, globalActions, updateChange)
+      : array(Table.column(data_item)) => [|
     {
       style: [],
       header: () => "Name"->React.string,
@@ -29,10 +30,18 @@ module MakeTable = (Endpoint: {let db_name: string;}) => {
     {
       style: [],
       header: () =>
-        <div>
+        <HFlex style=Css.[alignItems(center)]>
           "Actions"->React.string
           <Button onClick={_ => downloadAllAction()}> "Download all"->React.string </Button>
-        </div>,
+          {Array.map(
+             ((name, action)) =>
+               <Button onClick={_ => action(updateChange)} key=name>
+                 name->React.string
+               </Button>,
+             globalActions,
+           )
+           ->React.array}
+        </HFlex>,
       makeCell: row =>
         <HFlex>
           <Button onClick={_ => loadAction(row.name)}> "Load"->React.string </Button>
@@ -46,52 +55,39 @@ module MakeTable = (Endpoint: {let db_name: string;}) => {
   let getRowKey = row => row.name;
 
   [@react.component]
-  let make = (~update) => {
+  let make = (~update, ~globalActions) => {
     let (values, setValues) = React.useState(_ => [||]);
     let (change, updateChange) = React.useReducer((s, ()) => !s, true);
 
-    let loadAction =
-      React.useCallback2(
-        name =>
-          Yaac.request_unit(
-            Fetch.Post,
-            path_prefix ++ "/" ++ name ++ "/load",
-            (),
-          )
-          ->Promise.getOk(() => {
-              update();
-              updateChange();
-            }),
-        (update, updateChange),
-      );
+    let columns =
+      React.useMemo3(
+        () => {
+          let loadAction = name =>
+            Yaac.request_unit(Fetch.Post, path_prefix ++ "/" ++ name ++ "/load", ())
+            ->Promise.getOk(() => {
+                update();
+                updateChange();
+              });
 
-    let deleteAction =
-      React.useCallback2(
-        name =>
-          Yaac.request_unit(Fetch.Delete, path_prefix ++ "/" ++ name, ())
-          ->Promise.getOk(() => {
-              update();
-              updateChange();
-            }),
-        (update, updateChange),
-      );
+          let deleteAction = name =>
+            Yaac.request_unit(Fetch.Delete, path_prefix ++ "/" ++ name, ())
+            ->Promise.getOk(() => {
+                update();
+                updateChange();
+              });
 
-    let downloadAllAction =
-      React.useCallback(() =>
-        Yaac.request(
-          Fetch.Get,
-          path_prefix ++ "/dump",
-          ~json_decode=x => Ok(x),
-          (),
-        )
-        ->Promise.getOk(res => {
-            let data = Js.Json.stringify(res);
-            let blob = makeBlob([|data|], {"type": "text/plain"});
-            saveAs(blob, "bact_sigs_dump.json");
-          })
-      );
+          let downloadAllAction = () =>
+            Yaac.request(Fetch.Get, path_prefix ++ "/dump", ~json_decode=x => Ok(x), ())
+            ->Promise.getOk(res => {
+                let data = Js.Json.stringify(res);
+                let blob = makeBlob([|data|], {"type": "text/plain"});
+                saveAs(blob, Endpoint.db_name ++ "_dump.json");
+              });
 
-    let columns = makeColumns(loadAction, deleteAction, downloadAllAction);
+          makeColumns(loadAction, deleteAction, downloadAllAction, globalActions, updateChange);
+        },
+        (update, updateChange, globalActions),
+      );
 
     React.useEffect1(
       () => {

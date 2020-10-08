@@ -204,50 +204,6 @@ module Reactions_req = struct
   ]
 end
 
-(* module SandboxSignature_req = struct
- * 
- *   include Yaac_db.SandboxSig.RequestHandler
- * 
- *   (\* Set the current sandbox from the stored signature;
- *      Reset the Random seed from that of the sig.contents
- * 
- *      TODO: it could be nice that the sandbox stores a random generator for itself.   *\)
- *   let set_from_sig_name (sandbox : Sandbox.t) db_conn req =
- *     let sig_name = param req "name" in
- *     Yaac_db.SandboxSig.find_opt (db_conn ()) sig_name
- *     >|=! Option.to_result ~none:("Cannot find "^sig_name)
- *     >|=? (fun (_,_,_,sandbox_sig) ->
- *         Sandbox.set_from_signature sandbox sandbox_sig;
- *         Random.init sandbox_sig.seed;
- *         Ok `Empty)
- *     >|= fun res -> `Res res
- * 
- *   type post_item = {name: string; description: string; env: Environment.t; seed: int}
- *   [@@deriving yojson]
- * 
- *   let add (sandbox : Sandbox.t) db_conn (req: Opium.Std.Request.t) =
- *     req.body
- *     |> Cohttp_lwt.Body.to_string
- *     >|= Yojson.Safe.from_string
- *     >|= post_item_of_yojson
- *     >|= Result.get_ok
- *     >>= (fun ({name; description; env; seed}) -> (
- *           (Yaac_db.SandboxSig.add_one (db_conn ())
- *              (name, description, {bact = Bacterie.to_sig !(sandbox.bact); env; seed}))
- *           >|= Result.get_ok
- *         ))
- *     >|= (fun () -> `Empty)
- * 
- *   let make_routes sandbox db = [
- *     get,    "/signature",                    list db;
- *     get,    "/signature/dump",               dump db;
- *     post,   "/signature",                    add sandbox db;
- *     post,   "/signature/:name/load",         set_from_sig_name sandbox db;
- *     delete,   "/db/bactsig/:name",            delete_one db;
- *   ]
- * end *)
-
-
 module BactSignatureDB_req = struct
 
   include Yaac_db.BactSig.RequestHandler

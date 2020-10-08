@@ -1,7 +1,7 @@
 open Components;
 open Utils;
 
-module SignatureForm = Sandbox__generic_controls__signature_form;
+module Forms = Sandbox__generic_controls__forms;
 module MakeTable = Sandbox__generic_controls__table.MakeTable;
 
 module DumpForm = {
@@ -36,7 +36,14 @@ module DumpForm = {
       <Button
         onClick={_ => {
           post({name, description});
-          setShow(_ => false);
+          setShow(prev =>
+            switch (prev) {
+            | Some(callback) =>
+              callback();
+              None;
+            | None => None
+            }
+          );
         }}>
         "Post"->React.string
       </Button>
@@ -54,21 +61,28 @@ let download_dumps = _ =>
       saveAs(blob, "dumps_dump.json");
     });
 
-module DumpsTable = MakeTable({let db_name = "dump"})
+module DumpsTable =
+  MakeTable({
+    let db_name = "dump";
+  });
 
 [@react.component]
 let make = (~update) => {
-  let (showDialog, setShowDialog) = React.useState(() => false);
+  let (showDialog, setShowDialog) = React.useState(() => None);
+  let globalActions =
+    React.useMemo1(
+      () => [|("Save current", updateChange => setShowDialog(_ => Some(updateChange)))|],
+      [|setShowDialog|],
+    );
 
   <div className="box">
     <h5 className="title nice-title is-5"> "Dumped states"->React.string </h5>
     <HFlex style=Css.[marginBottom(px(0))]>
-      <Modal isOpen=showDialog onRequestClose={_ => setShowDialog(_ => false)}>
-        <DumpForm setShow=setShowDialog />
+      <Modal isOpen={showDialog != None} onRequestClose={_ => setShowDialog(_ => None)}>
+        <Forms.NoData db_name="dump" setShow=setShowDialog />
       </Modal>
-      <DumpsTable update />
+      <DumpsTable update globalActions />
       <div className="buttons has-addons">
-        <Button onClick={_ => setShowDialog(_ => true)}> "Save current"->React.string </Button>
         <Button onClick=download_dumps> "Dump signatures"->React.string </Button>
         <Button> "Load signatures dump"->React.string </Button>
       </div>

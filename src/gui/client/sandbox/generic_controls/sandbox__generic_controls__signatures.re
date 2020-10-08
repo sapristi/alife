@@ -1,34 +1,41 @@
 open Components;
 open Utils;
 
-module SignatureForm = Sandbox__generic_controls__signature_form;
+module Forms = Sandbox__generic_controls__forms;
 module MakeTable = Sandbox__generic_controls__table.MakeTable;
 
 module SignaturesTable = MakeTable({let db_name = "bactsig"});
 module EnvsTable = MakeTable({let db_name = "environment"});
 
-let download_dumps = _ =>
-  Yaac.request(Fetch.Get, "/sandbox/db/bactsig/dump", ~json_decode=x => Ok(x), ())
-  ->Promise.getOk(res => {
-      Js.log2("dump", res);
-      let data = Js.Json.stringify(res);
-      let blob = makeBlob([|data|], {"type": "text/plain"});
-      Js.log2("blob", blob);
-      saveAs(blob, "bact_sigs_dump.json");
-    });
 
 [@react.component]
 let make = (~update, ~env, ~seed) => {
-  let (showDialog, setShowDialog) = React.useState(() => false);
+  let (showEnvDialog, setShowEnvDialog) = React.useState(() => None);
+  let (showSigDialog, setShowSigDialog) = React.useState(() => None);
+
+  let (sigGlobalActions, envGlobalActions) =
+    React.useMemo2(
+    () => {
+      ([|("Save current", updateChange => setShowSigDialog(_ => Some(updateChange)))|],
+      [|("Save current", updateChange => setShowEnvDialog(_ => Some(updateChange)))|])
+    }
+      ,
+    (setShowEnvDialog, setShowSigDialog),
+  );
+
 
   <div className="box">
     <h5 className="title nice-title is-5"> "Predefined states"->React.string </h5>
     <HFlex style=Css.[marginBottom(px(0))]>
-      <Modal isOpen=showDialog onRequestClose={_ => setShowDialog(_ => false)}>
-        <SignatureForm env seed setShow=setShowDialog />
+      <Modal isOpen={showEnvDialog != None} onRequestClose={_ => setShowEnvDialog(_ => None)}>
+        <Forms.Env env seed setShow=setShowSigDialog />
       </Modal>
-      <SignaturesTable update />
-      <EnvsTable update />
+      <Modal isOpen={showSigDialog != None} onRequestClose={_ => setShowSigDialog(_ => None)}>
+        <Forms.NoData db_name="bactsig" setShow=setShowEnvDialog />
+      </Modal>
+
+      <SignaturesTable update globalActions=sigGlobalActions/>
+      <EnvsTable update globalActions=envGlobalActions/>
     </HFlex>
   </div>;
 };
