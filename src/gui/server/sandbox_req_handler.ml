@@ -253,7 +253,7 @@ module EnvDB_req = struct
         Ok `Empty)
     >|= fun res -> `Res res
 
-  type post_item = {name: string; description: string; data: Yaac_db.Environment.DataType.t}
+  type post_item = {name: string; description: string; data: Bacterie_libs.Environment.t}
   [@@deriving yojson]
 
   let add  db_conn (req: Opium.Std.Request.t) =

@@ -63,13 +63,13 @@ module Env = {
   type post = {
     name: string,
     description: string,
-    env: Client_types.environment,
+    data: Client_types.environment,
   };
 
   let post = (data: post) =>
     {
       let data_json = post_encode(data);
-      Yaac.request_unit(Fetch.Post, "/sandbox/signature", ~payload=data_json, ());
+      Yaac.request_unit(Fetch.Post, "/sandbox/db/environment", ~payload=data_json, ());
     };
 
   [@react.component]
@@ -105,7 +105,7 @@ module Env = {
       <EnvControls env=innerEnv setEnv=setInnerEnv />
       <Button
         onClick={_ => {
-          post({name, description, env: innerEnv})->Promise.getOk(handleResponse);
+          post({name, description, data: innerEnv})->Promise.getOk(handleResponse);
         }}>
         "Post"->React.string
       </Button>

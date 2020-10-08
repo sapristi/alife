@@ -28,10 +28,10 @@ let make = (~update, ~env, ~seed) => {
     <h5 className="title nice-title is-5"> "Predefined states"->React.string </h5>
     <HFlex style=Css.[marginBottom(px(0))]>
       <Modal isOpen={showEnvDialog != None} onRequestClose={_ => setShowEnvDialog(_ => None)}>
-        <Forms.Env env seed setShow=setShowSigDialog />
+        <Forms.Env env seed setShow=setShowEnvDialog />
       </Modal>
       <Modal isOpen={showSigDialog != None} onRequestClose={_ => setShowSigDialog(_ => None)}>
-        <Forms.NoData db_name="bactsig" setShow=setShowEnvDialog />
+        <Forms.NoData db_name="bactsig" setShow=setShowSigDialog />
       </Modal>
 
       <SignaturesTable update globalActions=sigGlobalActions/>
