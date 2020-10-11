@@ -6,7 +6,7 @@ module Text = {
     React.forwardRef(
       (
         ~value,
-        ~onChange=(_ => ()),
+        ~onChange=_ => (),
         ~multiline=false,
         ~styles=[],
         ~size=5,
@@ -93,6 +93,7 @@ module TextInline = {
         borderRadius(px(4)),
         padding(px(1)),
         justifyContent(spaceBetween),
+        width(inherit_),
       ]>
       <Text
         autoFocus=true

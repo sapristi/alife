@@ -51,8 +51,9 @@ let make (m : string)  =
       let mol_repr = Re.replace ~all:false
                           grab_location_cre
                           ~f:rep_loc m in
-      let str_repr = Re.replace_string wildcard_cre
-                                 ~by:".*?" mol_repr
+      let str_repr' = Re.replace_string wildcard_cre
+          ~by:".*?" mol_repr
+      in let str_repr = "^" ^ str_repr'
       in
       logger#debug "Compiled %s\nfrom %s" str_repr m;
       Some {mol_repr;

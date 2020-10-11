@@ -66,7 +66,8 @@ export const pnet_style= [
         style: {
             'shape' : 'rectangle',
             'height' : '20px',
-	          'background-color' : pnet_colors.trans
+	          'background-color' : pnet_colors.trans,
+	          label : ele => ele._private.data.label
         }
     },
     {

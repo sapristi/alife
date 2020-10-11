@@ -53,12 +53,12 @@ module ExtensionComp = {
   let make = (~extension_type, ~update) => {
     switch (extension_type) {
     | Grab_ext(pattern) =>
-      <HFlex style=Css.[alignItems(center)]>
+      <HFlex style=Css.[alignItems(center), width(pct(100.))]>
         "Grab"->React.string
         <Input.TextInline
           value=pattern
           setValue={new_pattern => update(Grab_ext(new_pattern))}
-          styles=inputStyle
+          styles=[Css.(width(pct(100.))), ...inputStyle]
         />
       </HFlex>
     | Release_ext => "Release"->React.string

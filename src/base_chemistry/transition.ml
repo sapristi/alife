@@ -85,10 +85,10 @@ let make (id : string)
          (places : Place.t array)
          (input_arcs : (int * Acid_types.input_arc) list)
          (output_arcs : (int * Acid_types.output_arc) list)
-         (index : int) : t=
+         (index : int) : t =
 
   let t =
-    {launchable=false; id; 
+    {launchable=false; id;
      input_arcs = List.map( fun (pid, t) -> {source_place = pid;
                                              iatype = t}) input_arcs;
 
