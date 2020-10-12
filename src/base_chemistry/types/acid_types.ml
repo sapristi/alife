@@ -48,6 +48,7 @@ type input_arc =
   | Split_iarc
   | Filter_iarc of string
   | Filter_empty_iarc
+  | No_token_iarc
 [@@decco]
 [@@deriving show, yojson]
 
@@ -108,7 +109,9 @@ struct
     InputArc ("A", Regular_iarc);
     InputArc ("A", Split_iarc);
     InputArc ("A", Filter_iarc "A");
-    InputArc ("A", Filter_empty_iarc);]
+    InputArc ("A", Filter_empty_iarc);
+    InputArc ("A", No_token_iarc);
+  ]
   let output_arcs = [
     OutputArc ("A", Regular_oarc);
     OutputArc ("A", Merge_oarc);

@@ -109,7 +109,7 @@ let make =
       <div
         style=Css.(
           style([
-            resize(vertical),
+            resize(both),
             overflow(hidden),
             padding(px(0)),
             height(px(pxHeight)),

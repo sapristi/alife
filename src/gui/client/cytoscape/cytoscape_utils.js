@@ -229,6 +229,7 @@ export const setup_pnet_cy = function(elements, eventHandler) {
     }
 
     cy.on('select', '.place,.transition', function(evt){
+        console.log("Selected", evt.target.data())
     	  eventHandler(evt.target.data().node_type);
 	      select_edges(evt.target)
     })

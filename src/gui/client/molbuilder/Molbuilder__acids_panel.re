@@ -101,7 +101,7 @@ let make = () => {
           />
         </HFlex>
       </HFlex>
-      <HFlex style=Css.[height(pct(100.))]>
+      <HFlex style=Css.[height(pct(100.)), maxHeight(px(700))]>
         <MolBuilderDnd.DroppableContainer
           id=AcidsList axis=Y className=Container.style>
           <ul>

@@ -51,14 +51,10 @@ let get_conn uri = Caqti_lwt.connect (Uri.of_string uri)
 let init uri data_path =
   let open Lwt.Infix in
   (
-  get_conn uri
-  >|= log_res_debug logger "conn"
-  >>=? create_tables
-  >|= log_res_debug logger "tables"
-  >>=? fun conn -> BactSig.load_dump_file conn (data_path ^ "/dump/bact_sigs.json")
-  >|= log_res_debug logger "load 1"
-  >>=? fun conn -> Environment.load_dump_file conn (data_path ^ "/dump/envs.json")
-  >|= log_res_debug logger "load 2"
-    )
+    get_conn uri
+    >>=? create_tables
+    >>=? fun conn -> BactSig.load_dump_file conn (data_path ^ "/dump/bact_sigs.json")
+    >>=? fun conn -> Environment.load_dump_file conn (data_path ^ "/dump/envs.json")
+  )
   >|= fun _ -> ()
 

@@ -34,7 +34,7 @@ include Chemistry_types.Types.Transition
 
 let launchable (transition : t) (places)=
   if List.length transition.output_arcs = 0
-   || List.length transition.input_arcs = 0
+  || List.length transition.input_arcs = 0
   then false
   else
     begin
@@ -55,6 +55,13 @@ let launchable (transition : t) (places)=
             | None -> false
             | Some token ->
               Token.get_label token = ""
+          end
+        | Acid_types.No_token_iarc ->
+          begin
+            match place.Place.token with
+            | None -> true
+            | Some _ ->
+              false
           end
         | _ ->
           not (Place.is_empty place)
@@ -82,10 +89,10 @@ let update_launchable transition places : unit =
 
 
 let make (id : string)
-         (places : Place.t array)
-         (input_arcs : (int * Acid_types.input_arc) list)
-         (output_arcs : (int * Acid_types.output_arc) list)
-         (index : int) : t =
+    (places : Place.t array)
+    (input_arcs : (int * Acid_types.input_arc) list)
+    (output_arcs : (int * Acid_types.output_arc) list)
+    (index : int) : t =
 
   let t =
     {launchable=false; id;
@@ -112,59 +119,59 @@ let make (id : string)
 
 let apply_transition (transition : t) (places): Place.transition_effect list=
   let rec apply_input_arcs
-            (i_arc_l :
-               (Place.t * Acid_types.input_arc) list)
-          : Token.t list =
+      (i_arc_l :
+         (Place.t * Acid_types.input_arc) list)
+    : Token.t list =
     match i_arc_l with
+    | (_, No_token_iarc) :: i_arc_l'-> apply_input_arcs i_arc_l'
     | (place, transi) :: i_arc_l' ->
-       begin
-         let token = Place.pop_token place in
-         match transi with
-         | Acid_types.Split_iarc  ->
-            let token1, token2 = Token.cut_mol token in
-            token1 :: token2 ::
-              apply_input_arcs i_arc_l'
-         | _ -> token :: apply_input_arcs i_arc_l'
-       end
+      begin
+        let token = Place.pop_token place in
+        match transi with
+        | Acid_types.Split_iarc  ->
+          let token1, token2 = Token.cut_mol token in
+          token1 :: token2 :: apply_input_arcs i_arc_l'
+        | _ -> token :: apply_input_arcs i_arc_l'
+      end
     | [] -> []
   and apply_output_arcs
-        (o_arc_l :
-           (Place.t * Acid_types.output_arc) list)
-        (tokens : Token.t list) :
-        Place.transition_effect list =
+      (o_arc_l :
+         (Place.t * Acid_types.output_arc) list)
+      (tokens : Token.t list) :
+    Place.transition_effect list =
     (* TODO : permettre au merge de ne prendre qu'un token
-(et donc de   ne pas avoir d'effet ?) *)
+       (et donc de   ne pas avoir d'effet ?) *)
     match o_arc_l, tokens with
     | (place, Acid_types.Merge_oarc) :: o_arc_l',
       t1 :: t2 :: tokens' ->
-       let effects =
-         Place.add_token_from_transition
-           (Token.insert t1 t2) place in
-       effects @ (apply_output_arcs o_arc_l' tokens')
+      let effects =
+        Place.add_token_from_transition
+          (Token.insert t1 t2) place in
+      effects @ (apply_output_arcs o_arc_l' tokens')
     | (place, Acid_types.Move_oarc move_dir) :: o_arc_l',
       token :: tokens' ->
-       let new_token =
-         if move_dir
-         then Token.move_mol_forward token
-         else Token.move_mol_backward token
-       in
-       let effects =
-         Place.add_token_from_transition new_token place in
-       effects @ (apply_output_arcs o_arc_l' tokens')
+      let new_token =
+        if move_dir
+        then Token.move_mol_forward token
+        else Token.move_mol_backward token
+      in
+      let effects =
+        Place.add_token_from_transition new_token place in
+      effects @ (apply_output_arcs o_arc_l' tokens')
     | (place, Acid_types.Regular_oarc) :: o_arc_l',
       token :: tokens' ->
-       let effects =
-         Place.add_token_from_transition token place in
-       effects @ (apply_output_arcs o_arc_l' tokens')
+      let effects =
+        Place.add_token_from_transition token place in
+      effects @ (apply_output_arcs o_arc_l' tokens')
     (* TODO : ajouter des release effect aux tokens restants *)
     | _ -> []
   in
   let i_arc_l = List.map
-                  (fun ia -> places.(ia.source_place),ia.iatype)
-                  transition.input_arcs
+      (fun ia -> places.(ia.source_place),ia.iatype)
+      transition.input_arcs
   and o_arc_l = List.map
-                  (fun oa -> places.(oa.dest_place),oa.oatype)
-                  transition.output_arcs
+      (fun oa -> places.(oa.dest_place),oa.oatype)
+      transition.output_arcs
   in apply_output_arcs
-       o_arc_l
-       (apply_input_arcs i_arc_l)
+    o_arc_l
+    (apply_input_arcs i_arc_l)

@@ -78,6 +78,7 @@ module Chemistry = {
     | Split_iarc => ("split", "")
     | Filter_iarc(s) => ("filter", s)
     | Filter_empty_iarc => ("filter empty", {js|∅|js})
+    | No_token_iarc => ("No token", {js|∄|js})
     };
   let input_arc_to_descr = ia =>
     switch (ia) {
@@ -85,6 +86,7 @@ module Chemistry = {
     | Split_iarc => "split"
     | Filter_iarc(s) => "filter (" ++ s ++ ")"
     | Filter_empty_iarc => "filter empty"
+    | No_token_iarc => "no token"
     };
   let output_arc_to_cy = oa =>
     switch (oa) {

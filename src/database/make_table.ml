@@ -142,11 +142,11 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
     >>=? fun _ -> (Ok (module Conn : Caqti_lwt.CONNECTION)) |> Lwt.return
 
   let load_dump_file conn dump_file =
-    logger#info "Loading file %s" dump_file;
+    logger#debug "Loading file %s" dump_file;
     Yojson.Safe.from_file dump_file
     |> FullType.dump_of_yojson
-    |> (function | Ok ok -> logger#info "load ok %s" dump_file; ok
-                 | Error r -> logger#error "load ko %s" r; failwith "this is bad")
+    |> (function | Ok ok -> ok
+                 | Error r -> logger#error "Failed loading file %s: %s" dump_file r; [])
     |> load_dump conn
 
   let setup_table (module Conn : Caqti_lwt.CONNECTION) =
@@ -160,7 +160,7 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
   ) WITHOUT ROWID
   |eot} ]
     in
-    logger#debug "creating table %s" table_name;
+    logger#debug "create if not exists table %s" table_name;
     Conn.exec create_table_req ()
 
 

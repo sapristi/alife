@@ -59,7 +59,7 @@ module MB_Cyto = {
 
     <Cytoscape_pnet
       pnetO
-      styles=Css.[width(pct(100.)), height(pct(100.))]
+      styles=Css.[height(pct(100.))]
       cyEHandler={_ => ()}
       pxHeight=400
     />;

@@ -2,11 +2,7 @@ open Acid_types;
 open Components;
 
 let inputStyle =
-  Css.[
-    padding2(~v=px(0), ~h=px(3)),
-    height(em(1.5)),
-    fontFamily(`monospace),
-  ];
+  Css.[padding2(~v=px(0), ~h=px(3)), height(em(1.5)), fontFamily(`monospace)];
 
 module InputArcComp = {
   [@react.component]
@@ -24,6 +20,7 @@ module InputArcComp = {
         />
       </HFlex>
     | Filter_empty_iarc => "Filter empty"->React.string
+    | No_token_iarc => "No Token"->React.string
     };
   };
 };
@@ -68,84 +65,74 @@ module ExtensionComp = {
 };
 
 [@react.component]
-let make = (~acid, ~update, ~delete) => {
-  let inner =
-    switch (acid) {
-    | Place => "Place"->React.string
-    | InputArc(tid, iarc_type) =>
-      <>
-        <InputArcComp
-          iarc_type
-          update={new_iarc_type => update(InputArc(tid, new_iarc_type))}
-        />
-        <HFlex
-          style=Css.[
-            marginLeft(px(5)),
-            justifyContent(spaceBetween),
-            alignItems(center),
-          ]>
-          "InputArc"->React.string
-          <Input.TextInline
-            value=tid
-            setValue={new_tid => update(InputArc(new_tid, iarc_type))}
-            styles=inputStyle
+let make =
+  React.memo((~acid, ~update, ~delete) => {
+    let inner =
+      switch (acid) {
+      | Place => "Place"->React.string
+      | InputArc(tid, iarc_type) =>
+        <>
+          <InputArcComp
+            iarc_type
+            update={new_iarc_type => update(InputArc(tid, new_iarc_type))}
           />
-        </HFlex>
-      </>
-    | OutputArc(tid, oarc_type) =>
-      <>
-        <OutputArcComp
-          oarc_type
-          update={new_oarc_type => update(OutputArc(tid, new_oarc_type))}
-        />
-        <HFlex
-          style=Css.[
-            marginLeft(px(5)),
-            justifyContent(spaceBetween),
-            alignItems(center),
-          ]>
-          "OutputArc"->React.string
-          <Input.TextInline
-            value=tid
-            setValue={new_tid => update(OutputArc(new_tid, oarc_type))}
-            styles=inputStyle
+          <HFlex
+            style=Css.[marginLeft(px(5)), justifyContent(spaceBetween), alignItems(center)]>
+            "InputArc"->React.string
+            <Input.TextInline
+              value=tid
+              setValue={new_tid => update(InputArc(new_tid, iarc_type))}
+              styles=inputStyle
+            />
+          </HFlex>
+        </>
+      | OutputArc(tid, oarc_type) =>
+        <>
+          <OutputArcComp
+            oarc_type
+            update={new_oarc_type => update(OutputArc(tid, new_oarc_type))}
           />
-        </HFlex>
-      </>
-    | Extension(extension_type) =>
-      <>
-        <ExtensionComp
-          extension_type
-          update={new_ext => update(Extension(new_ext))}
-        />
-        <div> "Extension"->React.string </div>
-      </>
-    };
-  let marginSize =
-    switch (acid) {
-    | Place => 0
-    | _ => 15
-    };
+          <HFlex
+            style=Css.[marginLeft(px(5)), justifyContent(spaceBetween), alignItems(center)]>
+            "OutputArc"->React.string
+            <Input.TextInline
+              value=tid
+              setValue={new_tid => update(OutputArc(new_tid, oarc_type))}
+              styles=inputStyle
+            />
+          </HFlex>
+        </>
+      | Extension(extension_type) =>
+        <>
+          <ExtensionComp extension_type update={new_ext => update(Extension(new_ext))} />
+          <div> "Extension"->React.string </div>
+        </>
+      };
+    let marginSize =
+      switch (acid) {
+      | Place => 0
+      | _ => 15
+      };
 
-  <div style=Css.(style([borderBottom(px(1), solid, black)]))>
-    <HFlex
-      style=Css.[
-        justifyContent(spaceBetween),
-        alignItems(center),
-        marginLeft(px(marginSize)),
-      ]>
+    <div style=Css.(style([borderBottom(px(1), solid, black)]))>
       <HFlex
         style=Css.[
           justifyContent(spaceBetween),
           alignItems(center),
-          width(pct(100.)),
-          marginRight(px(15)),
+          marginLeft(px(marginSize)),
         ]>
-        inner
+        <HFlex
+          style=Css.[
+            justifyContent(spaceBetween),
+            alignItems(center),
+            width(pct(100.)),
+            marginRight(px(15)),
+          ]>
+          inner
+        </HFlex>
+        <button onClick=delete className="button is-small">
+          <span className="icon"> <Icons.Delete /> </span>
+        </button>
       </HFlex>
-      <button onClick=delete className="button is-small">
-        <span className="icon"> <Icons.Delete /> </span>
-      </button>
-    </HFlex>
-  </div>;
-};
+    </div>;
+  });

@@ -55,7 +55,7 @@ module Container = {
   let cmp = compare; // default comparator from Pervasives module
 
   let style = (~draggingOver) =>
-    if (draggingOver) {"dnd-container-hovered"} else {"dnd-container"};
+    if (draggingOver) {"dnd-container-hovered card"} else {"dnd-container card"};
 };
 
 module MolBuilderDnd = Dnd.Make(Item, Container);

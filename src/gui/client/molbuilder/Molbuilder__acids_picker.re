@@ -17,7 +17,7 @@ let acid_to_draggable = (acid, id) => {
 
 [@react.component]
 let make = () => {
-  <div className="card">
+  <div className="card" style=Css.(style([overflow(auto), flexShrink(0.)]))>
     <header className="card-header">
       <p className="card-header-title"> "Acids"->React.string </p>
     </header>
