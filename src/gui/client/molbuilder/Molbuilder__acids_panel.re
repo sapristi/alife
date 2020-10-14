@@ -21,23 +21,37 @@ let proteine_selector = (state: Store.appState) => state.molbuilder.proteine;
 let reducer = (prev_state, action: action) => {
   switch (action) {
   | DndAction(Some(SameContainer(ProtElem(id, acid), placement))) =>
-    prev_state->ArrayExt.reinsert(
-      ~value=Item.ProtElem(id, acid),
-      ~place=placement,
-    )
+    prev_state->ArrayExt.reinsert(~value=Item.ProtElem(id, acid), ~place=placement)
   | DndAction(Some(NewContainer(Source(_, acid), AcidsList, placement))) =>
-    ArrayExt.insert(
-      prev_state,
-      ~value=ProtElem(DndId.make(), acid),
-      ~place=placement,
-    )
+    ArrayExt.insert(prev_state, ~value=ProtElem(DndId.make(), acid), ~place=placement)
   | UpdateAction(index, new_acid) =>
     ArrayExt.replace(prev_state, index, ProtElem(DndId.make(), new_acid))
   | DeleteAction(index) => ArrayExt.delete(prev_state, index)
-  | InitAction(proteine) =>
-    Array.map(proteine, acid => Item.ProtElem(DndId.make(), acid))
+  | InitAction(proteine) => Array.map(proteine, acid => Item.ProtElem(DndId.make(), acid))
   | _ => prev_state
   };
+};
+
+let onDragStart = ActionsDebug.debug("DragStart");
+let onDropStart = ActionsDebug.debug("DropStart");
+let onDropEnd = ActionsDebug.debug("DropEnd");
+
+module DraggableEditableAcid = {
+  [@react.component]
+  let make = React.memo((~index, ~elem, ~dispatchAcidItems) => {
+    let updateDraggable =
+      React.useCallback1(
+        new_acid => dispatchAcidItems(UpdateAction(index, new_acid)),
+        [|dispatchAcidItems|],
+      );
+    let deleteDraggable =
+      React.useCallback1(_ => dispatchAcidItems(DeleteAction(index)), [|dispatchAcidItems|]);
+
+    switch (elem) {
+    | Item.Source(_) => React.null
+    | ProtElem(_, acid) => <EditableAcid acid update=updateDraggable delete=deleteDraggable />
+    };
+  });
 };
 
 [@react.component]
@@ -56,10 +70,7 @@ let make = () => {
   );
 
   let commitProteine = _ =>
-    Molbuilder__actions.commitProteine(
-      storeDispatch,
-      Array.map(acidItems, Item.to_acid),
-    );
+    Molbuilder__actions.commitProteine(storeDispatch, Array.map(acidItems, Item.to_acid));
   React.useEffect1(
     () => {
       Js.log3("AcidItems changed", autocommit, acidItems);
@@ -71,28 +82,19 @@ let make = () => {
     [|Js.Json.stringifyAny(acidItems)|],
   );
 
+  let onReorder =
+    React.useCallback1(res => dispatchAcidItems(DndAction(res)), [|dispatchAcidItems|]);
+
   Js.log2("Rendering Acids panel", acidItems);
 
-  <MolBuilderDnd.DndManager
-    onDragStart={(~itemId as _itemId) =>
-      [%log.info "AppHook"; ("Event", "DragStart"); ("ItemId", _itemId)]
-    }
-    onDropStart={(~itemId as _itemId) =>
-      [%log.info "AppHook"; ("Event", "DropStart"); ("ItemId", _itemId)]
-    }
-    onDropEnd={(~itemId as _itemId) =>
-      [%log.info "AppHook"; ("Event", "DropEnd"); ("ItemId", _itemId)]
-    }
-    onReorder={res => dispatchAcidItems(DndAction(res))}>
+  <MolBuilderDnd.DndManager onDragStart onDropStart onDropEnd onReorder>
     <div className="panel" style=Css.(style([minWidth(px(600))]))>
       <HFlex
         className="panel-heading"
         style=Css.[alignItems(center), justifyContent(spaceBetween)]>
         "Proteine"->React.string
         <HFlex>
-          <button className="button" onClick=commitProteine>
-            "Commit"->React.string
-          </button>
+          <button className="button" onClick=commitProteine> "Commit"->React.string </button>
           <Input.Checkbox
             state=autocommit
             setState=setAutocommit
@@ -102,28 +104,12 @@ let make = () => {
         </HFlex>
       </HFlex>
       <HFlex style=Css.[height(pct(100.)), maxHeight(px(700))]>
-        <MolBuilderDnd.DroppableContainer
-          id=AcidsList axis=Y className=Container.style>
+        <MolBuilderDnd.DroppableContainer id=AcidsList axis=Y className=Container.style>
           <ul>
             {Array.mapWithIndex(acidItems, (index, elem) =>
                <li key={elem->Item.to_string}>
-                 <MolBuilderDnd.DraggableItem
-                   id=elem containerId=AcidsList index>
-                   {`Children(
-                      switch (elem) {
-                      | Source(_) => React.null
-                      | ProtElem(_, acid) =>
-                        <EditableAcid
-                          acid
-                          update={new_acid =>
-                            dispatchAcidItems(UpdateAction(index, new_acid))
-                          }
-                          delete={_ =>
-                            dispatchAcidItems(DeleteAction(index))
-                          }
-                        />
-                      },
-                    )}
+                 <MolBuilderDnd.DraggableItem id=elem containerId=AcidsList index>
+                   {`Children(<DraggableEditableAcid index elem dispatchAcidItems />)}
                  </MolBuilderDnd.DraggableItem>
                </li>
              )

@@ -30,10 +30,8 @@ module Item = {
     };
   let to_string = item =>
     switch (item) {
-    | Source(id, acid) =>
-      "S" ++ string_of_int(id) ++ Chemistry.acid_to_descr(acid)
-    | ProtElem(id, acid) =>
-      "P" ++ string_of_int(id) ++ Chemistry.acid_to_descr(acid)
+    | Source(id, acid) => "S" ++ string_of_int(id) ++ Chemistry.acid_to_descr(acid)
+    | ProtElem(id, acid) => "P" ++ string_of_int(id) ++ Chemistry.acid_to_descr(acid)
     };
 
   let to_component = to_string;
@@ -59,3 +57,11 @@ module Container = {
 };
 
 module MolBuilderDnd = Dnd.Make(Item, Container);
+
+module ActionsDebug = {
+  let debug = (event, ~itemId) => [%log.info
+    "AppHook";
+    ("Event", event);
+    ("ItemId", _itemId)
+  ];
+};
