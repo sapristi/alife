@@ -1,6 +1,7 @@
 (executable
  (name yaacs_server)
- (flags -w)
+ (flags (-w -g))
+ (link_flags (-g))
  (preprocess
   (pps
     ppx_deriving.show

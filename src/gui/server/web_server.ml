@@ -81,8 +81,7 @@ let log_in_out =
       logger#trace ~tags:[c] "Serving %s request at %s" meth resource;
       let handler' = fun req ->
         try%lwt
-          let response =
-            Lwt.bind (Lwt.return req) handler in
+          let response = handler req in
           (
             response
             >|= Response.code

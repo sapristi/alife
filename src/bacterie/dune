@@ -1,6 +1,6 @@
 (library
  (name bacterie_libs)
- (flags -w)
+ (flags -w -g)
  (preprocess
   (pps ppx_deriving.show
        ppx_deriving_yojson

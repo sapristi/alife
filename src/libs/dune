@@ -1,6 +1,6 @@
 (library
- (name        local_libs)
- (flags -w)
+ (name local_libs)
+ (flags -w -g)
  (preprocess
   (pps ppx_deriving.show ppx_deriving.ord ppx_deriving_yojson))
  (libraries

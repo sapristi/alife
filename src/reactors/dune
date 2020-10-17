@@ -1,6 +1,6 @@
 (library
   (name reactors)
-  (flags -w)
+  (flags -w -g)
   (preprocess (pps ppx_deriving_yojson ppx_deriving.make))
   (libraries
         bacterie_libs

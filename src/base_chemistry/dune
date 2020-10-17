@@ -1,6 +1,6 @@
 (library
  (name base_chemistry)
- (flags -w)
+ (flags (-w -g))
  (preprocess
   (pps ppx_deriving.show
        ppx_deriving.ord

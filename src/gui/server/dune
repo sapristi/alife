@@ -1,6 +1,6 @@
 (library
   (name server)
-  (flags -w)
+  (flags -w -g)
   (preprocess
     (pps ppx_deriving_yojson lwt_ppx))
   (libraries

@@ -1,6 +1,6 @@
 (library
  (name yaac_db)
- (flags -w)
+ (flags -w -g)
  (preprocess
   (pps
     ppx_string
