@@ -98,8 +98,9 @@ let log_in_out =
           >>= ( fun _ -> response)
         with
         | _ as e ->
+          let backtrace = Printexc.get_backtrace () in
           logger#error ~tags:[c] "An error happened while treating the request:%s\n%s"
-            (Printexc.get_backtrace ())
+            backtrace
             (Printexc.to_string e);
           `Error (Printf.sprintf "An error happened while treating the request at %s" resource)
           |> Lwt.return >|= Utils.Resp.handle
