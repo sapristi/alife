@@ -48,16 +48,14 @@ let make (m : string)  =
       let rep_loc (g : Re.Group.t) : string =
         Re.Group.get g 1 ^ "(" ^ Re.Group.get g 2 ^ ")"
       in
-      let mol_repr = Re.replace ~all:false
-                          grab_location_cre
-                          ~f:rep_loc m in
-      let str_repr' = Re.replace_string wildcard_cre
-          ~by:".*?" mol_repr
-      in let str_repr = "^" ^ str_repr'
+      let str_repr =
+        m
+        |> Re.replace ~all:false grab_location_cre ~f:rep_loc
+        |> Re.replace_string wildcard_cre  ~by:".*?"
+        |> fun str -> "^" ^ str ^ "$"
       in
       logger#debug "Compiled %s\nfrom %s" str_repr m;
-      Some {mol_repr;
-            str_repr;}
+      Some {mol_repr=m; str_repr;}
     else
       None
   with
@@ -78,16 +76,21 @@ end
 
 
 let get_match_pos (graber : t)  (mol : string) : int option =
-  logger#debug "Get match for graber:%s\n with mol: %s" graber.str_repr mol;
+  logger#debug "Get match for graber: (%s,%s) \n with mol: %s" graber.str_repr graber.mol_repr mol;
   let re = Re_store.get graber.str_repr in
 
-  if Re.execp re mol
-  then
-    let g = Re.exec re mol in
-    logger#debug "Match pos: %i" (Re.Group.start g 1);
-    Some (Re.Group.start g 1)
-  else
-    (
+    if Re.execp re mol
+    then (
+      let g = Re.exec re mol in
+      if Re.Group.nb_groups g > 1
+      then (
+        logger#debug "Match pos: %i" (Re.Group.start g 1);
+        Some (Re.Group.start g 1)
+      ) else (
+        logger#sdebug "No match group found";
+        None
+      )
+    ) else (
       logger#debug "no match pos";
       None
     )
