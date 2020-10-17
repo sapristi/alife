@@ -31,7 +31,8 @@ let make = (~isOpen, ~onRequestClose, ~children, ~style=?) => {
         height(pct(70.)),
         left(vw(25.)),
         right(vw(25.)),
-        top(pct(15.)),
+    top(pct(15.)),
+    zIndex(10)
       ],
     overlay: Css.[],
   };

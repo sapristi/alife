@@ -18,6 +18,24 @@ module Tabs = {
   };
 };
 
+module Tabs2 = {
+  [@react.component]
+  let make = (~tabs, ~activeTab) => {
+    <div className="tabs">
+      <ul>
+        {List.mapi(
+           (i, (value, display, route)) =>
+             <li className={Cn.on("is-active", value === activeTab)} key={string_of_int(i)}>
+               <a href=route> display </a>
+             </li>,
+           tabs,
+         )
+         ->Generics.react_list}
+      </ul>
+    </div>;
+  };
+};
+
 module HFlex = Components__flex.HFlex;
 module VFlex = Components__flex.VFlex;
 

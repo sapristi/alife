@@ -21,8 +21,7 @@ module Generics = {
 module MiscTries = {
   type document;
   type domElement = {dropdown: unit => unit};
-  [@bs.send]
-  external getElementById: (document, string) => domElement = "getElementById";
+  [@bs.send] external getElementById: (document, string) => domElement = "getElementById";
   [@bs.val] external doc: document = "document";
 };
 
@@ -33,4 +32,15 @@ type blob;
 type blob_config = {. "type": string};
 [@bs.new] external makeBlob: (array(string), blob_config) => blob = "Blob";
 
-[@bs.module("file-saver")] external saveAs: (blob, string) => unit = "saveAs";
+[@bs.module "file-saver"] external saveAs: (blob, string) => unit = "saveAs";
+
+module BroadcastChannel = {
+  type message = {data: string};
+  type t = {
+    .
+    [@bs.set] "onmessage": option(message => unit),
+    [@bs.meth] "postMessage": string => unit,
+  };
+
+  [@bs.new] external make: string => t = "BroadcastChannel";
+};

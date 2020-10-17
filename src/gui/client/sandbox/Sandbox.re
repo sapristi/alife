@@ -27,14 +27,9 @@ module SidePanel = {
     };
 
     <div
-      className="box"
-      style=Css.(
-        style([position(fixed), zIndex(1000), padding(rem(0.5))])
-      )>
+      className="box" style=Css.(style([position(fixed), zIndex(1000), padding(rem(0.5))]))>
       <Components.VFlex>
-        <Button onClick={_ => next_reactions(1)}>
-          "React!"->React.string
-        </Button>
+        <Button onClick={_ => next_reactions(1)}> "React!"->React.string </Button>
         <Input.Text
           styles=Css.[maxWidth(px(100))]
           size=1
@@ -46,9 +41,7 @@ module SidePanel = {
             }
           }}
         />
-        <Button onClick={_ => next_reactions(nr)}>
-          "React!"->React.string
-        </Button>
+        <Button onClick={_ => next_reactions(nr)}> "React!"->React.string </Button>
         <Loader active=pending />
       </Components.VFlex>
     </div>;
@@ -83,6 +76,8 @@ let reducer = (state: sandboxState, action) => {
   };
 };
 
+let bc = BroadcastChannel.make("yaac");
+
 [@react.component]
 let make = () => {
   let (state, dispatch) =
@@ -102,8 +97,24 @@ let make = () => {
       [|dispatch|],
     );
 
-  let update =
-    React.useCallback1(_ => dispatch(SwitchUpdate), [|dispatch|]);
+  let update = React.useCallback1(_ => dispatch(SwitchUpdate), [|dispatch|]);
+
+  React.useEffect1(
+    () => {
+      bc##onmessage
+      #= Some(
+           message => {
+             Js.log2("YOU GOT A MESGGAGE", message);
+             if (message.data === "update") {
+               dispatch(SwitchUpdate);
+             };
+           },
+         );
+
+      None;
+    },
+    [|dispatch|],
+  );
 
   React.useEffect1(
     () => {
@@ -112,7 +123,6 @@ let make = () => {
     },
     [|state.updateSwitch|],
   );
-
   <Components.VFlex>
     <SidePanel dispatch />
     <div style=Css.(style([flexGrow(0.), paddingLeft(px(100))]))>

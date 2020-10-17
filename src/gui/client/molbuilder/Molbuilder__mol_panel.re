@@ -1,8 +1,15 @@
 open Components;
 open Utils;
 
+let bc = Utils.BroadcastChannel.make("yaac");
+
 let send_mol_to_sandbox = mol =>
-  Yaac.request_unit(Fetch.Post, "/sandbox/mol/" ++ mol, ())->ignore;
+  Yaac.request_unit(Fetch.Post, "/sandbox/mol/" ++ mol, ())->Promise.getOk(
+  () => {
+    Js.log3("BC", bc, bc##postMessage);
+    bc##postMessage("update");
+  }
+);
 
 [@react.component]
 let make = (~mol) => {

@@ -39,7 +39,7 @@ and ext_grab_id = "ABA"
 and ext_rel_id = "ABB"
 and ext_tinit_id = "ABC"
 and ext_bind_id = "ACC"
-and msg_end_id = "DDF"
+and msg_end_id = "DDB"
 
 let place_re = "^"^place_id^"(.*)"
 and ia_reg_re = "^"^ia_reg_id^"(.*?)"^msg_end_id^"(.*)"
