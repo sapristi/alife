@@ -16,7 +16,7 @@ module TokenComponent = {
     | None => <span />
     | Some((i, mol)) =>
       let (a, b) = token_to_parts((i, mol));
-      <span> {a}->React.string token_separator {b}->React.string </span>;
+      <span style=Css.(style([wordBreak(breakAll)]))> {a}->React.string token_separator {b}->React.string </span>;
     };
   [@react.component]
   let make = (~token) => {
