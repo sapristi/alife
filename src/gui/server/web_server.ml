@@ -112,7 +112,8 @@ let log_in_out =
   Rock.Middleware.create ~name:"Log in out" ~filter
 
 let index_resources = [
-  "/"; "/sandbox"; "/sandbox/"; "/molbuilder"; "/molbuilder/"; "/simulator"; "/simulator/"
+  "/";
+  (* "/sandbox"; "/sandbox/"; "/molbuilder"; "/molbuilder/"; "/simulator"; "/simulator/" *)
 ]
 let index_redirect =
   let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
@@ -128,6 +129,26 @@ let index_redirect =
       handler req
   in
   Rock.Middleware.create ~name:"Index redirect" ~filter
+let pages = [
+  "/"; "/sandbox"; "/sandbox/"; "/molbuilder"; "/molbuilder/"; "/simulator"; "/simulator/"
+  ; "/logs"
+]
+let single_index_redirect =
+  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
+      Opium_kernel__Rock.Filter.simple  = fun handler req ->
+    logger#debug "Requesting resource %s" req.request.resource;
+    if List.mem req.request.resource pages
+    then
+      let resource' = "index.html" in
+      logger#debug "Redirecting %s to %s" req.request.resource resource';
+      let request' = {req.request with resource = resource'} in
+      let req' = {req with request = request'} in
+      handler req'
+    else
+      handler req
+  in
+  Rock.Middleware.create ~name:"Index redirect" ~filter
+
 
 
 let run port files_prefix routes =
@@ -140,6 +161,6 @@ let run port files_prefix routes =
   (* |> get "**" (fun x -> serve_file files_prefix x.request.resource) *)
   |> get "/ping" (fun x -> `String "ok" |> respond')
   |> List.fold_right (fun (meth, route,f) x -> (meth route (fun req -> f req >|= Utils.Resp.handle)) x) routes
-  |> middleware index_redirect
+  |> middleware single_index_redirect
   |> middleware (Middleware.static ~local_path:files_prefix ~uri_prefix:"/" ())
   |> App.start
