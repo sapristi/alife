@@ -13,32 +13,32 @@ let logger = Logging.get_logger "Yaac.Bact.Reacs_effects"
 (* of implementation details *)
 
 (* * asymetric_grab auxiliary function *)
-let asymetric_grab mol pnet =
+let asymetric_grab randstate mol pnet =
   let grabs = Petri_net.get_possible_mol_grabs mol pnet
   in
   if not (grabs = [])
   then
-    let grab,pid = random_pick_from_list grabs in
+    let grab,pid = Random_s.pick_from_list randstate grabs in
     match grab with
     | pos -> Petri_net.grab mol pos pid pnet
   else
     false
 
 (* * break function *)
-let break mol =
+let break randstate mol =
   let n = String.length mol in
-  let b = 1+ Random.int (n-1) in
+  let b = 1 + Random_s.int randstate (n-1) in
   (String.sub mol 0 b, String.sub mol b (n-b))
 
 
-let break_l mol =
+let break_l randstate mol =
   logger#debug "Breaking %s" mol;
 
   if String.length mol < 2
   then [mol]
   else
     let n = String.length mol in
-    let b = 1+ Random.int (n-1) in
+    let b = 1 + Random_s.int randstate (n-1) in
     [String.sub mol 0 b; String.sub mol b (n-b)]
 
 
@@ -52,14 +52,14 @@ let break_l mol =
 (*    by concatenation. *)
 
 
-let rec random_flip m =
-  if bernouil_f 0.5
+let rec random_flip randstate m =
+  if Random_s.bernouil_f randstate 0.5
   then
     let l = String.length m in
     String.init l (fun i -> m.[l-i-1])
   else m
 
-let collide mol1 mol2 =
+let collide randstate mol1 mol2 =
   logger#debug "Colliding %s and %s" mol1 mol2;
 
 (*
@@ -81,19 +81,19 @@ let collide mol1 mol2 =
     | [] -> res
     | h::[] -> h :: res
     | h::h'::t ->
-      if bernouil_f 0.8
+      if Random_s.bernouil_f randstate 0.8
       then aux (h'::t) (h::res)
       else aux t  ((h^h') :: res)
   in
 
-  let l1 = if bernouil_f 0.5
-    then break_l mol1 else [mol1]
-  and l2 = if bernouil_f 0.5
-    then break_l mol2 else [mol2]
+  let l1 = if Random_s.bernouil_f randstate 0.5
+    then break_l randstate mol1 else [mol1]
+  and l2 = if Random_s.bernouil_f randstate 0.5
+    then break_l randstate mol2 else [mol2]
   in
   let l = l1@l2 in
   logger#debug "Breaked into %s" (CCFormat.sprintf "%a" (CCList.pp CCFormat.string) l);
-  let fl = List.map random_flip l in
+  let fl = List.map (random_flip randstate) l in
   logger#debug "Flipped into %s" (CCFormat.sprintf "%a" (CCList.pp CCFormat.string) fl);
   let mols = shuffle_list fl in
   logger#debug "Shuffled into %s" (CCFormat.sprintf "%a" (CCList.pp CCFormat.string) mols);

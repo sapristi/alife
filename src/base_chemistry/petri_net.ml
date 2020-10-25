@@ -133,12 +133,12 @@ let make_from_mol (mol : Molecule.t) : t option =
 let launch_transition_by_id (tId : int) p =
   Transition.apply_transition p.transitions.(tId) p.places
 
-let launch_random_transition (p : t)
+let launch_random_transition randstate (p : t)
     : Place.transition_effect list =
   let launchables = CCArray.filter (fun (t:Transition.t) -> t.launchable) p.transitions in
   if Array.length launchables > 0
   then
-    let t = Misc_library.random_pick_from_array launchables in
+    let t = Random_s.pick_from_array randstate launchables in
     Transition.apply_transition t p.places
   else []
 

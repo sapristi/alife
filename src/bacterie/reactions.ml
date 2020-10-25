@@ -150,7 +150,7 @@ module ReactionsM (R : REACTANT) =
         val rate : t -> Q.t
         val update_rate : t -> Q.t
         val make : build_t -> t
-        val eval : t -> effect list
+        val eval : Random_s.t -> t -> effect list
         val remove_reac_from_reactants : R.reac -> t -> unit
         val get_reactants: t -> build_t
       end
@@ -188,8 +188,8 @@ module ReactionsM (R : REACTANT) =
           {graber_data; grabed_data;
            rate = calculate_rate ({graber_data; grabed_data; rate=Q.zero})}
 
-        let eval (g : t) : effect list =
-          ignore( asymetric_grab
+        let eval randstate (g : t) : effect list =
+          ignore( asymetric_grab randstate
             (R.mol (g.grabed_data))
             ((g.graber_data).pnet));
           Remove_one (g.grabed_data)::
@@ -233,9 +233,9 @@ module ReactionsM (R : REACTANT) =
         let make (amd : build_t)  =
           { rate = calculate_rate {amd; rate = Q.zero}; amd; }
 
-        let eval (trans : t) : effect list=
-          let t_effects = Petri_net.launch_random_transition
-                            trans.amd.pnet
+        let eval randstate (trans : t) : effect list=
+          let t_effects =
+            Petri_net.launch_random_transition randstate trans.amd.pnet
           in
           (*          Petri_net.update_launchables (!(trans.amd).pnet);*)
           T_effects (t_effects) ::
@@ -279,9 +279,9 @@ module ReactionsM (R : REACTANT) =
         let make reactant =
           {reactant; rate = calculate_rate {reactant; rate = Q.zero}}
 
-        let eval ba =
+        let eval randstate ba =
           let mol = R.mol (ba.reactant)  in
-          let (m1, m2) = Molecule.break mol in
+          let (m1, m2) = Reactions_effects.break randstate mol in
           Remove_one (ba.reactant) ::
               Release_mol m1 ::
                 Release_mol m2 ::
@@ -322,9 +322,9 @@ module ReactionsM (R : REACTANT) =
         let make (r1,r2) =
           {r1; r2; rate = calculate_rate {r1; r2; rate = Q.zero}}
 
-        let eval {r1; r2; rate} =
+        let eval randstate {r1; r2; rate} =
           let m1 = (R.mol r1) and m2 = (R.mol r2) in
-          let new_mols = collide m1 m2 in
+          let new_mols = collide randstate m1 m2 in
 
           logger#trace "Random collision between %s and %s"
             (R.show r1) (R.show r2);

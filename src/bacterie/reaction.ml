@@ -1,7 +1,9 @@
 open Reactions
 open Yojson
-open Local_libs.Numeric
+open Local_libs
+open Numeric
 open Base_chemistry
+open Local_libs.Misc_library
 (* * file overview *)
 
 (* ** Reactant module *)
@@ -236,7 +238,7 @@ module rec
                val rate : t -> Q.t
                val update_rate : t -> Q.t
                val make : build_t -> t
-               val eval : t -> effect list
+               val eval : Random_s.t -> t -> effect list
                val remove_reac_from_reactants : Reaction.t -> t -> unit
                val get_reactants: t -> build_t
              end
@@ -274,7 +276,7 @@ module rec
                       [@@deriving show]
 
            val to_yojson : t -> Yojson.Safe.t
-           val treat_reaction : t -> Reacs.effect list
+           val treat_reaction : Random_s.t -> t -> Reacs.effect list
            val compare : t -> t -> int
            val unlink : t -> unit
          end)
@@ -298,12 +300,12 @@ module rec
          | Collision c -> Collision.rate c
 
 
-       let treat_reaction r  : effect list=
+       let treat_reaction randstate r  : effect list=
          match r with
-         | Transition t -> Transition.eval t
-         | Grab g -> Grab.eval g
-         | Break b -> Break.eval b
-         | Collision c -> Collision.eval c
+         | Transition t -> Transition.eval randstate t
+         | Grab g -> Grab.eval randstate g
+         | Break b -> Break.eval randstate b
+         | Collision c -> Collision.eval randstate c
 
        let unlink r =
          match r with

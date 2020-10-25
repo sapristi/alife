@@ -37,11 +37,4 @@ struct
       numlogger#error "Cannot decode num from %s" (Yojson.Safe.to_string json);
       Error "cannot load json "
 
-  (** [Warning] QUICK AND DIRTY
-      but this should be ok    *)
-  (*let random {num=n; den=m} =
-    {num= bigrandom n; den=m} *)
-  let random q =
-    let r = Random.float 1. in
-    q * (of_float r)
-end
+ end

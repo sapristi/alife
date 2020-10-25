@@ -10,7 +10,7 @@ open Reactants_maps
 open Yaac_config
 open Easy_logging_yojson
 open Local_libs.Numeric
-
+open Local_libs.Misc_library
 open Base_chemistry
 
 
@@ -46,13 +46,15 @@ type t ={
     areactants : ARMap.t;
     reac_mgr : Reac_mgr.t;
     env : Environment.t ref;
+    randstate : Random_s.t;
   }
 
 let make_empty env_ref = {
   ireactants= IRMap.make ();
   areactants= ARMap.make ();
   reac_mgr = Reac_mgr.make_new env_ref;
-  env= env_ref;
+  env = env_ref;
+  randstate = Random_s.make_self_init ();
 }
 
 type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
@@ -223,7 +225,7 @@ let stats_logger = Logging.get_logger "reacs_stats"
 let next_reaction (bact : t)  =
   let reac_nb = lazy (Reac_mgr.get_available_reac_nb bact.reac_mgr) in
   let begin_time = Sys.time () in
-  let ro = Reac_mgr.pick_next_reaction bact.reac_mgr in
+  let ro = Reac_mgr.pick_next_reaction bact.randstate bact.reac_mgr in
   let picked_time = Sys.time () in
   match ro with
   | None ->
@@ -233,7 +235,7 @@ let next_reaction (bact : t)  =
     let ir_card = lazy (MolMap.cardinal bact.ireactants.v)
     and ar_card = lazy (ARMap.total_nb bact.areactants) in
     try
-      let actions = Reaction.treat_reaction r in
+      let actions = Reaction.treat_reaction bact.randstate r in
       let treated_time = Sys.time () in
       execute_actions bact actions;
       let end_time = Sys.time () in

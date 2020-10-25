@@ -17,12 +17,6 @@ let check mol =
     (logger#info "Bad molecule: empty"; false)
   else true
 
-let break m =
-  let n = String.length m in
-  let b = 1+ Random.int (n-1) in
-  (String.sub m 0 b, String.sub m b (n-b))
-
-
 let atoms = "[A-F]"
 
 let place_id = "AAA"

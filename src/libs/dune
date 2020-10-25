@@ -10,4 +10,6 @@
   ppx_deriving.show
   ppx_deriving_yojson
   zarith
-  yaac_config))
+  yaac_config
+  pringo
+))

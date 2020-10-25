@@ -46,34 +46,6 @@ let rec zip l1 l2 =
 ;;
 
 
-Random.init;;
-let random_pick_from_list l =
-  let n = Random.int (List.length l) in
-  List.nth l n
-;;
-let random_pick_from_array a =
-  let n = Random.int (Array.length a) in
-  a.(n)
-;;
-
-(* TODO: better algo: use streams ? *)
-let random_pick_from_weighted_list total_weight l =
-  let rec aux target_weight l =
-    match l with
-    | [] -> let msg ="Cannot pick from empty list"
-      in logger#serror msg; failwith  msg
-    | (weight, elem)::t ->
-      logger#info "Aux: weight (%s), target (%s)" (Numeric.Q.to_string weight) (Numeric.Q.to_string target_weight);
-      let open Numeric.Q in
-      (
-        if weight >= target_weight
-        then elem
-        else aux (target_weight - weight) t
-      )
-  in let target_weight = Numeric.Q.random (total_weight) in
-  logger#info "Random: total (%s), target (%s)" (Numeric.Q.to_string total_weight) (Numeric.Q.to_string target_weight);
-  aux target_weight l
-
 let get_all_couples
     (l1 : 'a list)
     (l2 : 'b list)
@@ -93,8 +65,6 @@ let get_all_couples
 	      l2)
     []
     l1
-
-
 
 let idProvider = object
   val mutable id = 0
@@ -165,12 +135,6 @@ let show_array_prefix prefix show_e l =
     prefix (Array.map show_e l)
 
 
-let bernouil q =
-  let q' = Q.to_float q in
-  Random.float 1. < q'
-
-let bernouil_f q =
-  Random.float 1. < q
 
 let shuffle_array a =
 

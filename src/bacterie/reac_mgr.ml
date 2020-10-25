@@ -158,11 +158,11 @@ module MakeReacSet
       `Assoc [
           "total", Q.to_yojson s.rates_sum;
           "reactions", `List (List.map Reac.to_yojson (RSet.to_list s.set)) ]
-    let pick_reaction (s : t) =
+    let pick_reaction randstate (s : t) =
       logger#ldebug (lazy(Printf.sprintf "Picking new reaction from \n%s"
       (show s)));
 
-      let bound = Q.random s.rates_sum in
+      let bound = Random_s.q randstate s.rates_sum in
       try
         Misc_library.pick_from_list bound Q.zero
           Reac.rate
@@ -190,13 +190,13 @@ module CSet =
     module Colliders = struct
       include CCSet.Make(Reactant)
 
-      let random_pick (ccset : t) =
+      let random_pick randstate (ccset : t) =
         let weighted_l = List.map
             (fun elem -> collision_factor elem, elem) (to_list ccset)
         in let total_weight = List.fold_left (
             fun sum (weight, _) -> let open Numeric.Q in sum + weight
           ) Q.zero weighted_l
-        in Misc_library.random_pick_from_weighted_list total_weight weighted_l
+        in Random_s.pick_from_weighted_list randstate total_weight weighted_l
 
       (** removes either Amol, or decrease imolset qtt by or
           Used to compute reaction rates   *)
@@ -307,10 +307,10 @@ module CSet =
 
 
     (** TODO FIX Colliders.choose *)
-    let pick_reaction (s:t) =
-      let c1 = Colliders.random_pick s.colliders in
+    let pick_reaction randstate (s:t) =
+      let c1 = Colliders.random_pick randstate s.colliders in
       let colliders' = Colliders.remove_custom c1 s.colliders in
-      let c2 = Colliders.random_pick colliders' in
+      let c2 = Colliders.random_pick randstate colliders' in
       let c = Reacs.Collision.make (c1,c2) in
       logger#debug "Picked %s and %s from %s"
         (Reactant.show c1) (Reactant.show c2)
@@ -472,7 +472,7 @@ let add_collider md reac_mgr =
 
 (* ** pick next reaction *)
 (* replace to_list with to_enum ? *)
-let pick_next_reaction (reac_mgr:t) : Reaction.t option=
+let pick_next_reaction randstate (reac_mgr:t) : Reaction.t option=
   let open Q in
   let total_g_rate =
     !(reac_mgr.env).grab_rate *
@@ -524,20 +524,20 @@ let pick_next_reaction (reac_mgr:t) : Reaction.t option=
   else
     (
       reac_mgr.reac_counter <- Pervasives.(reac_mgr.reac_counter + 1);
-      let bound = random a0 in
+      let bound = Random_s.q randstate a0 in
       logger#debug   ~tags:([tag reac_mgr]) "Picked bound %s" (Q.show bound);
       let res =
         if lt bound total_g_rate
         then
-          Reaction.Grab (GSet.pick_reaction reac_mgr.g_set)
+          Reaction.Grab (GSet.pick_reaction randstate reac_mgr.g_set)
         else if lt bound (total_g_rate + total_t_rate)
         then
-          Reaction.Transition (TSet.pick_reaction reac_mgr.t_set)
+          Reaction.Transition (TSet.pick_reaction randstate reac_mgr.t_set)
         else if lt bound (total_g_rate + total_t_rate + total_b_rate)
         then
-          Reaction.Break (BSet.pick_reaction reac_mgr.b_set)
+          Reaction.Break (BSet.pick_reaction randstate reac_mgr.b_set)
         else
-          Reaction.Collision (CSet.pick_reaction reac_mgr.c_set)
+          Reaction.Collision (CSet.pick_reaction randstate reac_mgr.c_set)
       in
       logger#info ~tags:([tag reac_mgr]) "picked %s"  (Reaction.show res);
       Some res
@@ -663,8 +663,8 @@ module MakeAutoUpdatingReacSet (Reac : Reacs.REAC) =
       RSet.fold (fun (e : elt) desc ->
           (Reac.show e)^"\n"^desc) s.set ""
 
-    let pick_reaction (s : t) =
-      Misc_library.pick_from_list (Q.random s.total_rate) Q.zero
+    let pick_reaction randstate (s : t) =
+      Misc_library.pick_from_list (Random_s.q randstate s.total_rate) Q.zero
                                   Reac.rate
                                   (RSet.elements s.set)
 
