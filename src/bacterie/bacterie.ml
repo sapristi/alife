@@ -41,20 +41,28 @@ open Base_chemistry
 let logger = Logging.get_logger "Yaac.Bact.Bacterie"
 
 
-type t ={
+type t = {
     ireactants : IRMap.t;
     areactants : ARMap.t;
     reac_mgr : Reac_mgr.t;
     env : Environment.t ref;
-    randstate : Random_s.t;
+    randstate : Random_s.t ref;
   }
 
-let make_empty env_ref = {
+
+let default_randstate = {
+  Random_s.seed = 8085733080487790103L;
+  gamma = -7046029254386353131L
+}
+
+let make_empty () =
+let renv = ref Environment.null_env in
+  {
   ireactants= IRMap.make ();
   areactants= ARMap.make ();
-  reac_mgr = Reac_mgr.make_new env_ref;
-  env = env_ref;
-  randstate = Random_s.make_self_init ();
+  reac_mgr = Reac_mgr.make_new renv;
+  env = renv;
+  randstate = ref default_randstate;
 }
 
 type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
@@ -162,6 +170,7 @@ let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
      IRMap.add_to_qtt ir (-1) bact.ireactants
   | Amol amol ->
      ARMap.remove amol bact.areactants
+  | Dummy -> failwith "Dummy"
 
 
 (* **** execute_actions *)
@@ -225,7 +234,7 @@ let stats_logger = Logging.get_logger "reacs_stats"
 let next_reaction (bact : t)  =
   let reac_nb = lazy (Reac_mgr.get_available_reac_nb bact.reac_mgr) in
   let begin_time = Sys.time () in
-  let ro = Reac_mgr.pick_next_reaction bact.randstate bact.reac_mgr in
+  let ro = Reac_mgr.pick_next_reaction !(bact.randstate) bact.reac_mgr in
   let picked_time = Sys.time () in
   match ro with
   | None ->
@@ -235,7 +244,7 @@ let next_reaction (bact : t)  =
     let ir_card = lazy (MolMap.cardinal bact.ireactants.v)
     and ar_card = lazy (ARMap.total_nb bact.areactants) in
     try
-      let actions = Reaction.treat_reaction bact.randstate r in
+      let actions = Reaction.treat_reaction !(bact.randstate) r in
       let treated_time = Sys.time () in
       execute_actions bact actions;
       let end_time = Sys.time () in
@@ -261,8 +270,12 @@ let next_reaction (bact : t)  =
     |> ignore
 
 (* ** json serialisation *)
-let from_sig (bact_sig : bact_sig) env_ref: t  =
-  let bact = make_empty env_ref in
+let from_sig
+    (bact_sig : bact_sig)
+    ?(env=Environment.null_env)
+    ?(randstate=default_randstate)
+  : t  =
+  let bact = make_empty () in
   List.iter
     (fun {mol = m;qtt = n; ambient=a} ->
       add_molecule m bact
@@ -279,6 +292,8 @@ let from_sig (bact_sig : bact_sig) env_ref: t  =
         |> execute_actions bact;
       done;)
     bact_sig.active_mols;
+  bact.env := env;
+  bact.randstate := randstate;
   bact
 
 
@@ -312,10 +327,6 @@ let to_sig_yojson bact =
 let empty_sig : bact_sig = {
     inert_mols = [];
     active_mols = []}
-
-let make ?(bact_sig=empty_sig)  renv :t =
-  logger#info "Creating new bactery from %s" (show_bact_sig bact_sig);
-  from_sig bact_sig renv
 
 
 module SimControl =

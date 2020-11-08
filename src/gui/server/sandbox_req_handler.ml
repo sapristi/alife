@@ -33,18 +33,18 @@ module Mol_req = struct
 
   (** generic result: bact *)
   let get_bact (sandbox : Sandbox.t) =
-    `Json  (Bacterie.to_sig_yojson !(sandbox.bact))
+    `Json  (Bacterie.to_sig_yojson !sandbox)
 
   let add_mol (sandbox : Sandbox.t) (req) =
     let mol = param req "mol" in
-    Bacterie.add_molecule mol !(sandbox.bact)
-    |> Bacterie.execute_actions !(sandbox.bact);
+    Bacterie.add_molecule mol !sandbox
+    |> Bacterie.execute_actions !sandbox;
     get_bact sandbox |> Lwt.return
 
   let remove_imol (sandbox : Sandbox.t) (req) =
     let mol = param req "mol" in
-    Reactants_maps.IRMap.Ext.remove_all mol !(sandbox.bact).ireactants
-    |> Bacterie.execute_actions !(sandbox.bact);
+    Reactants_maps.IRMap.Ext.remove_all mol !sandbox.ireactants
+    |> Bacterie.execute_actions !sandbox;
     get_bact sandbox |> Lwt.return
 
   let set_imol_quantity (sandbox : Sandbox.t) (req : Request.t) =
@@ -55,14 +55,14 @@ module Mol_req = struct
     |> Result.map (
       fun qtt_str ->
         let qtt = qtt_str |> int_of_string in
-        Reactants_maps.IRMap.Ext.set_qtt qtt mol !(sandbox.bact).ireactants
-        |> Bacterie.execute_actions !(sandbox.bact);
+        Reactants_maps.IRMap.Ext.set_qtt qtt mol !sandbox.ireactants
+        |> Bacterie.execute_actions !sandbox;
         get_bact sandbox
     ) |> fun res -> Lwt.return (`Res res)
 
   let pnet_ids_from_mol  (sandbox : Sandbox.t) (req) =
     let mol = param req "mol" in
-    let pnet_ids = Reactants_maps.ARMap.get_pnet_ids mol !(sandbox.bact).areactants in
+    let pnet_ids = Reactants_maps.ARMap.get_pnet_ids mol !sandbox.areactants in
     let pnet_ids_json =
       `List (List.map (fun i -> `Int i) pnet_ids)
     in
@@ -72,7 +72,7 @@ module Mol_req = struct
     let mol = param req "mol"
     and pnet_id = int_of_string (param req "pnet_id") in
     let pnet_json =
-      (Reactants_maps.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet
+      (Reactants_maps.ARMap.find mol pnet_id !sandbox.areactants).pnet
       |> Petri_net.to_yojson
     in
     `Json pnet_json|> Lwt.return
@@ -91,7 +91,7 @@ module Mol_req = struct
     >|= Yojson.Safe.from_string
     >|= pnet_action_of_yojson
     >|=? (fun pnet_action ->
-        let pnet = (Reactants_maps.ARMap.find mol pnet_id !(sandbox.bact).areactants).pnet in
+        let pnet = (Reactants_maps.ARMap.find mol pnet_id !sandbox.areactants).pnet in
         Ok (pnet_action, pnet))
     >|=? (
       fun (pnet_action, (pnet: Petri_net.t)) ->
@@ -110,7 +110,7 @@ module Mol_req = struct
           | Launch_transition trans_index ->
             let p_actions = Petri_net.launch_transition_by_id trans_index pnet in
             let actions = List.map (fun x -> Reacs.T_effects x) [p_actions] in
-            Bacterie.execute_actions !(sandbox.bact) actions;
+            Bacterie.execute_actions !sandbox actions;
         );
         let pnet_json = Petri_net.to_yojson pnet
         in Ok (`Json pnet_json)
@@ -121,9 +121,9 @@ module Mol_req = struct
     let mol = param req "mol"
     and pnet_id = int_of_string (param req "pnet_id") in
 
-    let amol = Reactants_maps.ARMap.find mol pnet_id  !(sandbox.bact).areactants in
-    Reactants_maps.ARMap.remove amol !(sandbox.bact).areactants
-    |> Bacterie.execute_actions !(sandbox.bact);
+    let amol = Reactants_maps.ARMap.find mol pnet_id  !sandbox.areactants in
+    Reactants_maps.ARMap.remove amol !sandbox.areactants
+    |> Bacterie.execute_actions !sandbox;
     get_bact sandbox |> Lwt.return
 
   let make_routes sandbox = [
@@ -141,11 +141,11 @@ end
 
 module Env_req = struct
   let get_environment (sandbox: Sandbox.t) (req) =
-    logger#info "sandbox: %s" (Environment.show !(sandbox.env));
-    logger#info "bact: %s" (Environment.show !(!(sandbox.bact).env));
-    logger#info "reac_mgr: %s" (Environment.show !(!(sandbox.bact).reac_mgr.env));
+    logger#info "sandbox: %s" (Environment.show !(!sandbox.env));
+    logger#info "bact: %s" (Environment.show !(!sandbox.env));
+    logger#info "reac_mgr: %s" (Environment.show !(!sandbox.reac_mgr.env));
 
-    `Json (Environment.to_yojson !(sandbox.env))
+    `Json (Environment.to_yojson !(!sandbox.env))
     |> Lwt.return
 
 
@@ -156,9 +156,9 @@ module Env_req = struct
     >|= Environment.of_yojson
     >|= Result.get_ok
     >|= fun env ->
-    !(sandbox.bact).env := env;
-    logger#debug "Bact env %s" (Environment.show !(!(sandbox.bact).env));
-    logger#debug "Sandbox env %s" (Environment.show !(sandbox.env));
+    !sandbox.env := env;
+    logger#debug "Bact env %s" (Environment.show !(!sandbox.env));
+    logger#debug "Sandbox env %s" (Environment.show !(!sandbox.env));
 
     logger#debug "Commited new env: %s" (Environment.show env);
     `Json (Environment.to_yojson env)
@@ -171,32 +171,32 @@ end
 
 module Reactions_req = struct
   let get_reactions (sandbox : Sandbox.t) (req) =
-    `Json( !(sandbox.bact).reac_mgr
+    `Json( !sandbox.reac_mgr
            |> Reac_mgr.to_yojson) |> Lwt.return
 
   let next_reactions (sandbox : Sandbox.t) (req) =
     let n = param req "n" |> int_of_string
     in
     for i = 0 to n-1 do
-      Bacterie.next_reaction !(sandbox.bact);
+      Bacterie.next_reaction !sandbox;
       (* Lwt_unix.sleep 0.001 *)
       logger#debug "step %i/%i" (i+1) n;
       Lwt_io.flush_all ()
     done;
-    `Json (Bacterie.to_sig_yojson !(sandbox.bact)) |> Lwt.return
+    `Json (Bacterie.to_sig_yojson !sandbox) |> Lwt.return
 
   let next_reactions_lwt (sandbox : Sandbox.t) (req) =
     let n = param req "n"
             |> int_of_string
     in
     for%lwt i = 0 to n-1 do
-      Bacterie.next_reaction !(sandbox.bact);
+      Bacterie.next_reaction !sandbox;
       (* Lwt_unix.sleep 0.001 *)
       logger#debug "step %i/%i" (i+1) n;
       Lwt_io.flush_all ()
     done
     >|= (fun () ->
-        `Json (Bacterie.to_sig_yojson !(sandbox.bact)))
+        `Json (Bacterie.to_sig_yojson !sandbox))
 
   let make_routes sandbox = [
     get,    "/reaction",                  get_reactions sandbox;
@@ -211,7 +211,7 @@ module BactSignatureDB_req = struct
     let sig_name = param req "name" in
     Yaac_db.BactSig.find_res (db_conn ()) sig_name
     >|=? (fun ({data; _}: Yaac_db.BactSig.FullType.t) ->
-        sandbox.bact := Bacterie.from_sig data sandbox.env;
+        sandbox := Bacterie.from_sig data ~env:!(!sandbox.env) ~randstate:!(!sandbox.randstate);
         Ok `Empty)
     >|= fun res -> `Res res
 
@@ -226,7 +226,7 @@ module BactSignatureDB_req = struct
     >|= Result.get_ok
     >>= (fun ({name; description}) -> (
           (Yaac_db.BactSig.insert_or_replace (db_conn ())
-             (name, description, Bacterie.to_sig !(sandbox.bact)))
+             (name, description, Bacterie.to_sig !sandbox))
           >|= Result.get_ok
         ))
     >|= (fun () -> `Empty)
@@ -249,7 +249,7 @@ module EnvDB_req = struct
     let env_name = param req "name" in
     Yaac_db.Environment.find_res (db_conn ()) env_name
     >|=? (fun {data; _} ->
-        sandbox.env := data;
+        !sandbox.env := data;
         Ok `Empty)
     >|= fun res -> `Res res
 
@@ -278,49 +278,6 @@ module EnvDB_req = struct
   ]
 end
 
-
-module SandboxDumpDB_req = struct
-
-  include Yaac_db.SandboxDump.RequestHandler
-
-  (* Set the current sandbox from the stored signature;
-     Reset the Random seed from that of the sig.contents
-
-     TODO: it could be nice that the sandbox stores a random generator for itself.   *)
-  let set_from_dump_name (sandbox : Sandbox.t) db_conn req =
-    let dump_name = param req "name" in
-    Yaac_db.SandboxDump.find_opt (db_conn ()) dump_name
-    >|=! Option.to_result ~none:("Cannot find "^dump_name)
-    >|=? (fun {data; _} ->
-        Sandbox.replace sandbox data;
-        Random.init !(sandbox.seed);
-        Ok `Empty)
-    >|= fun res -> `Res res
-
-
-  type post_item = {name: string; description: string}
-  [@@deriving yojson]
-
-  let add  (sandbox : Sandbox.t) db_conn (req: Opium.Std.Request.t) =
-    req.body
-    |> Cohttp_lwt.Body.to_string
-    >|= Yojson.Safe.from_string
-    >|= post_item_of_yojson
-    >|= Result.get_ok
-    >>= (fun ({name; description}) -> (
-          (Yaac_db.SandboxDump.insert_or_replace (db_conn ()) (name, description, sandbox))
-          >|= Result.get_ok
-        ))
-    >|= (fun () -> `Empty)
-
-  let make_routes sandbox db_conn = [
-    get,    "/db/dump",                    list db_conn;
-    get,    "/db/dump/dump",               dump db_conn;
-    post,   "/db/dump",                    add sandbox db_conn;
-    post,   "/db/dump/:name/load",         set_from_dump_name sandbox db_conn;
-    delete, "/db/dump/:name",            delete_one db_conn;
-  ]
-end
 
 
 module MolLibrary_req = struct
@@ -359,6 +316,5 @@ let make_routes sandbox db_conn =
   @ (Env_req.make_routes sandbox)
   @ (Reactions_req.make_routes sandbox)
   @ (BactSignatureDB_req.make_routes sandbox db_conn)
-  @ (SandboxDumpDB_req.make_routes sandbox db_conn)
   @ (EnvDB_req.make_routes sandbox db_conn)
   @ (MolLibrary_req.make_routes sandbox db_conn)

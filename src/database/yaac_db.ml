@@ -5,23 +5,16 @@ open Infix
 open Ppx_deriving_yojson_runtime
 let logger = Logging.get_logger "Yaac.Db"
 
-
 module SandboxSig = MakeBaseTable(struct
     type data_type = Reactors.Sandbox.signature
     [@@deriving yojson]
     let table_name = "sandbox_sig"
   end)
 
-module SandboxDump = MakeBaseTable(struct
-    type data_type = Reactors.Sandbox.t
-    [@@deriving yojson]
-    let table_name = "sandbox_dump_dump"
-  end)
-
 module BactSig = MakeBaseTable(struct
     type data_type = Bacterie_libs.Bacterie.bact_sig
     [@@deriving yojson]
-    let table_name = "bact_sigs"
+    let table_name = "bact_sig"
   end)
 
 module Environment = MakeBaseTable(struct
@@ -39,10 +32,10 @@ module MolLibrary = MakeBaseTable(struct
 
 let create_tables conn =
   SandboxSig.setup_table conn
-  >>=? fun _ -> SandboxDump.setup_table conn
   >>=? fun _ -> BactSig.setup_table conn
   >>=? fun _ -> Environment.setup_table conn
   >>=? fun _ -> MolLibrary.setup_table conn
+  >>=? fun _ -> Sim_tables.setup_tables conn
   >|=? fun _ -> Ok conn
 
 let get_conn uri = Caqti_lwt.connect (Uri.of_string uri)

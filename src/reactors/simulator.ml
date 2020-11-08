@@ -1,6 +1,7 @@
 open Local_libs
 open Bacterie_libs
 open Yaac_config
+
 type config = {
   environment : Environment.t;
   bact_nb : int;
@@ -23,7 +24,10 @@ let make (): t =
 
 let init (c : config) (sim : t) =
   let make_bact i =
-    Bacterie.make ~bact_sig:c.bact_initial_state (ref c.environment) in
+    Bacterie.from_sig
+      c.bact_initial_state
+      ~env:c.environment
+      ~randstate:(Random_s.make_self_init ()) in
 
   let b_array = Array.init c.bact_nb make_bact
   in sim.simulator <- Initialised (b_array)

@@ -11,35 +11,30 @@ let logger = Logging.get_logger "Yaac.Reactor.Sandbox"
 type signature = {
   bact: Bacterie.bact_sig;
   env: Environment.t;
-  seed: int;
+  randstate: Random_s.t
 }
 [@@deriving yojson]
 
 let empty_sig = {
   bact = Bacterie.null_sig;
   env = Environment.null_env;
-  seed = 0;
+  randstate = {
+    Random_s.seed = 8085733080487790103L;
+    gamma = -7046029254386353131L
+  }
 }
 
-
-type t =
-  {
-    bact : Bacterie.t ref;
-    env : Environment.t ref;
-    seed: int ref
-  }
+type t = Bacterie.t ref
 
 let to_signature (sandbox: t) : signature =
   {
-    bact = Bacterie.to_sig !(sandbox.bact);
-    env = !(sandbox.env);
-    seed = !(sandbox.seed);
+    bact = Bacterie.to_sig !sandbox;
+    env = !(!sandbox.env);
+    randstate = !(!sandbox.randstate);
   }
 
 let of_signature (s: signature): t =
-  let renv = ref s.env in
-  let bact = ref (Bacterie.make ~bact_sig:s.bact renv) in
-  {bact = bact; env = renv; seed=ref s.seed}
+  ref (Bacterie.from_sig s.bact ~env:s.env ~randstate:s.randstate)
 
 
 let make_empty () = of_signature empty_sig
@@ -47,17 +42,8 @@ let make_empty () = of_signature empty_sig
 let to_yojson = fun s -> s |> to_signature |> signature_to_yojson
 let of_yojson = fun json -> json |> signature_of_yojson |> Result.map of_signature
 
-let set_from_signature (sandbox:t) (signature:signature) =
-  sandbox.bact :=  Bacterie.make ~bact_sig:(signature.bact) (ref signature.env);
-  sandbox.env := signature.env;
-  sandbox.seed := signature.seed
-(* let of_state state_name =
- *   List.find (fun (n,_) -> n = state_name) !bact_states
- *   |> fun (_, state) -> of_yojson state
- *
- * let update_from_state sandbox state_name =
- *   List.find (fun (n,_) -> n = state_name) !bact_states
- *   |> fun (_, state) -> update_from_yojson sandbox state *)
+let set_from_signature (sandbox:t) (s:signature) =
+  sandbox := (Bacterie.from_sig s.bact ~env:s.env ~randstate:s.randstate)
 
 let load_sigs_from_dir bact_states_path =
   Misc_library.list_files ~file_type:"json" bact_states_path
@@ -66,7 +52,7 @@ let load_sigs_from_dir bact_states_path =
       x |> Yojson.Safe.from_file |> signature_of_yojson |> Result.get_ok)
 
 
-let replace sandbox new_sandbox =
-  sandbox.bact := !(new_sandbox.bact);
-  sandbox.env := !(new_sandbox.env);
-  sandbox.seed := !(new_sandbox.seed)
+(* let replace sandbox new_sandbox =
+ *   sandbox.bact := !(new_sandbox.bact);
+ *   sandbox.env := !(new_sandbox.env);
+ *   sandbox.seed := !(new_sandbox.seed) *)
