@@ -1,95 +1,92 @@
-open Opium.Std
 open Easy_logging_yojson
 open Lwt.Infix
 
 let logger = Logging.get_logger "Yaac.Server"
 
-(* unused *)
-module FileServer = struct
-  let read_whole_file filename =
-    let ch = open_in filename in
-    let s = really_input_string ch (in_channel_length ch) in
-    close_in ch;
-    s
+(* (\* unused *\) *)
+(* module FileServer = struct *)
+(*   let read_whole_file filename = *)
+(*     let ch = open_in filename in *)
+(*     let s = really_input_string ch (in_channel_length ch) in *)
+(*     close_in ch; *)
+(*     s *)
 
-  let config = [ ".txt", "text/plain";
-			           ".html", "text/html";
-                 ".css", "text/css";
-                 ".js", "text/javascript";
-                 ".ico", "img/ico"]
+(*   let config = [ ".txt", "text/plain"; *)
+(* 			           ".html", "text/html"; *)
+(*                  ".css", "text/css"; *)
+(*                  ".js", "text/javascript"; *)
+(*                  ".ico", "img/ico"] *)
 
-  let response_not_found = `String "not found", Utils.Resp.default_header, `Not_found
+(*   let response_not_found = `String "not found", Utils.Resp.default_header, `Not_found *)
 
-  let serve_file prefix path =
-    let ext = Filename.extension path
-    and full_path = (prefix^path)in
-    logger#trace "Serving file %s" full_path;
-    let (res_body, headers, code) = match List.find_opt (fun (ext',_) -> ext = ext') config with
-      | None -> response_not_found
-      | Some (_, content_type ) ->
-        if Sys.file_exists full_path
-        then
-          let data = read_whole_file full_path in
-          `String data, Cohttp.Header.init_with "Content-Type" content_type, `OK
-        else
-          response_not_found
-    in respond' ~headers:headers ~code:code res_body
-end
+(*   let serve_file prefix path = *)
+(*     let ext = Filename.extension path *)
+(*     and full_path = (prefix^path) in *)
+(*     logger#trace "Serving file %s" full_path; *)
+(*     let (res_body, headers, code) = match List.find_opt (fun (ext',_) -> ext = ext') config with *)
+(*       | None -> response_not_found *)
+(*       | Some (_, content_type ) -> *)
+(*         if Sys.file_exists full_path *)
+(*         then *)
+(*           let data = read_whole_file full_path in *)
+(*           `String data,  ["Content-Type", content_type], `OK *)
+(*         else *)
+(*           response_not_found *)
+(*     in Opium.Response.of_plain_text ~status:code res_body |> Opium.Response.add_headers headers *)
+(* end *)
 
 
 let req_counter = ref 0
 
-let filter_options =
-  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
-      Opium_kernel__Rock.Filter.simple  = fun handler req ->
-    (
-      match req.request.meth with
-      | `OPTIONS -> let headers = Cohttp.Header.of_list
-                        [("Access-Control-Allow-Origin","*");
-                         ("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE")] in
-        Rock.Response.create ~headers:headers () |> Lwt.return
-      | _ -> handler req
-    ) in
-  Rock.Middleware.create ~name:"options filter" ~filter
+(* let filter_options = *)
+(*   let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t) *)
+(*       Opium.Filter.simple  = fun handler req -> *)
+(*     ( *)
+(*       match req.request.meth with *)
+(*       | `OPTIONS -> let headers = Cohttp.Header.of_list *)
+(*                         [("Access-Control-Allow-Origin","*"); *)
+(*                          ("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE")] in *)
+(*         Rock.Response.create ~headers:headers () |> Lwt.return *)
+(*       | _ -> handler req *)
+(*     ) in *)
+(*   Rock.Middleware.create ~name:"options filter" ~filter *)
 
 let add_cors_header =
-  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
-      Opium_kernel__Rock.Filter.simple  = fun handler req ->
+  let filter : (Opium.Request.t, Opium.Response.t)
+      Rock.Filter.simple  = fun handler req ->
     (
       let handler' = fun req ->
         let response =
           Lwt.bind (Lwt.return req) handler in
         (
           response >|= (fun response ->
-              let headers' = Cohttp.Header.add response.headers
-                  "Access-Control-Allow-Origin" "*" in
-              {response with headers = headers'}
+              Opium.Response.add_header ("Access-Control-Allow-Origin", "*") response
             )
         ) in
       handler' req) in
   Rock.Middleware.create ~name:"cors header" ~filter
 
 let log_in_out =
-  let filter : (Opium_kernel.Request.t, Opium_kernel.Response.t)
-      Opium_kernel__Rock.Filter.simple  = fun handler req ->
+  let filter : (Opium.Request.t, Opium.Response.t)
+      Rock.Filter.simple  = fun handler req ->
     let c = string_of_int (!req_counter) in
     (
       req_counter := !req_counter +1;
-      let resource = req.request.resource
-      and meth = Cohttp.Code.sexp_of_meth req.request.meth |> Base.Sexp.to_string_hum
+      let target = req.target
+      and meth = Opium.Method.to_string req.meth
       in
-      logger#trace ~tags:[c] "Serving %s request at %s" meth resource;
+      logger#trace ~tags:[c] "Serving %s request at %s" meth target;
       let handler' = fun req ->
         try%lwt
           let response = handler req in
           (
             response
-            >|= Response.code
-            >|= Cohttp.Code.string_of_status
+            >|= (fun resp -> resp.status)
+            >|= Opium.Status.to_string
             >|= logger#trace ~tags:[c] "Response: %s"
-            >|= fun () ->
-            response >|= Response.headers >|= Cohttp.Header.to_string
-            >|= logger#debug ~tags:[c] "Headers: %s";
+            (* >|= fun () -> *)
+            (* response >|= Response.headers >|= Cohttp.Header.to_string *)
+            (* >|= logger#debug ~tags:[c] "Headers: %s"; *)
             (* response *)
             (* >|= (fun r -> r.body)
              * >>= Cohttp_lwt.Body.to_string
@@ -100,10 +97,10 @@ let log_in_out =
         | _ as e ->
           let backtrace = Printexc.get_backtrace () in
           logger#error ~tags:[c] "An error happened while treating the request %s:%s:\n%s\n%s"
-            meth resource
+            meth target
             backtrace
             (Printexc.to_string e);
-          `Error (Printf.sprintf "An error happened while treating the request at %s" resource)
+          `Error (Printf.sprintf "An error happened while treating the request at %s" target)
           |> Lwt.return >|= Utils.Resp.handle
 
       in
@@ -117,14 +114,13 @@ let index_resources = [
   (* "/sandbox"; "/sandbox/"; "/molbuilder"; "/molbuilder/"; "/simulator"; "/simulator/" *)
 ]
 let index_redirect =
-  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
-      Opium_kernel__Rock.Filter.simple  = fun handler req ->
-    if List.mem req.request.resource index_resources
+  let filter : (Opium.Request.t, Opium.Response.t)
+      Rock.Filter.simple  = fun handler req ->
+    if List.mem req.target index_resources
     then
-      let resource' = Filename.concat req.request.resource "index.html" in
-      logger#debug "Redirecting %s to %s" req.request.resource resource';
-      let request' = {req.request with resource = resource'} in
-      let req' = {req with request = request'} in
+      let target' = Filename.concat req.target "index.html" in
+      logger#debug "Redirecting %s to %s" req.target target';
+      let req' = {req with target = target'} in
       handler req'
     else
       handler req
@@ -135,15 +131,14 @@ let pages = [
   ; "/logs"
 ]
 let single_index_redirect =
-  let filter : (Opium_kernel__Rock.Request.t, Opium_kernel__Rock.Response.t)
-      Opium_kernel__Rock.Filter.simple  = fun handler req ->
-    logger#debug "Requesting resource %s" req.request.resource;
-    if List.mem req.request.resource pages
+  let filter : (Opium.Request.t, Opium.Response.t)
+      Rock.Filter.simple  = fun handler req ->
+    logger#debug "Requesting resource %s" req.target;
+    if List.mem req.target pages
     then
-      let resource' = "index.html" in
-      logger#debug "Redirecting %s to %s" req.request.resource resource';
-      let request' = {req.request with resource = resource'} in
-      let req' = {req with request = request'} in
+      let target' = "index.html" in
+      logger#debug "Redirecting %s to %s" req.target target';
+      let req' = {req with target = target'} in
       handler req'
     else
       handler req
@@ -154,14 +149,14 @@ let single_index_redirect =
 
 let run port files_prefix routes =
   logger#info "Webserver running at http://localhost:%i" port;
-  App.empty
-  |> App.port port
-  |> middleware filter_options
-  |> middleware add_cors_header
-  |> middleware log_in_out
+  Opium.App.empty
+  |> Opium.App.port port
+  (* |> Opium.middleware filter_options *)
+  (* |> Rock.Middleware.apply add_cors_header *)
+  (* |> Rock.Middleware.apply log_in_out *)
   (* |> get "**" (fun x -> serve_file files_prefix x.request.resource) *)
-  |> get "/ping" (fun x -> `String "ok" |> respond')
-  |> List.fold_right (fun (meth, route,f) x -> (meth route (fun req -> f req >|= Utils.Resp.handle)) x) routes
-  |> middleware single_index_redirect
-  |> middleware (Middleware.static ~local_path:files_prefix ~uri_prefix:"/" ())
-  |> App.start
+  (* |> Opium.Request.get "/ping" (fun x -> Opium.Response.of_plain_text "ok") *)
+  (* |> List.fold_right (fun (meth, route,f) x -> (meth route (fun req -> f req >|= Utils.Resp.handle)) x) routes *)
+  (* |> Rock.Middleware.apply single_index_redirect *)
+  (* |> Rock.Middleware.apply (Opium.Middleware.static_unix ~local_path:files_prefix ~uri_prefix:"/" ()) *)
+  |> Opium.App.start

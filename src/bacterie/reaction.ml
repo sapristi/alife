@@ -339,5 +339,6 @@ module rec
        let to_yojson (rset :t) : Yojson.Safe.t=
          `List (List.map Reaction.to_yojson (to_list rset))
        let pp =
-         pp ~start:"Reac set:\n" Reaction.pp
+         (* pp ~pp_start:(fun out () -> Format.fprintf out "Reac set:\n") Reaction.pp *)
+           pp ~pp_start:(Misc_library.printer "Reac set:\n") Reaction.pp
   end

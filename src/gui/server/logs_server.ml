@@ -1,5 +1,5 @@
 open Easy_logging_yojson
-open Opium.Std
+open Opium
 open Lwt.Infix
 
 let logger = Logging.get_logger "Yaac.Server.Logs"
@@ -7,11 +7,15 @@ let logger = Logging.get_logger "Yaac.Server.Logs"
 let get_loggers req =
   `Json (Logging.tree_to_yojson ()) |> Lwt.return
 
-let set_level (req : Opium_kernel__Rock.Request.t) =
+(* let set_level (req : Opium_kernel__Rock.Request.t) = *)
+(*   let%lwt data_json = *)
+(*     req.body *)
+(*     |> Cohttp_lwt.Body.to_string *)
+(*     >|= Yojson.Safe.from_string *)
+(*   in *)
+let set_level (req : Opium.Request.t) =
   let%lwt data_json =
-    req.body
-    |> Cohttp_lwt.Body.to_string
-    >|= Yojson.Safe.from_string
+    Opium.Request.to_json_exn req
   in
 
   let level_json = Yojson.Safe.Util.member "level" data_json in
@@ -31,5 +35,5 @@ let set_level (req : Opium_kernel__Rock.Request.t) =
   | _ -> `Error "Invalid input data" |> Lwt.return
 
 let make_routes () =
-  [ get,  "/api/logs/tree", get_loggers;
-    post, "/api/logs/logger", set_level]
+  [ Opium.Request.get,  "/api/logs/tree", get_loggers;
+    Opium.Request.post, "/api/logs/logger", set_level]

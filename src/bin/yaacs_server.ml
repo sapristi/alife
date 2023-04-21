@@ -76,17 +76,18 @@ let run_yaacs p : unit=
   let db_conn = fun () -> Yaac_db.get_conn db_uri in
   Yaac_db.init db_uri p.data_path
   >>= (fun () ->
-  Lwt.join [
-    Web_server.run
-      p.port
-      (p.static_path)
-      (Bact_server.make_routes
-         (Simulator.make ())
-         (Sandbox.make_empty ())
-         db_conn
-      );
-    Ws_server.run pipe ();
-  ])
+      Lwt.join [
+        Web_server.run
+          p.port
+          (p.static_path)
+          (Bact_server.make_routes
+             (Simulator.make ())
+             (Sandbox.make_empty ())
+             db_conn
+          ) >|= ignore;
+        Ws_server.run pipe ();
+      ]
+    )
 
   |> Lwt_main.run
 

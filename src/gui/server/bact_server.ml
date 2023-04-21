@@ -13,7 +13,6 @@ let logger = Logging.get_logger "Yaac.Server.Bact"
 
 
 open Lwt.Infix
-open Opium.Std
 
 
 let set_log_level (cgi) : string =
@@ -27,11 +26,10 @@ let set_log_level (cgi) : string =
   | Error r ->
     r
 
-let build_all_from_mol (req : Opium_kernel__Rock.Request.t)=
+let build_all_from_mol (req : Opium.Request.t)=
   match%lwt
-    req.body
-    |> Cohttp_lwt.Body.to_string
-    >|= Yojson.Safe.from_string
+    req
+    |> Opium.Request.to_json_exn
     >|= Molecule.of_yojson
   with
   | Ok mol ->
@@ -52,10 +50,10 @@ let build_all_from_mol (req : Opium_kernel__Rock.Request.t)=
   | Error s -> `Error s |> Lwt.return
 
 
-let build_all_from_prot (req : Opium_kernel__Rock.Request.t) =
+let build_all_from_prot (req : Opium.Request.t) =
   let%lwt body =
-    req.body
-    |> Cohttp_lwt.Body.to_string
+    req
+    |> Opium.Request.to_plain_text
   in
 
   logger#debug "Received %s" body;
@@ -81,7 +79,6 @@ let build_all_from_prot (req : Opium_kernel__Rock.Request.t) =
   | Error s -> `Error s |> Lwt.return
 
 
-open Opium.Std
 
 open Lwt.Infix
 type build_req_body =
@@ -108,8 +105,8 @@ let acids_list  =
 
 
 let make_routes simulator sandbox db_uri =
-  [ get, "/api/utils/acids", (fun x -> acids_list );
-    post, "/api/utils/build/from_mol", build_all_from_mol;
-    post, "/api/utils/build/from_prot", build_all_from_prot ]
+  [ Opium.Request.get, "/api/utils/acids", (fun x -> acids_list );
+    Opium.Request.post, "/api/utils/build/from_mol", build_all_from_mol;
+    Opium.Request.post, "/api/utils/build/from_prot", build_all_from_prot ]
   @ (Utils.add_prefix "/api/sandbox" (Sandbox_req_handler.make_routes sandbox db_uri))
   @ (Logs_server.make_routes ())

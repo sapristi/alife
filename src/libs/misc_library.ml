@@ -173,3 +173,5 @@ let list_files ?file_type dir =
     | None -> fun x -> true
     | Some suff -> fun x -> Filename.check_suffix x suff
   )
+
+let printer s = (fun out () -> Format.fprintf out s)

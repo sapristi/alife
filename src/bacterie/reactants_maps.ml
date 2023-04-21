@@ -50,8 +50,8 @@ module ARMap =
                         Reactant.Amol.compare
                           amd1 amd2
                     end)
-
-        let pp = pp ~start:"AmolSet:\n " Reactant.Amol.pp
+ 
+        let pp = pp ~pp_start:(Misc_library.printer "AmolSet:\n") Reactant.Amol.pp
         let show amolset =
           Format.asprintf "%a" pp amolset
         let make mol =

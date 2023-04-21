@@ -1,4 +1,3 @@
-open Opium.Std
 
 let add_prefix prefix routes =
   List.map
@@ -16,13 +15,13 @@ module Resp = struct
 
   let default_header = Cohttp.Header.of_list []
   let json_h = Cohttp.Header.add default_header "Content-Type" "application/json"
-  let respond_error = respond ~headers:json_h ~code:`Bad_request
+  let respond_error = Opium.Response.of_json  ~status:`Bad_request
 
   let rec handle r =
     match r with
-    | `Empty -> `String "" |> respond ~code:`No_content
-    | `String s -> `String s |> respond
-    | `Json (j : Yojson.Safe.t ) -> j |> json_to_response  |>  respond ~headers:json_h
+    | `Empty ->  "" |> Opium.Response.of_plain_text ~status:`No_content
+    | `String s -> s |> Opium.Response.of_plain_text
+    | `Json (j : Yojson.Safe.t ) -> j |> json_to_response  |>  Opium.Response.of_json
     | `Error (s : string ) -> s |> error_to_response  |> respond_error
     | `Db_res (res: (Yojson.Safe.t, Caqti_error.t) result) ->
       (
@@ -34,3 +33,4 @@ module Resp = struct
       | Ok res' -> handle res'
       | Error err -> handle (`Error err)
 end
+

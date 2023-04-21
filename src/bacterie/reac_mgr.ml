@@ -85,8 +85,8 @@ module MakeReacSet
     let pp fmt s=
       if RSet.is_empty s.set
       then Format.fprintf fmt  "ReacSet (empty)"
-      else (RSet.pp ~start:"ReacSet:" Reac.pp) fmt s.set
-
+      else (RSet.pp ~pp_start:(Misc_library.printer "ReacSet:") Reac.pp) fmt s.set
+          
     let show (s : t) =
       Format.asprintf "%a" pp s
 
@@ -220,7 +220,7 @@ module CSet =
     let pp fmt s =
       if Colliders.is_empty s.colliders
       then Format.fprintf fmt  "ReacSet (empty)"
-      else (Colliders.pp ~start:"ReacSet:" Reactant.pp) fmt s.colliders
+      else (Colliders.pp ~pp_start:(Misc_library.printer "ReacSet:") Reactant.pp) fmt s.colliders
 
     let show (s:t) =
       Format.asprintf "%a" pp s

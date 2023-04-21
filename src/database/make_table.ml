@@ -166,7 +166,7 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
 
   module RequestHandler = struct
 
-    open Opium.Std
+    open Opium
 
     type partial_item = {name: string; description: string; time: string}
     [@@deriving yojson]
@@ -188,7 +188,7 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
 
     let delete_one db_conn (req: Request.t) =
       (
-      let name = param req "name"
+      let name = Request.query_exn "name" req 
       in delete_one (db_conn ()) name
       >>=?  fun () -> (Ok `Null) |> Lwt.return
     )
@@ -196,7 +196,7 @@ module MakeBaseTable (TableParams: TABLE_PARAMS) = struct
 
     let find_one db_conn (req: Request.t) =
       (
-        let name = param req "name"
+        let name = Request.query_exn "name" req 
         in find_res (db_conn ()) name
         >|= Result.map FullType.to_yojson
         >|= Result.map (fun x -> `Json x)
