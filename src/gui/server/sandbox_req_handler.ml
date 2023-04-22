@@ -120,15 +120,15 @@ module Mol_req = struct
     get_bact sandbox |> Lwt.return
 
   let make_routes sandbox = [
-    Opium.Request.get,    "/amol/:mol",                 pnet_ids_from_mol sandbox;
-    Opium.Request.get,    "/amol/:mol/pnet/:pnet_id",   get_pnet sandbox;
-    Opium.Request.put,    "/amol/:mol/pnet/:pnet_id",   execute_pnet_action sandbox;
-    Opium.Request.delete, "/amol/:mol/pnet/:pnet_id",   remove_amol sandbox;
+    Opium.App.get,    "/amol/:mol",                 pnet_ids_from_mol sandbox;
+    Opium.App.get,    "/amol/:mol/pnet/:pnet_id",   get_pnet sandbox;
+    Opium.App.put,    "/amol/:mol/pnet/:pnet_id",   execute_pnet_action sandbox;
+    Opium.App.delete, "/amol/:mol/pnet/:pnet_id",   remove_amol sandbox;
 
-    Opium.Request.put,    "/imol/:mol",                 set_imol_quantity sandbox;
-    Opium.Request.delete, "/imol/:mol",                 remove_imol sandbox;
+    Opium.App.put,    "/imol/:mol",                 set_imol_quantity sandbox;
+    Opium.App.delete, "/imol/:mol",                 remove_imol sandbox;
 
-    Opium.Request.post,   "/mol/:mol",                  add_mol sandbox;
+    Opium.App.post,   "/mol/:mol",                  add_mol sandbox;
   ]
 end
 
@@ -156,8 +156,8 @@ module Env_req = struct
     `Json (Environment.to_yojson env)
 
   let make_routes sandbox = [
-    Opium.Request.get,    "/environment",               get_environment sandbox;
-    Opium.Request.put,    "/environment",               set_environment sandbox;
+    Opium.App.get,    "/environment",               get_environment sandbox;
+    Opium.App.put,    "/environment",               set_environment sandbox;
   ]
 end
 
@@ -190,8 +190,8 @@ module Reactions_req = struct
         `Json (Bacterie.to_sig_yojson !sandbox))
 
   let make_routes sandbox = [
-    Opium.Request.get,    "/reaction",                  get_reactions sandbox;
-    Opium.Request.post,   "/reaction/next/:n",          next_reactions_lwt sandbox;
+    Opium.App.get,    "/reaction",                  get_reactions sandbox;
+    Opium.App.post,   "/reaction/next/:n",          next_reactions_lwt sandbox;
   ]
 end
 
@@ -222,11 +222,11 @@ module BactSignatureDB_req = struct
     >|= (fun () -> `Empty)
 
   let make_routes sandbox db = [
-    Opium.Request.get,    "/db/bactsig",                    list db;
-    Opium.Request.get,    "/db/bactsig/dump",               dump db;
-    Opium.Request.post,   "/db/bactsig",                    add sandbox db;
-    Opium.Request.post,   "/db/bactsig/:name/load",         set_from_sig_name sandbox db;
-    Opium.Request.delete,   "/db/bactsig/:name",            delete_one db;
+    Opium.App.get,    "/db/bactsig",                    list db;
+    Opium.App.get,    "/db/bactsig/dump",               dump db;
+    Opium.App.post,   "/db/bactsig",                    add sandbox db;
+    Opium.App.post,   "/db/bactsig/:name/load",         set_from_sig_name sandbox db;
+    Opium.App.delete,   "/db/bactsig/:name",            delete_one db;
   ]
 end
 
@@ -259,11 +259,11 @@ module EnvDB_req = struct
     >|= (fun () -> `Empty)
 
   let make_routes sandbox db = [
-    Opium.Request.get,    "/db/environment",                    list db;
-    Opium.Request.get,    "/db/environment/dump",               dump db;
-    Opium.Request.post,   "/db/environment",                    add  db;
-    Opium.Request.post,   "/db/environment/:name/load",         load_env sandbox db;
-    Opium.Request.delete, "/db/environment/:name",            delete_one db;
+    Opium.App.get,    "/db/environment",                    list db;
+    Opium.App.get,    "/db/environment/dump",               dump db;
+    Opium.App.post,   "/db/environment",                    add  db;
+    Opium.App.post,   "/db/environment/:name/load",         load_env sandbox db;
+    Opium.App.delete, "/db/environment/:name",            delete_one db;
   ]
 end
 
@@ -288,18 +288,18 @@ module MolLibrary_req = struct
     >|= (fun () -> `Empty)
 
   let make_routes sandbox db_conn = [
-    Opium.Request.get,    "/db/mol_library",                    list db_conn;
-    Opium.Request.get,    "/db/mol_library/dump",               dump db_conn;
-    Opium.Request.post,   "/db/mol_library",                    add sandbox db_conn;
-    Opium.Request.get,    "/db/mol_library/:name",            find_one db_conn;
-    Opium.Request.delete, "/db/mol_library/:name",            delete_one db_conn;
+    Opium.App.get,    "/db/mol_library",                    list db_conn;
+    Opium.App.get,    "/db/mol_library/dump",               dump db_conn;
+    Opium.App.post,   "/db/mol_library",                    add sandbox db_conn;
+    Opium.App.get,    "/db/mol_library/:name",            find_one db_conn;
+    Opium.App.delete, "/db/mol_library/:name",            delete_one db_conn;
   ]
 end
 
 
 
 let make_routes sandbox db_conn =
-  [ Opium.Request.get,    "", get_sandbox sandbox]
+  [ Opium.App.get,    "", get_sandbox sandbox]
   @ (Mol_req.make_routes sandbox)
   @ (Env_req.make_routes sandbox)
   @ (Reactions_req.make_routes sandbox)

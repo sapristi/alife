@@ -26,7 +26,7 @@ let send_bact_to_sandbox (sim : Simulator.t) (req) =
   
 
 let server_functions =
-  [Opium.Request.post, "/simulator", init;
-   Opium.Request.post, "/simlator/simulate",simulate;
+  [Opium.App.post, "/simulator", init;
+   Opium.App.post, "/simlator/simulate",simulate;
    (*   "send_bact_to_sandbox",send_bact_to_sandbox; *)
   ]

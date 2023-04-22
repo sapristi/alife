@@ -105,8 +105,8 @@ let acids_list  =
 
 
 let make_routes simulator sandbox db_uri =
-  [ Opium.Request.get, "/api/utils/acids", (fun x -> acids_list );
-    Opium.Request.post, "/api/utils/build/from_mol", build_all_from_mol;
-    Opium.Request.post, "/api/utils/build/from_prot", build_all_from_prot ]
+  [ Opium.App.get, "/api/utils/acids", (fun x -> acids_list );
+    Opium.App.post, "/api/utils/build/from_mol", build_all_from_mol;
+    Opium.App.post, "/api/utils/build/from_prot", build_all_from_prot ]
   @ (Utils.add_prefix "/api/sandbox" (Sandbox_req_handler.make_routes sandbox db_uri))
   @ (Logs_server.make_routes ())

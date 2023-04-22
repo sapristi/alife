@@ -35,5 +35,5 @@ let set_level (req : Opium.Request.t) =
   | _ -> `Error "Invalid input data" |> Lwt.return
 
 let make_routes () =
-  [ Opium.Request.get,  "/api/logs/tree", get_loggers;
-    Opium.Request.post, "/api/logs/logger", set_level]
+  [ Opium.App.get,  "/api/logs/tree", get_loggers;
+    Opium.App.post, "/api/logs/logger", set_level]

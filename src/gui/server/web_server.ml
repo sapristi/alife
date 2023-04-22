@@ -145,18 +145,33 @@ let single_index_redirect =
   in
   Rock.Middleware.create ~name:"Index redirect" ~filter
 
+let format_meth meth =
+  if meth == Opium.App.get
+  then "GET   "
+  else if meth == Opium.App.post
+  then "POST  "
+  else if meth == Opium.App.put
+  then "PUT   "
+  else if meth == Opium.App.delete
+  then "DELETE"
+  else "unknown"
 
 
 let run port files_prefix routes =
   logger#info "Webserver running at http://localhost:%i" port;
   Opium.App.empty
   |> Opium.App.port port
-  (* |> Opium.middleware filter_options *)
-  (* |> Rock.Middleware.apply add_cors_header *)
-  (* |> Rock.Middleware.apply log_in_out *)
+  (* |> Opium.App.middleware filter_options *)
+  |> Opium.App.middleware add_cors_header
+  |> Opium.App.middleware log_in_out
   (* |> get "**" (fun x -> serve_file files_prefix x.request.resource) *)
-  (* |> Opium.Request.get "/ping" (fun x -> Opium.Response.of_plain_text "ok") *)
-  (* |> List.fold_right (fun (meth, route,f) x -> (meth route (fun req -> f req >|= Utils.Resp.handle)) x) routes *)
-  (* |> Rock.Middleware.apply single_index_redirect *)
-  (* |> Rock.Middleware.apply (Opium.Middleware.static_unix ~local_path:files_prefix ~uri_prefix:"/" ()) *)
+  |> Opium.App.get "/ping" (fun x -> Opium.Response.of_plain_text "ok" |> Lwt.return)
+  |> List.fold_right (fun (meth, route,f) x ->
+      logger#info "%s :: %s" (format_meth meth) route;
+      (meth route (fun req -> f req >|= Utils.Resp.handle))
+        x
+    )
+    routes
+  (* |> Opium.App.middleware single_index_redirect *)
+  (* |> Opium.App.middleware (Opium.Middleware.static_unix ~local_path:files_prefix ~uri_prefix:"/" ()) *)
   |> Opium.App.start
