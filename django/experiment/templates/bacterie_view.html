@@ -1,0 +1,18 @@
+{% extends 'base.html'  %}
+
+{% block title %}
+Molecule
+{% endblock %}
+
+{% block content %}
+<textarea
+  hx-post="/mol/"
+  hx-trigger="change delay:500ms"
+  hx-target="#results"
+  class="textarea" name="mol" placeholder="AABDAACA"
+></textarea>
+
+<div id="results">
+
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+- model: experiment.initial_state
+  pk: 0
+  fields:
+    name: grab_amol
+    seed: 0
+    env: |
+      {
+          "transition_rate" : 1,
+          "grab_rate" : 1,
+          "break_rate" : 0,
+          "collision_rate" : 0
+      }
+    molecules: |
+      {
+          "active_mols" : [
+              {"mol":"AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB","qtt":1},
+              {"mol":"AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB", "qtt":1}
+          ],
+          "inert_mols" : []
+      }
+- model: experiment.initial_state
+  pk: 1
+  fields:
+    - name: simple_bind
+      seed: 0
+      env: |
+        {
+        "transition_rate" : 1,
+        "grab_rate" : 1,
+        "break_rate" : 0,
+        "collision_rate" : 0
+        }
+          molecules: |
+            {
+            "active_mols" : [
+            {"mol":"AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB","qtt":1}],
+            "inert_mols" : [
+            {"mol":"A","qtt":1,"ambient":false},
+            {"mol":"B","qtt":1,"ambient":false}]
+            }

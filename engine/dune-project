@@ -1,0 +1,16 @@
+(lang dune 2.7)
+
+(package
+ (name base_chemistry)
+)
+(package
+ (name chemistry_types)
+)
+
+(package
+ (name local_libs)
+)
+
+(package
+ (name bacterie_libs)
+)

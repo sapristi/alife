@@ -1,0 +1,20 @@
+(library
+ (name bacterie_libs)
+ (flags -w -g)
+ (preprocess
+  (pps ppx_deriving.show
+       ppx_deriving_yojson
+       ppx_deriving.show
+       ppx_deriving.ord ))
+ (libraries local_libs
+            base_chemistry
+            ; yaac_config
+            easy_logging_yojson
+            containers
+            ppx_deriving
+            ppx_deriving_yojson.runtime
+            yojson
+            ppx_deriving.show
+            ppx_deriving.ord
+            pringo
+))
