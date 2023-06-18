@@ -6,34 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>YAAC</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-    <script src="https://unpkg.com/htmx.org@1.9.2" integrity="sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <!-- <script src="https://unpkg.com/htmx.org@1.9.2" integrity="sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h" crossorigin="anonymous"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script> -->
+    <!-- <script src="{% static 'js/preact_10.15.1.mjs' %}"></script> -->
   </head>
   <body>
-    <section class="section">
-      <div class="container">
-        <h1 class="title">
-          {% block title %}
-          {% endblock %}
-        </h1>
+    {% block body  %}
+    {% endblock %}
+    <!-- <section class="section">
+         <div class="container">
+         <h1 class="title">
+         {% block title %}
+         {% endblock %}
+         </h1>
+         {% block content %}
+         {% endblock %}
+         </div>
+         </section>
+         <script>
 
-        {% block content %}
-        {% endblock %}
-
-      </div>
-    </section>
-    <script>
-
-     htmx.onLoad(function(content) {
-       var sortables = content.querySelectorAll(".sortable");
-       for (var i = 0; i < sortables.length; i++) {
+         htmx.onLoad(function(content) {
+         var sortables = content.querySelectorAll(".sortable");
+         for (var i = 0; i < sortables.length; i++) {
          var sortable = sortables[i];
          new Sortable(sortable, {
-           animation: 150,
-           ghostClass: 'blue-background-class'
+         animation: 150,
+         ghostClass: 'blue-background-class'
          });
-       }
-     })
-    </script>
+         }
+         })
+         </script> -->
   </body>
 </html>

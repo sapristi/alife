@@ -1,18 +1,110 @@
 {% extends 'base.html'  %}
+{% load static %}
 
-{% block title %}
-Molecule
-{% endblock %}
+{% block body %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">
+      Molecule
+    </h1>
+    <div id="mol-component" />
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <h1 class="title">
+      Proteine
+    </h1>
+    <div class="content" id="prot-component" />
+  </div>
+</section>
+<section class="section">
+  <div class="container">
+    <h1 class="title">
+      Petri Net
+    </h1>
+    <div class="content" id="pnet-component" />
+  </div>
+</section>
 
-{% block content %}
-<textarea
-  hx-post="/mol/"
-  hx-trigger="change delay:100ms"
-  hx-target="#results"
-  class="textarea" name="mol" placeholder="AABDAACA"
-></textarea>
 
-<div id="results">
+<script type="importmap">
+ {
+   "imports": {
+     "preact": "https://esm.sh/preact@10.12.1",
+     "preact/hooks": "https://esm.sh/preact@10.12.1/hooks?external=preact",
+     "@preact/signals": "https://esm.sh/@preact/signals@1.1.3?external=preact",
+     "htm": "https://esm.sh/htm@3.1.1"
+   }
+ }
+</script>
+<script type="module">
+ import { h, render } from "preact";
+ import { signal, effect } from "@preact/signals";
+ import htm from "htm";
 
-</div>
+ const html = htm.bind(h);
+ const mol = signal("");
+ const prot = signal([]);
+ const pnet = signal({});
+
+ effect( () => {
+   console.log("CHANGE", mol.value)
+   fetch(`http://${window.location.host}/mol/`, {
+     method: 'POST',
+     headers: {
+       'Accept': 'application/json',
+       'Content-Type': 'application/json'
+     },
+     body: JSON.stringify({mol: mol.value}),
+   }).then(
+     response => response.json()
+   ).then(
+     data => {
+       console.log("RECEIVED", data)
+       prot.value = data.prot
+     }
+   )
+ })
+
+ let MolInput = () => {
+   const onChange = (event) => {
+     const newValue = event.target.value
+     mol.value = newValue
+     console.log("Changed", mol.value)
+   }
+   return html`
+     <div>
+     <textarea class="textarea" value=${mol.value} onInput=${onChange}/>
+     </div>
+   `
+ }
+
+ let AcidDisplay = ({acid}) => {
+     return html`
+     <li>${acid}</li>
+     `
+ }
+ let ProtDisplay = () => {
+   return html`
+<ul>
+  ${prot.value.map(
+   acid => AcidDisplay({acid})
+  )}
+</ul>
+   `
+ }
+
+ function App (props) {
+   return html`<div>
+     <${MolInput} />
+     <${ProtDisplay} />
+     <span>world</span>
+     </div>`
+ }
+
+ /* render(html`<${App} />`, document.body); */
+ render(html`<${MolInput} />`, document.getElementById("mol-component"));
+ render(html`<${ProtDisplay} />`, document.getElementById("prot-component"));
+</script>
 {% endblock %}

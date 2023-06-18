@@ -1,4 +1,5 @@
 from os import truncate
+import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template import loader
@@ -15,9 +16,11 @@ class Molecule(View):
         )
 
     def post(self, request, *args, **kwargs):
-        print("POST", request, args, kwargs)
-        print(request.POST)
-        p = sp.run(["./yaac", "get-pnet", f"--mol={request.POST['mol']}"], capture_output=True)
+        data = json.loads(request.body)
+        p = sp.run(
+            ["./yaac", "from-mol", f"--mol={data.get('mol', '')}"],
+            capture_output=True
+        )
         res = json.loads(p.stdout)
         print(res)
         return JsonResponse(

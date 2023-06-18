@@ -1,9 +1,25 @@
 (alias
  (name default)
- (deps ./src/bin/yaac.exe
+ (deps
+   ./bin/yaac.exe
  )
-)
 
+
+ )
+
+(rule
+ (alias default)
+ (deps
+   ./bin/yaac.exe
+ )
+
+ (action
+  (progn
+   (bash "rm -f ../../../django/yaac")
+   (bash "cp ./bin/yaac.exe ../../../django/yaac")
+ ))
+
+)
 ; (rule
 ;  (alias client)
 ;  (targets client.tar)
