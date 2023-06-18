@@ -1,5 +1,5 @@
 open Client_types;
-open Acid_types;
+open Types.Acid;
 open Molbuilder__dnd;
 open Belt;
 open Utils;

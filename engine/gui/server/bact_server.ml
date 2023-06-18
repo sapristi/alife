@@ -94,13 +94,13 @@ let acids_list  =
       ["purpose", `String "list_acids";
        "data", `List [
          `Assoc ["type", `String "places";
-                 "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.nodes)];
+                 "acids", `List (List.map Types.Acid.acid_to_yojson Types.Acid.Examples.nodes)];
          `Assoc ["type", `String "inputs_arcs";
-                 "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.input_arcs)];
+                 "acids", `List (List.map Types.Acid.acid_to_yojson Types.Acid.Examples.input_arcs)];
          `Assoc ["type", `String "outputs_arcs";
-                 "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.output_arcs)];
+                 "acids", `List (List.map Types.Acid.acid_to_yojson Types.Acid.Examples.output_arcs)];
          `Assoc ["type", `String "extensions";
-                 "acids", `List (List.map Acid_types.acid_to_yojson Acid_types.Examples.extensions);]]] in
+                 "acids", `List (List.map Types.Acid.acid_to_yojson Types.Acid.Examples.extensions);]]] in
   `Json json_data |> Lwt.return
 
 

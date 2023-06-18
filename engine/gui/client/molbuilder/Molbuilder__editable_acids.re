@@ -1,4 +1,4 @@
-open Acid_types;
+open Types.Acid;
 open Components;
 
 let inputStyle =

@@ -18,13 +18,12 @@
 (*  - la liste des pointeurs des places d'arrivée *)
 (*  - la liste des types de transition entrantes *)
 (*  - la liste des types de transitions sortantes *)
-open Chemistry_types
 open Local_libs.Numeric
 open Easy_logging_yojson
 
 let logger = Logging.get_logger "Yaac.Base_chem.Transition"
 
-include Chemistry_types.Types.Transition
+include Types.Transition
 (* ** launchable function *)
 (* Tells whether a given transition can be launched, *)
 (* i.e. checks whether *)
@@ -39,24 +38,24 @@ let launchable (transition : t) (places)=
   else
     begin
       let launchable_input_arc
-          (input_arc : Acid_types.input_arc)
+          (input_arc : Types.Acid.input_arc)
           (place : Place.t) =
         match input_arc with
-        | Acid_types.Filter_iarc s ->
+        | Types.Acid.Filter_iarc s ->
           begin
             match place.Place.token with
             | None -> false
             | Some token ->
               s = Token.get_label token
           end
-        | Acid_types.Filter_empty_iarc ->
+        | Types.Acid.Filter_empty_iarc ->
           begin
             match place.Place.token with
             | None -> false
             | Some token ->
               Token.get_label token = ""
           end
-        | Acid_types.No_token_iarc ->
+        | Types.Acid.No_token_iarc ->
           begin
             match place.Place.token with
             | None -> true
@@ -66,7 +65,7 @@ let launchable (transition : t) (places)=
         | _ ->
           not (Place.is_empty place)
       and launchable_output_arc
-          (output_arc : Acid_types.output_arc)
+          (output_arc : Types.Acid.output_arc)
           (place : Place.t) =
         (Place.is_empty place) ||
         (* we test if the place is in the source places, to allow cycle transitions *)
@@ -90,8 +89,8 @@ let update_launchable transition places : unit =
 
 let make (id : string)
     (places : Place.t array)
-    (input_arcs : (int * Acid_types.input_arc) list)
-    (output_arcs : (int * Acid_types.output_arc) list)
+    (input_arcs : (int * Types.Acid.input_arc) list)
+    (output_arcs : (int * Types.Acid.output_arc) list)
     (index : int) : t =
 
   let t =
@@ -120,7 +119,7 @@ let make (id : string)
 let apply_transition (transition : t) (places): Place.transition_effect list=
   let rec apply_input_arcs
       (i_arc_l :
-         (Place.t * Acid_types.input_arc) list)
+         (Place.t * Types.Acid.input_arc) list)
     : Token.t list =
     match i_arc_l with
     | (_, No_token_iarc) :: i_arc_l'-> apply_input_arcs i_arc_l'
@@ -128,7 +127,7 @@ let apply_transition (transition : t) (places): Place.transition_effect list=
       begin
         let token = Place.pop_token place in
         match transi with
-        | Acid_types.Split_iarc  ->
+        | Types.Acid.Split_iarc  ->
           let token1, token2 = Token.cut_mol token in
           token1 :: token2 :: apply_input_arcs i_arc_l'
         | _ -> token :: apply_input_arcs i_arc_l'
@@ -136,19 +135,19 @@ let apply_transition (transition : t) (places): Place.transition_effect list=
     | [] -> []
   and apply_output_arcs
       (o_arc_l :
-         (Place.t * Acid_types.output_arc) list)
+         (Place.t * Types.Acid.output_arc) list)
       (tokens : Token.t list) :
     Place.transition_effect list =
     (* TODO : permettre au merge de ne prendre qu'un token
        (et donc de   ne pas avoir d'effet ?) *)
     match o_arc_l, tokens with
-    | (place, Acid_types.Merge_oarc) :: o_arc_l',
+    | (place, Types.Acid.Merge_oarc) :: o_arc_l',
       t1 :: t2 :: tokens' ->
       let effects =
         Place.add_token_from_transition
           (Token.insert t1 t2) place in
       effects @ (apply_output_arcs o_arc_l' tokens')
-    | (place, Acid_types.Move_oarc move_dir) :: o_arc_l',
+    | (place, Types.Acid.Move_oarc move_dir) :: o_arc_l',
       token :: tokens' ->
       let new_token =
         if move_dir
@@ -158,7 +157,7 @@ let apply_transition (transition : t) (places): Place.transition_effect list=
       let effects =
         Place.add_token_from_transition new_token place in
       effects @ (apply_output_arcs o_arc_l' tokens')
-    | (place, Acid_types.Regular_oarc) :: o_arc_l',
+    | (place, Types.Acid.Regular_oarc) :: o_arc_l',
       token :: tokens' ->
       let effects =
         Place.add_token_from_transition token place in

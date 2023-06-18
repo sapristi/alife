@@ -33,7 +33,7 @@ open Numeric
 (* * the proteine module *)
 let logger = Logging.get_logger "Yaac.Base_chem.Pnet"
 
-include Chemistry_types.Types.Petri_net
+include Types.Petri_net
 
 let update_launchables (pnet :t) : unit =
   pnet.launchables_nb <- 0;

@@ -1,5 +1,5 @@
 open Client_types;
-open Acid_types;
+open Types.Acid;
 
 module DndId = {
   type t = int;

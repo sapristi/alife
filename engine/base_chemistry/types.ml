@@ -1,12 +1,13 @@
+module Acid = struct
+  include Type_acid
+end
 module Molecule = struct
   type t = string
-    [@@decco]
   [@@deriving show, yojson, ord]
 end
 
 module Token = struct
   type t = int * Molecule.t
-  [@@decco]
   [@@deriving show, yojson]
 end
 
@@ -16,35 +17,31 @@ module Graber = struct
       mol_repr : string;
       str_repr : string;
     }
-  [@@decco]
   [@@deriving show, yojson]
 end
 
 module Place = struct
   type t =
     {mutable token : Token.t option;
-     extensions : Acid_types.extension list;
+     extensions : Acid.extension list;
      index : int;
      graber : Graber.t option;
     }
-  [@@decco]
   [@@deriving show, yojson]
 end
 
 module Transition = struct
    type input_arc = {
     source_place : int;
-    iatype : Acid_types.input_arc;
+    iatype : Acid.input_arc;
   }
-   [@@decco]
    [@@deriving show, yojson]
 
    let _ignore = ()
 
   type output_arc = {
     dest_place : int;
-    oatype : Acid_types.output_arc;}
-  [@@decco]
+    oatype : Acid.output_arc;}
   [@@deriving show, yojson]
 
   let _ignore = ()
@@ -56,7 +53,6 @@ module Transition = struct
       output_arcs : output_arc list;
       index : int;
     }
-  [@@decco]
   [@@deriving show, yojson]
 end
 
@@ -69,6 +65,9 @@ module Petri_net = struct
       uid : int;
       mutable launchables_nb:int;
     }
-  [@@decco]
   [@@deriving show, yojson]
+end
+
+module Proteine = struct
+  type t = Acid.acid list
 end

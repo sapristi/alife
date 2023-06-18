@@ -21,7 +21,7 @@ let logger = Logging.get_logger "Yaac.Base_chem.Graber"
 (*    spéciaux) *)
 
 (* *** graber type *)
-include Chemistry_types.Types.Graber
+include Types.Graber
 
 (* *** build_from_atom_list *)
 (*     Transforms a list of atoms into a string representing a regular *)

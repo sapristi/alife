@@ -59,7 +59,7 @@ type pnet_action =
   | Launch_transition(int);
 
 module Chemistry = {
-  open Acid_types;
+  open Types.Acid;
   let place_ext_to_cy = aext =>
     switch (aext) {
     | Grab_ext(s) => ("Grab_ext", s)
@@ -114,7 +114,7 @@ module Chemistry = {
 };
 
 [@decco]
-type proteine = array(Acid_types.acid);
+type proteine = array(Types.Acid.acid);
 
 module Reactions = {
   [@decco]

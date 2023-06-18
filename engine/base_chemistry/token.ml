@@ -10,8 +10,8 @@
 (* an acid of type Information, then that piece of information is defined *)
 (* as the label. If not, the label is an empty string. *)
 
-
-include Chemistry_types.Types.Token
+type t = int * Molecule.t
+[@@deriving show, yojson]
 
 type option_t = t option
                   [@@deriving show, yojson]
