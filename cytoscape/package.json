@@ -1,0 +1,14 @@
+{
+	"private": true,
+	"type": "module",
+	"devDependencies": {
+		"webpack": "^5.88.1",
+		"webpack-cli": "^5.1.4"
+	},
+	"scripts": {
+		"build": "webpack --config webpack.config.mjs"
+	},
+	"dependencies": {
+		"webcola": "^3.4.0"
+	}
+}

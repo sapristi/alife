@@ -6,11 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>YAAC</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <!-- <script src="https://unpkg.com/htmx.org@1.9.2" integrity="sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h" crossorigin="anonymous"></script> -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script> -->
     <!-- <script src="{% static 'js/preact_10.15.1.mjs' %}"></script> -->
+    {% block scripts_extra %}
+    {% endblock %}
   </head>
   <body>
+    <!-- <script type="importmap">
+         {
+         "imports": {
+         "preact": "https://esm.sh/preact@10.12.1",
+         "preact/hooks": "https://esm.sh/preact@10.12.1/hooks?external=preact",
+         "@preact/signals": "https://esm.sh/@preact/signals@1.1.3?external=preact",
+         "htm": "https://esm.sh/htm@3.1.1"
+         }
+         }
+         </script> -->
     {% block body  %}
     {% endblock %}
     <!-- <section class="section">
