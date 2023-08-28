@@ -14,22 +14,28 @@
     <div id="mol-component" />
   </div>
 </section>
-<section class="section">
-  <div class="container">
-    <h1 class="title">
-      Proteine
-    </h1>
-    <div class="content" id="prot-component" />
+<div class="columns is-multiline">
+  <div class="column is-four-fitfth">
+  <section class="section">
+      <div class="container">
+        <h1 class="title">
+          Petri Net
+        </h1>
+        <div class="content" id="pnet-component" />
+      </div>
+    </section>
   </div>
-</section>
-<section class="section">
-  <div class="container">
-    <h1 class="title">
-      Petri Net
-    </h1>
-    <div class="content" id="pnet-component" />
+  <div class="column is-one-fitfth">
+    <section class="section">
+      <div class="container">
+        <h1 class="title">
+          Proteine
+        </h1>
+        <div class="content" id="prot-component" />
+      </div>
+    </section>
   </div>
-</section>
+</div>
 <script type="importmap">
  {
    "imports": {
@@ -48,7 +54,7 @@
 <script type="module">
  import { h, render } from "preact";
  import { signal, effect } from "@preact/signals";
- import { useState } from 'preact/hooks';
+ import { useState, useRef, useEffect } from 'preact/hooks';
  import htm from "htm";
  import {setup_pnet_cy} from 'cytoscape_utils';
  import {pnet_to_cytoscape_elements} from 'cytoscape_pnet';
@@ -92,13 +98,18 @@
  }
 
  let AcidDisplay = ({acid}) => {
+   const [acid_type, ...params] = acid
+   /* const params_html = params.map(param => html`<span class="tag is-info">${param}</span>`).join() */
    return html`
-     <li>${acid}</li>
+     <li>
+       <span class="tag is-info">${acid_type}</span> 
+       ${params.map(param => html`<span class="tag is-primary">${param}</span>`)}
+     </li>
    `
  }
  let ProtDisplay = () => {
    return html`
-     <ul>
+     <ul class="acid-list">
        ${prot.value.map(
         acid => AcidDisplay({acid})
        )}
@@ -106,18 +117,34 @@
  }
 
  let PnetDisplay = () => {
-   const [ref, setRef] = useState(null)
+   const container = useRef(null);
+   const [cyWrapper, setCyWrapper] = useState(null)
 
+   useEffect(
+     () => {
+       if (container.current) {
+         const newWrapper = setup_pnet_cy({nodes: [], edges: []}, () => {})
+         newWrapper.cy.mount(container.current)
+         newWrapper.layout.run()
+         window.cyWrapper = newWrapper
+         setCyWrapper(newWrapper)
+         return () => newWrapper.cy.unmount()
+       }
+     },
+     [container]
+   )
    if (pnet.value) {
      const pnet_cytoscape = pnet_to_cytoscape_elements(pnet.value)
-     const cy_wrapper = setup_pnet_cy(pnet_cytoscape, () => {})
-     console.log("PNET", pnet_cytoscape, cy_wrapper, ref)
-     cy_wrapper.cy.mount(ref)
-     cy_wrapper.layout.run()
-     cy_wrapper.cy.resize()
-     cy_wrapper.cy.fit()
+     cyWrapper.layout = cyWrapper.replace_elements( pnet_cytoscape)
+     cyWrapper.update_pnet( pnet.value);
+     cyWrapper.layout.run();
+     // for some reason need a callback like this, can't pass directly cyWrapper.cy.fit
+     const fitCallback = () => {
+       cyWrapper.cy.fit()
+     }
+     setTimeout(fitCallback, 100)
    }
-   return html`<div ref=${setRef} class="cytoscape-container"/>`
+   return html`<div ref=${container} class="cytoscape-container"/>`
  }
 
  /* render(html`<${App} />`, document.body); */

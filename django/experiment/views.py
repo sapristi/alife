@@ -7,6 +7,14 @@ from django.views.generic import View
 import subprocess as sp
 import json
 
+
+def home(request):
+    template = loader.get_template("main.html")
+    return HttpResponse(
+        template.render()
+    )
+
+
 class Molecule(View):
 
     def get(self, *args, **kwargs):
