@@ -1,4 +1,3 @@
-(* * this file *)
 
 
 (* * libs *)
@@ -48,6 +47,7 @@ type t = {
     env : Environment.t ref;
     randstate : Random_s.t ref;
   }
+(* [@@deriving yojson] *)
 
 
 let default_randstate = {

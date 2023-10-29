@@ -10,15 +10,16 @@ open Local_libs
 (* open Yaac_config *)
 open Easy_logging_yojson
 open Base_chemistry
-open Local_libs.Numeric
+(* open Local_libs.Numeric *)
 module MolMap =
   struct
     include CCMap.Make (struct type t = Molecule.t
-                               let compare = Pervasives.compare end)
+                               let compare = compare end)
 
     (*let show : Molecule.t t -> string =
       Format.sprintf pp t*)
                      (*   include Exceptionless *)
+
   end
 
 (* ** module ARMap to interact with the active reactants *)
@@ -39,7 +40,9 @@ module MolMap =
 module ARMap =
   struct
 
-(* *** module Amolset *)
+    (** module Amolset: set of Amol
+        All Amol are expected to come from the same molecule.
+    *)
     module AmolSet =
       struct
         include CCSet.Make (
@@ -50,7 +53,19 @@ module ARMap =
                         Reactant.Amol.compare
                           amd1 amd2
                     end)
- 
+
+        let to_yojson (amolset: t) : Yojson.Safe.t =
+          (** Exported as a list of Amol*)
+          `List (
+            amolset |> to_list  |> List.map Reactant.Amol.to_yojson
+          )
+        let of_yojson (input: Yojson.Safe.t) : t =
+          match input with
+          | `List items ->
+            List.map Reactant.Amol.of_yojson items
+          | _ -> failwith "Cannot Amolset parse from json"
+
+
         let pp = pp ~pp_start:(Misc_library.printer "AmolSet:\n") Reactant.Amol.pp
         let show amolset =
           Format.asprintf "%a" pp amolset
@@ -68,6 +83,10 @@ module ARMap =
           find dummy_amd amolset
 
         let add_reacs_with_new_reactant (new_reactant : Reactant.t) (amolset :t) reac_mgr : unit =
+          (** Compute reactions with an other reactant, and add them to the given reac_mgr.
+              This function is here because we have access to pnet that are already calculated
+              TODO: check if it could be moved somewhere else.
+          *)
           if is_empty amolset
           then
             ()
@@ -111,10 +130,16 @@ module ARMap =
 
       end
 
-(* *** ARMap defs *)
+    (** ARMap:
+        Association map from molecule to Amolset
+    *)
     type t = {
         mutable v:  AmolSet.t MolMap.t
       }
+    let to_yojson armap : Yojson.Safe.t =
+      `Assoc (
+        MolMap.to_list armap |> List.map (fun (mol, amolset) -> (mol, AmolSet.to_yojson amolset))
+      )
 
     let pp = MolMap.pp Molecule.pp AmolSet.pp
     let show armap =
@@ -205,6 +230,11 @@ module ARMap =
 module IRMap =
   struct
     type t = {mutable v : Reactant.ImolSet.t MolMap.t}
+
+    let to_yojson irmap : Yojson.Safe.t =
+      `Assoc (
+      MolMap.to_list irmap |> List.map (fun (mol, imolset) -> (mol, Reactant.ImolSet.to_yojson imolset))
+    )
 
     let pp = MolMap.pp Molecule.pp Reactant.ImolSet.pp
     let show irmap =

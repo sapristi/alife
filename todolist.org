@@ -1,26 +1,33 @@
-* general
+* Todo
 
-** TODO use the todolist
+- Fix json import / export
+  Check if switching to https://github.com/janestreet/ppx_yojson_conv is worth it
 
-* bugfixes/improvements
-** TODO Collision: not selecting from all possible couples
-** TODO collision reaction -> reversing molecules ?
-** TODO "endless_duplication", reaction 3307 => exception "not found"
+* Old TODO
+
+** general
+
+*** TODO use the todolist
+
+** bugfixes/improvements
+*** TODO Collision: not selecting from all possible couples
+*** TODO collision reaction -> reversing molecules ?
+*** TODO "endless_duplication", reaction 3307 => exception "not found"
    - because of reverse
    - reverse seems like intended behaviour, but state is not updated
-** TODO seems like triggering transition bugs when mol release
-** DONE Debug pnet grab
+*** TODO seems like triggering transition bugs when mol release
+*** DONE Debug pnet grab
    between 
    ribosome :  AAABAAAADDFCBAAADDFBAAABDDFCBAABDDFBAAACDDFCBAACDDFBAAADDDFCBAADDDFBAAAFDDFCBAAFDDFBAAAAADDFCAABBBDDFAAABAAAADDFABAFAFDDFAAABAAABDDFABAFBFDDFAAABAAACDDFABAFCFDDFAAABAAADDDFABAFDFDDFAAABAAAFDDFABAFFFDDFAAABCAAADDFCCAAADDFBCBABDDFCCAABDDFBCCACDDFCCAACDDFBCDADDDFCCAADDDFBCFAFDDFCCAAFDDFBABAAADDFCAABBBDDFAAACAAAAADDFABBAAACAAAAADDFABBAAABAABBBDDFCAACCCDDFAAABAABBBDDFABADFDFFFDDFAAABBACCCDDFCAACCCDDFABC 
    that should grab any mol starting with DD and
    DDBBAFDDCCCAACFDDCCCABBAAAFDDFFFDFDABAFDDBBBAABAAAFDDCCCAACFDDBBBAABAAABBAFDDAAAAACAAABBAFDDAAAAACAAAFDDBBBAACFDDAAABABFDDFAACCFDDFAFCBFDDDAACCFDDDADCBFDDCAACCFDDCACCBFDDBAACCFDDBABCBFDDAAACCFDDAAACBAAAFDDFFFABAFDDFAAABAAAFDDFDFABAFDDDAAABAAAFDDFCFABAFDDCAAABAAAFDDFBFABAFDDBAAABAAAFDDFAFABAFDDAAAABAAAFDDBBBAACFDDAAAAABFDDFAABCFDDFAAABFDDDAABCFDDDAAABFDDCAABCFDDCAAABFDDBAABCFDDBAAABFDDAAABCFDDAAAABAAA 
    (reversed ribosome)
-** DONE Fix removing empty reactants
+*** DONE Fix removing empty reactants
         - ok for imol, this needs testing for amols
-** TODO Rework pnet creation, introduce variants (cyclic pnet)? 
-** TODO Config generator
-** TODO explicit exceptions
-** TODO gui:
+*** TODO Rework pnet creation, introduce variants (cyclic pnet)? 
+*** TODO Config generator
+*** TODO explicit exceptions
+*** TODO gui:
     - [ ] update all molecules after transition (if needs be)
     - [ ] modify ambient 
     - [ ] clear button
@@ -29,31 +36,31 @@
     - [X] commit env fails
     - [X] refresh after loading
     - [X] display reactions
-** STARTED Numeric module, that provides a swith to select 
+*** STARTED Numeric module, that provides a swith to select 
    numeric implementation.
    Only mol quantities are still integers;
    Random need some rework, and performance might be an issue
    with exact calculations
-** DONE stacktrace
-** DONE Pnet creation : negative place_id in transitions
-** DONE reactions not removed when removing molecule
-** DONE break reaction 
+*** DONE stacktrace
+*** DONE Pnet creation : negative place_id in transitions
+*** DONE reactions not removed when removing molecule
+*** DONE break reaction 
    - seems ok with imol, but not with amol
-** DONE repair missing execute actions
-** DONE fix remove/change mol quantity from interface
-** DONE display ambiant mols
-** DONE sandbox pnet id
+*** DONE repair missing execute actions
+*** DONE fix remove/change mol quantity from interface
+*** DONE display ambiant mols
+*** DONE sandbox pnet id
    - when requesting pnet_from_mol, pnet_id is sometimes missing
    - when deleting pnet, id is not provided
      -> en standby jusqu'à avoir une interface bien définie.
-** DONE links to other pages in web interface
-** DONE fix environment in gui
-** DONE reporter service
+*** DONE links to other pages in web interface
+*** DONE fix environment in gui
+*** DONE reporter service
    - [X] log folder
    - [ ] better logs
    - [X] use logs as a backend for reporter
    - [X] cli reporter works
-** DONE revert amolset to a simpler state
+*** DONE revert amolset to a simpler state
    we will modify ARMgr to be a wrapper over 
    PnetSet.t Map, and same thing with IRMgr
 
@@ -61,41 +68,41 @@
    qui modifie un état interne renvoie la liste
    des actions à effectuer à plus haut niveau
 
-** DONE petri net display inconsistencies
+*** DONE petri net display inconsistencies
    the first time display works, but the next ones fail
    -> the problem was with cytoscape : empty_filter was not rcognised 
    and caused a bug
 
-** DONE change « send to bact » to « send to sandbox » 
+*** DONE change « send to bact » to « send to sandbox » 
    in the molbuilder tab, and change behaviour accordingly
 
-** DONE reactions initialisation seems broken :
+*** DONE reactions initialisation seems broken :
    grabs happen between the same pnet (same id), and are added six times !
    -> problem solved, there was an error whan adding reactions to IRMap
 
-* improvements
-** TODO Reorganise/rename reaction files so that they are easily accessible
-** TODO Use custom (binary?) trees to hold reactions in Reac_sets so as to speed up next reaction search.
-** TODO use Pnet Set as reactants
-** TODO use uniqueID lib
-** DONE collisions
-** STARTED sanitize the use mutable/immutable and refs in structures
+** improvements
+*** TODO Reorganise/rename reaction files so that they are easily accessible
+*** TODO Use custom (binary?) trees to hold reactions in Reac_sets so as to speed up next reaction search.
+*** TODO use Pnet Set as reactants
+*** TODO use uniqueID lib
+*** DONE collisions
+*** STARTED sanitize the use mutable/immutable and refs in structures
     - reactants do not use ref anymore
 
-** STARTED implement tests
+*** STARTED implement tests
    describe bacteria where only one kind of reaction can happen to
    be able to predict results
 
-** DONE use Zarith module for reaction rates
+*** DONE use Zarith module for reaction rates
     -> find a way to restrict fractions to decimal ones
     so as to avoid too much cost
     -> functorize to compare performance
-** DONE sanitize server files :
+*** DONE sanitize server files :
    - use dune to copy files to the build directory
    - put external libs in an archive to clean git repo
-** DONE split the web client in multiple pages
+*** DONE split the web client in multiple pages
 
-** DONE global reaction coefficient (in environment) : 
+*** DONE global reaction coefficient (in environment) : 
    The idea is to put these parameters in an environment module,
    that could be subject to dynamic changes. This would also allow 
    changes set by user input.
@@ -108,13 +115,13 @@
      (is it possible ?)
    - [X] web interface
 
-** DONE switch to a rest API for the webserver
+*** DONE switch to a rest API for the webserver
 
-** DONE mol quantity go under 0
+*** DONE mol quantity go under 0
    -> problem with references
-* features
+** features
   
-** STARTED random collisions
+*** STARTED random collisions
    - [X] Implement reaction in framework
    - [ ] Implement reaction effects :
      * the two molecules break
@@ -126,29 +133,29 @@
        and enable evolution.
    - [ ] Test reactions
      
-** TODO Random single mol effects
+*** TODO Random single mol effects
    - launch a transition that is not launchable
    - release a grabed molecule
 
-** TODO extended pnets (as graphs)
+*** TODO extended pnets (as graphs)
    
-* optional
+** optional
 
-** TODO simple reactions to test against
+*** TODO simple reactions to test against
 
-* org mode cheat sheet
+** org mode cheat sheet
 
-** checklist :
+*** checklist :
  - [X] switch with C-c C-c
  - [ ]  
 
-** STATES
+*** STATES
 
-*** TODO 
-*** STARTED 
-*** CURRENT 
-*** DONE 
-*** CANCELED 
+**** TODO 
+**** STARTED 
+**** CURRENT 
+**** DONE 
+**** CANCELED 
 
 
 
@@ -162,7 +169,7 @@
         ("CURRENT" .  (:foreground "red" :weight bold))
         ("DONE"    .  "lime green")
         ("CANCELED" .  "deep blue sky")))
-* temp
+** temp
 
  + Duplicator FDFDFF
    * original: 

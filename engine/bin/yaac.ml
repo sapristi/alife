@@ -86,14 +86,13 @@ let build_all_from_prot (prot_str: string) =
   | Error s -> Error s
 
 
-
-
 type params =
-
+  (* Create pnet from mol *)
   | From_mol of {
       log_level: Logging.level; [@term log_level_t]
       mol: string
     }
+  (* Create pnet from prot *)
   | From_prot of {
       log_level: Logging.level; [@term log_level_t]
       prot: string}

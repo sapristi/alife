@@ -38,6 +38,9 @@ open Local_libs.Misc_library
 (*   and Reactant are mutally dependant and have to be defined together. *)
 
 (* * modules definitions*)
+
+
+
 module rec
 
 (* ** Reactant : contains a reactant (ImolSet or Amol or Aset) *)
@@ -55,8 +58,11 @@ module rec
     module type REACTANT_DEFAULT =
       (Reactant.REACTANT_DEFAULT)
 
-(* *** ImolSet : reactant with inert molecules *)
 
+    (** ImolSet : reactant with inert molecules
+        All inert molecules share the same reactions, so we can factorize them in this module,
+        which contains a molecule along with their quantity.
+    *)
     module ImolSet =
       struct
         type t = {
@@ -65,16 +71,23 @@ module rec
             reacs : ReacSet.t ref;
             mutable ambient:bool;
           }
-
         let show (imd : t) =
           Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol
 
         let pp (f : Format.formatter) (imd : t) =
           Format.pp_print_string f (show imd)
+
         let to_yojson (imd : t) : Yojson.Safe.t =
           `Assoc [ "mol" , Molecule.to_yojson imd.mol;
                    "qtt" , `Int  imd.qtt;
                    "ambient" , `Bool imd.ambient ]
+
+        let of_yojson (input: Yojson.Safe.t): (t, string) Result.result=
+          match input with
+          | `Assoc [ "mol" , `String mol;
+                     "qtt" , `Int qtt;
+                     "ambient" , `Bool ambient ] -> Ok {mol; qtt; ambient; reacs= ref ReacSet.empty }
+          | _ -> Error "Cannot create ImolSet from json"
 
         let show_reacSet = ReacSet.show
         let pp_reacSet = ReacSet.pp
@@ -103,7 +116,12 @@ module rec
 
       end
 
-(* *** Amol :    reactant with one active molecule *)
+    (** Amol :  reactant with one active molecule
+        An amol contains
+        - a molecule
+        - the current pnet
+        - the reactions
+    *)
     module Amol =
       struct
         type t = {
@@ -111,11 +129,33 @@ module rec
             pnet : Petri_net.t;
             reacs : ReacSet.t ref;
           }
+
         let show am =
           Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol
+
+
         let to_yojson am : Yojson.Safe.t =
-          `Assoc [ "mol", Molecule.to_yojson am.mol;
+          (*TODO  For some reason, previous version only had pnet_id exported
+
+            let to_yojson am : Yojson.Safe.t =
+            `Assoc [ "mol", Molecule.to_yojson am.mol;
                    "pnet_id", `Int am.pnet.uid]
+          *)
+          `Assoc [ "mol", Molecule.to_yojson am.mol;
+                   "pnet", Petri_net.to_yojson am.pnet]
+
+        let of_yojson (input: Yojson.Safe.t) : (t, string) Result.result =
+          match input with
+          | `Assoc ["mol", `String mol; "pnet", pnet_json] ->
+            (
+              match Petri_net.of_yojson pnet_json with
+              | Ok pnet ->
+                Ok { mol; pnet; reacs= ref ReacSet.empty }
+              | Error s -> Error (
+                  "Cannot parse Amol from json\n" ^ s)
+            )
+          | _ -> Error "Cannot parse Amol from json"
+
         let pp f am =
           Format.pp_print_string f (show am)
 
@@ -135,7 +175,7 @@ module rec
           amd.reacs := ReacSet.remove reac !(amd.reacs)
         let compare
               (amd1 : t) (amd2 : t) =
-          Pervasives.compare amd1.pnet.Petri_net.uid amd2.pnet.Petri_net.uid
+          compare amd1.pnet.Petri_net.uid amd2.pnet.Petri_net.uid
 
       end
 (* *** (ASet) :    reactant with active molecules set *)
@@ -317,9 +357,8 @@ module rec
 
 
 
- (* ** ReacSet module *)
-
-   and ReacSet :
+(** ReacSet module *)
+and ReacSet :
          (sig
            include CCSet.S with type elt =  Reaction.t
            val show : t -> string
