@@ -66,19 +66,6 @@ type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
                      [@@ deriving yojson, ord, show]
 type active_bact_elem = {qtt:int;mol: Molecule.t}
                    [@@ deriving yojson, ord, show]
-type bact_sig = {
-    inert_mols : inert_bact_elem list;
-    active_mols : active_bact_elem list;
-  }
-                 [@@ deriving yojson, show]
-
-let null_sig = {inert_mols=[]; active_mols=[]}
-
-let canonical_bact_sig (bs : bact_sig) : bact_sig =
-  {
-    inert_mols = List.sort compare_inert_bact_elem (List.filter (fun (im : inert_bact_elem) -> im.qtt > 0) bs.inert_mols);
-    active_mols = List.sort compare_active_bact_elem (List.filter (fun (am : active_bact_elem) -> am.qtt > 0) bs.active_mols);
-  }
 
 
 (* ** interface *)
@@ -157,6 +144,8 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
             IRMap.add_to_qtt ireac 1 bact.ireactants
         )
     end
+
+
 (** totally removes a molecule from a bactery *)
 let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
   match reactant with
@@ -261,62 +250,78 @@ let next_reaction (bact : t)  =
         (Printexc.to_string e)
     |> ignore
 
-(** json serialisation *)
-let from_sig
-    (bact_sig : bact_sig)
-    ?(env=Environment.null_env)
-    ?(randstate=default_randstate)
-  : t  =
-  let bact = make_empty () in
-  List.iter
-    (fun {mol = m;qtt = n; ambient=a} ->
-      add_molecule m bact
-      |> execute_actions bact;
-      IRMap.Ext.set_qtt n m bact.ireactants
-      |> execute_actions bact;
-      IRMap.Ext.set_ambient a m bact.ireactants;
-    ) bact_sig.inert_mols;
+(** Partial bactery representation *)
+module BactSig = struct
+  type bacterie = t
+  type t = {
+    inert_mols : inert_bact_elem list;
+    active_mols : active_bact_elem list;
+  }
+  [@@deriving yojson, show]
+
+  let null = {inert_mols=[]; active_mols=[]}
+
+  let canonical (bs : t) : t =
+    {
+      inert_mols = List.sort compare_inert_bact_elem (List.filter (fun (im : inert_bact_elem) -> im.qtt > 0) bs.inert_mols);
+      active_mols = List.sort compare_active_bact_elem (List.filter (fun (am : active_bact_elem) -> am.qtt > 0) bs.active_mols);
+    }
+
+
+  let to_bact
+      (bact_sig : t)
+      ?(env=Environment.null_env)
+      ?(randstate=default_randstate)
+    : bacterie  =
+    let bact = make_empty () in
+    List.iter
+      (fun {mol = m;qtt = n; ambient=a} ->
+         add_molecule m bact
+         |> execute_actions bact;
+         IRMap.Ext.set_qtt n m bact.ireactants
+         |> execute_actions bact;
+         IRMap.Ext.set_ambient a m bact.ireactants;
+      ) bact_sig.inert_mols;
 
     List.iter
-    (fun {mol = m; qtt = n} ->
-      for i = 0 to n-1 do
-        add_molecule m bact
-        |> execute_actions bact;
-      done;)
-    bact_sig.active_mols;
-  bact.env := env;
-  bact.randstate := randstate;
-  bact
+      (fun {mol = m; qtt = n} ->
+         for i = 0 to n-1 do
+           add_molecule m bact
+           |> execute_actions bact;
+         done;)
+      bact_sig.active_mols;
+    bact.env := env;
+    bact.randstate := randstate;
+    bact
 
 
 
-let to_sig (bact : t) : bact_sig =
-  let imol_list = MolMap.to_list bact.ireactants.v in
-  let trimmed_imol_list =
-    List.map (fun (a,(imd: Reactant.ImolSet.t )) ->
-        ({mol = imd.mol; qtt= imd.qtt;
-          ambient = imd.ambient} : inert_bact_elem))
-             imol_list
-  in
-  let amol_list = MolMap.to_list bact.areactants.v in
-  let trimmed_amol_list =
-    List.map (fun (a, amolset) ->
-        {mol = a; qtt = ARMap.AmolSet.cardinal amolset;})
-             amol_list
+  let of_bact (bact : bacterie) : t =
+    let imol_list = MolMap.to_list bact.ireactants.v in
+    let trimmed_imol_list =
+      List.map (fun (a,(imd: Reactant.ImolSet.t )) ->
+          ({mol = imd.mol; qtt= imd.qtt;
+            ambient = imd.ambient} : inert_bact_elem))
+        imol_list
+    in
+    let amol_list = MolMap.to_list bact.areactants.v in
+    let trimmed_amol_list =
+      List.map (fun (a, amolset) ->
+          {mol = a; qtt = ARMap.AmolSet.cardinal amolset;})
+        amol_list
 
-  in
-  {inert_mols = trimmed_imol_list;
-   active_mols = trimmed_amol_list;}
+    in
+    {inert_mols = trimmed_imol_list;
+     active_mols = trimmed_amol_list;}
+
+
+end
+
+let of_sig = BactSig.to_bact
+let to_sig = BactSig.of_bact
 
 let to_sig_yojson bact =
-  bact_sig_to_yojson (to_sig bact)
-
-
-(** make an empty bactery *)
-let empty_sig : bact_sig = {
-    inert_mols = [];
-    active_mols = []}
-
+  BactSig.to_yojson (to_sig bact)
 
 module SimControl =
   struct

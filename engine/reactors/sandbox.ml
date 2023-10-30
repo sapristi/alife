@@ -9,14 +9,14 @@ let logger = Logging.get_logger "Yaac.Reactor.Sandbox"
 
 
 type signature = {
-  bact: Bacterie.bact_sig;
+  bact: Bacterie.BactSig.t;
   env: Environment.t;
   randstate: Random_s.t
 }
 [@@deriving yojson]
 
 let empty_sig = {
-  bact = Bacterie.null_sig;
+  bact = Bacterie.BactSig.null;
   env = Environment.null_env;
   randstate = {
     Random_s.seed = 8085733080487790103L;
@@ -34,7 +34,7 @@ let to_signature (sandbox: t) : signature =
   }
 
 let of_signature (s: signature): t =
-  ref (Bacterie.from_sig s.bact ~env:s.env ~randstate:s.randstate)
+  ref (Bacterie.of_sig s.bact ~env:s.env ~randstate:s.randstate)
 
 
 let make_empty () = of_signature empty_sig
@@ -43,7 +43,7 @@ let to_yojson = fun s -> s |> to_signature |> signature_to_yojson
 let of_yojson = fun json -> json |> signature_of_yojson |> Result.map of_signature
 
 let set_from_signature (sandbox:t) (s:signature) =
-  sandbox := (Bacterie.from_sig s.bact ~env:s.env ~randstate:s.randstate)
+  sandbox := (Bacterie.of_sig s.bact ~env:s.env ~randstate:s.randstate)
 
 let load_sigs_from_dir bact_states_path =
   Misc_library.list_files ~file_type:"json" bact_states_path

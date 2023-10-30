@@ -5,7 +5,7 @@ open Bacterie_libs
 type config = {
   environment : Environment.t;
   bact_nb : int;
-  bact_initial_state : Bacterie.bact_sig;
+  bact_initial_state : Bacterie.BactSig.t;
 }
 [@@deriving make, yojson]
 
@@ -24,7 +24,7 @@ let make (): t =
 
 let init (c : config) (sim : t) =
   let make_bact i =
-    Bacterie.from_sig
+    Bacterie.BactSig.to_bact 
       c.bact_initial_state
       ~env:c.environment
       ~randstate:(Random_s.make_self_init ()) in
