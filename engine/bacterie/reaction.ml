@@ -68,10 +68,10 @@ module rec
         type t = {
             mol : Molecule.t;
             mutable qtt : int;
-            reacs : ReacSet.t ref [@to_yojson fun _ -> `Null] [@of_yojson fun _ -> Ok (ref ReacSet.empty)];
+            reacs : ReacSet.t ref [@to_yojson fun _ -> `Null];
             mutable ambient:bool;
           }
-          [@@deriving yojson]
+          [@@deriving to_yojson]
 
         let show (imd : t) =
           Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol
@@ -117,9 +117,9 @@ module rec
         type t = {
             mol : Molecule.t;
             pnet : Petri_net.t;
-            reacs : ReacSet.t ref  [@to_yojson fun _ -> `Null] [@of_yojson fun _ -> Ok (ref ReacSet.empty)];
+            reacs : ReacSet.t ref  [@to_yojson fun _ -> `Null];
           }
-          [@@deriving yojson]
+          [@@deriving to_yojson]
 
         let show am =
           Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol
@@ -141,6 +141,7 @@ module rec
 
         let remove_reac (reac : Reaction.t) (amd : t) =
           amd.reacs := ReacSet.remove reac !(amd.reacs)
+
         let compare
               (amd1 : t) (amd2 : t) =
           compare amd1.pnet.Petri_net.uid amd2.pnet.Petri_net.uid
@@ -186,7 +187,7 @@ module rec
       | Amol of Amol.t
       | ImolSet of ImolSet.t
       | Dummy
-    [@@deriving show, ord, yojson]
+    [@@deriving show, ord, to_yojson]
 
     let show_reacSet = ReacSet.show
     let pp_reacSet = ReacSet.pp

@@ -54,24 +54,13 @@ module ARMap =
                           amd1 amd2
                     end)
 
-        let to_yojson (amolset: t) : Yojson.Safe.t =
-          (** Exported as a list of Amol*)
+        let to_yojson_partial (amolset: t): Yojson.Safe.t =
+          (** We only serialize as a list of pnet *)
           `List (
-            amolset |> to_list  |> List.map Reactant.Amol.to_yojson
+            amolset
+            |> to_list
+            |> List.map (fun (amol: Reactant.Amol.t) -> amol.pnet) |> List.map Petri_net.to_yojson
           )
-        let of_yojson (input: Yojson.Safe.t) : (t, string) result =
-          match input with
-          | `List items ->
-            let res = ref empty in
-            Base.With_return.with_return (fun r ->
-                List.iter (fun item ->
-                    match Reactant.Amol.of_yojson item with
-                    | Ok amol -> res := add amol !res
-                    | Error e -> r.return (Error e)
-                  ) items;
-                Ok (!res)
-              )
-          | _ -> Error "Cannot Amolset parse from json"
 
         let pp = pp ~pp_start:(Misc_library.printer "AmolSet:\n") Reactant.Amol.pp
         let show amolset =
@@ -143,24 +132,24 @@ module ARMap =
     type t = {
         mutable v:  AmolSet.t MolMap.t
       }
-    let to_yojson armap : Yojson.Safe.t =
+    let to_yojson_partial (armap: t) : Yojson.Safe.t =
       `Assoc (
-        MolMap.to_list armap |> List.map (fun (mol, amolset) -> (mol, AmolSet.to_yojson amolset))
+        MolMap.to_list armap.v |> List.map (fun (mol, amolset) -> (mol, AmolSet.to_yojson amolset))
       )
 
-    let of_yojson (input: Yojson.Safe.t) : (t, string) result =
-      match input with
-      | `Assoc items ->
-        let res = { v= MolMap.empty} in
-        Base.With_return.with_return (fun r ->
-            List.iter (fun (mol, item) ->
-                match AmolSet.of_yojson item with
-                | Ok amol -> res.v <- MolMap.add mol amol res.v
-                | Error e -> r.return (Error e)
-              ) items;
-            Ok res
-          )
-      | _ -> Error "Cannot parse ARMap from json"
+    (* let of_yojson (input: Yojson.Safe.t) : (t, string) result = *)
+    (*   match input with *)
+    (*   | `Assoc items -> *)
+    (*     let res = { v= MolMap.empty} in *)
+    (*     Base.With_return.with_return (fun r -> *)
+    (*         List.iter (fun (mol, item) -> *)
+    (*             match AmolSet.of_yojson item with *)
+    (*             | Ok amol -> res.v <- MolMap.add mol amol res.v *)
+    (*             | Error e -> r.return (Error e) *)
+    (*           ) items; *)
+    (*         Ok res *)
+    (*       ) *)
+    (*   | _ -> Error "Cannot parse ARMap from json" *)
 
     let pp = MolMap.pp Molecule.pp AmolSet.pp
     let show armap =
@@ -249,30 +238,35 @@ module ARMap =
 
   end
 
-(* ** module IRMap to interact with inert reactants *)
-
+(** module IRMap to interact with inert reactants *)
 module IRMap =
   struct
     type t = {mutable v : Reactant.ImolSet.t MolMap.t}
 
-    let to_yojson irmap : Yojson.Safe.t =
-      `Assoc (
-      MolMap.to_list irmap |> List.map (fun (mol, imolset) -> (mol, Reactant.ImolSet.to_yojson imolset))
-    )
+    (* let to_yojson (irmap: t) : Yojson.Safe.t = *)
+    (*   `Assoc ( *)
+    (*     MolMap.to_list irmap.v |> List.map (fun (mol, imolset) -> (mol, Reactant.ImolSet.to_yojson imolset)) *)
+    (*   ) *)
 
-    let of_yojson (input: Yojson.Safe.t) : (t, string) result =
-      match input with
-      | `Assoc items ->
-        let res = { v= MolMap.empty} in
-        Base.With_return.with_return (fun r ->
-            List.iter (fun (mol, item) ->
-                match Reactant.ImolSet.of_yojson item with
-                | Ok amol -> res.v <- MolMap.add mol amol res.v
-                | Error e -> r.return (Error e)
-              ) items;
-            Ok res
-          )
-      | _ -> Error "Cannot parse IRMap from json"
+    (** Partial serialization; does not include reactions *)
+    let to_yojson_partial (irmap: t): Yojson.Safe.t =
+      `List (
+        MolMap.to_list irmap.v |> List.map (fun (mol, imolset) ->  Reactant.ImolSet.to_yojson imolset)
+      )
+
+    (* let of_yojson (input: Yojson.Safe.t) : (t, string) result = *)
+    (*   match input with *)
+    (*   | `Assoc items -> *)
+    (*     let res = { v = MolMap.empty} in *)
+    (*     Base.With_return.with_return (fun r -> *)
+    (*         List.iter (fun (mol, item) -> *)
+    (*             match Reactant.ImolSet.of_yojson item with *)
+    (*             | Ok amol -> res.v <- MolMap.add mol amol res.v *)
+    (*             | Error e -> r.return (Error e) *)
+    (*           ) items; *)
+    (*         Ok res *)
+    (*       ) *)
+    (*   | _ -> Error "Cannot parse IRMap from json" *)
 
 
     let pp = MolMap.pp Molecule.pp Reactant.ImolSet.pp

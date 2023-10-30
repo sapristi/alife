@@ -38,14 +38,30 @@ let logger = Logging.get_logger "Yaac.Bact.Bacterie"
 
 
 type t = {
-    ireactants : IRMap.t;
-    areactants : ARMap.t;
-    reac_mgr : Reac_mgr.t;
-    env : Environment.t ref;
-    randstate : Random_s.t ref;
-  }
-(* [@@deriving yojson] *)
+  ireactants : IRMap.t;
+  areactants : ARMap.t;
+  reac_mgr : Reac_mgr.t;
+  env : Environment.t ref;
+  randstate : Random_s.t ref;
+}
 
+let to_yojson (bact: t) =
+  `Assoc [
+    ("ireactants", IRMap.to_yojson (bact.ireactants));
+    ("areactants", ARMap.to_yojson (bact.areactants));
+    ("env", Environment.to_yojson !(bact.env));
+    ("randstate", Random_s.to_yojson !(bact.randstate));
+  ]
+
+let of_yojson (input: Yojson.Safe.t) (t, string) result =
+  match input with
+  | `Assoc [
+      ("ireactants", ireactants_json);
+      ("areactants", areactants_json) ;
+      ("env", env_json);
+      ("randstate", randstate_json);
+    ] -> Ok "something"
+  | _ -> Error "Cannot parse bactery"
 
 let default_randstate = {
   Random_s.seed = 8085733080487790103L;
@@ -53,35 +69,52 @@ let default_randstate = {
 }
 
 let make_empty () =
-let renv = ref Environment.null_env in
+  let renv = ref Environment.null_env in
   {
-  ireactants= IRMap.make ();
-  areactants= ARMap.make ();
-  reac_mgr = Reac_mgr.make_new renv;
-  env = renv;
-  randstate = ref default_randstate;
-}
+    ireactants= IRMap.make ();
+    areactants= ARMap.make ();
+    reac_mgr = Reac_mgr.make_new renv;
+    env = renv;
+    randstate = ref default_randstate;
+  }
 
 type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
-                     [@@ deriving yojson, ord, show]
+[@@ deriving yojson, ord, show]
 type active_bact_elem = {qtt:int;mol: Molecule.t}
-                   [@@ deriving yojson, ord, show]
+[@@ deriving yojson, ord, show]
 
 
-(* ** interface *)
+let add_pnet (mol: Molecule.t) (pnet: Petri_net.t) (bact: t): Reacs.effect list = 
+  (** Adds the given pnet to the bactery *)
+  logger#trace "adding active molecule  : %s" mol;
 
-(* Whenever modifying the bactery, it should be *)
-(* done through these functions alone *)
+  let ar = Reactant.Amol.make_new pnet in
+  (* reactions : grabs with other amols*)
+  ARMap.add_reacs_with_new_reactant (Amol ar) bact.areactants bact.reac_mgr;
 
+  (* reactions : grabs with inert mols *)
+  IRMap.add_reacs_with_new_reactant (Amol ar) bact.ireactants bact.reac_mgr;
 
+  (* reaction : transition  *)
+  Reac_mgr.add_transition ar bact.reac_mgr;
+
+  (* reaction : break *)
+  Reac_mgr.add_break (Amol ar) bact.reac_mgr;
+
+  (* reaction : collisions *)
+  Reac_mgr.add_collider (Amol ar) bact.reac_mgr;
+
+  (* we add the reactant after adding reactions
+     because it must not react with itself *)
+  ARMap.add ar bact.areactants
 
 (** Adds a single molecule to a container (bactery).
     We have to take care :
-     - if the molecule is active, we must create a new active_reactant,
+    - if the molecule is active, we must create a new active_reactant,
        add all possible reactions with this reactant, then add it to
        the bactery (whether or not other molecules of the same species
        were already present)
-     - if the molecule is inactive, the situation depends on whether
+    - if the molecule is inactive, the situation depends on whether
        the species was present or not :
        + if it was already present, we modify it's quatity and update
          related reaction rates
@@ -90,35 +123,15 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
 
   if Config.check_mol && (not (Molecule.check mol))
   then
-       (logger#swarning "Ignoring add of bad molecule";  [])
+    (logger#swarning "Ignoring add of bad molecule";  [])
   else
     begin
       let new_opnet = Petri_net.make_from_mol mol in
       match new_opnet with
 
       | Some pnet ->
-        logger#trace "adding active molecule  : %s" mol;
+        add_pnet mol pnet bact
 
-        let ar = Reactant.Amol.make_new pnet in
-        (* reactions : grabs with other amols*)
-        ARMap.add_reacs_with_new_reactant (Amol ar) bact.areactants bact.reac_mgr;
-
-        (* reactions : grabs with inert mols *)
-        IRMap.add_reacs_with_new_reactant (Amol ar) bact.ireactants bact.reac_mgr;
-
-        (* reaction : transition  *)
-        Reac_mgr.add_transition ar bact.reac_mgr;
-
-        (* reaction : break *)
-        Reac_mgr.add_break (Amol ar) bact.reac_mgr;
-
-        (* reaction : collisions *)
-        Reac_mgr.add_collider (Amol ar) bact.reac_mgr;
-
-
-        (* we add the reactant after adding reactions
-           because it must not react with itself *)
-        ARMap.add ar bact.areactants
       | None ->
         (
           logger#trace "adding inactive molecule  : %s" mol;
@@ -150,61 +163,61 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
 let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
   match reactant with
   | ImolSet ir ->
-     IRMap.add_to_qtt ir (-1) bact.ireactants
+    IRMap.add_to_qtt ir (-1) bact.ireactants
   | Amol amol ->
-     ARMap.remove amol bact.areactants
+    ARMap.remove amol bact.areactants
   | Dummy -> failwith "Dummy"
 
 
-(** Execute actions after a transition from a proteine has occured.
+(** Execute actions after a transition from a pnet has occured (or a new element has been added)
     Some actions may need to be performed by the bactery
-    for now, only the release effect is in use
-    todo later : ???
+
+    TODO later : ???
     il faudrait peut-être mettre dans une file les molécules à ajouter *)
 let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
   List.iter
     (fun (effect : Reacs.effect) ->
        logger#ldebug (lazy (Printf.sprintf "Executing effect %s"
-                                  (Reacs.show_effect effect)));
+                              (Reacs.show_effect effect)));
        match effect with
        | T_effects tel ->
          List.iter
            (fun teffect ->
-             match teffect with
-             | Place.Release_effect mol  ->
+              match teffect with
+              | Place.Release_effect mol  ->
                 if mol != ""
                 then
                   add_molecule mol bact
                   |> execute_actions bact
-             | Place.Message_effect m  ->
-             (* bact.message_queue <- m :: bact.message_queue; *)
+              | Place.Message_effect m  ->
+                (* bact.message_queue <- m :: bact.message_queue; *)
                 ()
            ) tel
-      | Update_launchables amol ->
+       | Update_launchables amol ->
          Petri_net.update_launchables amol.pnet
-      | Update_reacs reacset ->
+       | Update_reacs reacset ->
          Reac_mgr.update_rates reacset bact.reac_mgr
-      | Remove_reacs reacset ->
+       | Remove_reacs reacset ->
          Reac_mgr.remove_reactions reacset bact.reac_mgr
-      | Remove_one reactant ->
+       | Remove_one reactant ->
          remove_one_reactant reactant bact
          |> execute_actions bact
-      | Release_mol mol ->
+       | Release_mol mol ->
          add_molecule mol bact
          |> execute_actions bact
-      | Release_tokens tlist ->
+       | Release_tokens tlist ->
          List.iter (fun (n,mol) ->
              add_molecule mol bact
              |> execute_actions bact) tlist
 
-    (* Possible effects :
-       - forced grab : a molecule is fitted into a pnet
-         even though a grab could not possibly occur
-         (this could be parameterized with
-         some kind of bind probability)
-      - mix : the molecules are mixed together,
-      or one is put into the other one
-      - both break
+     (* Possible effects :
+        - forced grab : a molecule is fitted into a pnet
+          even though a grab could not possibly occur
+          (this could be parameterized with
+          some kind of bind probability)
+        - mix : the molecules are mixed together,
+          or one is put into the other one
+        - both break
      *)
     )
     actions
@@ -248,7 +261,7 @@ let next_reaction (bact : t)  =
       logger#error "An error happened while treating reaction %s;\n%s%s" (Reaction.show r)
         (Printexc.get_backtrace ())
         (Printexc.to_string e)
-    |> ignore
+      |> ignore
 
 (** Partial bactery representation *)
 module BactSig = struct
@@ -322,20 +335,3 @@ let to_sig = BactSig.of_bact
 
 let to_sig_yojson bact =
   BactSig.to_yojson (to_sig bact)
-
-module SimControl =
-  struct
-
-
-(* *** add_proteine *)
-(* adds the molecule corresponding to a proteine to a bactery first transforms *)
-(* it back to a molecule, so the process is not very natural. *)
-(* ***** SHOULD NOT BE USED *)
-
-    let add_proteine (prot : Proteine.t) (bact : t) : unit =
-      let mol = Molecule.of_proteine prot in
-      add_molecule mol bact
-      |> execute_actions bact
-
-
-end
