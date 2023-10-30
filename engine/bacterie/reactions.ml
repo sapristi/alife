@@ -61,7 +61,13 @@ module type REACTANT = sig
     type reacSet
 
     val show : t -> string
-    val of_yojson : Yojson.Safe.t -> (t, string) Result.result
+
+    (* module type Serialized = sig *)
+    (*   type t *)
+    (*   val of_yojson : Yojson.Safe.t -> (t, string) Result.result *)
+    (*   val to_yojson : t -> Yojson.Safe.t *)
+    (* end *)
+    (* val of_yojson : Yojson.Safe.t -> (t, string) Result.result *)
     val to_yojson : t -> Yojson.Safe.t
     val show_reacSet : reacSet -> string
     val pp_reacSet : Format.formatter -> reacSet -> unit
@@ -82,7 +88,7 @@ module type REACTANT = sig
       mutable ambient : bool;
     }
 
-    val make_new : Molecule.t -> t
+    val make_new : Molecule.t -> ?qtt:int -> ?ambient:bool -> t
     val add_to_qtt : int -> t -> unit
     val set_qtt : int -> t -> unit
     val set_ambient : bool -> t -> unit

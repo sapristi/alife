@@ -28,7 +28,6 @@
    ppx_subliner
 
    bacterie_libs
-   reactors
    base_chemistry
  )
  (modules ("yaac"))

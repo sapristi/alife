@@ -132,24 +132,29 @@ module ARMap =
     type t = {
         mutable v:  AmolSet.t MolMap.t
       }
+
+    module Serialized = struct
+      type armap = t
+      type item = (Molecule.t * (Petri_net.t list))
+      [@@deriving yojson]
+      type t = item list
+      [@@deriving yojson]
+
+      let ser (value: armap): t=
+        MolMap.to_list value.v
+        |> List.map (fun (mol, amolset) ->
+            (
+              mol,
+             AmolSet.to_list amolset
+             |> List.map (fun (value: Reactant.Amol.t) -> value.pnet)
+            )
+          )
+    end
+
     let to_yojson_partial (armap: t) : Yojson.Safe.t =
       `Assoc (
-        MolMap.to_list armap.v |> List.map (fun (mol, amolset) -> (mol, AmolSet.to_yojson amolset))
+        MolMap.to_list armap.v |> List.map (fun (mol, amolset) -> (mol, AmolSet.to_yojson_partial amolset))
       )
-
-    (* let of_yojson (input: Yojson.Safe.t) : (t, string) result = *)
-    (*   match input with *)
-    (*   | `Assoc items -> *)
-    (*     let res = { v= MolMap.empty} in *)
-    (*     Base.With_return.with_return (fun r -> *)
-    (*         List.iter (fun (mol, item) -> *)
-    (*             match AmolSet.of_yojson item with *)
-    (*             | Ok amol -> res.v <- MolMap.add mol amol res.v *)
-    (*             | Error e -> r.return (Error e) *)
-    (*           ) items; *)
-    (*         Ok res *)
-    (*       ) *)
-    (*   | _ -> Error "Cannot parse ARMap from json" *)
 
     let pp = MolMap.pp Molecule.pp AmolSet.pp
     let show armap =
@@ -243,31 +248,32 @@ module IRMap =
   struct
     type t = {mutable v : Reactant.ImolSet.t MolMap.t}
 
-    (* let to_yojson (irmap: t) : Yojson.Safe.t = *)
-    (*   `Assoc ( *)
-    (*     MolMap.to_list irmap.v |> List.map (fun (mol, imolset) -> (mol, Reactant.ImolSet.to_yojson imolset)) *)
-    (*   ) *)
+    module Serialized = struct
+      type irmap = t
+      type item = {
+        mol : Molecule.t;
+        qtt : int;
+        ambient : bool;
+      }
+      [@@deriving yojson]
 
-    (** Partial serialization; does not include reactions *)
-    let to_yojson_partial (irmap: t): Yojson.Safe.t =
+      type t = item list
+      [@@deriving yojson]
+
+      let ser (value: irmap): t =
+        MolMap.to_list value.v
+        |> List.map (
+          fun ((mol, imolset): (Molecule.t * Reactant.ImolSet.t)) ->
+            {mol; qtt=imolset.qtt; ambient=imolset.ambient}
+        )
+    end
+
+
+    (** Partial serialization: as list, since molecules are present in Imol *)
+    let to_yojson (irmap: t): Yojson.Safe.t =
       `List (
         MolMap.to_list irmap.v |> List.map (fun (mol, imolset) ->  Reactant.ImolSet.to_yojson imolset)
       )
-
-    (* let of_yojson (input: Yojson.Safe.t) : (t, string) result = *)
-    (*   match input with *)
-    (*   | `Assoc items -> *)
-    (*     let res = { v = MolMap.empty} in *)
-    (*     Base.With_return.with_return (fun r -> *)
-    (*         List.iter (fun (mol, item) -> *)
-    (*             match Reactant.ImolSet.of_yojson item with *)
-    (*             | Ok amol -> res.v <- MolMap.add mol amol res.v *)
-    (*             | Error e -> r.return (Error e) *)
-    (*           ) items; *)
-    (*         Ok res *)
-    (*       ) *)
-    (*   | _ -> Error "Cannot parse IRMap from json" *)
-
 
     let pp = MolMap.pp Molecule.pp Reactant.ImolSet.pp
     let show irmap =

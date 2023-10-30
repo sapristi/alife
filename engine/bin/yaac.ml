@@ -1,4 +1,3 @@
-open Reactors
 open Base_chemistry
 open Easy_logging_yojson
 
@@ -24,12 +23,12 @@ type eval_params = {
 [@@deriving subliner]
 
 let eval { initial_state; n_steps } =
-  let sandbox =
-    initial_state |> Yojson.Safe.from_string |> Sandbox.signature_of_yojson
-    |> Result.get_ok |> Sandbox.of_signature
+  let bacterie =
+    initial_state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.BactSig.of_yojson
+    |> Result.get_ok |> Bacterie_libs.Bacterie.BactSig.to_bact
   in
   for i = 0 to n_steps - 1 do
-    Bacterie_libs.Bacterie.next_reaction !sandbox
+    Bacterie_libs.Bacterie.next_reaction bacterie
   done
 
 let get_pnet mol =
@@ -63,11 +62,13 @@ let build_all_from_prot (prot_str : string) =
 type params =
   (* Create pnet from mol *)
   | From_mol of { log_level : Logging.level; [@term log_level_t] mol : string }
+                [@doc "Compute petri net from molecule."]
   (* Create pnet from prot *)
   | From_prot of {
       log_level : Logging.level; [@term log_level_t]
       prot : string;
     }
+      [@doc "Compute petri net from molecule."]
   (* perform evaluation for given number of steps *)
   | Eval of eval_params
   (* return available reactions *)

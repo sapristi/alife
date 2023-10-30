@@ -28,11 +28,7 @@ open Base_chemistry
 (* est le NOMBRE total de molécules (c'est beaucoup trop). *)
 
 
-(* ** types *)
 
-(*  + ireactants : inactive reactants, molecules that do not fold into petri net. *)
-(*  + areactants : active reactants, molecules that fold into a petri net. *)
-(*     We thus have to have a distinct pnet for each present molecule *)
 
 let logger = Logging.get_logger "Yaac.Bact.Bacterie"
 
@@ -45,23 +41,6 @@ type t = {
   randstate : Random_s.t ref;
 }
 
-let to_yojson (bact: t) =
-  `Assoc [
-    ("ireactants", IRMap.to_yojson (bact.ireactants));
-    ("areactants", ARMap.to_yojson (bact.areactants));
-    ("env", Environment.to_yojson !(bact.env));
-    ("randstate", Random_s.to_yojson !(bact.randstate));
-  ]
-
-let of_yojson (input: Yojson.Safe.t) (t, string) result =
-  match input with
-  | `Assoc [
-      ("ireactants", ireactants_json);
-      ("areactants", areactants_json) ;
-      ("env", env_json);
-      ("randstate", randstate_json);
-    ] -> Ok "something"
-  | _ -> Error "Cannot parse bactery"
 
 let default_randstate = {
   Random_s.seed = 8085733080487790103L;
@@ -78,13 +57,13 @@ let make_empty () =
     randstate = ref default_randstate;
   }
 
-type inert_bact_elem = {qtt:int;mol: Molecule.t;ambient:bool}
+type inert_bact_elem = {qtt: int; mol: Molecule.t; ambient: bool}
 [@@ deriving yojson, ord, show]
-type active_bact_elem = {qtt:int;mol: Molecule.t}
+type active_bact_elem = {qtt: int; mol: Molecule.t}
 [@@ deriving yojson, ord, show]
 
 
-let add_pnet (mol: Molecule.t) (pnet: Petri_net.t) (bact: t): Reacs.effect list = 
+let add_active_molecule (mol: Molecule.t) (pnet: Petri_net.t) (bact: t): Reacs.effect list =
   (** Adds the given pnet to the bactery *)
   logger#trace "adding active molecule  : %s" mol;
 
@@ -108,6 +87,30 @@ let add_pnet (mol: Molecule.t) (pnet: Petri_net.t) (bact: t): Reacs.effect list 
      because it must not react with itself *)
   ARMap.add ar bact.areactants
 
+
+let add_inert_molecule ?(qtt = 1) ?(ambient = false) (mol: Molecule.t) (bact: t): Reacs.effect list =
+  logger#trace "adding inert molecule  : %s" mol;
+  match MolMap.get mol bact.ireactants.v with
+  | None ->
+    let new_ireac = Reactant.ImolSet.make_new mol ~qtt ~ambient in
+    (* reactions : grabs *)
+    ARMap.add_reacs_with_new_reactant
+      (ImolSet new_ireac) bact.areactants bact.reac_mgr;
+
+    (* reactions : break *)
+    Reac_mgr.add_break (ImolSet new_ireac) bact.reac_mgr;
+
+    (* reactions : collision *)
+    Reac_mgr.add_collider (ImolSet new_ireac) bact.reac_mgr;
+
+    (* add molecule *)
+    IRMap.add new_ireac bact.ireactants;
+
+    [ Reacs.Update_reacs !(new_ireac.reacs) ]
+
+  | Some ireac ->
+    IRMap.add_to_qtt ireac 1 bact.ireactants
+
 (** Adds a single molecule to a container (bactery).
     We have to take care :
     - if the molecule is active, we must create a new active_reactant,
@@ -125,38 +128,12 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
   then
     (logger#swarning "Ignoring add of bad molecule";  [])
   else
-    begin
       let new_opnet = Petri_net.make_from_mol mol in
       match new_opnet with
+      | Some pnet -> add_active_molecule mol pnet bact
+      | None -> add_inert_molecule mol bact
 
-      | Some pnet ->
-        add_pnet mol pnet bact
 
-      | None ->
-        (
-          logger#trace "adding inactive molecule  : %s" mol;
-          match MolMap.get mol bact.ireactants.v with
-          | None ->
-            let new_ireac = Reactant.ImolSet.make_new mol in
-            (* reactions : grabs *)
-            ARMap.add_reacs_with_new_reactant
-              (ImolSet new_ireac) bact.areactants bact.reac_mgr;
-
-            (* reactions : break *)
-            Reac_mgr.add_break (ImolSet new_ireac) bact.reac_mgr;
-
-            (* reactions : collision *)
-            Reac_mgr.add_collider (ImolSet new_ireac) bact.reac_mgr;
-
-            (* add molecule *)
-            IRMap.add new_ireac bact.ireactants;
-
-            [ Reacs.Update_reacs !(new_ireac.reacs) ]
-
-          | Some ireac ->
-            IRMap.add_to_qtt ireac 1 bact.ireactants
-        )
-    end
 
 
 (** totally removes a molecule from a bactery *)
@@ -263,28 +240,79 @@ let next_reaction (bact : t)  =
         (Printexc.to_string e)
       |> ignore
 
-(** Partial bactery representation *)
+
+(** Allows to encode the full state of a bactery in json *)
+module FullSig = struct
+  type bacterie = t
+  type t = {
+    ireactants: IRMap.Serialized.t;
+    areactants: ARMap.Serialized.t;
+    env: Environment.t;
+    randstate: Random_s.t;
+  }
+  [@@deriving yojson]
+
+
+  let bact_to_yojson (bact: bacterie) =
+    to_yojson {
+      ireactants = IRMap.Serialized.ser bact.ireactants;
+      areactants = ARMap.Serialized.ser bact.areactants;
+      env = !(bact.env);
+      randstate = !(bact.randstate);
+    }
+
+  let bact_of_yojson input =
+    let serialized_res = of_yojson input in
+    match serialized_res with
+    | Error s -> Error s
+    | Ok serialized ->
+      let renv = ref serialized.env in
+      let bact = {
+        ireactants = IRMap.make ();
+        areactants = ARMap.make ();
+        reac_mgr = Reac_mgr.make_new renv;
+        env = renv;
+        randstate = ref serialized.randstate
+      } in
+      List.iter (
+        fun ({mol; qtt; ambient}: IRMap.Serialized.item) ->
+          add_inert_molecule  ~qtt ~ambient mol bact |> execute_actions bact
+      ) serialized.ireactants;
+      List.iter (
+        fun ((mol, pnets): ARMap.Serialized.item) ->
+          List.iter (
+            fun pnet -> add_active_molecule mol pnet bact |> execute_actions bact
+          ) pnets
+      ) serialized.areactants;
+      Ok bact
+
+end
+
+(** Partial representation, used for initial states, tests, etc *)
 module BactSig = struct
   type bacterie = t
   type t = {
     inert_mols : inert_bact_elem list;
     active_mols : active_bact_elem list;
+    env: Environment.t;
   }
   [@@deriving yojson, show]
 
-  let null = {inert_mols=[]; active_mols=[]}
+  (* TODO; remove *)
+  let null = {inert_mols=[]; active_mols=[]; env=Environment.null_env}
 
+  (** Returns a canonical signature - where the mols are in a deterministic order
+  *)
   let canonical (bs : t) : t =
     {
       inert_mols = List.sort compare_inert_bact_elem (List.filter (fun (im : inert_bact_elem) -> im.qtt > 0) bs.inert_mols);
       active_mols = List.sort compare_active_bact_elem (List.filter (fun (am : active_bact_elem) -> am.qtt > 0) bs.active_mols);
+      env = bs.env;
     }
 
 
   let to_bact
       (bact_sig : t)
-      ?(env=Environment.null_env)
-      ?(randstate=default_randstate)
     : bacterie  =
     let bact = make_empty () in
     List.iter
@@ -303,8 +331,8 @@ module BactSig = struct
            |> execute_actions bact;
          done;)
       bact_sig.active_mols;
-    bact.env := env;
-    bact.randstate := randstate;
+    bact.env := bact_sig.env;
+    bact.randstate := default_randstate;
     bact
 
 
@@ -324,8 +352,11 @@ module BactSig = struct
         amol_list
 
     in
-    {inert_mols = trimmed_imol_list;
-     active_mols = trimmed_amol_list;}
+    {
+      inert_mols = trimmed_imol_list;
+      active_mols = trimmed_amol_list;
+      env = !(bact.env);
+    } |> canonical
 
 
 end

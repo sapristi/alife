@@ -38,7 +38,8 @@ open Local_libs.Misc_library
 
 (* * modules definitions*)
 
-module rec (* ** Reactant : contains a reactant (ImolSet or Amol or Aset) *)
+(** Reactant : contains a reactant (ImolSet or Amol or Aset) *)
+module rec
     Reactant : sig
   include REACTANT with type reac = Reaction.t and type reacSet = ReacSet.t
 end = struct
@@ -77,8 +78,8 @@ end = struct
 
     let set_qtt qtt (ims : t) = ims.qtt <- qtt
 
-    let make_new mol : t =
-      { mol; qtt = 1; reacs = ref ReacSet.empty; ambient = false }
+    let make_new mol ?(qtt = 1) ?(ambient = false) : t =
+      { mol; qtt; reacs = ref ReacSet.empty; ambient }
 
     let copy ims =
       {
@@ -110,6 +111,11 @@ end = struct
       reacs : ReacSet.t ref; [@to_yojson fun _ -> `Null]
     }
     [@@deriving to_yojson]
+
+    (* module Serialized = struct *)
+    (*   type t = Petri_net.t *)
+    (*   [@@deriving yojson] *)
+    (* end *)
 
     let show am = Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol
     let pp f am = Format.pp_print_string f (show am)
@@ -199,12 +205,11 @@ end = struct
     | Amol amol -> Amol.remove_reac reaction amol
     | ImolSet ims -> ImolSet.remove_reac reaction ims
 end
-
-(* ** Reacs : implementation of the reactions *)
-
 (*    We need to copy the entire signature because we use the recursively *)
 (*    defined Reactant. *)
 (*    See reactions.ml for more details. *)
+
+(** Reacs : implementation of the reactions *)
 and Reacs : sig
   type effect =
     | T_effects of Place.transition_effect list
