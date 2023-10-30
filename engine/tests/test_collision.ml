@@ -1,8 +1,8 @@
-open Bacterie_libs;;
-open Reactors;;
-open Easy_logging_yojson;;
-open OUnit2;;
-open Containers;;
+open Bacterie_libs
+open Reactors
+open Easy_logging_yojson
+open OUnit2
+open Containers
 
 (* Printexc.record_backtrace true;; *)
 
@@ -15,15 +15,12 @@ open Containers;;
 (* let rlogger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr" in *)
 (*     rlogger#set_level Debug;; *)
 
-    
 (* let test1 mol1 mol2 = *)
 (*   let mol1 = "ACABC" and mol2 = "DEFAB" in *)
 (*   let res = Reactions_effects.collide mol1 mol2 in *)
 
 (*   logger#sinfo (Format.sprintf "%a" (List.pp Format.string) res) *)
-    
 
-  
 (* let () =  *)
 (*   try *)
 (*     test1 "ACABC"  "DEFAB" ; *)
@@ -33,4 +30,3 @@ open Containers;;
 (*     logger#error "stack: %s\n%s" *)
 (*       (Printexc.get_backtrace ()) *)
 (*       (Printexc.to_string e); *)
-

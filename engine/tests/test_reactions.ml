@@ -39,7 +39,6 @@
 (*   logger#debug "after 3rd reac"; *)
 (*   print_bact !(sandbox.bact); *)
 
-
 (*   let result = Bacterie.to_sig !(sandbox.bact) *)
 (*                |> Bacterie.canonical_bact_sig *)
 
@@ -86,8 +85,6 @@
 (*   Bacterie.next_reaction !(sandbox.bact); *)
 (*   Bacterie.next_reaction !(sandbox.bact); *)
 
-
-
 (*   let result = Bacterie.to_sig !(sandbox.bact) *)
 (*                |> Bacterie.canonical_bact_sig *)
 
@@ -116,7 +113,6 @@
 
 (*   logger#info "second reac ok"; *)
 
-
 (*   let result = Bacterie.to_sig !(sandbox.bact) *)
 (*                |> Bacterie.canonical_bact_sig *)
 
@@ -132,7 +128,6 @@
 (*     ~printer:Bacterie.show_bact_sig *)
 (*     expected_result result *)
 
-
 (* let grab_release_amol test_ctx = *)
 
 (*   logger#info "grab release amol"; *)
@@ -141,7 +136,6 @@
 (*                 |> Result.get_ok *)
 (*   in *)
 (*   Bacterie.next_reaction !(sandbox.bact); *)
-
 
 (*   let inter_result = Bacterie.to_sig !(sandbox.bact) *)
 (*                |> Bacterie.canonical_bact_sig *)
@@ -185,7 +179,6 @@
 (*   and expected_result : Bacterie.bact_sig = *)
 (*     Bacterie.canonical_bact_sig *)
 (*   *\) *)
-
 
 (* let suite = *)
 (*   "suite">::: *)

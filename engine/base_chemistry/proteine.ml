@@ -12,7 +12,6 @@
 
 (*open Misc_library*)
 
-
 (* open Yaac_config *)
 open Local_libs
 open Easy_logging_yojson
@@ -21,11 +20,8 @@ open Types.Acid
 
 let logger = Logging.make_logger "Yaac.Base_chem.Proteine"
 
-
 (* * A proteine *)
-type t = acid list
-[@@deriving show, yojson]
-
+type t = acid list [@@deriving show, yojson]
 
 (* *** transition structure type definition *)
 
@@ -38,15 +34,11 @@ type t = acid list
 (*       - de même pour les arcs sortants *)
 
 type transition_structure =
-  string *
-  (int * input_arc ) list *
-  (int * output_arc) list
+  string * (int * input_arc) list * (int * output_arc) list
 [@@deriving show]
 (* *** place extensions definition *)
 
-type place_extensions =
-  extension list
-[@@deriving show]
+type place_extensions = extension list [@@deriving show]
 
 (* ** functions definitions *)
 (* *** build_transitions function *)
@@ -71,7 +63,6 @@ type place_extensions =
 (*       correspondent au même nœud et à la même transition, auquel cas ça *)
 (*       buggerait *)
 
-
 (*     Problème : *)
 (*     Que se passe-t-il si plusieurs transtions input avec la même id *)
 (*     partent d'un même nœud, en particulier *)
@@ -86,75 +77,46 @@ type place_extensions =
 (*     les arcs/extensions placés avant la première place sont associés *)
 (*     avec la dernière. *)
 
-
-let build_transitions (prot : t) :
-  transition_structure list =
-
+let build_transitions (prot : t) : transition_structure list =
   (* insère un arc entrant dans la bonne transition
      de la liste des transitions *)
-  let rec insert_new_input
-      (nodeN :   int)
-      (transID : string)
-      (data :    input_arc)
-      (transL :  transition_structure list) :
-
-    transition_structure list =
-
+  let rec insert_new_input (nodeN : int) (transID : string) (data : input_arc)
+      (transL : transition_structure list) : transition_structure list =
     match transL with
     | (t, input, output) :: transL' ->
-      if nodeN >= 0
-      then
-        if transID = t
-        then (t,  (nodeN, data) :: input, output) :: transL'
-        else (t, input, output) ::
-             (insert_new_input nodeN transID data transL')
-      else (insert_new_input nodeN transID data transL')
-    | [] -> [transID, [nodeN, data], []]
-
-
+        if nodeN >= 0 then
+          if transID = t then (t, (nodeN, data) :: input, output) :: transL'
+          else (t, input, output) :: insert_new_input nodeN transID data transL'
+        else insert_new_input nodeN transID data transL'
+    | [] -> [ (transID, [ (nodeN, data) ], []) ]
   (* insère un arc sortant dans la bonne transition
      de la liste des transitions *)
-  and insert_new_output
-      (nodeN :   int)
-      (transID : string)
-      (data :    output_arc)
-      (transL :  transition_structure list) :
-
-    transition_structure list =
-
+  and insert_new_output (nodeN : int) (transID : string) (data : output_arc)
+      (transL : transition_structure list) : transition_structure list =
     match transL with
     | (t, input, output) :: transL' ->
-      if nodeN >= 0
-      then
-        if transID = t
-        then (t,  input, (nodeN, data) ::  output) :: transL'
-        else (t, input, output) ::
-             (insert_new_output nodeN transID data transL')
-      else (insert_new_output nodeN transID data transL')
-    | [] -> [transID, [], [nodeN, data]]
-
+        if nodeN >= 0 then
+          if transID = t then (t, input, (nodeN, data) :: output) :: transL'
+          else
+            (t, input, output) :: insert_new_output nodeN transID data transL'
+        else insert_new_output nodeN transID data transL'
+    | [] -> [ (transID, [], [ (nodeN, data) ]) ]
   in
-  let rec aux
-      (prot :    t)
-      (nodeN :  int)
-      (transL : transition_structure list) :
 
-    transition_structure list =
-
-    match prot, nodeN with
+  let rec aux (prot : t) (nodeN : int) (transL : transition_structure list) :
+      transition_structure list =
+    match (prot, nodeN) with
     | Place :: prot', _ -> aux prot' (nodeN + 1) transL
-    | _::prot', -1 -> aux prot' nodeN transL
-    | InputArc (s,d) :: prot',_ ->
-      aux prot' nodeN (insert_new_input nodeN s d transL)
+    | _ :: prot', -1 -> aux prot' nodeN transL
+    | InputArc (s, d) :: prot', _ ->
+        aux prot' nodeN (insert_new_input nodeN s d transL)
+    | OutputArc (s, d) :: prot', _ ->
+        aux prot' nodeN (insert_new_output nodeN s d transL)
+    | Extension _ :: prot', _ -> aux prot' nodeN transL
+    | [], _ -> transL
+  in
 
-    | OutputArc (s,d) :: prot',_ ->
-      aux prot' nodeN (insert_new_output nodeN s d transL)
-
-    | Extension _ :: prot' ,_-> aux prot' nodeN transL
-    | [],_ -> transL
-
-  in aux prot (-1) []
-
+  aux prot (-1) []
 
 (* *** build_nodes_list_with_exts function *)
 (*     Construit la liste des nœuds avec les extensions associée  *)
@@ -162,73 +124,53 @@ let build_transitions (prot : t) :
 (*     L'ordre est ensuite reinversé, sinon la liste des places est  *)
 (*     inversé dans la protéine. *)
 
-let build_nodes_list_with_exts (prot : t) :
-  ((extension list)) list =
-
+let build_nodes_list_with_exts (prot : t) : extension list list =
   let rec aux prot res =
     match prot with
-    | Place :: prot' -> aux prot' (([]) :: res)
-    | Extension e :: prot' ->
-      begin
+    | Place :: prot' -> aux prot' ([] :: res)
+    | Extension e :: prot' -> (
         match res with
         | [] -> aux prot' res
-        | (ext_l) :: res' ->
-          aux prot' ((e :: ext_l) :: res')
-      end
+        | ext_l :: res' -> aux prot' ((e :: ext_l) :: res'))
     | _ :: prot' -> aux prot' res
     | [] -> res
   in
   List.rev (aux prot [])
 
-
 (* wonderfull tail-recursive all-in-one function*)
 
+module Tmap = CCMap.Make (String)
 
-module Tmap = CCMap.Make(String)
 let rec build_data (prot : t)
-    (trans : ((int*input_arc) list *
-              (int*output_arc) list) Tmap.t)
-    (places : (int * extension list) list)
-  =
+    (trans : ((int * input_arc) list * (int * output_arc) list) Tmap.t)
+    (places : (int * extension list) list) =
   match places with
-  | (n, exts) :: places' ->
-    (
+  | (n, exts) :: places' -> (
       match prot with
-      | Place ::prot' ->
-        build_data prot' trans ((n+1,[])::places)
-
+      | Place :: prot' -> build_data prot' trans ((n + 1, []) :: places)
       | InputArc (id, t) :: prot' ->
-        build_data prot'
-
-          (Tmap.update id
-             (fun item ->
-                match item with
-                | None -> Some ([],[])
-                | Some (ias, oas) ->
-                  Some ((n, t)::ias, oas))
-             trans)
-          places
-
-      | OutputArc (id, t) ::prot' ->
-        build_data prot'
-          (Tmap.update id
-             (fun item ->
-                match item with
-                | None -> Some ([],[])
-                | Some (ias, oas) ->
-                  Some (ias, (n, t)::oas))
-             trans)
-          places
-
+          build_data prot'
+            (Tmap.update id
+               (fun item ->
+                 match item with
+                 | None -> Some ([], [])
+                 | Some (ias, oas) -> Some ((n, t) :: ias, oas))
+               trans)
+            places
+      | OutputArc (id, t) :: prot' ->
+          build_data prot'
+            (Tmap.update id
+               (fun item ->
+                 match item with
+                 | None -> Some ([], [])
+                 | Some (ias, oas) -> Some (ias, (n, t) :: oas))
+               trans)
+            places
       | Extension e :: prot' ->
-        build_data prot' trans ((n, e::exts)::places')
-
-      | [] -> trans, places
-    )
-  | [] ->
-    match prot with
-    | Place ::prot' ->
-      build_data prot'  trans ((0,[])::[])
-    | _ ::prot'->
-      build_data prot' trans places
-    | [] -> trans, places
+          build_data prot' trans ((n, e :: exts) :: places')
+      | [] -> (trans, places))
+  | [] -> (
+      match prot with
+      | Place :: prot' -> build_data prot' trans ((0, []) :: [])
+      | _ :: prot' -> build_data prot' trans places
+      | [] -> (trans, places))

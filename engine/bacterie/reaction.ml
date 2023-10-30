@@ -31,7 +31,6 @@ open Local_libs.Misc_library
 (* ** ReacSet module *)
 (*    Simply a Set of reactions *)
 
-
 (* ** Explanation *)
 (*   Since  reactants  hold themselves a set of reactions (whom rates have to be *)
 (*   updated at a change in the reactant), the modules Reaction, ReacSet *)
@@ -39,116 +38,102 @@ open Local_libs.Misc_library
 
 (* * modules definitions*)
 
+module rec (* ** Reactant : contains a reactant (ImolSet or Amol or Aset) *)
+    Reactant : sig
+  include REACTANT with type reac = Reaction.t and type reacSet = ReacSet.t
+end = struct
+  type reac = Reaction.t
+  type reacSet = ReacSet.t
 
+  module type REACTANT_DEFAULT = Reactant.REACTANT_DEFAULT
 
-module rec
-
-(* ** Reactant : contains a reactant (ImolSet or Amol or Aset) *)
-
-    Reactant :
-      (sig
-        include REACTANT with type reac = Reaction.t
-                          and type reacSet = ReacSet.t
-      end)
-  =
-  struct
-    type reac = Reaction.t
-    type reacSet = ReacSet.t
-
-    module type REACTANT_DEFAULT =
-      (Reactant.REACTANT_DEFAULT)
-
-
-    (** ImolSet : reactant with inert molecules
+  (** ImolSet : reactant with inert molecules
         All inert molecules share the same reactions, so we can factorize them in this module,
         which contains a molecule along with their quantity.
     *)
-    module ImolSet =
-      struct
-        type t = {
-            mol : Molecule.t;
-            mutable qtt : int;
-            reacs : ReacSet.t ref [@to_yojson fun _ -> `Null];
-            mutable ambient:bool;
-          }
-          [@@deriving to_yojson]
+  module ImolSet = struct
+    type t = {
+      mol : Molecule.t;
+      mutable qtt : int;
+      reacs : ReacSet.t ref; [@to_yojson fun _ -> `Null]
+      mutable ambient : bool;
+    }
+    [@@deriving to_yojson]
 
-        let show (imd : t) =
-          Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol
+    let show (imd : t) = Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol
 
-        let pp (f : Format.formatter) (imd : t) =
-          Format.pp_print_string f (show imd)
+    let pp (f : Format.formatter) (imd : t) =
+      Format.pp_print_string f (show imd)
 
-        let show_reacSet = ReacSet.show
-        let pp_reacSet = ReacSet.pp
+    let show_reacSet = ReacSet.show
+    let pp_reacSet = ReacSet.pp
+    let compare (imd1 : t) (imd2 : t) = Molecule.compare imd1.mol imd2.mol
+    let mol ims = ims.mol
+    let qtt ims = ims.qtt
+    let reacs ims = !(ims.reacs)
 
-        let compare (imd1 : t) (imd2 : t) =
-          Molecule.compare imd1.mol imd2.mol
-        let mol ims = ims.mol
-        let qtt ims = ims.qtt
-        let reacs ims = !(ims.reacs)
-        let add_to_qtt deltaqtt ims =
-          if not ims.ambient
-          then ims.qtt <- ims.qtt + deltaqtt
+    let add_to_qtt deltaqtt ims =
+      if not ims.ambient then ims.qtt <- ims.qtt + deltaqtt
 
-        let set_qtt qtt (ims : t)=
-          ims.qtt <- qtt
-        let make_new mol : t =
-          {mol; qtt=1; reacs = (ref ReacSet.empty);ambient=false}
-        let copy ims =
-          {mol= ims.mol; qtt = ims.qtt; reacs= ref !(ims.reacs); ambient= ims.ambient}
-        let add_reac (reac : Reaction.t) (imd : t) =
-          imd.reacs := ReacSet.add reac !(imd.reacs)
-        let remove_reac (reac : Reaction.t) (imd : t) =
-          imd.reacs := ReacSet.remove reac !(imd.reacs)
-        let set_ambient ambient ims =
-          ims.ambient <- ambient
+    let set_qtt qtt (ims : t) = ims.qtt <- qtt
 
-      end
+    let make_new mol : t =
+      { mol; qtt = 1; reacs = ref ReacSet.empty; ambient = false }
 
-    (** Amol :  reactant with one active molecule
+    let copy ims =
+      {
+        mol = ims.mol;
+        qtt = ims.qtt;
+        reacs = ref !(ims.reacs);
+        ambient = ims.ambient;
+      }
+
+    let add_reac (reac : Reaction.t) (imd : t) =
+      imd.reacs := ReacSet.add reac !(imd.reacs)
+
+    let remove_reac (reac : Reaction.t) (imd : t) =
+      imd.reacs := ReacSet.remove reac !(imd.reacs)
+
+    let set_ambient ambient ims = ims.ambient <- ambient
+  end
+
+  (** Amol :  reactant with one active molecule
         An amol contains
         - a molecule
         - the current pnet
         - the reactions
     *)
-    module Amol =
-      struct
-        type t = {
-            mol : Molecule.t;
-            pnet : Petri_net.t;
-            reacs : ReacSet.t ref  [@to_yojson fun _ -> `Null];
-          }
-          [@@deriving to_yojson]
+  module Amol = struct
+    type t = {
+      mol : Molecule.t;
+      pnet : Petri_net.t;
+      reacs : ReacSet.t ref; [@to_yojson fun _ -> `Null]
+    }
+    [@@deriving to_yojson]
 
-        let show am =
-          Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol
+    let show am = Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol
+    let pp f am = Format.pp_print_string f (show am)
+    let show_reacSet = ReacSet.show
+    let pp_reacSet = ReacSet.pp
+    let mol am = am.mol
+    let qtt am = 1
+    let reacs am = !(am.reacs)
+    let pnet am = am.pnet
 
-        let pp f am =
-          Format.pp_print_string f (show am)
+    let make_new (pnet : Petri_net.t) =
+      { mol = pnet.mol; pnet; reacs = ref ReacSet.empty }
 
-        let show_reacSet = ReacSet.show
-        let pp_reacSet = ReacSet.pp
-        let mol am =  am.mol
-        let qtt am = 1
-        let reacs am = !(am.reacs)
-        let pnet am = am.pnet
-        let make_new  (pnet : Petri_net.t) =
-          {mol = pnet.mol; pnet; reacs = ref ReacSet.empty}
+    let add_reac reac (amd : t) = amd.reacs := ReacSet.add reac !(amd.reacs)
 
-        let add_reac reac (amd : t) =
-          amd.reacs := ReacSet.add reac !(amd.reacs)
+    let remove_reac (reac : Reaction.t) (amd : t) =
+      amd.reacs := ReacSet.remove reac !(amd.reacs)
 
-        let remove_reac (reac : Reaction.t) (amd : t) =
-          amd.reacs := ReacSet.remove reac !(amd.reacs)
+    let compare (amd1 : t) (amd2 : t) =
+      compare amd1.pnet.Petri_net.uid amd2.pnet.Petri_net.uid
+  end
 
-        let compare
-              (amd1 : t) (amd2 : t) =
-          compare amd1.pnet.Petri_net.uid amd2.pnet.Petri_net.uid
-
-      end
-(* *** (ASet) :    reactant with active molecules set *)
-    (*
+  (* *** (ASet) :    reactant with active molecules set *)
+  (*
  module ASet = Batteries.Set.Make(struct type t = Active.t ref
                                          let compare a1 a2 =
                                            Active.compare !a1 !a2 end)
@@ -182,168 +167,148 @@ module rec
        = Format.pp_print_string f (show amd)
    end
      *)
-(* *** Reactant functions *)
-    type t =
-      | Amol of Amol.t
-      | ImolSet of ImolSet.t
-      | Dummy
-    [@@deriving show, ord, to_yojson]
+  (* *** Reactant functions *)
+  type t = Amol of Amol.t | ImolSet of ImolSet.t | Dummy
+  [@@deriving show, ord, to_yojson]
 
-    let show_reacSet = ReacSet.show
-    let pp_reacSet = ReacSet.pp
-    let qtt reactant =
-      match reactant with
-      | Amol amol -> Amol.qtt amol
-      | ImolSet ims -> ImolSet.qtt ims
-    let mol reactant =
-      match reactant with
-      | Amol amol -> Amol.mol amol
-      | ImolSet ims -> ImolSet.mol ims
-    let reacs reactant =
-      match reactant with
-      | Amol amol -> Amol.reacs amol
-      | ImolSet ims -> ImolSet.reacs ims
-    let add_reac reaction reactant =
-      match reactant with
-      | Amol amol -> Amol.add_reac reaction amol
-      | ImolSet ims -> ImolSet.add_reac reaction ims
-    let remove_reac reaction reactant =
-      match reactant with
-      | Amol amol -> Amol.remove_reac reaction amol
-      | ImolSet ims -> ImolSet.remove_reac reaction ims
-  end
+  let show_reacSet = ReacSet.show
+  let pp_reacSet = ReacSet.pp
+
+  let qtt reactant =
+    match reactant with
+    | Amol amol -> Amol.qtt amol
+    | ImolSet ims -> ImolSet.qtt ims
+
+  let mol reactant =
+    match reactant with
+    | Amol amol -> Amol.mol amol
+    | ImolSet ims -> ImolSet.mol ims
+
+  let reacs reactant =
+    match reactant with
+    | Amol amol -> Amol.reacs amol
+    | ImolSet ims -> ImolSet.reacs ims
+
+  let add_reac reaction reactant =
+    match reactant with
+    | Amol amol -> Amol.add_reac reaction amol
+    | ImolSet ims -> ImolSet.add_reac reaction ims
+
+  let remove_reac reaction reactant =
+    match reactant with
+    | Amol amol -> Amol.remove_reac reaction amol
+    | ImolSet ims -> ImolSet.remove_reac reaction ims
+end
 
 (* ** Reacs : implementation of the reactions *)
 
 (*    We need to copy the entire signature because we use the recursively *)
 (*    defined Reactant. *)
 (*    See reactions.ml for more details. *)
+and Reacs : sig
+  type effect =
+    | T_effects of Place.transition_effect list
+    | Update_launchables of Reactant.Amol.t
+    | Remove_one of Reactant.t
+    | Update_reacs of Reactant.reacSet
+    | Remove_reacs of Reactant.reacSet
+    | Release_mol of Molecule.t
+    | Release_tokens of Token.t list
+  [@@deriving show]
 
-   and Reacs :
-         (sig
+  module type REAC = sig
+    type t
+    type build_t
 
-           type effect =
-             | T_effects of Place.transition_effect list
-             | Update_launchables of Reactant.Amol.t
-             | Remove_one of Reactant.t
-             | Update_reacs of Reactant.reacSet
-             | Remove_reacs of Reactant.reacSet
-             | Release_mol of Molecule.t
-             | Release_tokens of Token.t list
-                               [@@deriving show]
-           module type REAC =
-             sig
-               type t
-               type build_t
-               val show : t -> string
-               (* val of_yojson : Yojson.Safe.t -> (t, string) Result.result *)
-               val to_yojson : t -> Yojson.Safe.t
-               val pp : Format.formatter -> t -> unit
-               val compare : t -> t -> int
-               val rate : t -> Q.t
-               val update_rate : t -> Q.t
-               val make : build_t -> t
-               val eval : Random_s.t -> t -> effect list
-               val remove_reac_from_reactants : Reaction.t -> t -> unit
-               val get_reactants: t -> build_t
-             end
+    val show : t -> string
 
-           module Grab :
-           (REAC with type build_t = (Reactant.Amol.t *
-                                        Reactant.t ))
+    (* val of_yojson : Yojson.Safe.t -> (t, string) Result.result *)
+    val to_yojson : t -> Yojson.Safe.t
+    val pp : Format.formatter -> t -> unit
+    val compare : t -> t -> int
+    val rate : t -> Q.t
+    val update_rate : t -> Q.t
+    val make : build_t -> t
+    val eval : Random_s.t -> t -> effect list
+    val remove_reac_from_reactants : Reaction.t -> t -> unit
+    val get_reactants : t -> build_t
+  end
 
-           module Transition  :
-           (REAC with type build_t = Reactant.Amol.t)
-
-
-           module Break :
-           (REAC with type build_t = (Reactant.t))
-
-           module Collision :
-             (REAC with type build_t = (Reactant.t * Reactant.t))
-
-
-         end)
-     = struct
-     include ReactionsM(Reactant)
-   end
+  module Grab : REAC with type build_t = Reactant.Amol.t * Reactant.t
+  module Transition : REAC with type build_t = Reactant.Amol.t
+  module Break : REAC with type build_t = Reactant.t
+  module Collision : REAC with type build_t = Reactant.t * Reactant.t
+end = struct
+  include ReactionsM (Reactant)
+end
 
 (* ** Reaction  *)
-   and Reaction :
-         (sig
+and Reaction : sig
+  type t =
+    | Grab of Reacs.Grab.t
+    | Transition of Reacs.Transition.t
+    | Break of Reacs.Break.t
+    | Collision of Reacs.Collision.t
+  [@@deriving show]
 
-           type t  =
-             | Grab of Reacs.Grab.t
-             | Transition of Reacs.Transition.t
-             | Break of Reacs.Break.t
-             | Collision of Reacs.Collision.t
+  val to_yojson : t -> Yojson.Safe.t
+  val treat_reaction : Random_s.t -> t -> Reacs.effect list
+  val compare : t -> t -> int
+  val unlink : t -> unit
+end = (* *** module definition *)
+struct
+  open Reacs
 
-                      [@@deriving show]
+  type t =
+    | Grab of Grab.t
+    | Transition of Transition.t
+    | Break of Break.t
+    | Collision of Collision.t
+  [@@deriving ord, show, to_yojson]
 
-           val to_yojson : t -> Yojson.Safe.t
-           val treat_reaction : Random_s.t -> t -> Reacs.effect list
-           val compare : t -> t -> int
-           val unlink : t -> unit
-         end)
-     =
-(* *** module definition *)
-     struct
-       open Reacs
-       type t =
-         | Grab of Grab.t
-         | Transition of Transition.t
-         | Break of Break.t
-         | Collision of Collision.t
+  let rate r =
+    match r with
+    | Transition t -> Transition.rate t
+    | Grab g -> Grab.rate g
+    | Break b -> Break.rate b
+    | Collision c -> Collision.rate c
 
-                      [@@ deriving ord, show, to_yojson]
+  let treat_reaction randstate r : effect list =
+    match r with
+    | Transition t -> Transition.eval randstate t
+    | Grab g -> Grab.eval randstate g
+    | Break b -> Break.eval randstate b
+    | Collision c -> Collision.eval randstate c
 
-       let rate r =
-         match r with
-         | Transition t -> Transition.rate t
-         | Grab g -> Grab.rate g
-         | Break b -> Break.rate b
-         | Collision c -> Collision.rate c
-
-
-       let treat_reaction randstate r  : effect list=
-         match r with
-         | Transition t -> Transition.eval randstate t
-         | Grab g -> Grab.eval randstate g
-         | Break b -> Break.eval randstate b
-         | Collision c -> Collision.eval randstate c
-
-       let unlink r =
-         match r with
-         | Transition t -> Transition.remove_reac_from_reactants r t
-         | Grab g -> Grab.remove_reac_from_reactants r g
-         | Break b -> Break.remove_reac_from_reactants r b
-         | Collision c -> Collision.remove_reac_from_reactants r c
-     end
-
-
+  let unlink r =
+    match r with
+    | Transition t -> Transition.remove_reac_from_reactants r t
+    | Grab g -> Grab.remove_reac_from_reactants r g
+    | Break b -> Break.remove_reac_from_reactants r b
+    | Collision c -> Collision.remove_reac_from_reactants r c
+end
 
 (** ReacSet module *)
-and ReacSet :
-         (sig
-           include CCSet.S with type elt =  Reaction.t
-           val show : t -> string
-           (* val of_yojson : Yojson.Safe.t -> (t, string) Result.result *)
-           val to_yojson : t -> Yojson.Safe.t
-           val pp : Format.formatter -> t -> unit
-         end)
-     =
-     struct
+and ReacSet : sig
+  include CCSet.S with type elt = Reaction.t
 
-       include CCSet.Make (Reaction)
+  val show : t -> string
 
-       let show (rset :t) : string =
-         fold (fun (reac : Reaction.t) desc ->
-             (Reaction.show reac)^"\n"^desc)
-           rset
-           ""
-       let to_yojson (rset :t) : Yojson.Safe.t=
-         `List (List.map Reaction.to_yojson (to_list rset))
-       let pp =
-         (* pp ~pp_start:(fun out () -> Format.fprintf out "Reac set:\n") Reaction.pp *)
-           pp ~pp_start:(Misc_library.printer "Reac set:\n") Reaction.pp
-  end
+  (* val of_yojson : Yojson.Safe.t -> (t, string) Result.result *)
+  val to_yojson : t -> Yojson.Safe.t
+  val pp : Format.formatter -> t -> unit
+end = struct
+  include CCSet.Make (Reaction)
+
+  let show (rset : t) : string =
+    fold
+      (fun (reac : Reaction.t) desc -> Reaction.show reac ^ "\n" ^ desc)
+      rset ""
+
+  let to_yojson (rset : t) : Yojson.Safe.t =
+    `List (List.map Reaction.to_yojson (to_list rset))
+
+  let pp =
+    (* pp ~pp_start:(fun out () -> Format.fprintf out "Reac set:\n") Reaction.pp *)
+    pp ~pp_start:(Misc_library.printer "Reac set:\n") Reaction.pp
+end

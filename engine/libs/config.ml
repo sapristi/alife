@@ -1,5 +1,5 @@
-
-let default_log_config_str = {|
+let default_log_config_str =
+  {|
 {
     "handlers": {
         "file_handlers": {
@@ -32,8 +32,7 @@ let default_log_config_str = {|
         ]
 } |}
 
-type num_choice =
-  | Sloppy | ExactZ | ExactQ
+type num_choice = Sloppy | ExactZ | ExactQ
 
 let num = ExactQ
 let check_reac_rates = false

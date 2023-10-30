@@ -41,56 +41,50 @@ and wildcard_re = "FF"
 let grab_location_cre = Re.compile (Re.Perl.re grab_location_re)
 and wildcard_cre = Re.compile (Re.Perl.re wildcard_re)
 
-let make (m : string)  =
+let make (m : string) =
   try
-    if Re.execp grab_location_cre m
-    then
+    if Re.execp grab_location_cre m then (
       let rep_loc (g : Re.Group.t) : string =
         Re.Group.get g 1 ^ "(" ^ Re.Group.get g 2 ^ ")"
       in
       let str_repr =
         m
         |> Re.replace ~all:false grab_location_cre ~f:rep_loc
-        |> Re.replace_string wildcard_cre  ~by:".*?"
+        |> Re.replace_string wildcard_cre ~by:".*?"
         |> fun str -> "^" ^ str ^ "$"
       in
       logger#debug "Compiled %s\nfrom %s" str_repr m;
-      Some {mol_repr=m; str_repr;}
-    else
-      None
-  with
-  | _ -> None
+      Some { mol_repr = m; str_repr })
+    else None
+  with _ -> None
 
 module Re_store = struct
-  module M = Map.Make(String)
+  module M = Map.Make (String)
 
   let m = ref M.empty
 
-  let get s  = match M.find_opt s (!m) with
+  let get s =
+    match M.find_opt s !m with
     | Some r -> r
     | None ->
-      let r = Re.compile (Re.Perl.re s) in
-      m := (M.add s r (!m));
-      r
+        let r = Re.compile (Re.Perl.re s) in
+        m := M.add s r !m;
+        r
 end
 
-
-let get_match_pos (graber : t)  (mol : string) : int option =
-  logger#debug "Get match for graber: (%s,%s) \n with mol: %s" graber.str_repr graber.mol_repr mol;
+let get_match_pos (graber : t) (mol : string) : int option =
+  logger#debug "Get match for graber: (%s,%s) \n with mol: %s" graber.str_repr
+    graber.mol_repr mol;
   let re = Re_store.get graber.str_repr in
 
-    if Re.execp re mol
-    then (
-      let g = Re.exec re mol in
-      if Re.Group.nb_groups g > 1
-      then (
-        logger#debug "Match pos: %i" (Re.Group.start g 1);
-        Some (Re.Group.start g 1)
-      ) else (
-        logger#sdebug "No match group found";
-        None
-      )
-    ) else (
-      logger#debug "no match pos";
-      None
-    )
+  if Re.execp re mol then
+    let g = Re.exec re mol in
+    if Re.Group.nb_groups g > 1 then (
+      logger#debug "Match pos: %i" (Re.Group.start g 1);
+      Some (Re.Group.start g 1))
+    else (
+      logger#sdebug "No match group found";
+      None)
+  else (
+    logger#debug "no match pos";
+    None)
