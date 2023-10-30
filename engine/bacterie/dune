@@ -17,4 +17,5 @@
             ppx_deriving.show
             ppx_deriving.ord
             pringo
+            base
 ))

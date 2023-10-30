@@ -1,10 +1,7 @@
 
 
-(* * libs *)
 open Local_libs
 open Reaction
-(* compatibility with yojson *)
-type ('a, 'b) mresult = ('a, 'b) result
 open Reactants_maps
 (* open Yaac_config *)
 open Easy_logging_yojson
@@ -91,18 +88,17 @@ let canonical_bact_sig (bs : bact_sig) : bact_sig =
 
 
 
-(* *** add_molecule *)
-(* adds single molecule to a container (bactery) We have to take care : *)
-(*   - if the molecule is active, we must create a new active_reactant, *)
-(*     add all possible reactions with this reactant, then add it to *)
-(*     the bactery (whether or not other molecules of the same species *)
-(*     were already present) *)
-(*   - if the molecule is inactive, the situation depends on whether *)
-(*     the species was present or not : *)
-(*     + if it was already present, we modify it's quatity and update *)
-(*       related reaction rates *)
-(*     + if it was not, we add the molecules and the possible reactions *)
-
+(** Adds a single molecule to a container (bactery).
+    We have to take care :
+     - if the molecule is active, we must create a new active_reactant,
+       add all possible reactions with this reactant, then add it to
+       the bactery (whether or not other molecules of the same species
+       were already present)
+     - if the molecule is inactive, the situation depends on whether
+       the species was present or not :
+       + if it was already present, we modify it's quatity and update
+         related reaction rates
+       + if it was not, we add the molecules and the possible reactions *)
 let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
 
   if Config.check_mol && (not (Molecule.check mol))
@@ -161,9 +157,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
             IRMap.add_to_qtt ireac 1 bact.ireactants
         )
     end
-(* *** remove molecule *)
-(* totally removes a molecule from a bactery *)
-
+(** totally removes a molecule from a bactery *)
 let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
   match reactant with
   | ImolSet ir ->
@@ -173,13 +167,11 @@ let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
   | Dummy -> failwith "Dummy"
 
 
-(* **** execute_actions *)
-(* after a transition from a proteine has occured, *)
-(*    some actions may need to be performed by the bactery *)
-(*   for now, only the release effect is in use *)
-(*   todo later : ??? *)
-(*   il faudrait peut-être mettre dans une file les molécules à ajouter *)
-
+(** Execute actions after a transition from a proteine has occured.
+    Some actions may need to be performed by the bactery
+    for now, only the release effect is in use
+    todo later : ???
+    il faudrait peut-être mettre dans une file les molécules à ajouter *)
 let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
   List.iter
     (fun (effect : Reacs.effect) ->
@@ -269,7 +261,7 @@ let next_reaction (bact : t)  =
         (Printexc.to_string e)
     |> ignore
 
-(* ** json serialisation *)
+(** json serialisation *)
 let from_sig
     (bact_sig : bact_sig)
     ?(env=Environment.null_env)
@@ -320,10 +312,7 @@ let to_sig_yojson bact =
   bact_sig_to_yojson (to_sig bact)
 
 
-(* *** make *)
-(* an empty bactery *)
-
-
+(** make an empty bactery *)
 let empty_sig : bact_sig = {
     inert_mols = [];
     active_mols = []}

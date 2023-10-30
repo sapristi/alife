@@ -59,12 +59,19 @@ module ARMap =
           `List (
             amolset |> to_list  |> List.map Reactant.Amol.to_yojson
           )
-        let of_yojson (input: Yojson.Safe.t) : t =
+        let of_yojson (input: Yojson.Safe.t) : (t, string) result =
           match input with
           | `List items ->
-            List.map Reactant.Amol.of_yojson items
-          | _ -> failwith "Cannot Amolset parse from json"
-
+            let res = ref empty in
+            Base.With_return.with_return (fun r ->
+                List.iter (fun item ->
+                    match Reactant.Amol.of_yojson item with
+                    | Ok amol -> res := add amol !res
+                    | Error e -> r.return (Error e)
+                  ) items;
+                Ok (!res)
+              )
+          | _ -> Error "Cannot Amolset parse from json"
 
         let pp = pp ~pp_start:(Misc_library.printer "AmolSet:\n") Reactant.Amol.pp
         let show amolset =
@@ -141,6 +148,20 @@ module ARMap =
         MolMap.to_list armap |> List.map (fun (mol, amolset) -> (mol, AmolSet.to_yojson amolset))
       )
 
+    let of_yojson (input: Yojson.Safe.t) : (t, string) result =
+      match input with
+      | `Assoc items ->
+        let res = { v= MolMap.empty} in
+        Base.With_return.with_return (fun r ->
+            List.iter (fun (mol, item) ->
+                match AmolSet.of_yojson item with
+                | Ok amol -> res.v <- MolMap.add mol amol res.v
+                | Error e -> r.return (Error e)
+              ) items;
+            Ok res
+          )
+      | _ -> Error "Cannot parse ARMap from json"
+
     let pp = MolMap.pp Molecule.pp AmolSet.pp
     let show armap =
           Format.asprintf "%a" pp armap
@@ -148,6 +169,9 @@ module ARMap =
 
     let make () = {v = MolMap.empty}
 
+    (** Either add the reactant to an existing AmolSet, or create a new one
+        Returns the list of reactions to update
+    *)
     let add (areactant :Reactant.Amol.t )  (armap : t) : Reacs.effect list =
       logger#trace "Adding Reactant.Amol %s" (Reactant.Amol.show areactant);
 
@@ -235,6 +259,21 @@ module IRMap =
       `Assoc (
       MolMap.to_list irmap |> List.map (fun (mol, imolset) -> (mol, Reactant.ImolSet.to_yojson imolset))
     )
+
+    let of_yojson (input: Yojson.Safe.t) : (t, string) result =
+      match input with
+      | `Assoc items ->
+        let res = { v= MolMap.empty} in
+        Base.With_return.with_return (fun r ->
+            List.iter (fun (mol, item) ->
+                match Reactant.ImolSet.of_yojson item with
+                | Ok amol -> res.v <- MolMap.add mol amol res.v
+                | Error e -> r.return (Error e)
+              ) items;
+            Ok res
+          )
+      | _ -> Error "Cannot parse IRMap from json"
+
 
     let pp = MolMap.pp Molecule.pp Reactant.ImolSet.pp
     let show irmap =

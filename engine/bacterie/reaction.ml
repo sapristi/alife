@@ -68,26 +68,16 @@ module rec
         type t = {
             mol : Molecule.t;
             mutable qtt : int;
-            reacs : ReacSet.t ref;
+            reacs : ReacSet.t ref [@to_yojson fun _ -> `Null] [@of_yojson fun _ -> Ok (ref ReacSet.empty)];
             mutable ambient:bool;
           }
+          [@@deriving yojson]
+
         let show (imd : t) =
           Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol
 
         let pp (f : Format.formatter) (imd : t) =
           Format.pp_print_string f (show imd)
-
-        let to_yojson (imd : t) : Yojson.Safe.t =
-          `Assoc [ "mol" , Molecule.to_yojson imd.mol;
-                   "qtt" , `Int  imd.qtt;
-                   "ambient" , `Bool imd.ambient ]
-
-        let of_yojson (input: Yojson.Safe.t): (t, string) Result.result=
-          match input with
-          | `Assoc [ "mol" , `String mol;
-                     "qtt" , `Int qtt;
-                     "ambient" , `Bool ambient ] -> Ok {mol; qtt; ambient; reacs= ref ReacSet.empty }
-          | _ -> Error "Cannot create ImolSet from json"
 
         let show_reacSet = ReacSet.show
         let pp_reacSet = ReacSet.pp
@@ -127,34 +117,12 @@ module rec
         type t = {
             mol : Molecule.t;
             pnet : Petri_net.t;
-            reacs : ReacSet.t ref;
+            reacs : ReacSet.t ref  [@to_yojson fun _ -> `Null] [@of_yojson fun _ -> Ok (ref ReacSet.empty)];
           }
+          [@@deriving yojson]
 
         let show am =
           Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol
-
-
-        let to_yojson am : Yojson.Safe.t =
-          (*TODO  For some reason, previous version only had pnet_id exported
-
-            let to_yojson am : Yojson.Safe.t =
-            `Assoc [ "mol", Molecule.to_yojson am.mol;
-                   "pnet_id", `Int am.pnet.uid]
-          *)
-          `Assoc [ "mol", Molecule.to_yojson am.mol;
-                   "pnet", Petri_net.to_yojson am.pnet]
-
-        let of_yojson (input: Yojson.Safe.t) : (t, string) Result.result =
-          match input with
-          | `Assoc ["mol", `String mol; "pnet", pnet_json] ->
-            (
-              match Petri_net.of_yojson pnet_json with
-              | Ok pnet ->
-                Ok { mol; pnet; reacs= ref ReacSet.empty }
-              | Error s -> Error (
-                  "Cannot parse Amol from json\n" ^ s)
-            )
-          | _ -> Error "Cannot parse Amol from json"
 
         let pp f am =
           Format.pp_print_string f (show am)
@@ -218,13 +186,8 @@ module rec
       | Amol of Amol.t
       | ImolSet of ImolSet.t
       | Dummy
-                     [@@ deriving show, ord, to_yojson]
+    [@@deriving show, ord, yojson]
 
-    (* let to_yojson reactant =
-     *   match reactant with
-     *   | Amol amol -> `Assoc ["Amol", Amol.to_yojson amol]
-     *   | ImolSet ims -> `Assoc["ImolSet", ImolSet.to_yojson ims]
-     *   | Dummy -> `String "Dummy" *)
     let show_reacSet = ReacSet.show
     let pp_reacSet = ReacSet.pp
     let qtt reactant =
@@ -272,6 +235,7 @@ module rec
                type t
                type build_t
                val show : t -> string
+               (* val of_yojson : Yojson.Safe.t -> (t, string) Result.result *)
                val to_yojson : t -> Yojson.Safe.t
                val pp : Format.formatter -> t -> unit
                val compare : t -> t -> int
@@ -362,6 +326,7 @@ and ReacSet :
          (sig
            include CCSet.S with type elt =  Reaction.t
            val show : t -> string
+           (* val of_yojson : Yojson.Safe.t -> (t, string) Result.result *)
            val to_yojson : t -> Yojson.Safe.t
            val pp : Format.formatter -> t -> unit
          end)

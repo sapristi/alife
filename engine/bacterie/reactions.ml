@@ -66,6 +66,7 @@ module type REACTANT =
         type reac
         type reacSet
         val show : t -> string
+        val of_yojson : Yojson.Safe.t -> (t, string) Result.result
         val to_yojson : t -> Yojson.Safe.t
         val show_reacSet : reacSet -> string
         val pp_reacSet : Format.formatter -> reacSet -> unit

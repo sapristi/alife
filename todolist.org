@@ -1,7 +1,9 @@
 * Todo
 
-- Fix json import / export
-  Check if switching to https://github.com/janestreet/ppx_yojson_conv is worth it
+- [ ] Fix json import / export
+  - [X] Check if switching to https://github.com/janestreet/ppx_yojson_conv is worth it -> probably not right now
+  - [ ] Add way to setup reactions when creating bactery from json
+- [ ] improve docstrings
 
 * Old TODO
 
