@@ -67,7 +67,8 @@ module EvalCmd = struct
   type params = {
     log_level : Logging.level; [@term log_level_t]
     n_steps : int;
-    initial_state : string; [@doc "JSON representation of the initial state"]
+    initial_state : string; [@doc "JSON representation of the initial state"] [@default ""]
+    initial_dump : string; [@doc "JSON representation of the initial state"] [@default ""]
   }
   [@@deriving subliner]
   let doc = "Runs the computation, from the given initial state, for the given number of steps.\nTODO"
@@ -85,7 +86,7 @@ module EvalCmd = struct
   let handle {log_level; initial_state; n_steps} =
     set_log_level log_level;
     let res_bact = eval initial_state n_steps in
-      Bacterie_libs.Bacterie.FullSig.bact_to_yojson res_bact
+    Bacterie_libs.Bacterie.FullSig.bact_to_yojson res_bact
     |> Yojson.Safe.to_string |> Result.ok
 
 end

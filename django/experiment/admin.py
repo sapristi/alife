@@ -1,12 +1,11 @@
 from django.contrib import admin
-from .models import InitialState, Dump, Experiment
-# Register your models here.
+from .models import InitialState, BactSnapshot, Experiment
 
 
 class InitialStateAdmin(admin.ModelAdmin):
     pass
 
-class DumpAdmin(admin.ModelAdmin):
+class BactSnapshotAdmin(admin.ModelAdmin):
     pass
 
 class ExperimentAdmin(admin.ModelAdmin):
@@ -16,8 +15,8 @@ admin.site.register(
     InitialState, InitialStateAdmin
 )
 admin.site.register(
-    Dump, DumpAdmin
+    BactSnapshot, BactSnapshotAdmin
 )
 admin.site.register(
-    Experiment, ExperimentAdmin 
+    Experiment, ExperimentAdmin
 )

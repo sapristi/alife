@@ -1,7 +1,5 @@
-from os import truncate
 import json
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
 from django.template import loader
 from django.views.generic import View
 import subprocess as sp

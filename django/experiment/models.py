@@ -16,8 +16,9 @@ class Experiment(TSModel):
     initial_state = models.JSONField()
 
 
-class Dump(TSModel):
-    data = models.JSONField()
+class BactSnapshot(TSModel):
+    bact_snapshot = models.JSONField()
+    nb_reactions = models.IntegerField()
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
 
