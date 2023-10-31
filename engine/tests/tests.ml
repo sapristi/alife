@@ -2,16 +2,12 @@ open Bacterie_libs
 
 let () = print_endline "I AM A TEST"
 let () = print_endline (Sys.getcwd())
-let _ = Initial_states.simple_bind
-
-let test_full_sig () =
-  ()
 
 let () =
   let open Alcotest in
   run "Bacterie tests" [
     "Full Sig", [
-
+      test_case "ser deser" `Quick Test_full_sig.ser_deser;
     ];
     "Reactions", [
       test_case "simple bind" `Quick Test_reactions.simple_bind;

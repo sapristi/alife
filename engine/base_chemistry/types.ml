@@ -3,15 +3,15 @@ module Acid = struct
 end
 
 module Molecule = struct
-  type t = string [@@deriving show, yojson, ord]
+  type t = string [@@deriving show, yojson, ord, eq]
 end
 
 module Token = struct
-  type t = int * Molecule.t [@@deriving show, yojson]
+  type t = int * Molecule.t [@@deriving show, yojson, eq]
 end
 
 module Graber = struct
-  type t = { mol_repr : string; str_repr : string } [@@deriving show, yojson]
+  type t = { mol_repr : string; str_repr : string } [@@deriving show, yojson, eq]
 end
 
 module Place = struct
@@ -21,17 +21,17 @@ module Place = struct
     index : int;
     graber : Graber.t option;
   }
-  [@@deriving show, yojson]
+  [@@deriving show, yojson, eq]
 end
 
 module Transition = struct
   type input_arc = { source_place : int; iatype : Acid.input_arc }
-  [@@deriving show, yojson]
+  [@@deriving show, yojson, eq]
 
   let _ignore = ()
 
   type output_arc = { dest_place : int; oatype : Acid.output_arc }
-  [@@deriving show, yojson]
+  [@@deriving show, yojson, eq]
 
   let _ignore = ()
 
@@ -42,7 +42,7 @@ module Transition = struct
     output_arcs : output_arc list;
     index : int;
   }
-  [@@deriving show, yojson]
+  [@@deriving show, yojson, eq]
 end
 
 module Petri_net = struct
@@ -50,10 +50,10 @@ module Petri_net = struct
     mol : Molecule.t;
     transitions : Transition.t array;
     places : Place.t array;
-    uid : int;
+    uid : int; [@equal fun a b -> true]
     mutable launchables_nb : int;
   }
-  [@@deriving show, yojson]
+  [@@deriving show, yojson, eq]
 end
 
 module Proteine = struct

@@ -61,18 +61,12 @@ module type REACTANT = sig
     type reacSet
 
     val show : t -> string
-
-    (* module type Serialized = sig *)
-    (*   type t *)
-    (*   val of_yojson : Yojson.Safe.t -> (t, string) Result.result *)
-    (*   val to_yojson : t -> Yojson.Safe.t *)
-    (* end *)
-    (* val of_yojson : Yojson.Safe.t -> (t, string) Result.result *)
     val to_yojson : t -> Yojson.Safe.t
     val show_reacSet : reacSet -> string
     val pp_reacSet : Format.formatter -> reacSet -> unit
     val pp : Format.formatter -> t -> unit
     val compare : t -> t -> int
+    val equal : t -> t -> bool
     val mol : t -> Molecule.t
     val qtt : t -> int
     val reacs : t -> reacSet
@@ -88,7 +82,7 @@ module type REACTANT = sig
       mutable ambient : bool;
     }
 
-    val make_new : Molecule.t -> ?qtt:int -> ?ambient:bool -> t
+    val make_new : ?qtt:int -> ?ambient:bool -> Molecule.t -> t
     val add_to_qtt : int -> t -> unit
     val set_qtt : int -> t -> unit
     val set_ambient : bool -> t -> unit
@@ -96,9 +90,9 @@ module type REACTANT = sig
 
     include
       REACTANT_DEFAULT
-        with type t := t
-         and type reac := reac
-         and type reacSet := reacSet
+      with type t := t
+       and type reac := reac
+       and type reacSet := reacSet
   end
 
   module Amol : sig
@@ -112,18 +106,18 @@ module type REACTANT = sig
 
     include
       REACTANT_DEFAULT
-        with type t := t
-         and type reac := reac
-         and type reacSet := reacSet
+      with type t := t
+       and type reac := reac
+       and type reacSet := reacSet
   end
 
   type t = Amol of Amol.t | ImolSet of ImolSet.t | Dummy
 
   include
     REACTANT_DEFAULT
-      with type t := t
-       and type reac := reac
-       and type reacSet := reacSet
+    with type t := t
+     and type reac := reac
+     and type reacSet := reacSet
 end
 
 (* * ReactionsM functor *)

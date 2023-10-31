@@ -5,7 +5,7 @@ let logger = Logging.get_logger "Yaac.Bact.Reactions"
 include PRNG.Splitmix.State
 
 type t = PRNG.Splitmix.State.t = { mutable seed : int64; gamma : int64 }
-[@@deriving yojson]
+[@@deriving yojson, show, eq]
 
 let bernouil randstate q =
   let q' = Q.to_float q in

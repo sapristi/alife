@@ -59,7 +59,7 @@ end = struct
       reacs : ReacSet.t ref; [@to_yojson fun _ -> `Null]
       mutable ambient : bool;
     }
-    [@@deriving to_yojson]
+    [@@deriving to_yojson, eq]
 
     let show (imd : t) = Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol
 
@@ -78,7 +78,7 @@ end = struct
 
     let set_qtt qtt (ims : t) = ims.qtt <- qtt
 
-    let make_new mol ?(qtt = 1) ?(ambient = false) : t =
+    let make_new ?(qtt = 1) ?(ambient = false) mol : t =
       { mol; qtt; reacs = ref ReacSet.empty; ambient }
 
     let copy ims =
@@ -110,12 +110,7 @@ end = struct
       pnet : Petri_net.t;
       reacs : ReacSet.t ref; [@to_yojson fun _ -> `Null]
     }
-    [@@deriving to_yojson]
-
-    (* module Serialized = struct *)
-    (*   type t = Petri_net.t *)
-    (*   [@@deriving yojson] *)
-    (* end *)
+    [@@deriving to_yojson, eq]
 
     let show am = Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol
     let pp f am = Format.pp_print_string f (show am)
@@ -173,9 +168,10 @@ end = struct
        = Format.pp_print_string f (show amd)
    end
      *)
-  (* *** Reactant functions *)
+
+  (** Reactant functions *)
   type t = Amol of Amol.t | ImolSet of ImolSet.t | Dummy
-  [@@deriving show, ord, to_yojson]
+  [@@deriving show, ord, to_yojson, eq]
 
   let show_reacSet = ReacSet.show
   let pp_reacSet = ReacSet.pp
@@ -184,26 +180,31 @@ end = struct
     match reactant with
     | Amol amol -> Amol.qtt amol
     | ImolSet ims -> ImolSet.qtt ims
+    | Dummy -> failwith "dummy reaction"
 
   let mol reactant =
     match reactant with
     | Amol amol -> Amol.mol amol
     | ImolSet ims -> ImolSet.mol ims
+    | Dummy -> failwith "dummy reaction"
 
   let reacs reactant =
     match reactant with
     | Amol amol -> Amol.reacs amol
     | ImolSet ims -> ImolSet.reacs ims
+    | Dummy -> failwith "dummy reaction"
 
   let add_reac reaction reactant =
     match reactant with
     | Amol amol -> Amol.add_reac reaction amol
     | ImolSet ims -> ImolSet.add_reac reaction ims
+    | Dummy -> failwith "dummy reaction"
 
   let remove_reac reaction reactant =
     match reactant with
     | Amol amol -> Amol.remove_reac reaction amol
     | ImolSet ims -> ImolSet.remove_reac reaction ims
+    | Dummy -> failwith "dummy reaction"
 end
 (*    We need to copy the entire signature because we use the recursively *)
 (*    defined Reactant. *)

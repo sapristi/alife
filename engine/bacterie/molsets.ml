@@ -5,7 +5,7 @@ module MolSet = struct
   include CCSet.Make (struct
     type t = Molecule.t
 
-    let compare = Pervasives.compare
+    let compare = compare
   end)
   (* include Exceptionless *)
 end
@@ -49,6 +49,7 @@ module ActiveMolSet = struct
       let dummy_pnet = any_amd.pnet in
 
       match new_reactant with
+      | Dummy -> failwith "dummy"
       | Amol new_amol ->
           let is_graber =
             Petri_net.can_grab (Reactant.mol new_reactant) dummy_pnet

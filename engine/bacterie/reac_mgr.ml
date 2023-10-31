@@ -75,6 +75,7 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
   module RSet = CCSet.Make (Reac)
 
   type t = { mutable rates_sum : Q.t; mutable set : RSet.t }
+  [@@deriving eq]
 
   let pp fmt s =
     if RSet.is_empty s.set then Format.fprintf fmt "ReacSet (empty)"
@@ -156,6 +157,7 @@ end
 module CSet = struct
   let collision_factor (reactant : Reactant.t) =
     match reactant with
+    | Dummy -> failwith "dummy"
     | Amol amol -> Q.one
     | ImolSet imolset -> Q.of_int imolset.qtt
 
@@ -169,8 +171,8 @@ module CSet = struct
       let total_weight =
         List.fold_left
           (fun sum (weight, _) ->
-            let open Numeric.Q in
-            sum + weight)
+             let open Numeric.Q in
+             sum + weight)
           Q.zero weighted_l
       in
       Random_s.pick_from_weighted_list randstate total_weight weighted_l
@@ -179,6 +181,7 @@ module CSet = struct
           Used to compute reaction rates   *)
     let remove_custom (elem : Reactant.t) ccset =
       match elem with
+      | Dummy -> failwith "dummy"
       | Amol amol -> remove elem ccset
       | ImolSet imolset ->
           let new_elem = Reactant.ImolSet.copy imolset in
@@ -193,6 +196,7 @@ module CSet = struct
     mutable single_rates_sum : Q.t;
     mutable colliders : Colliders.t;
   }
+  [@@deriving eq]
 
   let pp fmt s =
     if Colliders.is_empty s.colliders then Format.fprintf fmt "ReacSet (empty)"
@@ -300,7 +304,7 @@ type t = {
   mutable reac_counter : int;
   env : Environment.t ref;
 }
-[@@deriving show]
+[@@deriving show, eq]
 
 let tag (rmgr : t) : string =
   let open Q in
@@ -466,7 +470,7 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
     logger#warning ~tags:[ tag reac_mgr ] "No reaction available";
     None)
   else (
-    reac_mgr.reac_counter <- Pervasives.(reac_mgr.reac_counter + 1);
+    reac_mgr.reac_counter <- Stdlib.(reac_mgr.reac_counter + 1);
     let bound = Random_s.q randstate a0 in
     logger#debug ~tags:[ tag reac_mgr ] "Picked bound %s" (Q.show bound);
     let res =

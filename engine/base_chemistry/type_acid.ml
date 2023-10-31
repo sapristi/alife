@@ -37,7 +37,7 @@
 (* ** implémentation *)
 
 (* *** place *)
-type place_type = Regular_place [@@decco] [@@deriving show, yojson]
+type place_type = Regular_place [@@decco] [@@deriving show, yojson, eq]
 
 (* *** transition_input *)
 type input_arc =
@@ -46,20 +46,20 @@ type input_arc =
   | Filter_iarc of string
   | Filter_empty_iarc
   | No_token_iarc
-[@@decco] [@@deriving show, yojson]
+[@@decco] [@@deriving show, yojson, eq]
 
 (* *** transition_output *)
 type output_arc = Regular_oarc | Merge_oarc | Move_oarc of bool
-[@@decco] [@@deriving show, yojson]
+[@@decco] [@@deriving show, yojson, eq]
 
 (* *** extension *)
 (* Types used by the extensions. Usefull to use custom types for easier potential changes later on. *)
-type handle_id = string [@@deriving show, yojson]
-type receive_pattern = string [@@deriving show, yojson]
-type msg_format = string [@@deriving show, yojson]
+type handle_id = string [@@deriving show, yojson, eq]
+type receive_pattern = string [@@deriving show, yojson, eq]
+type msg_format = string [@@deriving show, yojson, eq]
 
 type extension = Grab_ext of string | Release_ext | Init_with_token_ext
-[@@decco] [@@deriving show, yojson]
+[@@decco] [@@deriving show, yojson, eq]
 
 (* ** type definitions *)
 (* *** acid type definition *)
@@ -77,7 +77,7 @@ type acid =
   | InputArc of string * input_arc
   | OutputArc of string * output_arc
   | Extension of extension
-[@@decco] [@@deriving show, yojson]
+[@@decco] [@@deriving show, yojson, eq]
 
 (* * AcidExamples module *)
 

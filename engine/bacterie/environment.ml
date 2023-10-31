@@ -6,7 +6,7 @@ type t = {
   mutable break_rate : Q.t;
   mutable collision_rate : Q.t;
 }
-[@@deriving show, yojson]
+[@@deriving show, yojson, eq]
 
 let (null_env : t) =
   {

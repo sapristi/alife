@@ -40,6 +40,7 @@ type t = {
   env : Environment.t ref;
   randstate : Random_s.t ref;
 }
+[@@deriving eq]
 
 
 let default_randstate = {
@@ -366,3 +367,6 @@ let to_sig = BactSig.of_bact
 
 let to_sig_yojson bact =
   BactSig.to_yojson (to_sig bact)
+
+let pp fmt bact =
+  BactSig.pp fmt (BactSig.of_bact bact)

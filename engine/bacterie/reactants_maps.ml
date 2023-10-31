@@ -90,6 +90,7 @@ module ARMap =
             let any_pnet = (choose amolset).pnet in
 
             match new_reactant with
+            | Dummy -> failwith "dummy"
             | Amol new_amol ->
 
               let is_graber = Petri_net.can_grab
@@ -132,6 +133,7 @@ module ARMap =
     type t = {
         mutable v:  AmolSet.t MolMap.t
       }
+      [@@deriving eq]
 
     module Serialized = struct
       type armap = t
@@ -247,6 +249,7 @@ module ARMap =
 module IRMap =
   struct
     type t = {mutable v : Reactant.ImolSet.t MolMap.t}
+    [@@deriving eq]
 
     module Serialized = struct
       type irmap = t
@@ -333,6 +336,7 @@ module IRMap =
            irmap.v
 
       | ImolSet _ -> ()
+      | Dummy -> failwith "dummy"
 
 
   end
