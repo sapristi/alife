@@ -6,9 +6,18 @@ let () = print_endline (Sys.getcwd())
 let () =
   let open Alcotest in
   run "Bacterie tests" [
-    "Full Sig", [
-      test_case "ser deser" `Quick Test_full_sig.ser_deser;
-    ];
+    "Full Sig initial",
+    List.map ( fun (name, get_bact) ->
+        test_case ("ser deser initial " ^ name) `Quick (Test_full_sig.test_ser_deser_equality name get_bact 0)
+      )
+      Initial_states.bacteries;
+
+    "Full Sig 1 reaction",
+    List.map ( fun (name, get_bact) ->
+        test_case ("ser deser 1 reaction " ^ name) `Quick (Test_full_sig.test_ser_deser_equality name get_bact 1)
+      )
+      Initial_states.bacteries;
+
     "Reactions", [
       test_case "simple bind" `Quick Test_reactions.simple_bind;
       test_case "simple split" `Quick Test_reactions.simple_split;

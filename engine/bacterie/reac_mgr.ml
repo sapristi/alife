@@ -164,6 +164,10 @@ module CSet = struct
   module Colliders = struct
     include CCSet.Make (Reactant)
 
+    let pp_orig = pp
+    let pp =
+      pp_orig Reactant.pp
+
     let random_pick randstate (ccset : t) =
       let weighted_l =
         List.map (fun elem -> (collision_factor elem, elem)) (to_list ccset)
@@ -196,15 +200,8 @@ module CSet = struct
     mutable single_rates_sum : Q.t;
     mutable colliders : Colliders.t;
   }
-  [@@deriving eq]
+  [@@deriving eq, show]
 
-  let pp fmt s =
-    if Colliders.is_empty s.colliders then Format.fprintf fmt "ReacSet (empty)"
-    else
-      (Colliders.pp ~pp_start:(Misc_library.printer "ReacSet:") Reactant.pp)
-        fmt s.colliders
-
-  let show (s : t) = Format.asprintf "%a" pp s
   let to_yojson (s : t) = `String "CSet"
   let cardinal (s : t) = Colliders.cardinal s.colliders
 
@@ -286,7 +283,7 @@ module CSet = struct
     let c = Reacs.Collision.make (c1, c2) in
     logger#debug "Picked %s and %s from %s" (Reactant.show c1)
       (Reactant.show c2)
-      (Format.asprintf "%a" (Colliders.pp Reactant.pp) s.colliders);
+      (Format.asprintf "%a" Colliders.pp s.colliders);
     c
 end
 
@@ -301,7 +298,7 @@ type t = {
   g_set : GSet.t;
   b_set : BSet.t;
   c_set : CSet.t;
-  mutable reac_counter : int;
+  mutable reac_counter : int;  [@equal fun a b -> true]
   env : Environment.t ref;
 }
 [@@deriving show, eq]

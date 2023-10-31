@@ -10,13 +10,13 @@ let load name =
   in Bacterie.BactSig.to_bact bact_sig
 
 
-let simple_bind = load "simple_bind"
-let grab_amol = load "grab_amol"
-let simple_break  = load "simple_break"
-let simple_collision = load "simple_collision"
-let simple_cycle = load "simple_cycle"
-let simple_grab_release = load "simple_grab_release"
-let simple_split = load "simple_split"
+let simple_bind () = load "simple_bind"
+let grab_amol () = load "grab_amol"
+let simple_break ()= load "simple_break"
+let simple_collision () = load "simple_collision"
+let simple_cycle () = load "simple_cycle"
+let simple_grab_release () = load "simple_grab_release"
+let simple_split ()= load "simple_split"
 
 let names = [
   "simple_bind";
@@ -27,4 +27,4 @@ let names = [
   "simple_grab_release";
   "simple_split";
 ]
-let bacteries = List.map (fun name -> name, load name) names;
+let bacteries = List.map (fun name -> name, fun () -> load name) names;

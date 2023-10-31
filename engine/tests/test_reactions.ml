@@ -17,7 +17,7 @@ let bact_sig_testable = Alcotest.testable Bacterie.BactSig.pp (fun b1 b2 -> comp
 
 
 let simple_bind () =
-  let bact = Initial_states.simple_bind in
+  let bact = Initial_states.simple_bind () in
   (
     logger#debug "start";
     print_bact bact;
@@ -54,7 +54,7 @@ let simple_bind () =
 
 and simple_split () =
 
-  let bact = Initial_states.simple_split in
+  let bact = Initial_states.simple_split () in
   Bacterie.next_reaction bact;
   Bacterie.next_reaction bact;
 
@@ -74,7 +74,7 @@ and simple_split () =
 
 and simple_break () =
 
-  let bact = Initial_states.simple_break in
+  let bact = Initial_states.simple_break () in
   Bacterie.next_reaction bact;
   Bacterie.next_reaction bact;
   Bacterie.next_reaction bact;
@@ -96,7 +96,7 @@ and simple_break () =
 
 and simple_grab_release () =
 
-  let bact = Initial_states.simple_grab_release in
+  let bact = Initial_states.simple_grab_release () in
   logger#info "init ok";
   Bacterie.next_reaction bact;
   logger#info "first reac ok";
@@ -122,7 +122,7 @@ and simple_grab_release () =
 
 and grab_release_amol () =
 
-  let bact = Initial_states.grab_amol in
+  let bact = Initial_states.grab_amol () in
   Bacterie.next_reaction bact;
 
   let inter_result = Bacterie.to_sig bact

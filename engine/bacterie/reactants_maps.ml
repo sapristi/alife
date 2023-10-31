@@ -138,9 +138,9 @@ module ARMap =
     module Serialized = struct
       type armap = t
       type item = (Molecule.t * (Petri_net.t list))
-      [@@deriving yojson]
+      [@@deriving yojson, show]
       type t = item list
-      [@@deriving yojson]
+      [@@deriving yojson, show]
 
       let ser (value: armap): t=
         MolMap.to_list value.v
@@ -162,6 +162,7 @@ module ARMap =
     let show armap =
           Format.asprintf "%a" pp armap
     let logger = Logging.get_logger "Yaac.Bact.ARMap"
+    let copy armap: t = {v = armap.v}
 
     let make () = {v = MolMap.empty}
 
@@ -258,10 +259,10 @@ module IRMap =
         qtt : int;
         ambient : bool;
       }
-      [@@deriving yojson]
+      [@@deriving yojson, show]
 
       type t = item list
-      [@@deriving yojson]
+      [@@deriving yojson, show]
 
       let ser (value: irmap): t =
         MolMap.to_list value.v
@@ -282,6 +283,7 @@ module IRMap =
     let show irmap =
           Format.asprintf "%a" pp irmap
     let logger = Logging.get_logger "Yaac.Bact.IRMap"
+    let copy irmap: t = {v = irmap.v}
 
 
     (** External API : should not be called from other internal functions *)

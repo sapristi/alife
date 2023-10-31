@@ -42,6 +42,16 @@ type t = {
 }
 [@@deriving eq]
 
+let copy bact : t =
+  let env = ref !(bact.env) in
+  let reac_mgr = {bact.reac_mgr with env = env} in
+  {
+    ireactants = IRMap.copy bact.ireactants;
+    areactants = ARMap.copy bact.areactants;
+    reac_mgr;
+    env;
+    randstate = ref !(bact.randstate);
+  }
 
 let default_randstate = {
   Random_s.seed = 8085733080487790103L;
@@ -242,7 +252,9 @@ let next_reaction (bact : t)  =
       |> ignore
 
 
-(** Allows to encode the full state of a bactery in json *)
+(** Allows to encode the full state of a bactery in json
+    Reactions are not exported, since we expect to reconstruct them from the present molecules.
+*)
 module FullSig = struct
   type bacterie = t
   type t = {
@@ -251,16 +263,19 @@ module FullSig = struct
     env: Environment.t;
     randstate: Random_s.t;
   }
-  [@@deriving yojson]
+  [@@deriving yojson, show]
 
 
-  let bact_to_yojson (bact: bacterie) =
-    to_yojson {
+  let of_bact  (bact: bacterie) =
+    {
       ireactants = IRMap.Serialized.ser bact.ireactants;
       areactants = ARMap.Serialized.ser bact.areactants;
       env = !(bact.env);
       randstate = !(bact.randstate);
     }
+
+  let bact_to_yojson (bact: bacterie) =
+    bact |> of_bact |> to_yojson
 
   let bact_of_yojson input =
     let serialized_res = of_yojson input in
@@ -370,3 +385,6 @@ let to_sig_yojson bact =
 
 let pp fmt bact =
   BactSig.pp fmt (BactSig.of_bact bact)
+
+let pp_full fmt bact =
+  FullSig.pp fmt (FullSig.of_bact bact)
