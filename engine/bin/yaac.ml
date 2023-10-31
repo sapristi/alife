@@ -39,7 +39,7 @@ end
 module FromProtCmd = struct
   type params = {
     log_level : Logging.level; [@term log_level_t]
-    prot : string;
+    prot : string; [@doc "JSON representation of the proteine"]
   }
   [@@deriving subliner]
   let doc = "Compute petri net from proteine."
@@ -67,7 +67,7 @@ module EvalCmd = struct
   type params = {
     log_level : Logging.level; [@term log_level_t]
     n_steps : int;
-    initial_state : string;
+    initial_state : string; [@doc "JSON representation of the initial state"]
   }
   [@@deriving subliner]
   let doc = "Runs the computation, from the given initial state, for the given number of steps.\nTODO"
