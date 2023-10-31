@@ -90,9 +90,9 @@ module type REACTANT = sig
 
     include
       REACTANT_DEFAULT
-      with type t := t
-       and type reac := reac
-       and type reacSet := reacSet
+        with type t := t
+         and type reac := reac
+         and type reacSet := reacSet
   end
 
   module Amol : sig
@@ -106,18 +106,18 @@ module type REACTANT = sig
 
     include
       REACTANT_DEFAULT
-      with type t := t
-       and type reac := reac
-       and type reacSet := reacSet
+        with type t := t
+         and type reac := reac
+         and type reacSet := reacSet
   end
 
   type t = Amol of Amol.t | ImolSet of ImolSet.t | Dummy
 
   include
     REACTANT_DEFAULT
-    with type t := t
-     and type reac := reac
-     and type reacSet := reacSet
+      with type t := t
+       and type reac := reac
+       and type reacSet := reacSet
 end
 
 (* * ReactionsM functor *)

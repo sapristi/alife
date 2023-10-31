@@ -39,8 +39,7 @@ open Local_libs.Misc_library
 (* * modules definitions*)
 
 (** Reactant : contains a reactant (ImolSet or Amol or Aset) *)
-module rec
-    Reactant : sig
+module rec Reactant : sig
   include REACTANT with type reac = Reaction.t and type reacSet = ReacSet.t
 end = struct
   type reac = Reaction.t

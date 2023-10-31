@@ -74,8 +74,7 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
 
   module RSet = CCSet.Make (Reac)
 
-  type t = { mutable rates_sum : Q.t; mutable set : RSet.t }
-  [@@deriving eq]
+  type t = { mutable rates_sum : Q.t; mutable set : RSet.t } [@@deriving eq]
 
   let pp fmt s =
     if RSet.is_empty s.set then Format.fprintf fmt "ReacSet (empty)"
@@ -155,7 +154,6 @@ end
 *)
 
 module CSet = struct
-
   (** Collision factor - we only consider the number of molecules for now *)
   let collision_factor (reactant : Reactant.t) =
     match reactant with
@@ -167,8 +165,7 @@ module CSet = struct
     include CCSet.Make (Reactant)
 
     let pp_orig = pp
-    let pp =
-      pp_orig Reactant.pp
+    let pp = pp_orig Reactant.pp
 
     let random_pick randstate (ccset : t) =
       let weighted_l =
@@ -177,8 +174,8 @@ module CSet = struct
       let total_weight =
         List.fold_left
           (fun sum (weight, _) ->
-             let open Numeric.Q in
-             sum + weight)
+            let open Numeric.Q in
+            sum + weight)
           Q.zero weighted_l
       in
       Random_s.pick_from_weighted_list randstate total_weight weighted_l
@@ -245,7 +242,7 @@ module CSet = struct
 
 
      *)
-  let calculate_rates_aux (s: t) =
+  let calculate_rates_aux (s : t) =
     let open Q in
     let rate_t_qtt a = collision_factor a * of_int (Reactant.qtt a) in
     let single_rates_sum =
@@ -257,15 +254,18 @@ module CSet = struct
         (fun (a : Reactant.t) b -> (rate_t_qtt a * rate_t_qtt a) + b)
         s.colliders zero
     in
-    let total_rate = (((single_rates_sum * single_rates_sum) - square_rates_sum) / (one + one))
-    + Colliders.fold
-      (fun (a : Reactant.t) b ->
-         (collision_factor a * of_int (Reactant.qtt a) * rate_t_qtt a) + b)
-      s.colliders zero
-    in (single_rates_sum, total_rate)
+    let total_rate =
+      (((single_rates_sum * single_rates_sum) - square_rates_sum) / (one + one))
+      + Colliders.fold
+          (fun (a : Reactant.t) b ->
+            (collision_factor a * of_int (Reactant.qtt a) * rate_t_qtt a) + b)
+          s.colliders zero
+    in
+    (single_rates_sum, total_rate)
 
-  let calculate_rate (s: t) =
-    let (_, total_rate) = calculate_rates_aux s in total_rate
+  let calculate_rate (s : t) =
+    let _, total_rate = calculate_rates_aux s in
+    total_rate
 
   let total_rate s = s.rates_sum
 
@@ -304,7 +304,7 @@ module CSet = struct
   let update_rate r (s : t) =
     logger#trace "Update rate";
     (* |> ignore *)
-    let (single_rates_sum, total_rate) = calculate_rates_aux s in 
+    let single_rates_sum, total_rate = calculate_rates_aux s in
     s.rates_sum <- total_rate;
     s.single_rates_sum <- single_rates_sum
 
@@ -331,7 +331,7 @@ type t = {
   g_set : GSet.t;
   b_set : BSet.t;
   c_set : CSet.t;
-  mutable reac_counter : int;  [@equal fun a b -> true]
+  mutable reac_counter : int; [@equal fun a b -> true]
   env : Environment.t ref;
 }
 [@@deriving show, eq]

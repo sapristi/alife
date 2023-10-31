@@ -11,7 +11,8 @@ module Token = struct
 end
 
 module Graber = struct
-  type t = { mol_repr : string; str_repr : string } [@@deriving show, yojson, eq]
+  type t = { mol_repr : string; str_repr : string }
+  [@@deriving show, yojson, eq]
 end
 
 module Place = struct
