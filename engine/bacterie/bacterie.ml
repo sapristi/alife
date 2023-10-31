@@ -120,7 +120,7 @@ let add_inert_molecule ?(qtt = 1) ?(ambient = false) (mol: Molecule.t) (bact: t)
     [ Reacs.Update_reacs !(new_ireac.reacs) ]
 
   | Some ireac ->
-    IRMap.add_to_qtt ireac 1 bact.ireactants
+    IRMap.add_to_qtt ireac qtt bact.ireactants
 
 (** Adds a single molecule to a container (bactery).
     We have to take care :

@@ -15,11 +15,14 @@ let test_ser_deser_equality name get_bact nb_reacs () =
     Bacterie.next_reaction bact;
   done;
 
+
   let serdeser = bact
                  |> Bacterie_libs.Bacterie.FullSig.bact_to_yojson
                  |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson
                  |> Result.get_ok
   in
+  Reac_mgr.CSet.check_reac_rate bact.reac_mgr.c_set;
+  Reac_mgr.CSet.check_reac_rate serdeser.reac_mgr.c_set;
   Alcotest.check reac_mgr_t_testable ("ser_deser reac_mgr t " ^ name)  bact.reac_mgr.t_set serdeser.reac_mgr.t_set;
   Alcotest.check reac_mgr_g_testable ("ser_deser reac_mgr g " ^ name)  bact.reac_mgr.g_set serdeser.reac_mgr.g_set;
   Alcotest.check reac_mgr_b_testable ("ser_deser reac_mgr b " ^ name)  bact.reac_mgr.b_set serdeser.reac_mgr.b_set;

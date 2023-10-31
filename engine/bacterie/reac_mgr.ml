@@ -102,10 +102,8 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
     logger#debug "Remove %s" (Reac.show r);
 
     let open Q in
-    (* we first update the reaction rate
-       to avoid collisions with possible
-       updates of this reaction (this avoids
-       checking the reaction was not removed in
+    (* we first update the reaction rate to avoid collisions with possible
+       updates of this reaction (this avoids checking the reaction was not removed in
        the update_rate function *)
     let rate_delta = Reac.update_rate r in
     s.rates_sum <- s.rates_sum + rate_delta;
@@ -151,10 +149,14 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
 end
 
 (* ** CSet : Collision Set *)
-(* This module is custom made for collisions, where reactions are not stored, *)
-(* but dynamically calculated from the set of reactants. *)
+(* This module is custom made for collisions, where reactions are not stored,
+   but dynamically calculated from the set of reactants.
+   We only keep the reaction rate
+*)
 
 module CSet = struct
+
+  (** Collision factor - we only consider the number of molecules for now *)
   let collision_factor (reactant : Reactant.t) =
     match reactant with
     | Dummy -> failwith "dummy"
@@ -212,20 +214,38 @@ module CSet = struct
       colliders = Colliders.empty;
     }
 
-  (** total rate is:
-        TR  = Σ_(i<j) λ_i q_i λ_j q_j + Σ_i λ_i² q_i (q_i - 1)
+  (** Total Collision rate computation:
 
+    Lets define
+     - λᵢ is the collision factor of a molecule
+     - qᵢ is the quantity of a molecule
+     - γᵢ the collision rate : γᵢ = λᵢ * qᵢ
+
+     The total rate is
+        TR = Σ_(i<j) λᵢqᵢ λⱼqⱼ + Σᵢ λᵢ² qᵢ(qᵢ - 1)
+
+      In order to quickly compute an update of the total rate,
         we can use the identity
-        (Σ_i λ_i q_i)² = 2 Σ_(i<j) λ_i q_i λ_j q_j + Σ_i (λ_i q_i)²
+        (Σᵢ γᵢ)² = 2 Σ_(i<j) γᵢ γⱼ + Σᵢ γᵢ²
 
-        we to rewrite TR as:
-        TR = [ (Σ_i λ_i q_i)² - Σ_i (λ_i q_i)²]/2  + Σ_i λ_i² q_i (q_i - 1)
+      to rewrite TR as:
+        TRₙ = [ (Σᵢⁿ γᵢ)² - Σᵢⁿ γᵢ² ]/2  + Σᵢⁿ λᵢ²qᵢ(qᵢ - 1)
 
-        where :
-          - λ_i is the collision factor of a molecule
-          - q_i is the quantity of a molecule
+     We thus have the update formulas:
+      * TRₙ₊₁ = TRₙ   + γₙ₊₁SRₙ + λₙ₊₁²qₙ₊₁(qₙ₊₁ - 1)  (when we add a molecule / qtt)
+      * TRₙ   = TRₙ₊₁ - γₙ₊₁SRₙ - λₙ₊₁²qₙ₊₁(qₙ₊₁ - 1)  (when we remove a molecule / qtt)
+              = TRₙ₊₁ - γₙ₊₁SRₙ₊₁ + γₙ₊₁λₙ₊₁           (when we remove a molecule / qtt - another identity)
+
+     With SRₙ = Σᵢⁿ γᵢ
+
+      When changing the quantity, an easy thing to do is remove the old one and add a new one
+      TODO:
+      - Clarify implem where we mix up collision factor and quantity
+        (probably ok but would be better with another word than collision factor)
+
+
      *)
-  let calculate_rate (s : t) =
+  let calculate_rates_aux (s: t) =
     let open Q in
     let rate_t_qtt a = collision_factor a * of_int (Reactant.qtt a) in
     let single_rates_sum =
@@ -237,11 +257,15 @@ module CSet = struct
         (fun (a : Reactant.t) b -> (rate_t_qtt a * rate_t_qtt a) + b)
         s.colliders zero
     in
-    (((single_rates_sum * single_rates_sum) - square_rates_sum) / (one + one))
+    let total_rate = (((single_rates_sum * single_rates_sum) - square_rates_sum) / (one + one))
     + Colliders.fold
-        (fun (a : Reactant.t) b ->
-          (collision_factor a * of_int (Reactant.qtt a) * rate_t_qtt a) + b)
-        s.colliders zero
+      (fun (a : Reactant.t) b ->
+         (collision_factor a * of_int (Reactant.qtt a) * rate_t_qtt a) + b)
+      s.colliders zero
+    in (single_rates_sum, total_rate)
+
+  let calculate_rate (s: t) =
+    let (_, total_rate) = calculate_rates_aux s in total_rate
 
   let total_rate s = s.rates_sum
 
@@ -269,11 +293,20 @@ module CSet = struct
     let r1, r2 = Reacs.Collision.get_reactants c in
 
     let cf = collision_factor r1 in
+    (* TODO: why is single rates sum updated before here, but after in add ?? *)
+    (* TODO: why do we consider only a single reactant ?? *)
     s.single_rates_sum <- s.single_rates_sum - cf;
     s.rates_sum <- s.rates_sum - (cf * (cf - one)) - (cf * s.single_rates_sum);
     s.colliders <- Colliders.remove r1 s.colliders
 
-  let update_rate r (s : t) = logger#trace "Update rate" |> ignore
+  (** TODO: use identities to update instead of re-computing.
+      We must be careful to update each time a quantity change *)
+  let update_rate r (s : t) =
+    logger#trace "Update rate";
+    (* |> ignore *)
+    let (single_rates_sum, total_rate) = calculate_rates_aux s in 
+    s.rates_sum <- total_rate;
+    s.single_rates_sum <- single_rates_sum
 
   (** TODO FIX Colliders.choose *)
   let pick_reaction randstate (s : t) =
