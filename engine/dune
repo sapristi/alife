@@ -12,14 +12,13 @@
  (deps
    ./bin/yaac.exe
  )
-
  (action
   (progn
    (bash "rm -f ../../../django/yaac")
    (bash "cp ./bin/yaac.exe ../../../django/yaac")
  ))
-
 )
+
 ; (rule
 ;  (alias client)
 ;  (targets client.tar)
