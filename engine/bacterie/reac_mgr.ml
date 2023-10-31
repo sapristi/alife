@@ -300,7 +300,8 @@ module CSet = struct
     s.colliders <- Colliders.remove r1 s.colliders
 
   (** TODO: use identities to update instead of re-computing.
-      We must be careful to update each time a quantity change *)
+      We must be careful to update each time a quantity change
+  *)
   let update_rate r (s : t) =
     logger#trace "Update rate";
     (* |> ignore *)
@@ -393,13 +394,7 @@ let remove_reactions reactions reac_mgr =
 (*     WARNING : possible integer overflow  *)
 (* https://fr.wikipedia.org/wiki/Th%C3%A9orie_des_collisions *)
 
-(* ** Grabs *)
-
-let add_grab (graber_d : Reactant.Amol.t) (grabed_d : Reactant.t) (reac_mgr : t)
-    =
-  (* Log.debug (fun m -> m "added new grab between : %s\n%s"
-   *                       (Reactant.Amol.show !graber_d)
-   *                       (Reactant.show grabed_d)); *)
+let add_grab (graber_d : Reactant.Amol.t) (grabed_d : Reactant.t) (reac_mgr : t) =
   logger#trace
     ~tags:[ tag reac_mgr ]
     "adding new grab between : \n- %s\n- %s"
@@ -413,8 +408,6 @@ let add_grab (graber_d : Reactant.Amol.t) (grabed_d : Reactant.t) (reac_mgr : t)
   Reactant.Amol.add_reac r graber_d;
   Reactant.add_reac r grabed_d
 
-(* ** Transitions *)
-
 let add_transition amd reac_mgr =
   logger#trace
     ~tags:[ tag reac_mgr ]
@@ -426,7 +419,6 @@ let add_transition amd reac_mgr =
   let rt = Reaction.Transition t in
   Reactant.Amol.add_reac rt amd
 
-(* ** Break *)
 let add_break md reac_mgr =
   logger#trace ~tags:[ tag reac_mgr ] "adding new break : %s" (Reactant.show md);
 
@@ -450,8 +442,8 @@ let add_collider md reac_mgr =
 (* let rc = Reaction.Collision  in
    Reactant.add_reac rc md; *)
 
-(* ** pick next reaction *)
-(* replace to_list with to_enum ? *)
+(** pick next reaction *)
+(* TODO: replace to_list with to_enum ? *)
 let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
   let open Q in
   let total_g_rate = !(reac_mgr.env).grab_rate * GSet.total_rate reac_mgr.g_set
@@ -515,8 +507,7 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
     logger#info ~tags:[ tag reac_mgr ] "picked %s" (Reaction.show res);
     Some res)
 
-(* ** update_reaction_rates *)
-
+(** update one reaction rate *)
 let rec update_reaction_rate (reac : Reaction.t) reac_mgr =
   match reac with
   | Grab g -> GSet.update_rate g reac_mgr.g_set
@@ -524,6 +515,7 @@ let rec update_reaction_rate (reac : Reaction.t) reac_mgr =
   | Break b -> BSet.update_rate b reac_mgr.b_set
   | Collision c -> CSet.update_rate c reac_mgr.c_set
 
+(** update all reactions rates *)
 let update_rates (reactions : ReacSet.t) reac_mgr =
   ReacSet.iter (fun reac -> update_reaction_rate reac reac_mgr) reactions
 

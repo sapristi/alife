@@ -1,5 +1,8 @@
 open Base_chemistry
+open Bacterie_libs
 open Easy_logging_yojson
+
+let logger = Logging.get_logger "Yaac.Cmd"
 
 let log_levels =
   [ Logging.Debug; Info; Warning; NoLevel ]
@@ -66,41 +69,45 @@ end
 module EvalCmd = struct
   type params = {
     log_level : Logging.level; [@term log_level_t]
-    n_steps : int;
-    initial_state : string; [@doc "JSON representation of the initial state"] [@default ""]
-    initial_dump : string; [@doc "JSON representation of the initial state"] [@default ""]
+    nb_steps : int;
+    initial_state : string; [@doc "JSON representation of the initial state"]
+    use_dump : bool; [@doc "The initial state is a full-dump"] [@default false]
   }
   [@@deriving subliner]
-  let doc = "Runs the computation, from the given initial state, for the given number of steps.\nTODO"
+  let doc = "Runs the computation, from the given initial state, for the given number of steps."
 
-  let eval initial_state n_steps =
-    let bacterie =
-      initial_state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.BactSig.of_yojson
-      |> Result.get_ok |> Bacterie_libs.Bacterie.BactSig.to_bact
-    in
-    for i = 0 to n_steps - 1 do
-      Bacterie_libs.Bacterie.next_reaction bacterie
-    done;
-    bacterie
-
-  let handle {log_level; initial_state; n_steps} =
+  let handle {log_level; initial_state; nb_steps; use_dump} =
     set_log_level log_level;
-    let res_bact = eval initial_state n_steps in
-    Bacterie_libs.Bacterie.FullSig.bact_to_yojson res_bact
+    let bact =
+      if use_dump
+      then
+        initial_state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson
+        |> Result.get_ok
+      else
+        initial_state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.BactSig.of_yojson
+        |> Result.get_ok |> Bacterie_libs.Bacterie.BactSig.to_bact
+    in
+    for i = 0 to nb_steps - 1 do
+      try
+        Bacterie_libs.Bacterie.next_reaction bact
+      with  exc -> (
+          logger#error "Reaction failed - Dumping current state\n===Bact===\n%s\n===Reactions===\n%s"
+            Bacterie.FullSig.(bact |> of_bact |> show) (Reac_mgr.show bact.reac_mgr);
+          raise exc
+        )
+    done;
+
+    Bacterie.FullSig.bact_to_yojson bact
     |> Yojson.Safe.to_string |> Result.ok
 
 end
-
-let get_pnet mol =
-  let res = mol |> Molecule.to_proteine |> Proteine.to_yojson in
-  print_endline (Yojson.Safe.to_string res)
 
 
 type params =
   | From_mol of FromMolCmd.params
                 [@doc FromMolCmd.doc]
   | From_prot of FromProtCmd.params
-      [@doc FromProtCmd.doc]
+                 [@doc FromProtCmd.doc]
   | Eval of EvalCmd.params
             [@doc EvalCmd.doc]
   | Reactions
@@ -124,4 +131,3 @@ let handle_wrapped input =
       exit 1
 
 [%%subliner.cmds eval.params <- handle_wrapped]
-(** Some docs *)

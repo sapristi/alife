@@ -13,24 +13,33 @@ let () =
             test_case
               ("ser deser initial " ^ name)
               `Quick
-              (Test_full_sig.test_ser_deser_equality name get_bact 0))
+              (Test_full_sig.test_equality_reacs_before_ser_deser name get_bact 0))
           Initial_states.bacteries );
-      ( "Full Sig 1 reaction",
+      ( "Full Sig after 1 reaction",
         List.map
           (fun (name, get_bact) ->
             test_case
               ("ser deser 1 reaction " ^ name)
               `Quick
-              (Test_full_sig.test_ser_deser_equality name get_bact 1))
+              (Test_full_sig.test_equality_reacs_before_ser_deser name get_bact 1))
           Initial_states.bacteries );
-      ( "Full Sig 10 reaction",
+      ( "Full Sig after 10 reaction",
         List.map
           (fun (name, get_bact) ->
             test_case
-              ("ser deser 1 reaction " ^ name)
+              ("ser deser 10 reaction " ^ name)
               `Quick
-              (Test_full_sig.test_ser_deser_equality name get_bact 10))
+              (Test_full_sig.test_equality_reacs_before_ser_deser name get_bact 10))
           Initial_states.bacteries );
+      ( "Full Sig, reactions after ser-deser",
+        List.map
+          (fun (name, get_bact) ->
+             test_case
+               ("ser deser 1 reaction " ^ name)
+               `Quick
+               (Test_full_sig.test_equality_reacs_after_ser_deser name get_bact 1 1))
+          Initial_states.bacteries );
+
       ( "Reactions",
         [
           test_case "simple bind" `Quick Test_reactions.simple_bind;

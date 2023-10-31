@@ -36,7 +36,7 @@ type num_choice =
   | Sloppy | ExactZ | ExactQ
 
 let num = ExactQ
-let check_reac_rates = false
+let check_reac_rates = true
 let check_sqrt = true
 let check_mol = true
 

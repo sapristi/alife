@@ -1,15 +1,29 @@
 * Todo
 
-- [ ] Fix json import / export
-  - [X] Check if switching to https://github.com/janestreet/ppx_yojson_conv is worth it -> probably not right now
-  - [ ] Add way to setup reactions when creating bactery from json
-- [ ] improve docstrings
+** bugfixes
+
+*** Bug after loading a snapshot: problems with missing reactions or something
+
+** Improvements
+
+** Ideas
+*** Add UI helpers for snaphots
+*** Parse mol from url in UI
+*** TODO capture logs when running experimens
+   - [ ] add custom log config - probably use a dedicated table to store them
+   - [ ] take care not to explode memory
+     - output logs to stderr (without capturing stderr) ? or custom handling in python
+   - [ ] store logs ?
+   - [ ] Log viewing: https://github.com/aurc/loggo ?
+*** TODO [ ] improve docstrings
+
+* Done
+*** DONE Fix json import / export
+  - [X] Check if switching to https://github.com/janestreet/ppx_yojson_conv is worth it
+    -> probably not right now, as ppx_deriving is still maintained
+  - [X] Add way to setup reactions when creating bactery from json
 
 * Old TODO
-
-** general
-
-*** TODO use the todolist
 
 ** bugfixes/improvements
 *** TODO Collision: not selecting from all possible couples
@@ -134,13 +148,13 @@
        -> the important point is to implement a minimal set of features
        and enable evolution.
    - [ ] Test reactions
-     
+
 *** TODO Random single mol effects
    - launch a transition that is not launchable
    - release a grabed molecule
 
 *** TODO extended pnets (as graphs)
-   
+
 ** optional
 
 *** TODO simple reactions to test against
@@ -153,11 +167,11 @@
 
 *** STATES
 
-**** TODO 
-**** STARTED 
-**** CURRENT 
+**** TODO
+**** STARTED
+**** CURRENT
 **** DONE 
-**** CANCELED 
+**** CANCELED
 
 
 
