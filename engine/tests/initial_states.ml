@@ -17,6 +17,8 @@ let simple_collision () = load "simple_collision"
 let simple_cycle () = load "simple_cycle"
 let simple_grab_release () = load "simple_grab_release"
 let simple_split () = load "simple_split"
+let ribosome_1 () = load "ribosome_1"
+let endless_duplication () = load "endless_duplication"
 
 let names =
   [
@@ -27,6 +29,8 @@ let names =
     "simple_cycle";
     "simple_grab_release";
     "simple_split";
+    "ribosome_1";
+    "endless_duplication";
   ]
 
 let bacteries = List.map (fun name -> (name, fun () -> load name)) names

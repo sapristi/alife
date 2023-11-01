@@ -35,7 +35,7 @@ class InitialState(TSModel):
 
     seed = models.BigIntegerField(default=0)
     env = models.JSONField()
-    molecules = models.JSONField()
+    mols = models.JSONField()
 
     def __str__(self):
         return f"{self.name} [{self.pk}]"
