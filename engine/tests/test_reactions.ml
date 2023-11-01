@@ -12,7 +12,7 @@ let print_bact b =
   logger#debug "%s" (Reac_mgr.show b.reac_mgr)
 
 let bact_sig_testable =
-  Alcotest.testable Bacterie.BactSig.pp (fun b1 b2 -> compare b1 b2 == 0)
+  Alcotest.testable Bacterie.CompactSig.pp (fun b1 b2 -> compare b1 b2 == 0)
 
 let simple_bind () =
   let bact = Initial_states.simple_bind () in
@@ -35,17 +35,17 @@ let simple_bind () =
   print_bact bact;
 
   let result = Bacterie.to_sig bact
-  and expected_result : Bacterie.BactSig.t =
-    Bacterie.BactSig.canonical
+  and expected_result : Bacterie.CompactSig.t =
+    Bacterie.CompactSig.canonical
       {
-        active_mols =
+        mols =
           [
+            { mol = "BA"; qtt = 1; ambient = false };
             {
               mol = "AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";
-              qtt = 1;
+              qtt = 1; ambient=false;
             };
           ];
-        inert_mols = [ { mol = "BA"; qtt = 1; ambient = false } ];
         env = !(bact.env);
       }
   in
@@ -57,17 +57,14 @@ and simple_split () =
   Bacterie.next_reaction bact;
 
   let result = Bacterie.to_sig bact
-  and expected_result : Bacterie.BactSig.t =
-    Bacterie.BactSig.canonical
+  and expected_result : Bacterie.CompactSig.t =
+    Bacterie.CompactSig.canonical
       {
-        active_mols =
+        mols =
           [
-            { mol = "AAAABAAFBFDDFBBAADDFAAACAAADDFABBAAACAAADDFABB"; qtt = 1 };
-          ];
-        inert_mols =
-          [
-            { mol = "A"; qtt = 1; ambient = false };
-            { mol = "B"; qtt = 1; ambient = false };
+            { mol = "A"; qtt = 1; ambient=false };
+            { mol = "B"; qtt = 1; ambient=false };
+            { mol = "AAAABAAFBFDDFBBAADDFAAACAAADDFABBAAACAAADDFABB"; qtt=1; ambient=false};
           ];
         env = !(bact.env);
       }
@@ -80,12 +77,11 @@ and simple_break () =
   Bacterie.next_reaction bact;
   Bacterie.next_reaction bact;
 
-  let result = Bacterie.to_sig bact |> Bacterie.BactSig.canonical
+  let result = Bacterie.to_sig bact
   and expected_result =
-    Bacterie.BactSig.canonical
+    Bacterie.CompactSig.canonical
       {
-        active_mols = [];
-        inert_mols = [ { mol = "A"; qtt = 5; ambient = false } ];
+        mols = [ { mol = "A"; qtt = 5; ambient = false } ];
         env = !(bact.env);
       }
   in
@@ -100,12 +96,14 @@ and simple_grab_release () =
 
   logger#info "second reac ok";
 
-  let result = Bacterie.to_sig bact |> Bacterie.BactSig.canonical
+  let result = Bacterie.to_sig bact
   and expected_result =
-    Bacterie.BactSig.canonical
+    Bacterie.CompactSig.canonical
       {
-        active_mols = [ { mol = "AAABAAADDFABAFAFDDFAAACAAADDFABB"; qtt = 1 } ];
-        inert_mols = [ { mol = "A"; qtt = 1; ambient = false } ];
+        mols = [
+          { mol = "A"; qtt = 1; ambient = false };
+          { mol = "AAABAAADDFABAFAFDDFAAACAAADDFABB"; qtt = 1; ambient=false }
+        ];
         env = !(bact.env);
       }
   in
@@ -116,19 +114,18 @@ and grab_release_amol () =
   let bact = Initial_states.grab_amol () in
   Bacterie.next_reaction bact;
 
-  let inter_result = Bacterie.to_sig bact |> Bacterie.BactSig.canonical
+  let inter_result = Bacterie.to_sig bact
   (* Both mols can grab ? This should probably be changed
      With current setup, the short one grabs the other
   *)
   and inter_expected_result =
-    Bacterie.BactSig.canonical
+    Bacterie.CompactSig.canonical
       {
-        active_mols =
+        mols =
           [
-            { mol = "AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB"; qtt = 1 }
+            { mol = "AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB"; qtt = 1;ambient=false }
             (* {mol="AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";qtt=1}; *);
           ];
-        inert_mols = [];
         env = !(bact.env);
       }
   in
@@ -136,19 +133,18 @@ and grab_release_amol () =
     inter_result;
 
   Bacterie.next_reaction bact;
-  let result = Bacterie.to_sig bact |> Bacterie.BactSig.canonical
+  let result = Bacterie.to_sig bact
   and expected_result =
-    Bacterie.BactSig.canonical
+    Bacterie.CompactSig.canonical
       {
-        active_mols =
+        mols =
           [
             {
               mol = "AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";
-              qtt = 1;
+              qtt = 1; ambient=false
             };
-            { mol = "AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB"; qtt = 1 };
+            { mol = "AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB"; qtt = 1;ambient=false};
           ];
-        inert_mols = [];
         env = !(bact.env);
       }
   in

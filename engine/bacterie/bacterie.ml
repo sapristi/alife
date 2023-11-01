@@ -60,8 +60,8 @@ let default_randstate = {
   gamma = -7046029254386353131L
 }
 
-let make_empty () =
-  let renv = ref Environment.null_env in
+let make_empty ?(env=Environment.null_env) () =
+  let renv = ref env in
   {
     ireactants= IRMap.make ();
     areactants= ARMap.make ();
@@ -76,10 +76,6 @@ let get_pnet_uid bact =
   bact.id_counter <- bact.id_counter + 1;
   res
 
-type inert_bact_elem = {qtt: int; mol: Molecule.t; ambient: bool}
-[@@ deriving yojson, ord, show]
-type active_bact_elem = {qtt: int; mol: Molecule.t}
-[@@ deriving yojson, ord, show]
 
 
 let add_active_molecule (mol: Molecule.t) (pnet: Petri_net.t) (bact: t): Reacs.effect list =
@@ -140,7 +136,11 @@ let add_inert_molecule ?(qtt = 1) ?(ambient = false) (mol: Molecule.t) (bact: t)
        the species was present or not :
        + if it was already present, we modify it's quatity and update
          related reaction rates
-       + if it was not, we add the molecules and the possible reactions *)
+       + if it was not, we add the molecules and the possible reactions
+
+    Note: could be made more efficient when adding multiple molecules -
+    let's keep it simple for now
+*)
 let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
 
   if Config.check_mol && (not (Molecule.check mol))
@@ -152,7 +152,6 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
       match new_opnet with
       | Some pnet -> add_active_molecule mol pnet bact
       | None -> add_inert_molecule mol bact
-
 
 
 
@@ -317,52 +316,46 @@ module FullSig = struct
 end
 
 (** Partial representation, used for initial states, tests, etc *)
-module BactSig = struct
+module CompactSig = struct
+  type mol_sig = {
+    mol: Molecule.t;
+    qtt: int; [@default 1]
+    ambient: bool [@default false]
+  }
+  [@@deriving yojson {strict=false}, ord, show]
+
   type bacterie = t
   type t = {
-    inert_mols : inert_bact_elem list;
-    active_mols : active_bact_elem list;
+    mols : mol_sig list;
     env: Environment.t;
   }
   [@@deriving yojson, show]
 
-  (* TODO; remove *)
-  let null = {inert_mols=[]; active_mols=[]; env=Environment.null_env}
 
-  (** Returns a canonical signature - where the mols are in a deterministic order
-  *)
-  let canonical (bs : t) : t =
+  (** Returns a canonical signature - where the mols are in a deterministic order *)
+  let canonical (cs : t) : t =
     {
-      inert_mols = List.sort compare_inert_bact_elem (List.filter (fun (im : inert_bact_elem) -> im.qtt > 0) bs.inert_mols);
-      active_mols = List.sort compare_active_bact_elem (List.filter (fun (am : active_bact_elem) -> am.qtt > 0) bs.active_mols);
-      env = bs.env;
+      mols = List.sort compare (List.filter (fun (m : mol_sig) -> m.qtt > 0) cs.mols);
+      env = cs.env;
     }
-
 
   let to_bact
       (bact_sig : t)
     : bacterie  =
-    let bact = make_empty () in
+    let bact = make_empty ~env:bact_sig.env () in
     List.iter
-      (fun {mol = m;qtt = n; ambient=a} ->
-         add_molecule m bact
-         |> execute_actions bact;
-         IRMap.Ext.set_qtt n m bact.ireactants
-         |> execute_actions bact;
-         IRMap.Ext.set_ambient a m bact.ireactants;
-      ) bact_sig.inert_mols;
-
-    List.iter
-      (fun {mol = m; qtt = n} ->
-         for i = 0 to n-1 do
-           add_molecule m bact
-           |> execute_actions bact;
-         done;)
-      bact_sig.active_mols;
-    bact.env := bact_sig.env;
-    bact.randstate := default_randstate;
+      (fun {mol; qtt; ambient} ->
+         let test_opnet = Petri_net.make_from_mol 0 mol in
+         match test_opnet with
+         | Some pnet ->
+           for i = 1 to qtt do
+             add_active_molecule mol {pnet with uid = get_pnet_uid bact} bact
+             |> execute_actions bact
+           done
+         | None -> add_inert_molecule ~qtt ~ambient mol bact
+                   |> execute_actions bact;
+      ) bact_sig.mols;
     bact
-
 
 
   let of_bact (bact : bacterie) : t =
@@ -370,33 +363,32 @@ module BactSig = struct
     let trimmed_imol_list =
       List.map (fun (a,(imd: Reactant.ImolSet.t )) ->
           ({mol = imd.mol; qtt= imd.qtt;
-            ambient = imd.ambient} : inert_bact_elem))
+            ambient = imd.ambient}))
         imol_list
     in
     let amol_list = MolMap.to_list bact.areactants.v in
     let trimmed_amol_list =
       List.map (fun (a, amolset) ->
-          {mol = a; qtt = ARMap.AmolSet.cardinal amolset;})
+          {mol = a; qtt = ARMap.AmolSet.cardinal amolset; ambient=false})
         amol_list
 
     in
     {
-      inert_mols = trimmed_imol_list;
-      active_mols = trimmed_amol_list;
+      mols = trimmed_imol_list @ trimmed_amol_list;
       env = !(bact.env);
     } |> canonical
 
 
 end
 
-let of_sig = BactSig.to_bact
-let to_sig = BactSig.of_bact
+let of_sig = CompactSig.to_bact
+let to_sig = CompactSig.of_bact
 
 let to_sig_yojson bact =
-  BactSig.to_yojson (to_sig bact)
+  CompactSig.to_yojson (to_sig bact)
 
 let pp fmt bact =
-  BactSig.pp fmt (BactSig.of_bact bact)
+  CompactSig.pp fmt (CompactSig.of_bact bact)
 
 let pp_full fmt bact =
   FullSig.pp fmt (FullSig.of_bact bact)

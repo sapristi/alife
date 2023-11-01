@@ -4,11 +4,11 @@ open Bacterie_libs
 
 let load name =
   let bact_sig =
-    Bacterie.BactSig.of_yojson
+    Bacterie.CompactSig.of_yojson
       (Yojson.Safe.from_file ("./bact_states/" ^ name ^ ".json"))
     |> Base.Result.ok_or_failwith
   in
-  Bacterie.BactSig.to_bact bact_sig
+  Bacterie.CompactSig.to_bact bact_sig
 
 let simple_bind () = load "simple_bind"
 let grab_amol () = load "grab_amol"

@@ -1,6 +1,5 @@
 {
-  "active_mols" : [],
-  "inert_mols" : [
+  "mols" : [
     {"mol":"ABC","qtt":1,"ambient":false},
     {"mol":"BCA","qtt":1,"ambient":false}],
   "env": {

@@ -1,9 +1,8 @@
 {
-  "active_mols" : [
+  "mols" : [
     {"mol":"AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB","qtt":1},
     {"mol":"AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB", "qtt":1}
   ],
-  "inert_mols" : [],
     "env": {
         "transition_rate" : 1,
         "grab_rate" : 1,
