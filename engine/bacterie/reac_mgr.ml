@@ -1,9 +1,11 @@
 open Reaction
 open Local_libs
+open Numeric
 
 (* open Yaac_config *)
 open Easy_logging_yojson
 open Local_libs.Numeric
+
 (* * file overview *)
 
 (* ** MakeReacsSet functor  *)
@@ -42,10 +44,7 @@ open Local_libs.Numeric
 
 let logger = Logging.get_logger "Yaac.Bact.Reac_mgr"
 
-(* * ReacSet modules *)
-(* Reaction containers *)
 
-(* ** ReacSet module type *)
 module type ReacSet = sig
   type elt
   type t
@@ -62,11 +61,10 @@ module type ReacSet = sig
   val pick_reaction : t -> Reaction.t
 end
 
-(* ** MakeReacSet functor *)
-(* generic container functor *)
 
-open Numeric
 
+(** MakeReacSet functor
+    generic container functor *)
 module MakeReacSet (Reac : Reacs.REAC) = struct
   let logger = Logging.get_logger "Yaac.Bact.Reac_mgr.ReacSet"
 
@@ -149,17 +147,31 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
       logger#error "Not found with bound %s, rates_sum %s in\n%s "
         (Q.show bound) (Q.show s.rates_sum) (show s);
       raise Not_found
+
+  let print_debug s =
+    Printf.sprintf
+      "********     %ss   (total rate: %s) (comp. rate: %s) (nb_reacs: %d)  *********\n%s"
+      Reac.name
+      (s |> total_rate |> Q.show)
+      (s |> calculate_rate |> Q.show)
+      (RSet.cardinal s.set)
+      (show s)
+
 end
 
-(* ** CSet : Collision Set *)
-(* This module is custom made for collisions, where reactions are not stored,
-   but dynamically calculated from the set of reactants.
-   We only keep the reaction rate
-*)
+(** CSet : Collision Set
+    This module is custom made for collisions, where reactions are not stored,
+    but dynamically calculated from the set of reactants.
+    We only keep the reaction rate
 
+     We might need to add other parameters, such as
+     the volume of the container.
+     WARNING : possible integer overflow TODO: check
+   https://fr.wikipedia.org/wiki/Th%C3%A9orie_des_collisions 
+*)
 module CSet = struct
 
-  (** Collision factor - this is constant for now² *)
+  (** Collision factor - this is constant for now *)
   let collision_factor (reactant : Reactant.t) =
     match reactant with
     | Dummy -> failwith "dummy"
@@ -317,7 +329,6 @@ module CSet = struct
     s.rates_sum <- total_rate;
     s.single_rates_sum <- single_rates_sum
 
-  (** TODO FIX Colliders.choose *)
   let pick_reaction randstate (s : t) =
     let c1 = Colliders.random_pick randstate s.colliders in
     let colliders' = Colliders.remove_custom c1 s.colliders in
@@ -327,6 +338,14 @@ module CSet = struct
       (Reactant.show c2)
       (Format.asprintf "%a" Colliders.pp s.colliders);
     c
+
+    let print_debug s =
+      Printf.sprintf
+        "********     Collisions   (total rate: %s) (comp. rate: %s)  *********\n%s"
+        (s |> total_rate |> Q.show)
+        (s |> calculate_rate |> Q.show)
+        (show s)
+
 end
 
 module GSet = MakeReacSet (Reacs.Grab)
@@ -391,17 +410,6 @@ let remove_reactions reactions reac_mgr =
       | Break b -> BSet.remove b reac_mgr.b_set
       | Collision c -> CSet.remove c reac_mgr.c_set)
     reactions
-
-(* **** collision *)
-(*     The collision probability between two molecules is *)
-(*     the product of their quantities. *)
-(*     We might need to add other parameters, such as *)
-(*     the volume of the container, and use a float constant *)
-(*     to avoid integer overflow. *)
-(*     We here calculate each collision probability, *)
-(*     and the sum of it. *)
-(*     WARNING : possible integer overflow  *)
-(* https://fr.wikipedia.org/wiki/Th%C3%A9orie_des_collisions *)
 
 let add_grab (graber_d : Reactant.Amol.t) (grabed_d : Reactant.t) (reac_mgr : t) =
   logger#trace
@@ -469,29 +477,9 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
     !(reac_mgr.env).collision_rate * CSet.total_rate reac_mgr.c_set
   in
 
-  logger#ldebug
-    (lazy
-      (Printf.sprintf
-         "********     Grabs   (total rate: %s)  (nb_reacs: %d)  *********\n%s"
-         (Q.show total_g_rate)
-         (GSet.cardinal reac_mgr.g_set)
-         (GSet.show reac_mgr.g_set)));
-
-  logger#ldebug
-    (lazy
-      (Printf.sprintf
-         "******** Transitions (total rate: %s)  (nb_reacs: %d)  *********\n%s"
-         (Q.show total_t_rate)
-         (TSet.cardinal reac_mgr.t_set)
-         (TSet.show reac_mgr.t_set)));
-
-  logger#ldebug
-    (lazy
-      (Printf.sprintf
-         "********    Breaks   (total rate: %s)  (nb_reacs: %d)  *********\n%s"
-         (Q.show total_b_rate)
-         (BSet.cardinal reac_mgr.b_set)
-         (BSet.show reac_mgr.b_set)));
+  logger#ldebug (lazy (GSet.print_debug reac_mgr.g_set));
+  logger#ldebug (lazy (TSet.print_debug reac_mgr.t_set));
+  logger#ldebug (lazy (BSet.print_debug reac_mgr.b_set));
 
   logger#ldebug
     (lazy

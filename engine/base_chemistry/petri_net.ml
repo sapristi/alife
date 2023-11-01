@@ -41,7 +41,7 @@ let update_launchables (pnet : t) : unit =
       if t.launchable then pnet.launchables_nb <- pnet.launchables_nb + 1)
     pnet.transitions
 
-let make_from_prot (prot : Proteine.t) (mol : Molecule.t) : t option =
+let make_from_prot uid (prot : Proteine.t) (mol : Molecule.t) : t option =
   lazy (Printf.sprintf "Building pnet from mol %s" mol) |> logger#ldebug;
   lazy (Printf.sprintf "Proteine: %s" (Proteine.show prot)) |> logger#ldebug;
   try
@@ -75,8 +75,6 @@ let make_from_prot (prot : Proteine.t) (mol : Molecule.t) : t option =
           Transition.make id places ila ola index)
     in
 
-    let uid = Misc_library.idProvider#get_id () in
-
     let launchables_nb =
       Array.fold_left
         (fun res t -> if t.Transition.launchable then Q.(res + one) else res)
@@ -107,9 +105,9 @@ let make_from_prot (prot : Proteine.t) (mol : Molecule.t) : t option =
 
     None
 
-let make_from_mol (mol : Molecule.t) : t option =
+let make_from_mol uid (mol : Molecule.t) : t option =
   let prot = Molecule.to_proteine mol in
-  make_from_prot prot mol
+  make_from_prot uid prot mol
 
 (* mettre à jour les transitions qui peuvent être lancées. *)
 (* Il faut prendre en compte la transition qui vient d'être lancée,  *)

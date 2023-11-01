@@ -1,4 +1,4 @@
-open Reactions
+(* open Reactions *)
 open Yojson
 open Local_libs
 open Numeric
@@ -46,7 +46,7 @@ let logger = Logging.get_logger "Yaac.Bact.Reaction"
     They are mostly expected to be used in tests.
 *)
 module rec Reactant : sig
-  include REACTANT with type reac = Reaction.t and type reacSet = ReacSet.t
+  include Reactions.REACTANT with type reac = Reaction.t and type reacSet = ReacSet.t
 end = struct
   type reac = Reaction.t
   type reacSet = ReacSet.t
@@ -102,7 +102,7 @@ end = struct
     let set_ambient ambient ims = ims.ambient <- ambient
   end
 
-  (** Amol :  reactant with one active molecule
+  (** Amol:  reactant with one active molecule
         An amol contains
         - a molecule
         - the current pnet
@@ -228,23 +228,13 @@ and Reacs : sig
     | Release_tokens of Token.t list
   [@@deriving show]
 
+  (** Redefinition of module type for Reactant
+      TODO: explain why this is needed / what is the difference
+  *)
   module type REAC = sig
-    type t
-    type build_t
-
-    val show : t -> string
-
-    (* val of_yojson : Yojson.Safe.t -> (t, string) Result.result *)
-    val to_yojson : t -> Yojson.Safe.t
-    val pp : Format.formatter -> t -> unit
-    val equal: t -> t -> bool
-    val compare : t -> t -> int
-    val rate : t -> Q.t
-    val update_rate : t -> Q.t
-    val make : build_t -> t
+    include Reactions.REAC_PARTIAL
     val eval : Random_s.t -> t -> effect list
     val remove_reac_from_reactants : Reaction.t -> t -> unit
-    val get_reactants : t -> build_t
   end
 
   module Grab : REAC with type build_t = Reactant.Amol.t * Reactant.t
@@ -252,10 +242,9 @@ and Reacs : sig
   module Break : REAC with type build_t = Reactant.t
   module Collision : REAC with type build_t = Reactant.t * Reactant.t
 end = struct
-  include ReactionsM (Reactant)
+  include Reactions.ReactionsM (Reactant)
 end
 
-(* ** Reaction  *)
 and Reaction : sig
   type t =
     | Grab of Reacs.Grab.t
@@ -266,7 +255,7 @@ and Reaction : sig
 
   val treat_reaction : Random_s.t -> t -> Reacs.effect list
   val unlink : t -> unit
-end = (* *** module definition *)
+end =
 struct
   open Reacs
 
@@ -299,7 +288,6 @@ struct
     | Collision c -> Collision.remove_reac_from_reactants r c
 end
 
-(** ReacSet module *)
 and ReacSet : sig
   include CCSet.S with type elt = Reaction.t
 

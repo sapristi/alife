@@ -39,6 +39,7 @@ type t = {
   reac_mgr : Reac_mgr.t;
   env : Environment.t ref;
   randstate : Random_s.t ref;
+  mutable id_counter: int;
 }
 [@@deriving eq]
 
@@ -51,6 +52,7 @@ let copy bact : t =
     reac_mgr;
     env;
     randstate = ref !(bact.randstate);
+    id_counter = bact.id_counter;
   }
 
 let default_randstate = {
@@ -66,7 +68,13 @@ let make_empty () =
     reac_mgr = Reac_mgr.make_new renv;
     env = renv;
     randstate = ref default_randstate;
+    id_counter = 0;
   }
+
+let get_pnet_uid bact =
+  let res = bact.id_counter in
+  bact.id_counter <- bact.id_counter + 1;
+  res
 
 type inert_bact_elem = {qtt: int; mol: Molecule.t; ambient: bool}
 [@@ deriving yojson, ord, show]
@@ -139,7 +147,8 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
   then
     (logger#swarning "Ignoring add of bad molecule";  [])
   else
-      let new_opnet = Petri_net.make_from_mol mol in
+    let uid = get_pnet_uid bact in
+    let new_opnet = Petri_net.make_from_mol uid mol in
       match new_opnet with
       | Some pnet -> add_active_molecule mol pnet bact
       | None -> add_inert_molecule mol bact
@@ -262,6 +271,7 @@ module FullSig = struct
     areactants: ARMap.Serialized.t;
     env: Environment.t;
     randstate: Random_s.t;
+    id_counter: int;
   }
   [@@deriving yojson, show]
 
@@ -272,6 +282,7 @@ module FullSig = struct
       areactants = ARMap.Serialized.ser bact.areactants;
       env = !(bact.env);
       randstate = !(bact.randstate);
+      id_counter = bact.id_counter;
     }
 
   let bact_to_yojson (bact: bacterie) =
@@ -288,7 +299,8 @@ module FullSig = struct
         areactants = ARMap.make ();
         reac_mgr = Reac_mgr.make_new renv;
         env = renv;
-        randstate = ref serialized.randstate
+        randstate = ref serialized.randstate;
+        id_counter = serialized.id_counter;
       } in
       List.iter (
         fun ({mol; qtt; ambient}: IRMap.Serialized.item) ->

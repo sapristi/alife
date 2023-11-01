@@ -32,7 +32,8 @@
      - output logs to stderr (without capturing stderr) ? or custom handling in python
    - [ ] store logs ?
    - [ ] Log viewing: https://github.com/aurc/loggo ?
-*** TODO [ ] improve docstrings
+*** Denser full repr - we only need to store tokens
+
 
 * Done
 *** DONE Fix json import / export

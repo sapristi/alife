@@ -27,7 +27,7 @@ module FromMolCmd = struct
   let build_all_from_mol mol =
     let prot_json = mol |> Molecule.to_proteine |> Proteine.to_yojson in
     let pnet_json =
-      match Petri_net.make_from_mol mol with
+      match Petri_net.make_from_mol 0 mol with
       | Some pnet -> Petri_net.to_yojson pnet
       | None -> `Null
     in
@@ -53,7 +53,7 @@ module FromProtCmd = struct
       let mol = Molecule.of_proteine prot in
       let mol_json = `String mol in
       let pnet_json =
-        match Petri_net.make_from_mol mol with
+        match Petri_net.make_from_mol 0 mol with
         | Some pnet -> Petri_net.to_yojson pnet
         | None -> `Null
       in
@@ -92,7 +92,7 @@ module EvalCmd = struct
         Bacterie_libs.Bacterie.next_reaction bact
       with  exc -> (
           logger#error "Reaction failed - Dumping current state\n===Bact===\n%s\n===Reactions===\n%s"
-            Bacterie.FullSig.(bact |> of_bact |> show) (Reac_mgr.show bact.reac_mgr);
+            Bacterie.FullSig.(bact |> bact_to_yojson |> Yojson.Safe.to_string) (Reac_mgr.show bact.reac_mgr);
           raise exc
         )
     done;
@@ -102,6 +102,21 @@ module EvalCmd = struct
 
 end
 
+module ReactionsCmd = struct
+  let doc = "Display available reactions from the given state."
+  type params = {
+    log_level : Logging.level; [@term log_level_t]
+    state : string; [@doc "JSON representation of the initial state"]
+  }
+  [@@deriving subliner]
+
+  let handle {log_level; state} =
+    set_log_level log_level;
+    let bact = state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson
+               |> Result.get_ok
+    in
+    bact.reac_mgr |> Reac_mgr.to_yojson|> Yojson.Safe.to_string |> Result.ok
+end
 
 type params =
   | From_mol of FromMolCmd.params
@@ -110,8 +125,8 @@ type params =
                  [@doc FromProtCmd.doc]
   | Eval of EvalCmd.params
             [@doc EvalCmd.doc]
-  | Reactions
-    [@doc "Display available reactions.\nTODO"]
+  | Reactions of ReactionsCmd.params
+    [@doc ReactionsCmd.doc]
   | React
     [@doc "Computes from the given state, after triggering the given reaction.\nTODO"]
 [@@deriving subliner]
@@ -120,7 +135,7 @@ let handle = function
   | From_mol params -> FromMolCmd.handle params
   | From_prot params -> FromProtCmd.handle params
   | Eval params -> EvalCmd.handle params
-  | Reactions -> Ok "todo"
+  | Reactions params -> ReactionsCmd.handle params
   | React -> Ok "todo"
 
 let handle_wrapped input =

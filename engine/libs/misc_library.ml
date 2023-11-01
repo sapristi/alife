@@ -37,16 +37,6 @@ let get_all_couples (l1 : 'a list) (l2 : 'b list) : ('a * 'b) list =
       List.fold_left (fun (t : ('a * 'b) list) (y : 'b) -> (x, y) :: t) l l2)
     [] l1
 
-let idProvider =
-  object
-    val mutable id = 0
-
-    method get_id () =
-      let res = id in
-      id <- id + 1;
-      res
-  end
-
 let common_elements l1 l2 =
   let rec common_elements_aux (l1 : (string * int) list)
       (l2 : (string * int) list) res =

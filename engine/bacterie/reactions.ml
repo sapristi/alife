@@ -122,6 +122,27 @@ module type REACTANT = sig
        and type reacSet := reacSet
 end
 
+
+(** Partial Module type for a reactant
+    Constains definitions that can be shared - used in reaction.ml
+*)
+module type REAC_PARTIAL = sig
+  type t
+  type build_t
+
+  val name : string
+  val show : t -> string
+  val to_yojson : t -> Yojson.Safe.t
+  val pp : Format.formatter -> t -> unit
+  val equal: t -> t -> bool
+  val compare : t -> t -> int
+  val rate : t -> Q.t
+  val update_rate : t -> Q.t
+  val make : build_t -> t
+  val get_reactants : t -> build_t
+
+end
+
 module ReactionsM (R : REACTANT) = struct
   type effect =
     | T_effects of Place.transition_effect list
@@ -133,28 +154,15 @@ module ReactionsM (R : REACTANT) = struct
     | Release_tokens of Token.t list
   [@@deriving show]
 
-
-  (** This module type is also defined in reaction.ml
-      TODO: check if we can define only once ?
-  *)
+  (** Module type for a reactant *)
   module type REAC = sig
-    type t
-    type build_t
-
-    val show : t -> string
-    val to_yojson : t -> Yojson.Safe.t
-    val pp : Format.formatter -> t -> unit
-    val equal: t -> t -> bool
-    val compare : t -> t -> int
-    val rate : t -> Q.t
-    val update_rate : t -> Q.t
-    val make : build_t -> t
+    include REAC_PARTIAL
     val eval : Random_s.t -> t -> effect list
     val remove_reac_from_reactants : R.reac -> t -> unit
-    val get_reactants : t -> build_t
   end
 
   module Grab : REAC with type build_t = R.Amol.t * R.t = struct
+    let name = "Grab"
     type t = {
       mutable rate : Q.t; [@compare fun a b -> 0] (* TODO: why this ? *)
       graber_data : R.Amol.t;
@@ -208,6 +216,7 @@ module ReactionsM (R : REACTANT) = struct
 
 
   module Transition : REAC with type build_t = R.Amol.t = struct
+    let name = "Transition"
     type t = { mutable rate : Q.t; [@compare fun a b -> 0] amd : R.Amol.t }
     [@@deriving ord, show, to_yojson, eq]
 
@@ -250,6 +259,7 @@ module ReactionsM (R : REACTANT) = struct
   end
 
   module Break : REAC with type build_t = R.t = struct
+    let name = "Break"
     type t = { mutable rate : Q.t; [@compare fun a b -> 0] reactant : R.t }
     [@@deriving show, ord, to_yojson, eq]
 
@@ -289,6 +299,8 @@ module ReactionsM (R : REACTANT) = struct
 
 
   module Collision : REAC with type build_t = R.t * R.t = struct
+    let name = "Collision"
+
     type t = { r1 : R.t; r2 : R.t }
     [@@deriving show, ord, to_yojson, eq]
 

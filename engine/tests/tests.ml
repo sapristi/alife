@@ -1,8 +1,5 @@
 open Bacterie_libs
 
-let () = print_endline "I AM A TEST"
-let () = print_endline (Sys.getcwd ())
-
 let () =
   let open Alcotest in
   run "Bacterie tests"
@@ -56,4 +53,10 @@ let () =
             Test_reactions.simple_grab_release;
           test_case "grab_release_amol" `Quick Test_reactions.grab_release_amol;
         ] );
+      ( "Run simulation",
+        [
+          test_case "run many steps" `Quick (Test_run.test_run 100);
+          test_case "run custom" `Quick Test_run.test_run_custom;
+        ]
+      )
     ]
