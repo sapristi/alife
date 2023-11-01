@@ -133,6 +133,10 @@ module ReactionsM (R : REACTANT) = struct
     | Release_tokens of Token.t list
   [@@deriving show]
 
+
+  (** This module type is also defined in reaction.ml
+      TODO: check if we can define only once ?
+  *)
   module type REAC = sig
     type t
     type build_t
@@ -140,6 +144,7 @@ module ReactionsM (R : REACTANT) = struct
     val show : t -> string
     val to_yojson : t -> Yojson.Safe.t
     val pp : Format.formatter -> t -> unit
+    val equal: t -> t -> bool
     val compare : t -> t -> int
     val rate : t -> Q.t
     val update_rate : t -> Q.t
@@ -152,11 +157,11 @@ module ReactionsM (R : REACTANT) = struct
   (* ** Grab reaction *)
   module Grab : REAC with type build_t = R.Amol.t * R.t = struct
     type t = {
-      mutable rate : Q.t; [@compare fun a b -> 0]
+      mutable rate : Q.t; [@compare fun a b -> 0] (* TODO: why this ? *)
       graber_data : R.Amol.t;
       grabed_data : R.t;
     }
-    [@@deriving show, ord, to_yojson]
+    [@@deriving show, ord, to_yojson, eq]
 
     type build_t = R.Amol.t * R.t
 
@@ -197,7 +202,7 @@ module ReactionsM (R : REACTANT) = struct
 
   module Transition : REAC with type build_t = R.Amol.t = struct
     type t = { mutable rate : Q.t; [@compare fun a b -> 0] amd : R.Amol.t }
-    [@@deriving ord, show, to_yojson]
+    [@@deriving ord, show, to_yojson, eq]
 
     type build_t = R.Amol.t
 
@@ -231,7 +236,7 @@ module ReactionsM (R : REACTANT) = struct
 
   module Break : REAC with type build_t = R.t = struct
     type t = { mutable rate : Q.t; [@compare fun a b -> 0] reactant : R.t }
-    [@@deriving show, ord, to_yojson]
+    [@@deriving show, ord, to_yojson, eq]
 
     type build_t = R.t
 
@@ -260,7 +265,7 @@ module ReactionsM (R : REACTANT) = struct
 
   module Collision : REAC with type build_t = R.t * R.t = struct
     type t = { mutable rate : Q.t; [@compare fun a b -> 0] r1 : R.t; r2 : R.t }
-    [@@deriving show, ord, to_yojson]
+    [@@deriving show, ord, to_yojson, eq]
 
     type build_t = R.t * R.t
 

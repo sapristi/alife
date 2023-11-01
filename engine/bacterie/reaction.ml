@@ -4,6 +4,7 @@ open Local_libs
 open Numeric
 open Base_chemistry
 open Local_libs.Misc_library
+open Easy_logging_yojson
 (* * file overview *)
 
 (* ** Reactant module *)
@@ -37,8 +38,13 @@ open Local_libs.Misc_library
 (*   and Reactant are mutally dependant and have to be defined together. *)
 
 (* * modules definitions*)
+let logger = Logging.get_logger "Yaac.Bact.Reaction"
 
-(** Reactant : contains a reactant (ImolSet or Amol or Aset) *)
+(** Reactant : contains a reactant (ImolSet or Amol or Aset)
+
+    Note: derived equality operator do not include reac sets, to avoid circular references roaming.
+    They are mostly expected to be used in tests.
+*)
 module rec Reactant : sig
   include REACTANT with type reac = Reaction.t and type reacSet = ReacSet.t
 end = struct
@@ -55,11 +61,10 @@ end = struct
     type t = {
       mol : Molecule.t;
       mutable qtt : int;
-      reacs : ReacSet.t ref; [@to_yojson fun _ -> `Null]
+      reacs : ReacSet.t ref; [@to_yojson fun _ -> `Null] [@equal fun _ _ -> true]
       mutable ambient : bool;
     }
     [@@deriving to_yojson, eq]
-
     let show (imd : t) = Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol
 
     let pp (f : Format.formatter) (imd : t) =
@@ -107,12 +112,14 @@ end = struct
     type t = {
       mol : Molecule.t;
       pnet : Petri_net.t;
-      reacs : ReacSet.t ref; [@to_yojson fun _ -> `Null]
+      reacs : ReacSet.t ref; [@to_yojson fun _ -> `Null]  [@equal fun _ _ -> true]
+
     }
-    [@@deriving to_yojson, eq]
+    [@@deriving to_yojson, eq, show]
 
     let show am = Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol
     let pp f am = Format.pp_print_string f (show am)
+
     let show_reacSet = ReacSet.show
     let pp_reacSet = ReacSet.pp
     let mol am = am.mol
@@ -230,6 +237,7 @@ and Reacs : sig
     (* val of_yojson : Yojson.Safe.t -> (t, string) Result.result *)
     val to_yojson : t -> Yojson.Safe.t
     val pp : Format.formatter -> t -> unit
+    val equal: t -> t -> bool
     val compare : t -> t -> int
     val rate : t -> Q.t
     val update_rate : t -> Q.t
@@ -254,11 +262,9 @@ and Reaction : sig
     | Transition of Reacs.Transition.t
     | Break of Reacs.Break.t
     | Collision of Reacs.Collision.t
-  [@@deriving show]
+  [@@deriving ord, show, to_yojson, eq]
 
-  val to_yojson : t -> Yojson.Safe.t
   val treat_reaction : Random_s.t -> t -> Reacs.effect list
-  val compare : t -> t -> int
   val unlink : t -> unit
 end = (* *** module definition *)
 struct
@@ -269,7 +275,7 @@ struct
     | Transition of Transition.t
     | Break of Break.t
     | Collision of Collision.t
-  [@@deriving ord, show, to_yojson]
+  [@@deriving ord, show, to_yojson, eq]
 
   let rate r =
     match r with
@@ -303,7 +309,7 @@ and ReacSet : sig
   val to_yojson : t -> Yojson.Safe.t
   val pp : Format.formatter -> t -> unit
 end = struct
-  include CCSet.Make (Reaction)
+  include Local_libs.Set.Make (Reaction)
 
   let show (rset : t) : string =
     fold

@@ -45,14 +45,7 @@ module ARMap =
     *)
     module AmolSet =
       struct
-        include CCSet.Make (
-                    struct
-                      type t = Reactant.Amol.t
-                      let compare =
-                        fun (amd1 :t) (amd2:t) ->
-                        Reactant.Amol.compare
-                          amd1 amd2
-                    end)
+        include Local_libs.Set.Make (Reactant.Amol)
 
         let to_yojson_partial (amolset: t): Yojson.Safe.t =
           (** We only serialize as a list of pnet *)

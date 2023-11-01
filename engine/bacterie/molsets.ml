@@ -2,11 +2,7 @@ open Reaction
 open Base_chemistry
 
 module MolSet = struct
-  include CCSet.Make (struct
-    type t = Molecule.t
-
-    let compare = compare
-  end)
+  include Local_libs.Set.Make (Molecule)
   (* include Exceptionless *)
 end
 
@@ -14,13 +10,7 @@ end
 (* An active mol set manages the molecules with an attached pnet. *)
 
 module ActiveMolSet = struct
-  module PnetSet = CCSet.Make (struct
-    type t = Reactant.Amol.t
-
-    let compare (amd1 : t) (amd2 : t) = Reactant.Amol.compare amd1 amd2
-  end)
-
-  include PnetSet
+  include Local_libs.Set.Make (Reactant.Amol)
 
   let find_by_pnet_id pid amolset : Petri_net.t =
     let (dummy_pnet : Petri_net.t) =
@@ -55,7 +45,7 @@ module ActiveMolSet = struct
             Petri_net.can_grab (Reactant.mol new_reactant) dummy_pnet
           and is_grabed = Petri_net.can_grab dummy_pnet.mol new_amol.pnet in
 
-          PnetSet.iter
+          iter
             (fun current_amd ->
               if is_graber then
                 Reac_mgr.add_grab new_amol (Amol current_amd) reac_mgr;
@@ -65,7 +55,7 @@ module ActiveMolSet = struct
             amolset
       | ImolSet _ ->
           if Petri_net.can_grab (Reactant.mol new_reactant) dummy_pnet then
-            PnetSet.iter
+            iter
               (fun current_amol ->
                 Reac_mgr.add_grab current_amol new_reactant reac_mgr)
               amolset

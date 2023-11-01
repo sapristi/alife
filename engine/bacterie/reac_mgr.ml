@@ -72,13 +72,17 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
 
   type elt = Reac.t
 
-  module RSet = CCSet.Make (Reac)
+  module RSet = Local_libs.Set.Make (Reac)
 
   type t = { mutable rates_sum : Q.t; mutable set : RSet.t } [@@deriving eq]
 
   let pp fmt s =
-    if RSet.is_empty s.set then Format.fprintf fmt "ReacSet (empty)"
-    else (RSet.pp ~pp_start:(Misc_library.printer "ReacSet:") Reac.pp) fmt s.set
+    if RSet.is_empty s.set then Format.fprintf fmt "ReacSet (empty) (rate: %f)" (Q.to_float s.rates_sum)
+    else
+      Format.fprintf fmt "ReacSet:\n%a\n(rate: %f)"
+        (RSet.pp Reac.pp) s.set
+        (Q.to_float s.rates_sum)
+
 
   let show (s : t) = Format.asprintf "%a" pp s
   let cardinal r = RSet.cardinal r.set
@@ -162,7 +166,7 @@ module CSet = struct
     | ImolSet imolset -> Q.of_int imolset.qtt
 
   module Colliders = struct
-    include CCSet.Make (Reactant)
+    include Local_libs.Set.Make (Reactant)
 
     let pp_orig = pp
     let pp = pp_orig Reactant.pp
@@ -200,6 +204,7 @@ module CSet = struct
     mutable colliders : Colliders.t;
   }
   [@@deriving eq, show]
+
 
   let to_yojson (s : t) = `String "CSet"
   let cardinal (s : t) = Colliders.cardinal s.colliders
@@ -333,6 +338,7 @@ type t = {
   b_set : BSet.t;
   c_set : CSet.t;
   mutable reac_counter : int; [@equal fun a b -> true]
+  (* for tests - we do not care about reac counter - should we serialize it instead ? *)
   env : Environment.t ref;
 }
 [@@deriving show, eq]

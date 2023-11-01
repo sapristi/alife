@@ -4,9 +4,20 @@
 
 *** Bug after loading a snapshot: problems with missing reactions or something
 
-** Improvements
+** Problems
+
+*** TODO Comparison (from ppx.ord) used for reac sets - without taking reac rate into account
+    - [X] Switch to equal operator for set comparison (with custom Set module)
+    - [ ] Improve doc of implem, especially about circular references
+    - [ ] Ensure that equality checks do not miss anything - e.g. reactions associated with 
+
+*** possible collision of equality operator used in tests with other stuff
+*** why is the pnet uid the same between bact and ser_deser ??
 
 ** Ideas
+
+*** CANCELED Instead of overriding equality checks, have uid generator per bactery
+     -> would compromise interaction between bacteries
 *** Add UI helpers for snaphots
 *** Parse mol from url in UI
 *** TODO capture logs when running experimens

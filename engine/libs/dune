@@ -12,4 +12,5 @@
   zarith
   ; yaac_config
   pringo
+  base
 ))

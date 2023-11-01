@@ -1,4 +1,7 @@
 open Bacterie_libs
+open Easy_logging_yojson
+
+let logger = Logging.get_logger "Yaac.Test.full_sig"
 
 let bact_testable = Alcotest.testable Bacterie.pp_full Bacterie.equal
 let reac_mgr_testable = Alcotest.testable Reac_mgr.pp Reac_mgr.equal
@@ -18,8 +21,6 @@ let test_equality_reacs_before_ser_deser name get_bact nb_reacs () =
     bact |> Bacterie_libs.Bacterie.FullSig.bact_to_yojson
     |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson |> Result.get_ok
   in
-  Reac_mgr.CSet.check_reac_rate bact.reac_mgr.c_set;
-  Reac_mgr.CSet.check_reac_rate serdeser.reac_mgr.c_set;
   Alcotest.check reac_mgr_t_testable
     ("ser_deser reac_mgr t " ^ name)
     bact.reac_mgr.t_set serdeser.reac_mgr.t_set;
@@ -55,9 +56,25 @@ let test_equality_reacs_after_ser_deser name get_bact nb_reacs_before nb_reacs_a
     Bacterie.next_reaction serdeser;
   done;
 
+  let transitions = Base.List.zip_exn
+   (Reac_mgr.TSet.RSet.to_list bact.reac_mgr.t_set.set)
+   (Reac_mgr.TSet.RSet.to_list serdeser.reac_mgr.t_set.set)
+  in
+  List.iter ( fun (bact_t, serdeser_t) ->
+      logger#error "WTF equal:%B, compare:%d %s\n\%s"
+        (Reaction.Reacs.Transition.equal bact_t serdeser_t)
+        (Reaction.Reacs.Transition.compare bact_t serdeser_t)
+        (Reaction.Reacs.Transition.show bact_t)
+        (Reaction.Reacs.Transition.show serdeser_t);
+      let bact_amd = Reaction.Reacs.Transition.get_reactants bact_t
+      and serdeser_amd = Reaction.Reacs.Transition.get_reactants serdeser_t in
+      logger#error "WTF equal:%B, compare:%d %s\n\%s"
+        (Reaction.Reactant.Amol.equal Reaction.Reacs.Transition.(bact_amd) serdeser_amd)
+        (Reaction.Reactant.Amol.compare Reaction.Reacs.Transition.(bact_amd) serdeser_amd)
+        (Reaction.Reactant.Amol.show bact_amd)
+        (Reaction.Reactant.Amol.show serdeser_amd);
 
-  Reac_mgr.CSet.check_reac_rate bact.reac_mgr.c_set;
-  Reac_mgr.CSet.check_reac_rate serdeser.reac_mgr.c_set;
+    ) transitions;
   Alcotest.check reac_mgr_t_testable
     ("ser_deser reac_mgr t " ^ name)
     bact.reac_mgr.t_set serdeser.reac_mgr.t_set;

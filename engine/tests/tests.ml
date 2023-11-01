@@ -37,7 +37,7 @@ let () =
              test_case
                ("ser deser 1 reaction " ^ name)
                `Quick
-               (Test_full_sig.test_equality_reacs_after_ser_deser name get_bact 1 1))
+               (Test_full_sig.test_equality_reacs_after_ser_deser name get_bact 10 10))
           Initial_states.bacteries );
 
       ( "Reactions",
