@@ -1,0 +1,21 @@
+(lang dune 2.7)
+(package
+ (name yaac)
+ (depends
+   (dune :build)
+   containers
+   easy_logging_yojson
+   ppx_subliner
+   zarith
+   git+https://github.com/sapristi/pringo.git
+
+  (alcotest :with-test)
+
+ )
+  (depopts
+    merlin
+    utop
+    ocamlformat
+    ocp-indent
+  )
+)

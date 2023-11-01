@@ -1,0 +1,209 @@
+- model: experiment.initialstate
+  pk: 1
+  fields:
+    timestamp: 2023-06-04 13:14:52.040645+00:00
+    name: grab_amol
+    description: ''
+    seed: 0
+    env:
+      transition_rate: 1
+      grab_rate: 1
+      break_rate: 0
+      collision_rate: 0
+    molecules:
+      active_mols:
+      - mol: AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB
+        qtt: 1
+      - mol: AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB
+        qtt: 1
+      inert_mols: []
+- model: experiment.initialstate
+  pk: 2
+  fields:
+    timestamp: 2023-06-04 13:15:49.718210+00:00
+    name: endless_duplication
+    description: ''
+    seed: 0
+    env:
+      transition_rate: 10
+      grab_rate: 1
+      break_rate: 1/1000000
+      collision_rate: 1/100000
+    molecules:
+      active_mols:
+      - mol: AAABAAAADDFCBAAADDFBAAABDDFCBAABDDFBAAACDDFCBAACDDFBAAADDDFCBAADDDFBAAAFDDFCBAAFDDFBAAAAADDFCAABBBDDFAAABAAAADDFABAFAFDDFAAABAAABDDFABAFBFDDFAAABAAACDDFABAFCFDDFAAABAAADDDFABAFDFDDFAAABAAAFDDFABAFFFDDFAAABCAAADDFCCAAADDFBCBABDDFCCAABDDFBCCACDDFCCAACDDFBCDADDDFCCAADDDFBCFAFDDFCCAAFDDFBABAAADDFCAABBBDDFAAACAAAAADDFABBAAACAAAAADDFABBAAABAABBBDDFCAACCCDDFAAABAABBBDDFABADFDFFFDDFAAABBACCCDDFCAACCCDDFABC
+        qtt: 1
+      - mol: DDCBAFDDCCCAACFDDCCCABBAAAFDDFFFDFDABAFDDBBBAABAAAFDDCCCAACFDDBBBAABAAABBAFDDAAAAACAAABBAFDDAAAAACAAAFDDBBBAACFDDAAABABFDDFAACCFDDFAFCBFDDDAACCFDDDADCBFDDCAACCFDDCACCBFDDBAACCFDDBABCBFDDAAACCFDDAAACBAAAFDDFFFABAFDDFAAABAAAFDDFDFABAFDDDAAABAAAFDDFCFABAFDDCAAABAAAFDDFBFABAFDDBAAABAAAFDDFAFABAFDDAAAABAAAFDDBBBAACFDDAAAAABFDDFAABCFDDFAAABFDDDAABCFDDDAAABFDDCAABCFDDCAAABFDDBAABCFDDBAAABFDDAAABCFDDAAAABAAA
+        qtt: 1
+      inert_mols:
+      - mol: A
+        qtt: 50
+        ambient: true
+      - mol: B
+        qtt: 50
+        ambient: true
+      - mol: C
+        qtt: 50
+        ambient: true
+      - mol: D
+        qtt: 50
+        ambient: true
+      - mol: F
+        qtt: 50
+        ambient: true
+- model: experiment.initialstate
+  pk: 3
+  fields:
+    timestamp: 2023-06-04 13:16:25.942351+00:00
+    name: ribosome_1
+    description: ''
+    seed: 0
+    env:
+      transition_rate: 10
+      grab_rate: 1
+      break_rate: 0.001
+      collision_rate: 0
+    molecules:
+      active_mols:
+      - mol: AAABAAAADDFCBAAADDFBAAABDDFCBAABDDFBAAACDDFCBAACDDFBAAADDDFCBAADDDFBAAAFDDFCBAAFDDFBAAAAADDFCAABBBDDFAAABAAAADDFABAFAFDDFAAABAAABDDFABAFBFDDFAAABAAACDDFABAFCFDDFAAABAAADDDFABAFDFDDFAAABAAAFDDFABAFFFDDFAAABCAAADDFCCAAADDFBCBABDDFCCAABDDFBCCACDDFCCAACDDFBCDADDDFCCAADDDFBCFAFDDFCCAAFDDFBABAAADDFCAABBBDDFAAACAAAAADDFABBAAACAAAAADDFABBAAABAABBBDDFCAACCCDDFAAABAABBBDDFABADFDFFFDDFAAABBACCCDDFCAACCCDDFABC
+        qtt: 1
+      inert_mols:
+      - mol: A
+        qtt: 50
+        ambient: true
+      - mol: B
+        qtt: 50
+        ambient: true
+      - mol: C
+        qtt: 50
+        ambient: true
+      - mol: D
+        qtt: 50
+        ambient: true
+      - mol: F
+        qtt: 50
+        ambient: true
+      - mol: DDBBAFDDAABCAAAFDDFBFABAFDDAAABAAAFDDAAABFDDFAFABAAAAA
+        qtt: 1
+        ambient: false
+- model: experiment.initialstate
+  pk: 4
+  fields:
+    timestamp: 2023-06-04 13:16:47.659872+00:00
+    name: simple bind
+    description: ''
+    seed: 0
+    env:
+      transition_rate: 1
+      grab_rate: 1
+      break_rate: 0
+      collision_rate: 0
+    molecules:
+      active_mols:
+      - mol: AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB
+        qtt: 1
+      inert_mols:
+      - mol: A
+        qtt: 1
+        ambient: false
+      - mol: B
+        qtt: 1
+        ambient: false
+- model: experiment.initialstate
+  pk: 5
+  fields:
+    timestamp: 2023-06-04 13:17:39.143354+00:00
+    name: simple break
+    description: ''
+    seed: 0
+    env:
+      transition_rate: 0
+      grab_rate: 0
+      break_rate: 1
+      collision_rate: 0
+    molecules:
+      active_mols:
+      - mol: AAA
+        qtt: 1
+      inert_mols:
+      - mol: AA
+        qtt: 1
+        ambient: false
+- model: experiment.initialstate
+  pk: 6
+  fields:
+    timestamp: 2023-06-04 13:20:19.900622+00:00
+    name: simple collision
+    description: ''
+    seed: 0
+    env:
+      transition_rate: 0
+      grab_rate: 0
+      break_rate: 0
+      collision_rate: 1
+    molecules:
+      active_mols: []
+      inert_mols:
+      - mol: ABC
+        qtt: 1
+        ambient: false
+      - mol: BCA
+        qtt: 1
+        ambient: false
+- model: experiment.initialstate
+  pk: 7
+  fields:
+    timestamp: 2023-06-04 13:23:48.002746+00:00
+    name: simple cycle
+    description: ''
+    seed: 0
+    env:
+      transition_rate: 1
+      grab_rate: 1
+      break_rate: 0
+      collision_rate: 0
+    molecules:
+      active_mols:
+      - mol: AAAABCBAAADDFCAABDDFAAACAAADDFBAABDDF
+        qtt: 1
+      inert_mols: []
+- model: experiment.initialstate
+  pk: 8
+  fields:
+    timestamp: 2023-06-04 13:24:09.166449+00:00
+    name: simple grab release
+    description: ''
+    seed: 0
+    env:
+      transition_rate: 1
+      grab_rate: 1
+      break_rate: 0
+      collision_rate: 0
+    molecules:
+      active_mols:
+      - mol: AAABAAADDFABAFAFDDFAAACAAADDFABB
+        qtt: 1
+      inert_mols:
+      - mol: A
+        qtt: 1
+        ambient: false
+- model: experiment.initialstate
+  pk: 9
+  fields:
+    timestamp: 2023-06-04 13:24:33.854861+00:00
+    name: simple split
+    description: ''
+    seed: 0
+    env:
+      transition_rate: 1
+      grab_rate: 1
+      break_rate: 0
+      collision_rate: 0
+    molecules:
+      active_mols:
+      - mol: AAAABAAFBFDDFBBAADDFAAACAAADDFABBAAACAAADDFABB
+        qtt: 1
+      inert_mols:
+      - mol: AB
+        qtt: 1
+        ambient: false

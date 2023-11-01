@@ -1,0 +1,155 @@
+{% extends 'base.html'  %}
+{% load static %}
+
+{% block scripts_extra %}
+<!-- <script src="{% static 'js/cytoscape_utils.js' %}"></script> -->
+{% endblock %}
+
+{% block body %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">
+      Molecule
+    </h1>
+    <div id="mol-component" />
+  </div>
+</section>
+<div class="columns is-multiline">
+  <div class="column is-four-fitfth">
+  <section class="section">
+      <div class="container">
+        <h1 class="title">
+          Petri Net
+        </h1>
+        <div class="content" id="pnet-component" />
+      </div>
+    </section>
+  </div>
+  <div class="column is-one-fitfth">
+    <section class="section">
+      <div class="container">
+        <h1 class="title">
+          Proteine
+        </h1>
+        <div class="content" id="prot-component" />
+      </div>
+    </section>
+  </div>
+</div>
+<script type="importmap">
+ {
+   "imports": {
+     "preact": "https://esm.sh/preact@10.12.1",
+     "preact/hooks": "https://esm.sh/preact@10.12.1/hooks?external=preact",
+     "@preact/signals": "https://esm.sh/@preact/signals@1.1.3?external=preact",
+     "htm": "https://esm.sh/htm@3.1.1",
+     "cytoscape": "{% static 'js/cytoscape.esm.min.js' %}",
+     "cytoscape-cola": "{% static 'js/cytoscape-cola.mjs' %}",
+     "cytoscape_utils": "{% static 'js/cytoscape_utils.mjs' %}",
+     "cytoscape_pnet": "{% static 'js/cytoscape_pnet.js' %}"
+   }
+ }
+</script>
+
+<script type="module">
+ import { h, render } from "preact";
+ import { signal, effect } from "@preact/signals";
+ import { useState, useRef, useEffect } from 'preact/hooks';
+ import htm from "htm";
+ import {setup_pnet_cy} from 'cytoscape_utils';
+ import {pnet_to_cytoscape_elements} from 'cytoscape_pnet';
+
+ const html = htm.bind(h);
+ const mol = signal("");
+ const prot = signal([]);
+ const pnet = signal(null);
+
+ effect( () => {
+   console.log("CHANGE", mol.value)
+   fetch(`http://${window.location.host}/mol/`, {
+     method: 'POST',
+     headers: {
+       'Accept': 'application/json',
+       'Content-Type': 'application/json'
+     },
+     body: JSON.stringify({mol: mol.value}),
+   }).then(
+     response => response.json()
+   ).then(
+     data => {
+       console.log("RECEIVED", data)
+       prot.value = data.prot
+       pnet.value = data.pnet
+     }
+   )
+ })
+
+ let MolInput = () => {
+   const onChange = (event) => {
+     const newValue = event.target.value
+     mol.value = newValue
+     console.log("Changed", mol.value)
+   }
+   return html`
+     <div>
+       <textarea class="textarea" value=${mol.value} onInput=${onChange}/>
+     </div>
+   `
+ }
+
+ let AcidDisplay = ({acid}) => {
+   const [acid_type, ...params] = acid
+   /* const params_html = params.map(param => html`<span class="tag is-info">${param}</span>`).join() */
+   return html`
+     <li>
+       <span class="tag is-info">${acid_type}</span> 
+       ${params.map(param => html`<span class="tag is-primary">${param}</span>`)}
+     </li>
+   `
+ }
+ let ProtDisplay = () => {
+   return html`
+     <ul class="acid-list">
+       ${prot.value.map(
+        acid => AcidDisplay({acid})
+       )}
+     </ul>`
+ }
+
+ let PnetDisplay = () => {
+   const container = useRef(null);
+   const [cyWrapper, setCyWrapper] = useState(null)
+
+   useEffect(
+     () => {
+       if (container.current) {
+         const newWrapper = setup_pnet_cy({nodes: [], edges: []}, () => {})
+         newWrapper.cy.mount(container.current)
+         newWrapper.layout.run()
+         window.cyWrapper = newWrapper
+         setCyWrapper(newWrapper)
+         return () => newWrapper.cy.unmount()
+       }
+     },
+     [container]
+   )
+   if (pnet.value) {
+     const pnet_cytoscape = pnet_to_cytoscape_elements(pnet.value)
+     cyWrapper.layout = cyWrapper.replace_elements( pnet_cytoscape)
+     cyWrapper.update_pnet( pnet.value);
+     cyWrapper.layout.run();
+     // for some reason need a callback like this, can't pass directly cyWrapper.cy.fit
+     const fitCallback = () => {
+       cyWrapper.cy.fit()
+     }
+     setTimeout(fitCallback, 100)
+   }
+   return html`<div ref=${container} class="cytoscape-container"/>`
+ }
+
+ /* render(html`<${App} />`, document.body); */
+ render(html`<${MolInput} />`, document.getElementById("mol-component"));
+ render(html`<${ProtDisplay} />`, document.getElementById("prot-component"));
+ render(html`<${PnetDisplay} />`, document.getElementById("pnet-component"));
+</script>
+{% endblock %}

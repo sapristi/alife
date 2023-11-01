@@ -1,0 +1,25 @@
+; (tests
+;  (deps (glob_files ../../data/bact_states/*.json))
+;  (names test_reactions test_collision)
+;  (libraries bacterie_libs oUnit reactors)
+;  (flags -w -g)
+;  )
+
+
+(executables
+ (names  tests)
+ (flags -w)
+ (libraries alcotest bacterie_libs)
+ (preprocess
+  (pps
+    ppx_deriving_yojson
+ ))
+)
+
+
+(rule
+ (alias  runtest)
+ (action (run ./tests.exe))
+
+ (deps (glob_files ./bact_states/*.json))
+)

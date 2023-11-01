@@ -1,0 +1,14 @@
+.__________cytoscape_container {
+  
+}
+
+.cytoscape-container {
+  width: 1000px;
+  height: 500px;
+  border: 1px solid black;
+}
+
+.acid-list {
+  max-height: 60vh;
+  overflow: scroll;
+}

@@ -1,0 +1,41 @@
+; (executable
+;  (name yaacs_server)
+;  (flags (-w -g))
+;  (link_flags (-g))
+;  (preprocess
+;   (pps
+;     ppx_deriving.show
+;     ppx_deriving_cmdliner
+;  ))
+;  (libraries bacterie_libs
+;             local_libs
+;             server
+;             ppx_deriving
+;             ppx_deriving_cmdliner
+;             yaac_db
+;  )
+;  (modules ("yaacs_server"))
+; )
+(executable
+ (name yaac)
+ (flags (-w -g))
+ ; (link_flags (-g))
+ (preprocess
+  (pps
+    ppx_subliner
+ ))
+ (libraries
+   ppx_subliner
+
+   bacterie_libs
+   base_chemistry
+ )
+ (modules ("yaac"))
+)
+
+(executables
+ (names scenario1 scenario2 scenario3 scenario4)
+ (flags -w)
+ (libraries bacterie_libs local_libs reactors)
+ (modules ("scenario1" "scenario2" "scenario3" "scenario4"))
+ )
