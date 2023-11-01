@@ -84,12 +84,13 @@ let collide randstate mol1 mol2 =
     else [ mol2 ]
   in
   let l = l1 @ l2 in
+ 
   logger#debug "Breaked into %s"
     (CCFormat.sprintf "%a" (CCList.pp CCFormat.string) l);
   let fl = List.map (random_flip randstate) l in
   logger#debug "Flipped into %s"
     (CCFormat.sprintf "%a" (CCList.pp CCFormat.string) fl);
-  let mols = shuffle_list fl in
+  let mols = Random_s.shuffle_list randstate fl in
   logger#debug "Shuffled into %s"
     (CCFormat.sprintf "%a" (CCList.pp CCFormat.string) mols);
 

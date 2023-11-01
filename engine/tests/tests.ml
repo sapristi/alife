@@ -7,6 +7,10 @@ let () =
   let open Alcotest in
   run "Bacterie tests"
     [
+      ( "Full sig - random same behaviour",
+        [test_case "same random" `Quick Test_full_sig.test_randstate_same_behaviour;]
+      );
+
       ( "Full Sig initial",
         List.map
           (fun (name, get_bact) ->

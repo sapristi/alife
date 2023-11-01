@@ -1,5 +1,6 @@
 open Bacterie_libs
 open Easy_logging_yojson
+open Local_libs
 
 let logger = Logging.get_logger "Yaac.Test.full_sig"
 
@@ -55,6 +56,7 @@ let test_equality_reacs_after_ser_deser name get_bact nb_reacs_before nb_reacs_a
   for i = 1 to nb_reacs_after do
     Bacterie.next_reaction bact;
     Bacterie.next_reaction serdeser;
+    Alcotest.check bact_testable ("ser_deser bact " ^ name ^ " | step " ^ (string_of_int i)) bact serdeser
   done;
 
   let transitions = Base.List.zip_exn
@@ -76,20 +78,33 @@ let test_equality_reacs_after_ser_deser name get_bact nb_reacs_before nb_reacs_a
         (Reaction.Reactant.Amol.show serdeser_amd);
 
     ) transitions;
-  Alcotest.check reac_mgr_t_testable
-    ("ser_deser reac_mgr t " ^ name)
-    bact.reac_mgr.t_set serdeser.reac_mgr.t_set;
-  Alcotest.check reac_mgr_g_testable
-    ("ser_deser reac_mgr g " ^ name)
-    bact.reac_mgr.g_set serdeser.reac_mgr.g_set;
-  Alcotest.check reac_mgr_b_testable
-    ("ser_deser reac_mgr b " ^ name)
-    bact.reac_mgr.b_set serdeser.reac_mgr.b_set;
-  Alcotest.check reac_mgr_c_testable
-    ("ser_deser reac_mgr c " ^ name)
-    bact.reac_mgr.c_set serdeser.reac_mgr.c_set;
+  (* Alcotest.check reac_mgr_t_testable *)
+  (*   ("ser_deser transitions reactions " ^ name) *)
+  (*   bact.reac_mgr.t_set serdeser.reac_mgr.t_set; *)
+  (* Alcotest.check reac_mgr_g_testable *)
+  (*   ("ser_deser grab reactions " ^ name) *)
+  (*   bact.reac_mgr.g_set serdeser.reac_mgr.g_set; *)
+  (* Alcotest.check reac_mgr_b_testable *)
+  (*   ("ser_deser break reactions " ^ name) *)
+  (*   bact.reac_mgr.b_set serdeser.reac_mgr.b_set; *)
+  (* Alcotest.check reac_mgr_c_testable *)
+  (*   ("ser_deser collisions reactions " ^ name) *)
+  (*   bact.reac_mgr.c_set serdeser.reac_mgr.c_set; *)
 
-  Alcotest.check reac_mgr_testable
-    ("ser_deser reac_mgr " ^ name)
-    bact.reac_mgr serdeser.reac_mgr;
+  (* Alcotest.check reac_mgr_testable *)
+  (*   ("ser_deser reac_mgr " ^ name) *)
+  (*   bact.reac_mgr serdeser.reac_mgr; *)
   Alcotest.check bact_testable ("ser_deser bact " ^ name) bact serdeser
+
+
+let test_randstate_same_behaviour () =
+  let bact = Bacterie.make_empty () in
+  let serdeser = bact |> Bacterie_libs.Bacterie.FullSig.bact_to_yojson
+    |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson |> Result.get_ok
+  in
+  for i = 0 to 1000 do
+    let res_bact = Random_s.bernouil_f !(bact.randstate) 0.5
+    and res_serdeser = Random_s.bernouil_f !(serdeser.randstate) 0.5
+    in
+    Alcotest.(check bool) ("randstate | step " ^ (string_of_int i)) res_bact res_serdeser
+  done

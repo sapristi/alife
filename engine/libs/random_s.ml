@@ -43,3 +43,16 @@ let pick_from_weighted_list randstate total_weight l =
     (Numeric.Q.to_string total_weight)
     (Numeric.Q.to_string target_weight);
   aux target_weight l
+
+let shuffle_array randstate a =
+  for i = Array.length a - 1 downto 1 do
+    let j = int randstate (i + 1) in
+    let b = a.(i) in
+    a.(i) <- a.(j);
+    a.(j) <- b
+  done
+
+let shuffle_list randstate l =
+  let a = Array.of_list l in
+  shuffle_array randstate a;
+  Array.to_list a
