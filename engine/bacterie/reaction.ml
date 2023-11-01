@@ -65,8 +65,8 @@ end = struct
       mutable ambient : bool;
     }
     [@@deriving to_yojson, eq]
-    let show (imd : t) = Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol
 
+    let show (imd : t) = Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol
     let pp (f : Format.formatter) (imd : t) =
       Format.pp_print_string f (show imd)
 

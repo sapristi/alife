@@ -16,6 +16,12 @@
 
 ** Ideas
 
+*** TODO Rename environment fields
+     - use factor instead of rate
+*** Improve logging / observability
+    - [ ] add name to bactery
+    - [ ] use reference to bactery instead of env in reac_mgr
+
 *** CANCELED Instead of overriding equality checks, have uid generator per bactery
      -> would compromise interaction between bacteries
 *** Add UI helpers for snaphots

@@ -158,12 +158,18 @@ end
 *)
 
 module CSet = struct
-  (** Collision factor - we only consider the number of molecules for now *)
+
+  (** Collision factor - this is constant for now² *)
   let collision_factor (reactant : Reactant.t) =
     match reactant with
     | Dummy -> failwith "dummy"
     | Amol amol -> Q.one
-    | ImolSet imolset -> Q.of_int imolset.qtt
+    | ImolSet imolset -> Q.one
+
+  let collision_rate (reactant : Reactant.t) =
+    match reactant with
+    | Dummy -> failwith "dummy"
+    | _ -> Q.(of_int (Reactant.qtt reactant) * (collision_factor reactant))
 
   module Colliders = struct
     include Local_libs.Set.Make (Reactant)
@@ -173,7 +179,7 @@ module CSet = struct
 
     let random_pick randstate (ccset : t) =
       let weighted_l =
-        List.map (fun elem -> (collision_factor elem, elem)) (to_list ccset)
+        List.map (fun elem -> (collision_rate elem, elem)) (to_list ccset)
       in
       let total_weight =
         List.fold_left
@@ -205,10 +211,8 @@ module CSet = struct
   }
   [@@deriving eq, show]
 
-
   let to_yojson (s : t) = `String "CSet"
   let cardinal (s : t) = Colliders.cardinal s.colliders
-
   let empty () : t =
     {
       rates_sum = Q.zero;
@@ -225,13 +229,14 @@ module CSet = struct
 
      The total rate is
         TR = Σ_(i<j) λᵢqᵢ λⱼqⱼ + Σᵢ λᵢ² qᵢ(qᵢ - 1)
+        TR = Σ_(i<j) γᵢγⱼ + Σᵢ γᵢ (γᵢ - λᵢ)
 
       In order to quickly compute an update of the total rate,
         we can use the identity
         (Σᵢ γᵢ)² = 2 Σ_(i<j) γᵢ γⱼ + Σᵢ γᵢ²
 
       to rewrite TR as:
-        TRₙ = [ (Σᵢⁿ γᵢ)² - Σᵢⁿ γᵢ² ]/2  + Σᵢⁿ λᵢ²qᵢ(qᵢ - 1)
+        TRₙ = [ (Σᵢⁿ γᵢ)² - Σᵢⁿ γᵢ² ]/2  + Σᵢⁿ γᵢ(γᵢ - λᵢ)
 
      We thus have the update formulas:
       * TRₙ₊₁ = TRₙ   + γₙ₊₁SRₙ + λₙ₊₁²qₙ₊₁(qₙ₊₁ - 1)  (when we add a molecule / qtt)
@@ -249,21 +254,20 @@ module CSet = struct
      *)
   let calculate_rates_aux (s : t) =
     let open Q in
-    let rate_t_qtt a = collision_factor a * of_int (Reactant.qtt a) in
     let single_rates_sum =
       Colliders.fold
-        (fun (a : Reactant.t) b -> rate_t_qtt a + b)
+        (fun (a : Reactant.t) b -> collision_rate a + b)
         s.colliders zero
     and square_rates_sum =
       Colliders.fold
-        (fun (a : Reactant.t) b -> (rate_t_qtt a * rate_t_qtt a) + b)
+        (fun (a : Reactant.t) b -> (collision_rate a * collision_rate a) + b)
         s.colliders zero
     in
     let total_rate =
       (((single_rates_sum * single_rates_sum) - square_rates_sum) / (one + one))
       + Colliders.fold
           (fun (a : Reactant.t) b ->
-            (collision_factor a * of_int (Reactant.qtt a) * rate_t_qtt a) + b)
+            (collision_rate a * (collision_rate a - collision_factor a)) + b)
           s.colliders zero
     in
     (single_rates_sum, total_rate)
@@ -274,13 +278,12 @@ module CSet = struct
 
   let total_rate s = s.rates_sum
 
-  let check_reac_rate (s : t) =
+  let check_reac_rates (s : t) =
     if not (Q.equal s.rates_sum (calculate_rate s)) then (
       logger#error "Stored and computed rates are not equal: %.20f != %.20f\n%s"
         (Q.to_float s.rates_sum)
         (Q.to_float (calculate_rate s))
-        (show s)
-      |> ignore;
+        (show s);
       failwith
         (Printf.sprintf "error %f %f\n %s" (Q.to_float s.rates_sum)
            (Q.to_float (calculate_rate s))
@@ -339,7 +342,7 @@ type t = {
   c_set : CSet.t;
   mutable reac_counter : int; [@equal fun a b -> true]
   (* for tests - we do not care about reac counter - should we serialize it instead ? *)
-  env : Environment.t ref;
+  env : Environment.t ref; [@equal fun a b -> true] [@opaque]
 }
 [@@deriving show, eq]
 
@@ -447,6 +450,12 @@ let add_collider md reac_mgr =
 
 (* let rc = Reaction.Collision  in
    Reactant.add_reac rc md; *)
+
+let check_reac_rates reac_mrg =
+  TSet.check_reac_rates reac_mrg.t_set;
+  GSet.check_reac_rates reac_mrg.g_set;
+  BSet.check_reac_rates reac_mrg.b_set;
+  CSet.check_reac_rates reac_mrg.c_set
 
 (** pick next reaction *)
 (* TODO: replace to_list with to_enum ? *)

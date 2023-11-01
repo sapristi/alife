@@ -39,7 +39,10 @@ let () =
                `Quick
                (Test_full_sig.test_equality_reacs_after_ser_deser name get_bact 10 10))
           Initial_states.bacteries );
-
+      ( "Reactions rates", [
+            test_case "collisions" `Quick Test_reaction_rates.test_collision_reactions_rates;
+          ]
+      );
       ( "Reactions",
         [
           test_case "simple bind" `Quick Test_reactions.simple_bind;

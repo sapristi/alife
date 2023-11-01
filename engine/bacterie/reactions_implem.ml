@@ -1,3 +1,9 @@
+(** Effects
+
+    This file contains the functions used by the reactions to define what
+    happens when the reaction is triggered.
+*)
+
 open Local_libs
 open Misc_library
 open Easy_logging_yojson
@@ -6,14 +12,8 @@ open CCList
 
 let logger = Logging.get_logger "Yaac.Bact.Reacs_effects"
 
-(* * File overview *)
 
-(* This file contains the functions used by the reactions to define what  *)
-(* happens when the reaction is triggered.  *)
-(* The functions are externalised in this file to allow easy configuration *)
-(* of implementation details *)
-
-(* * asymetric_grab auxiliary function *)
+(** asymetric_grab: one pnet grabs something *)
 let asymetric_grab randstate mol pnet =
   let grabs = Petri_net.get_possible_mol_grabs mol pnet in
   if not (grabs = []) then
@@ -21,7 +21,7 @@ let asymetric_grab randstate mol pnet =
     match grab with pos -> Petri_net.grab mol pos pid pnet
   else false
 
-(* * break function *)
+(** break function: breaks a mol in two pieces *)
 let break randstate mol =
   let n = String.length mol in
   let b = 1 + Random_s.int randstate (n - 1) in
@@ -36,14 +36,14 @@ let break_l randstate mol =
     let b = 1 + Random_s.int randstate (n - 1) in
     [ String.sub mol 0 b; String.sub mol b (n - b) ]
 
-(* * collision *)
-(* The result of a collision is a reorganisation of *)
-(* both colliding molecules. Each operation happens  *)
-(* with a configurable probabily: *)
-(*  - each colliding molecule can break in two pieces *)
-(*  - each resulting piece can be flipped *)
-(*  - the pieces will then form new molecules *)
-(*    by concatenation. *)
+(** collision
+ The result of a collision is a reorganisation of
+ both colliding molecules. Each operation happens
+ with a configurable probability:
+  - each colliding molecule can break in two pieces
+  - each resulting piece can be flipped
+  - the pieces will then form new molecules
+    by concatenation. *)
 
 let rec random_flip randstate m =
   if Random_s.bernouil_f randstate 0.5 then

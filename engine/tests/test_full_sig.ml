@@ -14,7 +14,8 @@ let reac_mgr_c_testable = Alcotest.testable Reac_mgr.CSet.pp Reac_mgr.CSet.equal
 let test_equality_reacs_before_ser_deser name get_bact nb_reacs () =
   let bact = get_bact () in
   for i = 1 to nb_reacs do
-    Bacterie.next_reaction bact
+    Bacterie.next_reaction bact;
+    Reac_mgr.check_reac_rates bact.reac_mgr;
   done;
 
   let serdeser =

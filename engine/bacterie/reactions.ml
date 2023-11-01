@@ -3,53 +3,55 @@ open Misc_library
 open Numeric
 open Easy_logging_yojson
 open Base_chemistry
-open Reactions_effects
+open Reactions_implem
 
 let logger = Logging.get_logger "Yaac.Bact.Reactions"
 
-(* * file overview *)
+(** Reactions
 
-(*   Defines a functor that takes a Reactant module and makes reactions out *)
-(*   of it. Possible reactions are : *)
+Defines a functor that takes a Reactant module and makes reactions out
+of it. Possible reactions are :
 
-(*   + Grab : *)
-(*     grab between an active molecule and another reactant *)
++ Grab :
+  grab between an active molecule and another reactant
 
-(*   + Transition : *)
-(*     launches a transition in an active molecule *)
++ Transition :
+  launches a transition in an active molecule
 
-(*   + Break : *)
-(*     a molecules breaks in two pieces *)
++ Break :
+  a molecules breaks in two pieces
 
-(* ** Reaction general *)
 
-(*    A reaction is a record with : *)
-(*    + for each reactant, a field with a reference to this reactant *)
-(*    + a mutable rate field to store the rate *)
+Implem details
+==============
 
-(*    In a reaction module, the following functions are defined *)
+A reaction is a record with :
++ for each reactant, a field with a reference to this reactant
++ a mutable rate field to store the rate
 
-(*    + calculate_rate (not public) : *)
-(*      calculates the rate at which the reaction takes place *)
 
-(*    + rate : *)
-(*      returns the value in rate field *)
+In a reaction module, the following functions are defined
 
-(*    + update_rate : *)
-(*      modifies rate field with a newly calculated value *)
-(*      and returns the difference between old and new rate *)
-(*      (for easy update of global rate) *)
++ calculate_rate (not public) :
+  calculates the rate at which the reaction takes place
 
-(*    + make : creates the reaction from references to the reactants *)
++ rate:
+  returns the value in rate field
 
-(*    + eval : performs the reaction on the reactants and returns a list *)
-(*      of actions to be performed at higher level *)
++ update_rate :
+  modifies rate field with a newly calculated value
+  and returns the difference between old and new rate
+  (for easy update of global rate)
 
-(* *** TODO tasks *)
-(*     + clearly define what is to be done in eval *)
-(*       and what is to be returned higher, and why *)
++ make : creates the reaction from references to the reactants
 
-(* * REACTANT signature *)
++ eval : performs the reaction on the reactants and returns a list
+  of actions to be performed at higher level
+
+* TODO tasks
+     + clearly define what is to be done in eval
+       and what is to be returned higher, and why *)
+
 
 module type REACTANT = sig
   type reac
@@ -120,8 +122,6 @@ module type REACTANT = sig
        and type reacSet := reacSet
 end
 
-(* * ReactionsM functor *)
-
 module ReactionsM (R : REACTANT) = struct
   type effect =
     | T_effects of Place.transition_effect list
@@ -154,7 +154,6 @@ module ReactionsM (R : REACTANT) = struct
     val get_reactants : t -> build_t
   end
 
-  (* ** Grab reaction *)
   module Grab : REAC with type build_t = R.Amol.t * R.t = struct
     type t = {
       mutable rate : Q.t; [@compare fun a b -> 0] (* TODO: why this ? *)
@@ -169,7 +168,16 @@ module ReactionsM (R : REACTANT) = struct
       let mol = R.mol grabed_data and qtt = R.qtt grabed_data in
       Q.(Petri_net.grab_factor mol graber_data.pnet * of_int qtt)
 
-    let rate ({ rate; _ } : t) : Q.t = rate
+    (* let rate ({ rate; _ } : t) : Q.t = rate *)
+    let rate (g : t) : Q.t =
+      let res = g.rate and calc = calculate_rate g in
+      if Q.equal res calc
+      then
+        res
+      else (
+        logger#warning "Different stored and calculated rates %s %s" (show g) (Q.show calc);
+        failwith "problem"
+      )
 
     let update_rate ({ rate; _ } as g : t) =
       let old_rate = rate in
@@ -198,7 +206,6 @@ module ReactionsM (R : REACTANT) = struct
     let get_reactants g = (g.graber_data, g.grabed_data)
   end
 
-  (* **  Transition reaction *)
 
   module Transition : REAC with type build_t = R.Amol.t = struct
     type t = { mutable rate : Q.t; [@compare fun a b -> 0] amd : R.Amol.t }
@@ -207,7 +214,17 @@ module ReactionsM (R : REACTANT) = struct
     type build_t = R.Amol.t
 
     let calculate_rate (t : t) = Q.of_int t.amd.pnet.launchables_nb
-    let rate (t : t) = t.rate
+
+    (* let rate (t : t) = t.rate *)
+    let rate (g : t) : Q.t =
+      let res = g.rate and calc = calculate_rate g in
+      if Q.equal res calc
+      then
+        res
+      else (
+        logger#warning "Different stored and calculated rates %s %s" (show g) (Q.show calc);
+        failwith "problem"
+      )
 
     let update_rate ({ rate; _ } as t : t) =
       let old_rate = rate in
@@ -232,8 +249,6 @@ module ReactionsM (R : REACTANT) = struct
     let get_reactants t = t.amd
   end
 
-  (* **  Break reaction *)
-
   module Break : REAC with type build_t = R.t = struct
     type t = { mutable rate : Q.t; [@compare fun a b -> 0] reactant : R.t }
     [@@deriving show, ord, to_yojson, eq]
@@ -244,7 +259,16 @@ module ReactionsM (R : REACTANT) = struct
       let mol = R.mol ba.reactant in
       Q.(sqrt (of_int (String.length mol) - one) * of_int (R.qtt ba.reactant))
 
-    let rate ba = ba.rate
+    (* let rate ba = ba.rate *)
+    let rate (g : t) : Q.t =
+      let res = g.rate and calc = calculate_rate g in
+      if Q.equal res calc
+      then
+        res
+      else (
+        logger#warning "Different stored and calculated rates %s %s" (show g) (Q.show calc);
+        failwith "problem"
+      )
 
     let update_rate ba =
       let old_rate = ba.rate in
@@ -256,35 +280,31 @@ module ReactionsM (R : REACTANT) = struct
 
     let eval randstate ba =
       let mol = R.mol ba.reactant in
-      let m1, m2 = Reactions_effects.break randstate mol in
+      let m1, m2 = break randstate mol in
       [ Remove_one ba.reactant; Release_mol m1; Release_mol m2 ]
 
     let remove_reac_from_reactants reac g = ()
     let get_reactants b = b.reactant
   end
 
+
   module Collision : REAC with type build_t = R.t * R.t = struct
-    type t = { mutable rate : Q.t; [@compare fun a b -> 0] r1 : R.t; r2 : R.t }
+    type t = { r1 : R.t; r2 : R.t }
     [@@deriving show, ord, to_yojson, eq]
 
     type build_t = R.t * R.t
 
-    let calculate_rate c = Q.one
+    let calculate_rate c = failwith "This should not be used"
+        (** Return length of mol instead or somehting like that ? *)
 
-    let rate c =
-      logger#warning "This should not be used";
-      c.rate
+    let rate c = failwith "This should not be used"
 
-    let update_rate c =
-      logger#warning "This should not be used";
-      let old_rate = c.rate in
-      c.rate <- calculate_rate c;
-      Q.(c.rate - old_rate)
+    let update_rate c = failwith "This should not be used"
 
     let make (r1, r2) =
-      { r1; r2; rate = calculate_rate { r1; r2; rate = Q.zero } }
+      { r1; r2; }
 
-    let eval randstate { r1; r2; rate } =
+    let eval randstate { r1; r2 } =
       let m1 = R.mol r1 and m2 = R.mol r2 in
       let new_mols = collide randstate m1 m2 in
 
