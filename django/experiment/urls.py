@@ -1,9 +1,16 @@
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 
 from . import views
 
-app_name = "polls"
+
+router = DefaultRouter()
+router.register(r'pages', views.PagesViewSet, basename='pages')
+router.register(r'experiment', views.ExperimentView, basename='experiment')
+
+
 urlpatterns = [
     path("", views.home),
-    path("mol/", views.Molecule.as_view()),
+    path("mol/", views.MoleculeView.as_view()),
+    *router.urls
 ]

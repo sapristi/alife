@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "utils",
 
     "django_extensions",
+    "admin_extra_buttons",
 
     'django.contrib.admin',
     'django.contrib.auth',

@@ -24,7 +24,7 @@ class Experiment(TSModel):
         return self.snapshots.last()
 
 class BactSnapshot(TSModel):
-    bact_snapshot = models.JSONField()
+    data = models.JSONField()
     nb_reactions = models.IntegerField()
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 

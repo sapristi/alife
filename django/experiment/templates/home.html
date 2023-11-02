@@ -1,0 +1,15 @@
+{% extends 'base.html'  %}
+{% block body %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">
+      Home
+    </h1>
+    <ul>
+      <li><a href="{% url 'admin:index' %}" target="_blank">Admin</a></li>
+      <li><a href="{% url 'pages-molecule' %}" target="_blank">Mol</a></li>
+      <li><a href="{% url 'pages-experiment' %}" target="_blank">Experiment</a></li>
+  </div>
+</section>
+
+{% endblock %}

@@ -84,8 +84,8 @@ module EvalCmd = struct
         initial_state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson
         |> Result.get_ok
       else
-        initial_state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.BactSig.of_yojson
-        |> Result.get_ok |> Bacterie_libs.Bacterie.BactSig.to_bact
+        initial_state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.CompactSig.of_yojson
+        |> Result.get_ok |> Bacterie_libs.Bacterie.CompactSig.to_bact
     in
     for i = 0 to nb_steps - 1 do
       try

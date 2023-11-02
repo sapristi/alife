@@ -59,11 +59,14 @@
  import {setup_pnet_cy} from 'cytoscape_utils';
  import {pnet_to_cytoscape_elements} from 'cytoscape_pnet';
 
+
  const html = htm.bind(h);
- const mol = signal("");
+ const urlParams = new URLSearchParams(window.location.search);
+ const mol = signal(urlParams.get("mol") || "");
  const prot = signal([]);
  const pnet = signal(null);
 
+ // called when mol.value changes
  effect( () => {
    console.log("CHANGE", mol.value)
    fetch(`http://${window.location.host}/mol/`, {
@@ -80,6 +83,12 @@
        console.log("RECEIVED", data)
        prot.value = data.prot
        pnet.value = data.pnet
+
+       if (urlParams.get("mol") !== mol.value) {
+         urlParams.set('mol', mol.value);
+         window.history.replaceState(null, null, "?" + urlParams);
+       }
+
      }
    )
  })
