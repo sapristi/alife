@@ -6,14 +6,33 @@
 {% endblock %}
 
 {% block body %}
-<section class="section">
-  <div class="container">
-    <h1 class="title">
-      Experiments
-    </h1>
-    <div id="experiments-select-component"></div>
+<div class="columns">
+  <div class="column is-one-fifth">
+    <section class="section">
+      <h1 class="title">
+        Experiments
+      </h1>
+      <div id="experiments-component"></div>
+    </section>
   </div>
-</section>
+  <div class="column is-two-fifths">
+    <section class="section">
+      <h1 class="title">
+        Inert molecules
+      </h1>
+      <div id="inert-mols-component"></div>
+    </section>
+  </div>
+  <div class="column is-two-fifths">
+    <section class="section">
+      <h1 class="title">
+        Active molecules
+      </h1>
+      <div id="active-mols-component"></div>
+    </section>
+  </div>
+
+</div>
 <script type="importmap">
  {
    "imports": {
@@ -39,6 +58,8 @@
 
  const html = htm.bind(h);
  const exp_id = signal(null);
+ const snapshot = signal(null);
+ const experiment = signal(null);
 
  // called when mol.value changes
  effect( () => {
@@ -55,26 +76,103 @@
    ).then(
      data => {
        console.log("RECEIVED", data)
+       const {last_snapshot, ...experiment} = data;
+
+       snapshot.value = last_snapshot;
+       experiment.value = experiment;
      }
    )
  })
 
- let ExperimentSelect = () => {
+ let SnapshotInfoPanel = () => {
+   if (!snapshot.value) {return null}
+
+   return html`
+     <div class="message">
+       <div class="message-body content">
+         Loaded snapshot:
+         <ul>
+           <li>${snapshot.value.timestamp}</li>
+           <li>${snapshot.value.nb_reactions} reactions performed</li>
+         </ul>
+       </div>
+     </div>`
+ }
+
+ let ExperimentInfoPanel = () => {
+   if (!experiment.value) {return null}
+
+   return html`
+     <div class="message">
+       <div class="message-header">${experiment.name}</div>
+       <div class="message-body content">
+         <ul>
+           <li>${snapshot.value.timestamp}</li>
+           <li>${snapshot.value.nb_reactions} reactions performed</li>
+         </ul>
+       </div>
+     </div>`
+ }
+
+
+ let ExperimentSection = () => {
 
    const selected = exp_id.value
    let onChange = e => {
      exp_id.value = e.target.value
    }
-
    return html`
-     <select value=${selected} onChange=${onChange}>
-       {% for experiment in experiments %}
-       <option value="{{experiment.id}}">{{experiment.id}} - {{experiment.name}}</option>
-       {% endfor %}
-     </select>
+     <Fragment>
+       <div class="select">
+         <select value=${selected} onChange=${onChange}>
+           {% for experiment in experiments %}
+           <option value="{{experiment.id}}">{{experiment.id}} - {{experiment.name}}</option>
+           {% endfor %}
+         </select>
+       </div>
+       <${ExperimentInfoPanel} />
+       <${SnapshotInfoPanel} />
+     </Fragment>
    `
  }
 
- render(html`<${ExperimentSelect} />`, document.getElementById("experiments-select-component"));
+ let ImolDisplay = ({mol, qtt, ambient}) => {
+   const ambient_str = ambient ? " (ambient)" : ""
+   return html`
+     <div class="message">
+       <div class="message-header" style="text-overflow: ellipsis">
+         <div class="mol-display">${mol}</div><div> - ${qtt}</div><div>${ambient_str}</div>
+       </div>
+     </div>`
+ }
+
+ let ImolListDisplay = () => {
+   const imols = (snapshot.value) ? snapshot.value.data.ireactants : []
+   return html`
+     <ul>${imols.map(imol => html`<li><${ImolDisplay} ...${imol} / ></li>`)}</ul>
+     `
+ }
+
+ let AmolDisplay = ({mol, pnets}) => {
+   const qtt = pnets.length
+   return html`
+     <div class="message">
+       <div class="message-header">
+         <div class="mol-display">${mol}</div><div> - ${qtt}</div>
+       </div>
+     </div>`
+ }
+
+
+ let AmolListDisplay = () => {
+   const amols = (snapshot.value) ? snapshot.value.data.areactants : []
+   return html`
+     <ul>${amols.map(([mol, pnets]) => html`<li><${AmolDisplay} mol=${mol} pnets=${pnets} / ></li>`)}</ul>
+     `
+ }
+
+ render(html`<${ExperimentSection} />`, document.getElementById("experiments-component"));
+ render(html`<${ImolListDisplay} />`, document.getElementById("inert-mols-component"));
+ render(html`<${AmolListDisplay} />`, document.getElementById("active-mols-component"));
 </script>
 {% endblock %}

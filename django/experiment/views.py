@@ -60,7 +60,7 @@ class MoleculeView(View):
 class SnapshotSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.BactSnapshot
-        fields = ('data', 'nb_reactions')
+        fields = ('data', 'nb_reactions', 'timestamp')
 
 class ExperimentSerializer(serializers.ModelSerializer):
     last_snapshot = SnapshotSerializer()
