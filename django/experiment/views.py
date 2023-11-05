@@ -10,6 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from . import models
+from experiment.utils import yaac
 
 def home(request):
     """Home page"""
@@ -47,12 +48,7 @@ class MoleculeView(View):
 
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
-        p = sp.run(
-            ["./yaac", "from-mol", f"--mol={data.get('mol', '')}"],
-            capture_output=True
-        )
-        res = json.loads(p.stdout)
-        print(res)
+        res = yaac.run("from-mol", mol=data.get('mol', ''))
         return JsonResponse(
             res, safe=False
         )
@@ -70,7 +66,28 @@ class ExperimentSerializer(serializers.ModelSerializer):
 
 class ExperimentView(viewsets.ViewSet):
     """Experiment API"""
+    authentication_classes = []
+
     def retrieve(self, request, pk=None):
         exp = models.Experiment.objects.get(pk=pk)
         serializer = ExperimentSerializer(exp)
         return Response(serializer.data)
+
+    @action(detail=False, methods=("POST",))
+    def next_state(self, request):
+        body = request.body.decode()
+        print("RECEIVED", body)
+        data = json.loads(body)
+        state = data["state"]
+        res = yaac.run(
+            "eval",
+            initial_state=json.dumps(state),
+            nb_steps=1,
+            use_dump="true"
+        )
+        print("GOT", res)
+        if res is None:
+            return JsonResponse({"error": "problem"}, status=401)
+        return JsonResponse(
+            res, safe=False
+        )

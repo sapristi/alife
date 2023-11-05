@@ -47,7 +47,8 @@
      "cytoscape-cola": "{% static 'js/external/cytoscape-cola.mjs' %}",
      "cytoscape_utils": "{% static 'js/external/cytoscape_utils.mjs' %}",
      "cytoscape_pnet": "{% static 'js/external/cytoscape_pnet.js' %}",
-     "utils": "{% static 'js/utils.mjs' %}"
+     "utils": "{% static 'js/utils.mjs' %}",
+     "components": "{% static 'js/components.mjs' %}"
    }
  }
 </script>
@@ -60,6 +61,7 @@
  import {setup_pnet_cy} from 'cytoscape_utils';
  import {pnet_to_cytoscape_elements} from 'cytoscape_pnet';
  import {urlSyncedSignal} from 'utils';
+ import {PnetGraphDisplay} from 'components';
 
 
  const html = htm.bind(h);
@@ -121,40 +123,8 @@
      </ul>`
  }
 
- let PnetDisplay = () => {
-   const container = useRef(null);
-   const [cyWrapper, setCyWrapper] = useState(null)
-
-   useEffect(
-     () => {
-       if (container.current) {
-         const newWrapper = setup_pnet_cy({nodes: [], edges: []}, () => {})
-         newWrapper.cy.mount(container.current)
-         newWrapper.layout.run()
-         window.cyWrapper = newWrapper
-         setCyWrapper(newWrapper)
-         return () => newWrapper.cy.unmount()
-       }
-     },
-     [container]
-   )
-   if (pnet.value) {
-     const pnet_cytoscape = pnet_to_cytoscape_elements(pnet.value)
-     cyWrapper.layout = cyWrapper.replace_elements( pnet_cytoscape)
-     cyWrapper.update_pnet( pnet.value);
-     cyWrapper.layout.run();
-     // for some reason need a callback like this, can't pass directly cyWrapper.cy.fit
-     const fitCallback = () => {
-       cyWrapper.cy.fit()
-     }
-     setTimeout(fitCallback, 100)
-   }
-   return html`<div ref=${container} class="cytoscape-container"/>`
- }
-
- /* render(html`<${App} />`, document.body); */
  render(html`<${MolInput} />`, document.getElementById("mol-component"));
  render(html`<${ProtDisplay} />`, document.getElementById("prot-component"));
- render(html`<${PnetDisplay} />`, document.getElementById("pnet-component"));
+ render(html`<${PnetGraphDisplay}  pnetSignal=${pnet} />`, document.getElementById("pnet-component"));
 </script>
 {% endblock %}

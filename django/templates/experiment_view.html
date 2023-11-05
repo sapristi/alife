@@ -6,35 +6,27 @@
 
 {% block body %}
 <div class="columns">
-  <div class="column is-one-fifth">
+
+  <div class="column is-two-fifths">
+    <div id="experiments-component"></div>
+    <div id="mols-component"></div>
+  </div>
+  <div class="column is-three-fifths">
     <section class="section">
       <h1 class="title">
-        Experiments
+        Actions
       </h1>
-      <div id="experiments-component"></div>
+      <div id="actions-component"></div>
     </section>
-  </div>
-  <div class="column is-two-fifths" id="second-column">
-  </div>
-  <div class="column is-two-fifths">
+    <section class="section">
+      <h1 class="title">
+        Petri net - cytoscape
+      </h1>
+      <div id="pnet-component"></div>
+    </section>
   </div>
 
 </div>
-<!-- <script type="importmap">
-     {
-     "imports": {
-     "preact": "https://esm.sh/preact@10.12.1",
-     "preact/hooks": "https://esm.sh/preact@10.12.1/hooks?external=preact",
-     "@preact/signals": "https://esm.sh/@preact/signals@1.1.3?external=preact",
-     "htm": "https://esm.sh/htm@3.1.1",
-     "cytoscape": "{% static 'js/external/cytoscape.esm.min.js' %}",
-     "cytoscape-cola": "{% static 'js/external/cytoscape-cola.mjs' %}",
-     "cytoscape_utils": "{% static 'js/external/cytoscape_utils.mjs' %}",
-     "cytoscape_pnet": "{% static 'js/external/cytoscape_pnet.js' %}",
-     "utils": "{% static 'js/utils.mjs' %}"
-     }
-     }
-     </script> -->
 
 <script type="importmap">
  {
@@ -47,25 +39,27 @@
      "cytoscape-cola": "{% static 'js/external/cytoscape-cola.mjs' %}",
      "cytoscape_utils": "{% static 'js/external/cytoscape_utils.mjs' %}",
      "cytoscape_pnet": "{% static 'js/external/cytoscape_pnet.js' %}",
-     "utils": "{% static 'js/utils.mjs' %}"
+     "utils": "{% static 'js/utils.mjs' %}",
+     "components": "{% static 'js/components.mjs' %}"
    }
  }
 </script>
 <script type="module">
- import { h, render } from "preact";
- import { signal, effect } from "@preact/signals";
+ import { render } from "preact";
+ import { signal, effect, computed } from "@preact/signals";
  import { useState, useRef, useEffect } from 'preact/hooks';
- import htm from "htm";
  import {setup_pnet_cy} from 'cytoscape_utils';
  import {pnet_to_cytoscape_elements} from 'cytoscape_pnet';
  import {urlSyncedSignal} from 'utils';
+ import {html, PnetGraphDisplay} from 'components';
 
- const html = htm.bind(h);
  const exp_id = urlSyncedSignal("exp_id", null);
  const snapshot = signal(null);
+ const snapshot_data = signal(null);
  const experiment = signal(null);
+ const displayedPnetUid = signal(null);
 
- // called when mol.value changes
+ // called when exp_id.value changes
  effect( () => {
    console.log("CHANGE", exp_id.value)
    if (exp_id.value === null) {return}
@@ -80,28 +74,53 @@
    ).then(
      data => {
        console.log("RECEIVED", data)
-       const {last_snapshot, ...experiment_data} = data;
-
-       snapshot.value = last_snapshot;
-       experiment.value = experiment_data;
-       console.log("EXP", experiment.value)
+       snapshot_data.value = data.last_snapshot.data;
+       experiment.value = data;
      }
    )
  })
 
- let SnapshotInfoPanel = () => {
-   if (!snapshot.value) {return null}
+ // update displayed pnet - not very efficient
+ // more efficient data structure
+ // - mol -> uid list association
+ // - uid -> pnet association
+ const displayedPnet = computed(() => {
+   console.log("Updating pnet", displayedPnetUid.value)
+   if (!snapshot_data.value || displayedPnetUid.value === null) {console.log("early return"); return null}
+   for (let [mol, pnets] of snapshot_data.value.areactants) {
+     for (let pnet of pnets) {
+       if (pnet.uid === displayedPnetUid.value) {
+         return pnet
+       }
+     }
+   }
+   console.warn("didnt find selected pnet", displayedPnetUid.value);
+   return null;
+ })
 
+
+ let ActionsPanel = () => {
+   let nextState = () => {
+     fetch(`http://${window.location.host}/experiment/next_state/`, {
+       method: 'POST',
+       body: JSON.stringify({"state": snapshot_data.value}),
+       headers: {
+         'Accept': 'application/json',
+         'Content-Type': 'application/json'
+       },
+     }).then(
+       response => response.json()
+     ).then(
+       data => {
+         console.log("RECEIVED", data)
+         snapshot_data.value = data
+       }
+     )
+
+   }
    return html`
-     <div class="message">
-       <div class="message-body content">
-         Loaded snapshot:
-         <ul>
-           <li>${snapshot.value.timestamp}</li>
-           <li>${snapshot.value.nb_reactions} reactions performed</li>
-         </ul>
-       </div>
-     </div>`
+        <button class="button" onclick=${nextState}>Next state</button>
+   `
  }
 
  let ExperimentInfoPanel = () => {
@@ -109,13 +128,17 @@
 
    return html`
      <div class="message">
-       <div class="message-header">${experiment.value.name}</div>
+       <div class="message-header">Experiment - ${experiment.value.name}</div>
        <div class="message-body content">
          ${experiment.value.description}
+         Loaded snapshot:
+         <ul>
+           <li>${experiment.value.last_snapshot.timestamp}</li>
+           <li>${experiment.value.last_snapshot.nb_reactions} reactions performed</li>
+         </ul>
        </div>
      </div>`
  }
-
 
  let ExperimentSection = () => {
 
@@ -133,7 +156,6 @@
          </select>
        </div>
        <${ExperimentInfoPanel} />
-       <${SnapshotInfoPanel} />
      </Fragment>
    `
  }
@@ -157,6 +179,11 @@
      </table>`
  }
 
+ let PnetValueDisplay = ({pnet}) => {
+   const onClick = () => {displayedPnetUid.value = pnet.uid}
+   return html`<li><button class="button" onclick=${onClick}>uid:${pnet.uid}</button></li>`
+ }
+
  let AmolDisplay = ({mol, pnets}) => {
    const [open, setOpen] = useState(false);
    const qtt = pnets.length
@@ -164,20 +191,24 @@
    const onClick = () => {setOpen(!open)}
    if (!open) {
      return html`
-       <Fragment>
          <tr><td>${MolDisplay({mol})}</td><td>${qtt}</td>
-           <td><button class="button" onclick=${onClick}><span class="bulma-arrow-mixin"></span></button></td>
+           <td><button class="button is-small" onclick=${onClick}><span class="arrow-down"></span></button></td>
          </tr>
-       </Fragment>
      `
    } else {
      return html`
-       <Fragment>
-         <tr><td>${MolDisplay({mol})}</td><td>${qtt}</td>
-           <td><button class="button" onclick=${onClick}>Ʌ</button></td>
-         </tr>
-         <tr>THIS  is a row</tr>
-       </Fragment>
+       <tr><td>${MolDisplay({mol})}</td><td>${qtt}</td>
+         <td>
+           <button class="button is-small" onclick=${onClick}><span class="arrow-up"></span></button>
+         </td>
+       </tr>
+       <tr><td colspan="3">
+         <div class="content">
+          <ul style="margin-top: 0;">
+            ${pnets.map(pnet => html`<li><${PnetValueDisplay} pnet=${pnet} /></li>`)}
+          </ul>
+         </div>
+       </td></tr>
      `
    }
  }
@@ -186,7 +217,11 @@
  let AmolListDisplay = ({amols}) => {
    return html`
      <table class="table is-striped is-fullwidth" style="table-layout: fixed">
-       <thead><tr><th>Molecule</th><th style="width: 10%">Qtt</th></tr></thead>
+       <thead><tr>
+         <th>Molecule</th>
+         <th style="width: 10%">Qtt</th>
+         <th style="width: 10%"></th>
+       </tr></thead>
        <tbody>
          ${amols.map(([mol, pnets]) => AmolDisplay({mol, pnets}))}
        </tbody>
@@ -194,15 +229,15 @@
  }
 
  let MoleculesDisplay = () => {
-   if (!snapshot.value) {return null}
+   if (!snapshot_data.value) {return null}
 
-   const imols_all = snapshot.value.data.ireactants
+   const imols_all = snapshot_data.value.ireactants
    const ambient_imols = []
    const imols = []
    for (let imol of imols_all) {
      if (imol.ambient) {ambient_imols.push(imol)} else {imols.push(imol)}
    }
-   const amols = snapshot.value.data.areactants
+   const amols = snapshot_data.value.areactants
 
 
    return html`
@@ -225,14 +260,11 @@
        <${AmolListDisplay} amols=${amols} />
      </section>
    `
-
  }
 
-
-
  render(html`<${ExperimentSection} />`, document.getElementById("experiments-component"));
- /* render(html`<${ImolListDisplay} />`, document.getElementById("inert-mols-component"));
-  * render(html`<${AmolListDisplay} />`, document.getElementById("active-mols-component")); */
- render(html`<${MoleculesDisplay} />`, document.getElementById("second-column"));
+ render(html`<${MoleculesDisplay} />`, document.getElementById("mols-component"));
+ render(html`<${ActionsPanel} />`, document.getElementById("actions-component"));
+ render(html`<${PnetGraphDisplay} pnetSignal=${displayedPnet} />`, document.getElementById("pnet-component"));
 </script>
 {% endblock %}

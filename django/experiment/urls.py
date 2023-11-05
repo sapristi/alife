@@ -1,10 +1,10 @@
 from django.urls import path
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
 
 from . import views
 
 
-router = DefaultRouter()
+router = SimpleRouter()
 router.register(r'pages', views.PagesViewSet, basename='pages')
 router.register(r'experiment', views.ExperimentView, basename='experiment')
 

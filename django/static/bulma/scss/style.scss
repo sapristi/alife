@@ -1,0 +1,20 @@
+// 1. Import the initial variables
+@import "./node_modules/bulma/sass/utilities/initial-variables";
+
+// 2. Set your own initial variables
+
+// 3. Import the rest of Bulma
+@import "./node_modules/bulma/bulma";
+
+// 4. Import your stuff here
+
+.arrow-down {
+  @include arrow(black);
+}
+.arrow-up {
+  @include arrow(black);
+  transform: rotate(135deg);
+  margin-top: -0.2em
+}
+
+
