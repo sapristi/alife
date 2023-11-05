@@ -23,6 +23,10 @@
         Petri net - cytoscape
       </h1>
       <div id="pnet-component"></div>
+      <h2 class="title">
+        Selected node
+      </h2>
+      <div id="node-component"></div>
     </section>
   </div>
 
@@ -37,8 +41,8 @@
      "htm": "{% static 'js/external/htm_3.1.1.mjs' %}",
      "cytoscape": "{% static 'js/external/cytoscape.esm.min.js' %}",
      "cytoscape-cola": "{% static 'js/external/cytoscape-cola.mjs' %}",
-     "cytoscape_utils": "{% static 'js/external/cytoscape_utils.mjs' %}",
-     "cytoscape_pnet": "{% static 'js/external/cytoscape_pnet.js' %}",
+     "cytoscape_utils": "{% static 'js/cytoscape_utils.mjs' %}",
+     "cytoscape_pnet": "{% static 'js/cytoscape_pnet.js' %}",
      "utils": "{% static 'js/utils.mjs' %}",
      "components": "{% static 'js/components.mjs' %}"
    }
@@ -51,13 +55,15 @@
  import {setup_pnet_cy} from 'cytoscape_utils';
  import {pnet_to_cytoscape_elements} from 'cytoscape_pnet';
  import {urlSyncedSignal} from 'utils';
- import {html, PnetGraphDisplay} from 'components';
+ import {html,  makePnetPanels} from 'components';
 
  const exp_id = urlSyncedSignal("exp_id", null);
  const snapshot = signal(null);
  const snapshot_data = signal(null);
  const experiment = signal(null);
  const displayedPnetUid = signal(null);
+ // id of the selected node in the pnet - see cytoscape_utils.mjs
+ const selectedNodeId = signal(null);
 
  // called when exp_id.value changes
  effect( () => {
@@ -262,9 +268,12 @@
    `
  }
 
+ const {PnetGraphPanel, SelectedNodePanel} = makePnetPanels(displayedPnet)
+
  render(html`<${ExperimentSection} />`, document.getElementById("experiments-component"));
  render(html`<${MoleculesDisplay} />`, document.getElementById("mols-component"));
  render(html`<${ActionsPanel} />`, document.getElementById("actions-component"));
- render(html`<${PnetGraphDisplay} pnetSignal=${displayedPnet} />`, document.getElementById("pnet-component"));
+ render(html`<${PnetGraphPanel} pnetSignal=${displayedPnet} />`, document.getElementById("pnet-component"));
+ render(html`<${SelectedNodePanel} />`, document.getElementById("node-component"));
 </script>
 {% endblock %}
