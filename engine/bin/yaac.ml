@@ -136,7 +136,7 @@ let handle = function
   | From_prot params -> FromProtCmd.handle params
   | Eval params -> EvalCmd.handle params
   | Reactions params -> ReactionsCmd.handle params
-  | React -> Ok "todo"
+  | React -> Local_libs.Log_handler.main (); Ok "ok"
 
 let handle_wrapped input =
   match handle input with
