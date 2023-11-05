@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block scripts_extra %}
-<!-- <script src="{% static 'js/cytoscape_utils.js' %}"></script> -->
 {% endblock %}
 
 {% block body %}
@@ -15,39 +14,43 @@
       <div id="experiments-component"></div>
     </section>
   </div>
-  <div class="column is-two-fifths">
-    <section class="section">
-      <h1 class="title">
-        Inert molecules
-      </h1>
-      <div id="inert-mols-component"></div>
-    </section>
+  <div class="column is-two-fifths" id="second-column">
   </div>
   <div class="column is-two-fifths">
-    <section class="section">
-      <h1 class="title">
-        Active molecules
-      </h1>
-      <div id="active-mols-component"></div>
-    </section>
   </div>
 
 </div>
+<!-- <script type="importmap">
+     {
+     "imports": {
+     "preact": "https://esm.sh/preact@10.12.1",
+     "preact/hooks": "https://esm.sh/preact@10.12.1/hooks?external=preact",
+     "@preact/signals": "https://esm.sh/@preact/signals@1.1.3?external=preact",
+     "htm": "https://esm.sh/htm@3.1.1",
+     "cytoscape": "{% static 'js/external/cytoscape.esm.min.js' %}",
+     "cytoscape-cola": "{% static 'js/external/cytoscape-cola.mjs' %}",
+     "cytoscape_utils": "{% static 'js/external/cytoscape_utils.mjs' %}",
+     "cytoscape_pnet": "{% static 'js/external/cytoscape_pnet.js' %}",
+     "utils": "{% static 'js/utils.mjs' %}"
+     }
+     }
+     </script> -->
+
 <script type="importmap">
  {
    "imports": {
      "preact": "https://esm.sh/preact@10.12.1",
      "preact/hooks": "https://esm.sh/preact@10.12.1/hooks?external=preact",
      "@preact/signals": "https://esm.sh/@preact/signals@1.1.3?external=preact",
-     "htm": "https://esm.sh/htm@3.1.1",
-     "cytoscape": "{% static 'js/cytoscape.esm.min.js' %}",
-     "cytoscape-cola": "{% static 'js/cytoscape-cola.mjs' %}",
-     "cytoscape_utils": "{% static 'js/cytoscape_utils.mjs' %}",
-     "cytoscape_pnet": "{% static 'js/cytoscape_pnet.js' %}"
+     "htm": "{% static 'js/external/htm_3.1.1.mjs' %}",
+     "cytoscape": "{% static 'js/external/cytoscape.esm.min.js' %}",
+     "cytoscape-cola": "{% static 'js/external/cytoscape-cola.mjs' %}",
+     "cytoscape_utils": "{% static 'js/external/cytoscape_utils.mjs' %}",
+     "cytoscape_pnet": "{% static 'js/external/cytoscape_pnet.js' %}",
+     "utils": "{% static 'js/utils.mjs' %}"
    }
  }
 </script>
-
 <script type="module">
  import { h, render } from "preact";
  import { signal, effect } from "@preact/signals";
@@ -55,9 +58,10 @@
  import htm from "htm";
  import {setup_pnet_cy} from 'cytoscape_utils';
  import {pnet_to_cytoscape_elements} from 'cytoscape_pnet';
+ import {urlSyncedSignal} from 'utils';
 
  const html = htm.bind(h);
- const exp_id = signal(null);
+ const exp_id = urlSyncedSignal("exp_id", null);
  const snapshot = signal(null);
  const experiment = signal(null);
 
@@ -76,10 +80,11 @@
    ).then(
      data => {
        console.log("RECEIVED", data)
-       const {last_snapshot, ...experiment} = data;
+       const {last_snapshot, ...experiment_data} = data;
 
        snapshot.value = last_snapshot;
-       experiment.value = experiment;
+       experiment.value = experiment_data;
+       console.log("EXP", experiment.value)
      }
    )
  })
@@ -104,12 +109,9 @@
 
    return html`
      <div class="message">
-       <div class="message-header">${experiment.name}</div>
+       <div class="message-header">${experiment.value.name}</div>
        <div class="message-body content">
-         <ul>
-           <li>${snapshot.value.timestamp}</li>
-           <li>${snapshot.value.nb_reactions} reactions performed</li>
-         </ul>
+         ${experiment.value.description}
        </div>
      </div>`
  }
@@ -135,44 +137,87 @@
      </Fragment>
    `
  }
+ let MolDisplay = ({mol}) => {
+   return html`<div style="overflow: hidden; text-overflow: ellipsis; max-width: 100%">${mol}</div>`
+ }
 
  let ImolDisplay = ({mol, qtt, ambient}) => {
    const ambient_str = ambient ? " (ambient)" : ""
-   return html`
-     <div class="message">
-       <div class="message-header" style="text-overflow: ellipsis">
-         <div class="mol-display">${mol}</div><div> - ${qtt}</div><div>${ambient_str}</div>
-       </div>
-     </div>`
+
+   return html`<tr><td>${mol}</td><td>${qtt}</td></tr>`
  }
 
- let ImolListDisplay = () => {
-   const imols = (snapshot.value) ? snapshot.value.data.ireactants : []
+ let ImolListDisplay = ({imols}) => {
    return html`
-     <ul>${imols.map(imol => html`<li><${ImolDisplay} ...${imol} / ></li>`)}</ul>
-     `
+     <table class="table is-striped is-fullwidth" style="table-layout: fixed">
+       <thead><tr><th>Molecule</th><th style="width: 10%">Qtt</th></tr></thead>
+       <tbody>
+         ${imols.map(imol => ImolDisplay(imol))}
+       </tbody>
+     </table>`
  }
 
  let AmolDisplay = ({mol, pnets}) => {
+   const [open, setOpen] = useState(false);
    const qtt = pnets.length
-   return html`
-     <div class="message">
-       <div class="message-header">
-         <div class="mol-display">${mol}</div><div> - ${qtt}</div>
-       </div>
-     </div>`
+
+   if (!open) {
+     return html`<tr><td>${MolDisplay({mol})}</td><td>${qtt}</td></tr>`
+   } else {
+   }
  }
 
 
- let AmolListDisplay = () => {
-   const amols = (snapshot.value) ? snapshot.value.data.areactants : []
+ let AmolListDisplay = ({amols}) => {
    return html`
-     <ul>${amols.map(([mol, pnets]) => html`<li><${AmolDisplay} mol=${mol} pnets=${pnets} / ></li>`)}</ul>
-     `
+     <table class="table is-striped is-fullwidth" style="table-layout: fixed">
+       <thead><tr><th>Molecule</th><th style="width: 10%">Qtt</th></tr></thead>
+       <tbody>
+         ${amols.map(([mol, pnets]) => AmolDisplay({mol, pnets}))}
+       </tbody>
+     </table>`
  }
+
+ let MoleculesDisplay = () => {
+   if (!snapshot.value) {return null}
+
+   const imols_all = snapshot.value.data.ireactants
+   const ambient_imols = []
+   const imols = []
+   for (let imol of imols_all) {
+     if (imol.ambient) {ambient_imols.push(imol)} else {imols.push(imol)}
+   }
+   const amols = snapshot.value.data.areactants
+
+
+   return html`
+     <section class="section">
+       <h1 class="title">
+         Ambient molecules
+       </h1>
+       <${ImolListDisplay} imols=${ambient_imols} } />
+     </section>
+     <section class="section">
+       <h1 class="title">
+         Inert molecules
+       </h1>
+       <${ImolListDisplay} imols=${imols} />
+     </section>
+     <section class="section">
+       <h1 class="title">
+         Active molecules
+       </h1>
+       <${AmolListDisplay} amols=${amols} />
+     </section>
+   `
+
+ }
+
+
 
  render(html`<${ExperimentSection} />`, document.getElementById("experiments-component"));
- render(html`<${ImolListDisplay} />`, document.getElementById("inert-mols-component"));
- render(html`<${AmolListDisplay} />`, document.getElementById("active-mols-component"));
+ /* render(html`<${ImolListDisplay} />`, document.getElementById("inert-mols-component"));
+  * render(html`<${AmolListDisplay} />`, document.getElementById("active-mols-component")); */
+ render(html`<${MoleculesDisplay} />`, document.getElementById("second-column"));
 </script>
 {% endblock %}
