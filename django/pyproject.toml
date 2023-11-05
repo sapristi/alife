@@ -1,0 +1,28 @@
+[project]
+name = "alife"
+version = ""
+description = ""
+authors = [
+    {name = "Mathias Millet", email = "mathias@mmill.eu"},
+]
+dependencies = [
+    "django>=4.2.7",
+    "django-click>=2.3.0",
+    "django-admin-extra-buttons>=1.5.6",
+    "djangorestframework>=3.14.0",
+    "django-extensions>=3.2.3",
+    "django-bulma>=0.8.3",
+    "setuptools>=68.2.2",
+]
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "GPLV3"}
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "django-types>=0.19.1",
+    "ipython>=8.17.2",
+]
+
+[tool.pdm.scripts]
+manage.cmd = "./manage.py"

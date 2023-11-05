@@ -63,7 +63,7 @@ def run(experiment_id: int, nb_steps: int, reset: bool, log_level: None | str):
     res_snapshot = BactSnapshot(
         experiment=experiment,
         nb_reactions=nb_reactions_start + nb_steps,
-        bact_snapshot=res_data
+        data=res_data
     )
     res_snapshot.save()
     print("Saved new snapshot")

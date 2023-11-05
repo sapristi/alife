@@ -1,8 +1,0 @@
-django
-django-click
-django-extensions
-django-types
-
-ipython
-django-admin-extra-buttons
-djangorestframework

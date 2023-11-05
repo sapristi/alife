@@ -161,9 +161,24 @@
    const [open, setOpen] = useState(false);
    const qtt = pnets.length
 
+   const onClick = () => {setOpen(!open)}
    if (!open) {
-     return html`<tr><td>${MolDisplay({mol})}</td><td>${qtt}</td></tr>`
+     return html`
+       <Fragment>
+         <tr><td>${MolDisplay({mol})}</td><td>${qtt}</td>
+           <td><button class="button" onclick=${onClick}><span class="bulma-arrow-mixin"></span></button></td>
+         </tr>
+       </Fragment>
+     `
    } else {
+     return html`
+       <Fragment>
+         <tr><td>${MolDisplay({mol})}</td><td>${qtt}</td>
+           <td><button class="button" onclick=${onClick}>Ʌ</button></td>
+         </tr>
+         <tr>THIS  is a row</tr>
+       </Fragment>
+     `
    }
  }
 
