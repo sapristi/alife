@@ -14,10 +14,3 @@
  )
  (modules ("yaac"))
 )
-
-(executables
- (names scenario1 scenario2 scenario3 scenario4)
- (flags -w)
- (libraries bacterie_libs local_libs reactors)
- (modules ("scenario1" "scenario2" "scenario3" "scenario4"))
- )

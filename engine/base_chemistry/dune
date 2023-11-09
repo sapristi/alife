@@ -13,7 +13,6 @@
  (libraries
    local_libs
    ppx_deriving_yojson
-   easy_logging_yojson
    re
    str
    ppx_deriving.show
