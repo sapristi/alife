@@ -17,9 +17,9 @@
 (*  - la liste des types de transition entrantes *)
 (*  - la liste des types de transitions sortantes *)
 open Local_libs.Numeric
-open Easy_logging_yojson
+open Local_libs
 
-let logger = Logging.get_logger "Yaac.Base_chem.Transition"
+let logger = Alog.make_logger "Yaac.Base_chem.Transition"
 
 include Types.Transition
 (* ** launchable function *)

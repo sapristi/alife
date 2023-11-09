@@ -1,37 +1,36 @@
 open Bacterie_libs
-open Easy_logging_yojson
+open Local_libs
 
-let root_logger = Logging.make_logger "Yaac" Debug [ Cli Debug ]
-let logger = Logging.get_logger "Yaac.test_reactions";;
+let logger = Alog.make_logger "Yaac.test_reactions"
 
-let rlogger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr" in
-rlogger#set_level Debug
 
 let print_bact b =
-  logger#debug "%s" (Yojson.Safe.to_string @@ Bacterie.to_sig_yojson b);
-  logger#debug "%s" (Reac_mgr.show b.reac_mgr)
+  logger.debug ~ltags:(fun () -> [
+    "bactery", Bacterie.to_sig_yojson b;
+    "reactions", Reac_mgr.to_yojson b.reac_mgr
+  ]) ""
 
 let bact_sig_testable =
   Alcotest.testable Bacterie.CompactSig.pp (fun b1 b2 -> compare b1 b2 == 0)
 
 let simple_bind () =
   let bact = Initial_states.simple_bind () in
-  logger#debug "start";
+  logger.debug "start";
   print_bact bact;
 
   Bacterie.next_reaction bact;
 
-  logger#debug "after 1st reac";
+  logger.debug "after 1st reac";
   print_bact bact;
 
   Bacterie.next_reaction bact;
 
-  logger#debug "after 2nd reac";
+  logger.debug "after 2nd reac";
   print_bact bact;
 
   Bacterie.next_reaction bact;
 
-  logger#debug "after 3rd reac";
+  logger.debug "after 3rd reac";
   print_bact bact;
 
   let result = Bacterie.to_sig bact
@@ -89,12 +88,12 @@ and simple_break () =
 
 and simple_grab_release () =
   let bact = Initial_states.simple_grab_release () in
-  logger#info "init ok";
+  logger.info "init ok";
   Bacterie.next_reaction bact;
-  logger#info "first reac ok";
+  logger.info "first reac ok";
   Bacterie.next_reaction bact;
 
-  logger#info "second reac ok";
+  logger.info "second reac ok";
 
   let result = Bacterie.to_sig bact
   and expected_result =

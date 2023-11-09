@@ -14,11 +14,10 @@
 
 (* open Yaac_config *)
 open Local_libs
-open Easy_logging_yojson
 open Types.Acid
 (* * Proteine module *)
 
-let logger = Logging.make_logger "Yaac.Base_chem.Proteine"
+let logger = Alog.make_logger "Yaac.Base_chem.Proteine"
 
 (* * A proteine *)
 type t = acid list [@@deriving show, yojson]
@@ -35,10 +34,10 @@ type t = acid list [@@deriving show, yojson]
 
 type transition_structure =
   string * (int * input_arc) list * (int * output_arc) list
-[@@deriving show]
+[@@deriving show, to_yojson]
 (* *** place extensions definition *)
 
-type place_extensions = extension list [@@deriving show]
+type place_extensions = extension list [@@deriving show, to_yojson]
 
 (* ** functions definitions *)
 (* *** build_transitions function *)

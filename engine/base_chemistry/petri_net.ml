@@ -25,11 +25,11 @@
 open Local_libs
 
 (* open Yaac_config *)
-open Easy_logging_yojson
+open Local_libs
 open Numeric
 
 (* * the proteine module *)
-let logger = Logging.get_logger "Yaac.Base_chem.Pnet"
+let logger = Alog.make_logger "Yaac.Base_chem.Pnet"
 
 include Types.Petri_net
 
@@ -42,21 +42,17 @@ let update_launchables (pnet : t) : unit =
     pnet.transitions
 
 let make_from_prot uid (prot : Proteine.t) (mol : Molecule.t) : t option =
-  lazy (Printf.sprintf "Building pnet from mol %s" mol) |> logger#ldebug;
-  lazy (Printf.sprintf "Proteine: %s" (Proteine.show prot)) |> logger#ldebug;
+  logger.debug ~tags:["mol", `String mol; "prot", Proteine.to_yojson prot
+  ] "Building pnet";
   try
     (* liste des signatures des transitions *)
     let transitions_signatures_list = Proteine.build_transitions prot
     (* liste des signatures des places *)
     and places_signatures_list = Proteine.build_nodes_list_with_exts prot in
-    lazy
-      (Misc_library.show_list_prefix "Made transitions signature"
-         Proteine.show_transition_structure transitions_signatures_list)
-    |> logger#ldebug;
-    lazy
-      (Misc_library.show_list_prefix "Made places signature"
-         Proteine.show_place_extensions places_signatures_list)
-    |> logger#ldebug;
+    logger.debug ~tags:["transitions", [%to_yojson: Proteine.transition_structure list] transitions_signatures_list;
+                        "places", [%to_yojson: Proteine.place_extensions list] places_signatures_list
+                       ]
+      "Made signature";
 
     (* on crée de nouvelles places à partir de la liste de types données dans la molécule *)
     let places : Place.t array =
@@ -80,8 +76,7 @@ let make_from_prot uid (prot : Proteine.t) (mol : Molecule.t) : t option =
         (fun res t -> if t.Transition.launchable then Q.(res + one) else res)
         Q.zero transitions
     in
-    lazy (Misc_library.show_array_prefix "Made places" Place.show places)
-    |> logger#ldebug;
+    logger.debug ~tags:["places", [%to_yojson: Place.t array] places] "Made places";
 
     (* simple filter to deactivate pnets without places or transitions *)
     let filter =
@@ -99,11 +94,11 @@ let make_from_prot uid (prot : Proteine.t) (mol : Molecule.t) : t option =
         }
     else None
   with _ as e ->
-    logger#warning "Error during pnet creation :\n%s\n%s"
-      (Printexc.get_backtrace ())
-      (Printexc.to_string e);
-
-    None
+    (
+      logger.warning ~tags:["backtrace", `String (Printexc.get_backtrace ());
+                            "exception", `String (Printexc.to_string e)] "Error during pnet creation";
+      None
+    )
 
 let make_from_mol uid (mol : Molecule.t) : t option =
   let prot = Molecule.to_proteine mol in

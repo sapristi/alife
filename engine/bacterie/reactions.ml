@@ -1,11 +1,11 @@
 open Local_libs
 open Misc_library
 open Numeric
-open Easy_logging_yojson
+open Local_libs
 open Base_chemistry
 open Reactions_implem
 
-let logger = Logging.get_logger "Yaac.Bact.Reactions"
+let logger = Alog.make_logger "Yaac.Bact.Reactions"
 
 (** Reactions
 
@@ -56,11 +56,13 @@ In a reaction module, the following functions are defined
 module type REACTANT = sig
   type reac
   type reacSet
+  [@@deriving to_yojson]
 
   module type REACTANT_DEFAULT = sig
     type t
     type reac
     type reacSet
+    [@@deriving to_yojson]
 
     val show : t -> string
     val to_yojson : t -> Yojson.Safe.t
@@ -152,7 +154,7 @@ module ReactionsM (R : REACTANT) = struct
     | Remove_reacs of R.reacSet
     | Release_mol of Molecule.t
     | Release_tokens of Token.t list
-  [@@deriving show]
+  [@@deriving show, to_yojson]
 
   (** Module type for a reactant *)
   module type REAC = sig
@@ -183,7 +185,7 @@ module ReactionsM (R : REACTANT) = struct
       then
         res
       else (
-        logger#warning "Different stored and calculated rates %s %s" (show g) (Q.show calc);
+        logger.warning ~tags:["stored", to_yojson g; "computed", Q.to_yojson calc] "Rate error";
         failwith "problem"
       )
 
@@ -231,7 +233,7 @@ module ReactionsM (R : REACTANT) = struct
       then
         res
       else (
-        logger#warning "Different stored and calculated rates %s %s" (show g) (Q.show calc);
+        logger.warning ~tags:["stored", to_yojson g; "computed", Q.to_yojson calc] "Rate error";
         failwith "problem"
       )
 
@@ -276,7 +278,7 @@ module ReactionsM (R : REACTANT) = struct
       then
         res
       else (
-        logger#warning "Different stored and calculated rates %s %s" (show g) (Q.show calc);
+        logger.warning ~tags:["stored", to_yojson g; "computed", Q.to_yojson calc] "Rate error";
         failwith "problem"
       )
 
@@ -320,7 +322,7 @@ module ReactionsM (R : REACTANT) = struct
       let m1 = R.mol r1 and m2 = R.mol r2 in
       let new_mols = collide randstate m1 m2 in
 
-      logger#trace "Random collision between %s and %s" (R.show r1) (R.show r2);
+      logger.debug ~tags:["reactants", [%to_yojson:R.t list] [r1; r2 ]] "Random collision";
       let res = ref [] and new_mols_r = ref new_mols in
       (match extract_from_list !new_mols_r m1 with
       | Ok new_mols' -> new_mols_r := new_mols'

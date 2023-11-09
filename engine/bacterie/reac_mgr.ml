@@ -3,7 +3,7 @@ open Local_libs
 open Numeric
 
 (* open Yaac_config *)
-open Easy_logging_yojson
+open Local_libs
 open Local_libs.Numeric
 
 (* * file overview *)
@@ -42,7 +42,7 @@ open Local_libs.Numeric
 (*    then we could put all the reactions in the same set, which would greatly reduce  *)
 (*    boilerplate in this file, especially if the number of reactions kind grows. *)
 
-let logger = Logging.get_logger "Yaac.Bact.Reac_mgr"
+let logger = Alog.make_logger "Yaac.Bact.Reac_mgr"
 
 
 module type ReacSet = sig
@@ -66,13 +66,13 @@ end
 (** MakeReacSet functor
     generic container functor *)
 module MakeReacSet (Reac : Reacs.REAC) = struct
-  let logger = Logging.get_logger "Yaac.Bact.Reac_mgr.ReacSet"
+  let logger = Alog.make_logger ("Yaac.Bact.Reac_mgr."^Reac.name)
 
   type elt = Reac.t
 
   module RSet = Local_libs.Set.Make (Reac)
 
-  type t = { mutable rates_sum : Q.t; mutable set : RSet.t } [@@deriving eq]
+  type t = { mutable rates_sum : Q.t; mutable set : RSet.t } [@@deriving eq, to_yojson]
 
   let pp fmt s =
     if RSet.is_empty s.set then Format.fprintf fmt "ReacSet (empty) (rate: %f)" (Q.to_float s.rates_sum)
@@ -90,17 +90,18 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
 
   let check_reac_rates s =
     if not (Q.equal s.rates_sum (calculate_rate s)) then (
-      logger#error "Stored and computed rates are not equal: %.20f != %.20f\n%s"
-        (Q.to_float s.rates_sum)
-        (Q.to_float (calculate_rate s))
-        (show s);
+
+      logger.error ~tags:["stored", Q.to_yojson s.rates_sum;
+                          "computed", Q.to_yojson (calculate_rate s);
+                          "reac set", to_yojson s
+                         ] "Rate error";
       failwith
         (Printf.sprintf "error %f %f\n %s" (Q.to_float s.rates_sum)
            (Q.to_float (calculate_rate s))
            (show s)))
 
   let remove r s =
-    logger#debug "Remove %s" (Reac.show r);
+    logger.debug ~tags:["reac", Reac.to_yojson r] "Remove";
 
     let open Q in
     (* we first update the reaction rate to avoid collisions with possible
@@ -115,19 +116,18 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
     if Config.check_reac_rates then check_reac_rates s
 
   let add r s =
-    logger#debug "Add %s" (Reac.show r);
+    logger.debug ~tags:["reac", Reac.to_yojson r] "Add";
     let open Q in
     s.set <- RSet.add r s.set;
     s.rates_sum <- s.rates_sum + Reac.rate r;
     if Config.check_reac_rates then check_reac_rates s
 
   let update_rate r s =
-    logger#debug "Update %s" (Reac.show r);
+    logger.debug ~tags:["reac", Reac.to_yojson r] "Update";
     let open Q in
     let rate_delta = Reac.update_rate r in
     s.rates_sum <- s.rates_sum + rate_delta;
-    logger#debug "rate delta: %f, new_rate: %f" (Q.to_float rate_delta)
-      (Q.to_float s.rates_sum);
+    logger.debug ~tags:["delta", Q.to_yojson rate_delta; "new", Q.to_yojson s.rates_sum] "new rate";
     if Config.check_reac_rates then check_reac_rates s
 
   let to_yojson s =
@@ -138,14 +138,13 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
       ]
 
   let pick_reaction randstate (s : t) =
-    logger#ldebug
-      (lazy (Printf.sprintf "Picking new reaction from \n%s" (show s)));
+    logger.debug ~tags:["reac set", to_yojson s] "Picking new reaction";
 
     let bound = Random_s.q randstate s.rates_sum in
     try Misc_library.pick_from_list bound Q.zero Reac.rate (RSet.elements s.set)
     with Not_found ->
-      logger#error "Not found with bound %s, rates_sum %s in\n%s "
-        (Q.show bound) (Q.show s.rates_sum) (show s);
+      logger.error ~tags:["bound", Q.to_yojson bound; "rates sum", Q.to_yojson s.rates_sum;
+                         "reacs set", to_yojson s] "Not found";
       raise Not_found
 
   let print_debug s =
@@ -292,10 +291,10 @@ module CSet = struct
 
   let check_reac_rates (s : t) =
     if not (Q.equal s.rates_sum (calculate_rate s)) then (
-      logger#error "Stored and computed rates are not equal: %.20f != %.20f\n%s"
-        (Q.to_float s.rates_sum)
-        (Q.to_float (calculate_rate s))
-        (show s);
+      logger.error ~tags:["stored", Q.to_yojson s.rates_sum;
+                          "computed", Q.to_yojson (calculate_rate s);
+                          "reac set", to_yojson s
+                         ] "Rate error";
       failwith
         (Printf.sprintf "error %f %f\n %s" (Q.to_float s.rates_sum)
            (Q.to_float (calculate_rate s))
@@ -323,8 +322,6 @@ module CSet = struct
       We must be careful to update each time a quantity change
   *)
   let update_rate r (s : t) =
-    logger#trace "Update rate";
-    (* |> ignore *)
     let single_rates_sum, total_rate = calculate_rates_aux s in
     s.rates_sum <- total_rate;
     s.single_rates_sum <- single_rates_sum
@@ -334,9 +331,8 @@ module CSet = struct
     let colliders' = Colliders.remove_custom c1 s.colliders in
     let c2 = Colliders.random_pick randstate colliders' in
     let c = Reacs.Collision.make (c1, c2) in
-    logger#debug "Picked %s and %s from %s" (Reactant.show c1)
-      (Reactant.show c2)
-      (Format.asprintf "%a" Colliders.pp s.colliders);
+    logger.debug ~tags:["reactants", [%to_yojson:Reactant.t list] [c1;c2];
+                        "colliders", Colliders.to_yojson s.colliders] "Picked colliders";
     c
 
     let print_debug s =
@@ -412,12 +408,7 @@ let remove_reactions reactions reac_mgr =
     reactions
 
 let add_grab (graber_d : Reactant.Amol.t) (grabed_d : Reactant.t) (reac_mgr : t) =
-  logger#trace
-    ~tags:[ tag reac_mgr ]
-    "adding new grab between : \n- %s\n- %s"
-    (Reactant.Amol.show graber_d)
-    (Reactant.show grabed_d);
-
+  logger.debug ~tags:["graber", Reactant.Amol.to_yojson graber_d; "grabed", Reactant.to_yojson grabed_d] "adding new grab";
   let (g : Reacs.Grab.t) = Reacs.Grab.make (graber_d, grabed_d) in
   GSet.add g reac_mgr.g_set;
 
@@ -426,9 +417,7 @@ let add_grab (graber_d : Reactant.Amol.t) (grabed_d : Reactant.t) (reac_mgr : t)
   Reactant.add_reac r grabed_d
 
 let add_transition amd reac_mgr =
-  logger#trace
-    ~tags:[ tag reac_mgr ]
-    "adding new transition : %s" (Reactant.Amol.show amd);
+  logger.debug ~tags:["amol", Reactant.Amol.to_yojson amd] "adding new transition";
 
   let t = Reacs.Transition.make amd in
   TSet.add t reac_mgr.t_set;
@@ -437,7 +426,7 @@ let add_transition amd reac_mgr =
   Reactant.Amol.add_reac rt amd
 
 let add_break md reac_mgr =
-  logger#trace ~tags:[ tag reac_mgr ] "adding new break : %s" (Reactant.show md);
+  logger.debug ~tags:["mol", Reactant.to_yojson md] "adding new break";
 
   let b = Reacs.Break.make md in
   BSet.add b reac_mgr.b_set;
@@ -446,9 +435,7 @@ let add_break md reac_mgr =
   Reactant.add_reac rb md
 
 let add_collider md reac_mgr =
-  logger#trace
-    ~tags:[ tag reac_mgr ]
-    "adding new collider : %s" (Reactant.show md);
+  logger.debug ~tags:["mol", Reactant.to_yojson md] "adding new collider";
 
   CSet.add md reac_mgr.c_set;
 
@@ -468,46 +455,33 @@ let check_reac_rates reac_mrg =
 (** pick next reaction *)
 (* TODO: replace to_list with to_enum ? *)
 let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
-  let open Q in
-  let total_g_rate = !(reac_mgr.env).grab_rate * GSet.total_rate reac_mgr.g_set
+  logger.debug ~tags:["reacs", to_yojson reac_mgr] "Next reaction";
+
+  let total_g_rate =Q.( !(reac_mgr.env).grab_rate * GSet.total_rate reac_mgr.g_set)
   and total_t_rate =
-    !(reac_mgr.env).transition_rate * TSet.total_rate reac_mgr.t_set
-  and total_b_rate = !(reac_mgr.env).break_rate * BSet.total_rate reac_mgr.b_set
+    Q.( !(reac_mgr.env).transition_rate * TSet.total_rate reac_mgr.t_set )
+  and total_b_rate = Q.( !(reac_mgr.env).break_rate * BSet.total_rate reac_mgr.b_set )
   and total_c_rate =
-    !(reac_mgr.env).collision_rate * CSet.total_rate reac_mgr.c_set
+    Q.( !(reac_mgr.env).collision_rate * CSet.total_rate reac_mgr.c_set )
+  in let a0 = Q.(  total_g_rate + total_t_rate + total_b_rate + total_c_rate )
   in
-
-  logger#ldebug (lazy (GSet.print_debug reac_mgr.g_set));
-  logger#ldebug (lazy (TSet.print_debug reac_mgr.t_set));
-  logger#ldebug (lazy (BSet.print_debug reac_mgr.b_set));
-
-  logger#ldebug
-    (lazy
-      (Printf.sprintf
-         "********    Collision   (total rate: %s)  (nb_reacs: %d)  *********\n\
-          %s"
-         (Q.show total_c_rate)
-         (CSet.cardinal reac_mgr.c_set)
-         (CSet.show reac_mgr.c_set)));
-
-  let a0 = total_g_rate + total_t_rate + total_b_rate + total_c_rate in
   if a0 = Q.zero then (
-    logger#warning ~tags:[ tag reac_mgr ] "No reaction available";
+    logger.warning ~tags:["reacs", to_yojson reac_mgr] "No reaction available";
     None)
   else (
     reac_mgr.reac_counter <- Stdlib.(reac_mgr.reac_counter + 1);
     let bound = Random_s.q randstate a0 in
-    logger#debug ~tags:[ tag reac_mgr ] "Picked bound %s" (Q.show bound);
+    logger.debug ~tags:["bound", Q.to_yojson bound ] "Picked bound";
     let res =
-      if lt bound total_g_rate then
+      if Q.lt bound total_g_rate then
         Reaction.Grab (GSet.pick_reaction randstate reac_mgr.g_set)
-      else if lt bound (total_g_rate + total_t_rate) then
+      else if Q.( lt bound (total_g_rate + total_t_rate) ) then
         Reaction.Transition (TSet.pick_reaction randstate reac_mgr.t_set)
-      else if lt bound (total_g_rate + total_t_rate + total_b_rate) then
+      else if Q.( lt bound (total_g_rate + total_t_rate + total_b_rate) ) then
         Reaction.Break (BSet.pick_reaction randstate reac_mgr.b_set)
       else Reaction.Collision (CSet.pick_reaction randstate reac_mgr.c_set)
     in
-    logger#info ~tags:[ tag reac_mgr ] "picked %s" (Reaction.show res);
+    logger.info ~tags:["reaction", Reaction.to_yojson res; "reacs", to_yojson reac_mgr] "picked reaction";
     Some res)
 
 (** update one reaction rate *)

@@ -1,6 +1,6 @@
 open Bacterie_libs
 open Local_libs
-open Easy_logging_yojson
+open Local_libs
 open Numeric
 
 let () = Printexc.record_backtrace true

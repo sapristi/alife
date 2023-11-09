@@ -4,7 +4,7 @@ open Local_libs
 open Reaction
 open Reactants_maps
 (* open Yaac_config *)
-open Easy_logging_yojson
+open Local_libs
 open Local_libs.Numeric
 open Local_libs.Misc_library
 open Base_chemistry
@@ -30,7 +30,7 @@ open Base_chemistry
 
 
 
-let logger = Logging.get_logger "Yaac.Bact.Bacterie"
+let logger = Alog.make_logger "Yaac.Bact.Bacterie"
 
 
 type t = {
@@ -80,7 +80,7 @@ let get_pnet_uid bact =
 
 let add_active_molecule (mol: Molecule.t) (pnet: Petri_net.t) (bact: t): Reacs.effect list =
   (** Adds the given pnet to the bactery *)
-  logger#trace "adding active molecule  : %s" mol;
+  logger.debug ~tags:["mol", `String mol] "adding active molecule";
 
   let ar = Reactant.Amol.make_new pnet in
   (* reactions : grabs with other amols*)
@@ -104,7 +104,7 @@ let add_active_molecule (mol: Molecule.t) (pnet: Petri_net.t) (bact: t): Reacs.e
 
 
 let add_inert_molecule ?(qtt = 1) ?(ambient = false) (mol: Molecule.t) (bact: t): Reacs.effect list =
-  logger#trace "adding inert molecule  : %s" mol;
+  logger.debug ~tags:["mol", `String mol] "adding inert molecule";
   match MolMap.get mol bact.ireactants.v with
   | None ->
     let new_ireac = Reactant.ImolSet.make_new mol ~qtt ~ambient in
@@ -145,7 +145,10 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
 
   if Config.check_mol && (not (Molecule.check mol))
   then
-    (logger#swarning "Ignoring add of bad molecule";  [])
+    (
+    logger.warning ~tags:["mol", `String mol] "Ignoring add of bad molecule";
+    []
+  )
   else
     let uid = get_pnet_uid bact in
     let new_opnet = Petri_net.make_from_mol uid mol in
@@ -173,8 +176,7 @@ let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
 let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
   List.iter
     (fun (effect : Reacs.effect) ->
-       logger#ldebug (lazy (Printf.sprintf "Executing effect %s"
-                              (Reacs.show_effect effect)));
+       logger.debug ~tags:["effect", Reacs.effect_to_yojson effect] "Executing effect";
        match effect with
        | T_effects tel ->
          List.iter
@@ -219,7 +221,7 @@ let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
     actions
 
 
-let stats_logger = Logging.get_logger "reacs_stats"
+let stats_logger = Alog.make_logger "reacs_stats"
 
 let next_reaction (bact : t)  =
   let reac_nb = lazy (Reac_mgr.get_available_reac_nb bact.reac_mgr) in
@@ -228,7 +230,7 @@ let next_reaction (bact : t)  =
   let picked_time = Sys.time () in
   match ro with
   | None ->
-    logger#warning "no more reactions";
+    logger.warning "no more reactions";
     ()
   | Some r ->
     let ir_card = lazy (MolMap.cardinal bact.ireactants.v)
@@ -239,25 +241,21 @@ let next_reaction (bact : t)  =
       execute_actions bact actions;
       let end_time = Sys.time () in
 
-      stats_logger#linfo (
-        lazy (
-          let tnb, gnb, bnb = Lazy.force reac_nb in
-          (Printf.sprintf "%d %s %d %d %d %f %f %f"
-             (Lazy.force ir_card)
-             (Q.show (Lazy.force ar_card))
-             tnb
-             gnb
-             bnb
-             (picked_time -. begin_time)
-             (treated_time -. picked_time)
-             (end_time -. treated_time))
-        )) |> ignore
+      stats_logger.info ~tags:[
+        "reac nbs", [%to_yojson:(int*int*int)] (Lazy.force reac_nb);
+        "nb ireactants", `Int (Lazy.force ir_card);
+        "nb areactants", Q.to_yojson (Lazy.force ar_card);
+        "picking_duration", `Float (picked_time -. begin_time);
+        "treating_duration", `Float (treated_time -. picked_time);
+        "post-actions_duration", `Float (end_time -. treated_time)
+      ] "Stats";
     with
     | _ as e ->
-      logger#error "An error happened while treating reaction %s;\n%s%s" (Reaction.show r)
-        (Printexc.get_backtrace ())
-        (Printexc.to_string e)
-      |> ignore
+      logger.error ~tags:[
+        "backtrace", `String (Printexc.get_backtrace ());
+        "exception", `String (Printexc.to_string e);
+        "reaction", Reaction.to_yojson r
+      ] "An error happened while treating reaction"
 
 
 (** Allows to encode the full state of a bactery in json

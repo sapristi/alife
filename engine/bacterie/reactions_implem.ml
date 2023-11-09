@@ -6,11 +6,11 @@
 
 open Local_libs
 open Misc_library
-open Easy_logging_yojson
+open Local_libs
 open Base_chemistry
 open CCList
 
-let logger = Logging.get_logger "Yaac.Bact.Reacs_effects"
+let logger = Alog.make_logger "Yaac.Bact.Reacs_effects"
 
 
 (** asymetric_grab: one pnet grabs something *)
@@ -28,7 +28,7 @@ let break randstate mol =
   (String.sub mol 0 b, String.sub mol b (n - b))
 
 let break_l randstate mol =
-  logger#debug "Breaking %s" mol;
+  logger.debug ~tags:["input", `String mol] "Breaking";
 
   if String.length mol < 2 then [ mol ]
   else
@@ -37,13 +37,13 @@ let break_l randstate mol =
     [ String.sub mol 0 b; String.sub mol b (n - b) ]
 
 (** collision
- The result of a collision is a reorganisation of
- both colliding molecules. Each operation happens
- with a configurable probability:
-  - each colliding molecule can break in two pieces
-  - each resulting piece can be flipped
-  - the pieces will then form new molecules
-    by concatenation. *)
+    The result of a collision is a reorganisation of
+    both colliding molecules. Each operation happens
+    with a configurable probability:
+    - each colliding molecule can break in two pieces
+    - each resulting piece can be flipped
+    - the pieces will then form new molecules
+      by concatenation. *)
 
 let rec random_flip randstate m =
   if Random_s.bernouil_f randstate 0.5 then
@@ -52,8 +52,7 @@ let rec random_flip randstate m =
   else m
 
 let collide randstate mol1 mol2 =
-  logger#debug "Colliding %s and %s" mol1 mol2;
-
+  logger.debug ~tags:["mol1", `String mol1; "mol2", `String mol2;] "Colliding";
   (*
   let rec aux l res =
     match l, res with
@@ -84,16 +83,13 @@ let collide randstate mol1 mol2 =
     else [ mol2 ]
   in
   let l = l1 @ l2 in
- 
-  logger#debug "Breaked into %s"
-    (CCFormat.sprintf "%a" (CCList.pp CCFormat.string) l);
   let fl = List.map (random_flip randstate) l in
-  logger#debug "Flipped into %s"
-    (CCFormat.sprintf "%a" (CCList.pp CCFormat.string) fl);
   let mols = Random_s.shuffle_list randstate fl in
-  logger#debug "Shuffled into %s"
-    (CCFormat.sprintf "%a" (CCList.pp CCFormat.string) mols);
-
+  logger.debug ~tags:[
+    "broken into", [%to_yojson: string list] l;
+    "flipped into", [%to_yojson: string list] fl;
+    "shuffled into", [%to_yojson: string list] mols;
+  ] "Collision";
   (*
   let mols = ((if bernouil_f 0.5
               then break_l mol1 else [mol1])

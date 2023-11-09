@@ -4,7 +4,7 @@ open Local_libs
 open Numeric
 open Base_chemistry
 open Local_libs.Misc_library
-open Easy_logging_yojson
+open Local_libs
 (* * file overview *)
 
 (* ** Reactant module *)
@@ -38,7 +38,7 @@ open Easy_logging_yojson
 (*   and Reactant are mutally dependant and have to be defined together. *)
 
 (* * modules definitions*)
-let logger = Logging.get_logger "Yaac.Bact.Reaction"
+let logger = Alog.make_logger "Yaac.Bact.Reaction"
 
 (** Reactant : contains a reactant (ImolSet or Amol or Aset)
 
@@ -50,6 +50,7 @@ module rec Reactant : sig
 end = struct
   type reac = Reaction.t
   type reacSet = ReacSet.t
+  [@@deriving to_yojson]
 
   module type REACTANT_DEFAULT = Reactant.REACTANT_DEFAULT
 
@@ -65,6 +66,8 @@ end = struct
       mutable ambient : bool;
     }
     [@@deriving to_yojson, eq]
+    type reacSet = ReacSet.t
+    [@@deriving to_yojson]
 
     let show (imd : t) = Printf.sprintf "Inert[%d] %s " imd.qtt imd.mol
     let pp (f : Format.formatter) (imd : t) =
@@ -110,12 +113,13 @@ end = struct
     *)
   module Amol = struct
     type t = {
-      mol : Molecule.t;
-      pnet : Petri_net.t;
+      mol : Molecule.t; [@to_yojson fun mol -> `String (Molecule.short_repr mol) ]
+      pnet : Petri_net.t; [@to_yojson fun pnet -> `Int Petri_net.(pnet.uid)]
       reacs : ReacSet.t ref; [@to_yojson fun _ -> `Null]  [@equal fun _ _ -> true]
-
     }
     [@@deriving to_yojson, eq, show]
+    type reacSet = ReacSet.t
+    [@@deriving to_yojson]
 
     let show am = Printf.sprintf "Active[id:%d] %s" am.pnet.uid am.mol
     let pp f am = Format.pp_print_string f (show am)
@@ -226,7 +230,7 @@ and Reacs : sig
     | Remove_reacs of Reactant.reacSet
     | Release_mol of Molecule.t
     | Release_tokens of Token.t list
-  [@@deriving show]
+  [@@deriving show, to_yojson]
 
   (** Redefinition of module type for Reactant
       TODO: explain why this is needed / what is the difference

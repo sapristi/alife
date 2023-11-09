@@ -1,4 +1,10 @@
 open Bacterie_libs
+open Local_libs
+let root_handler =  Alog.make_handler ~formatter:Alog.default_formatter ~level:Alog.Debug ();;
+let null_handler =  Alog.make_handler  ~level:Alog.NoLevel ();;
+
+Alog.register_handler "Yaac" root_handler;;
+Alog.register_handler "Yaac.Base_chem" null_handler;;
 
 let () =
   let open Alcotest in
@@ -12,7 +18,7 @@ let () =
         List.map
           (fun (name, get_bact) ->
             test_case
-              ("ser deser initial " ^ name)
+              ("initial " ^ name)
               `Quick
               (Test_full_sig.test_equality_reacs_before_ser_deser name get_bact 0))
           Initial_states.bacteries );
@@ -20,7 +26,7 @@ let () =
         List.map
           (fun (name, get_bact) ->
             test_case
-              ("ser deser 1 reaction " ^ name)
+              ("1 r " ^ name)
               `Quick
               (Test_full_sig.test_equality_reacs_before_ser_deser name get_bact 1))
           Initial_states.bacteries );
@@ -28,7 +34,7 @@ let () =
         List.map
           (fun (name, get_bact) ->
             test_case
-              ("ser deser 10 reaction " ^ name)
+              ("10 r " ^ name)
               `Quick
               (Test_full_sig.test_equality_reacs_before_ser_deser name get_bact 10))
           Initial_states.bacteries );
@@ -36,7 +42,7 @@ let () =
         List.map
           (fun (name, get_bact) ->
              test_case
-               ("ser deser 1 reaction " ^ name)
+               ("1 r " ^ name)
                `Quick
                (Test_full_sig.test_equality_reacs_after_ser_deser name get_bact 10 10))
           Initial_states.bacteries );

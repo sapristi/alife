@@ -6,9 +6,8 @@ modules defined in this file:
 *)
 
 open Reaction
-open Local_libs
 (* open Yaac_config *)
-open Easy_logging_yojson
+open Local_libs
 open Base_chemistry
 (* open Local_libs.Numeric *)
 module MolMap =
@@ -61,7 +60,7 @@ module ARMap =
         let make mol =
           empty
 
-        let logger = Logging.get_logger "Yaac.Bact.Amolset"
+        let logger = Alog.make_logger "Yaac.Bact.Amolset"
 
         let find_by_id pnet_id amolset  =
           let (dummy_pnet : Petri_net.t) ={
@@ -99,13 +98,17 @@ module ARMap =
                    then
                      (
                        Reac_mgr.add_grab current_amd new_reactant reac_mgr;
-                       logger#debug  "[%s] grabing %s" (Reactant.show (Amol current_amd)) (Reactant.show new_reactant) |> ignore;
+                       logger.debug ~tags:["current", Reactant.Amol.to_yojson current_amd;
+                                           "grabed", Reactant.to_yojson new_reactant
+                                          ] "Grabing" ;
                      );
                    if is_grabed
                    then
                      (
                        Reac_mgr.add_grab new_amol (Amol current_amd) reac_mgr;
-                       logger#debug "[%s] grabed by %s"  (Reactant.show (Amol current_amd)) (Reactant.show new_reactant) |> ignore;
+                       logger.debug ~tags:["current", Reactant.Amol.to_yojson current_amd;
+                                           "graber", Reactant.to_yojson new_reactant
+                                          ] "Grabed" ;
                      );
                  ) amolset;
 
@@ -114,7 +117,9 @@ module ARMap =
                then
                  iter
                    (fun current_amol ->
-                     logger#debug "[%s] grabing %s" (Reactant.show (Amol current_amol)) (Reactant.mol new_reactant);
+                      logger.debug ~tags:["current", Reactant.Amol.to_yojson current_amol;
+                                          "grabed", Reactant.to_yojson new_reactant
+                                         ] "Grabing" ;
                      Reac_mgr.add_grab current_amol new_reactant reac_mgr)
                    amolset
 
@@ -154,7 +159,7 @@ module ARMap =
     let pp = MolMap.pp Molecule.pp AmolSet.pp
     let show armap =
           Format.asprintf "%a" pp armap
-    let logger = Logging.get_logger "Yaac.Bact.ARMap"
+    let logger = Alog.make_logger "Yaac.Bact.ARMap"
     let copy armap: t = {v = armap.v}
 
     let make () = {v = MolMap.empty}
@@ -163,16 +168,16 @@ module ARMap =
         Returns the list of reactions to update
     *)
     let add (areactant :Reactant.Amol.t )  (armap : t) : Reacs.effect list =
-      logger#trace "Adding Reactant.Amol %s" (Reactant.Amol.show areactant);
+      logger.debug ~tags:["amol", Reactant.Amol.to_yojson areactant] "Adding Reactant.Amol";
 
       armap.v <-
         MolMap.update
           areactant.mol
           (fun data ->
-            match data with
-            | Some amolset ->
+             match data with
+             | Some amolset ->
                Some ( AmolSet.add areactant amolset )
-            | None ->
+             | None ->
                Some( AmolSet.singleton areactant )
           ) armap.v;
       (* we should return the list of reactions to update *)
@@ -183,18 +188,17 @@ module ARMap =
       MolMap.fold (fun _ amset t -> t + (of_int (AmolSet.cardinal amset))) armap.v zero
 
     let remove (areactant : Reactant.Amol.t) (armap : t) : Reacs.effect list =
-      logger#trace "Removing Reactant.Amol %s" (Reactant.Amol.show areactant);
+      logger.debug ~tags:["amol", Reactant.Amol.to_yojson areactant] "Removing Reactant.Amol";
 
       armap.v <-
         MolMap.update
           areactant.mol
           (fun  amolseto ->
-            match amolseto with
-            | None ->
-               logger#error "Trying to remove nonexistent Amol %s from %s"
-                 (Reactant.Amol.show areactant) (show armap.v);
+             match amolseto with
+             | None ->
+               logger.error ~tags:["amol", Reactant.Amol.to_yojson areactant; "armap", to_yojson_partial armap] "Trying to remove nonexistent Amol";
                raise Not_found
-            | Some amolset ->
+             | Some amolset ->
                if Config.remove_empty_reactants
                then
                  let new_aset = AmolSet.remove areactant amolset in
@@ -212,23 +216,23 @@ module ARMap =
       MolMap.find mol armap.v
       |> AmolSet.to_list
       |> List.map  (fun (amd : Reactant.Amol.t) ->
-             amd.pnet.uid)
+          amd.pnet.uid)
 
 
     let find mol pnet_id (armap : t) =
       try
         let amolset = MolMap.find mol armap.v in
 
-          AmolSet.find_by_id pnet_id amolset
+        AmolSet.find_by_id pnet_id amolset
       with
       | _   ->
-         logger#error "Cannot find %s:%d in:\n%s" mol pnet_id (show armap.v);
+        logger.error ~tags:["mol", `String mol; "pnet_id", `Int pnet_id; "armap", to_yojson_partial armap] "Cannot find ";
          raise Not_found
 
     let add_reacs_with_new_reactant (new_reactant : Reactant.t)
                                     (armap :t)  reac_mgr: unit =
 
-      logger#trace "adding reactions with %s" (Reactant.show new_reactant);
+      logger.debug ~tags:["reactant", Reactant.to_yojson new_reactant] "adding reactions";
       MolMap.iter
         (fun _ areac ->
           AmolSet.add_reacs_with_new_reactant
@@ -275,7 +279,7 @@ module IRMap =
     let pp = MolMap.pp Molecule.pp Reactant.ImolSet.pp
     let show irmap =
           Format.asprintf "%a" pp irmap
-    let logger = Logging.get_logger "Yaac.Bact.IRMap"
+    let logger = Alog.make_logger "Yaac.Bact.IRMap"
     let copy irmap: t = {v = irmap.v}
 
 
@@ -324,8 +328,9 @@ module IRMap =
              then
                (
                  Reac_mgr.add_grab new_amol (ImolSet ireactant) reac_mgr;
-                 logger#debug "[%s] grabed by %s" ireactant.mol (Reactant.show new_reactant)
-               |> ignore;
+                 logger.debug ~tags:["current", `String ireactant.mol;
+                                     "graber", Reactant.to_yojson new_reactant
+                                    ] "Grabed" ;
                )
            )
            irmap.v

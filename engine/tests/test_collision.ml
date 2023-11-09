@@ -1,6 +1,6 @@
 open Bacterie_libs
 open Reactors
-open Easy_logging_yojson
+open Local_libs
 open OUnit2
 open Containers
 
@@ -11,15 +11,15 @@ open Containers
 (* Random.init 102104;; *)
 (* let rlogger = Logging.make_logger "Yaac" Debug [Cli Debug];; *)
 
-(* let logger = Logging.get_logger "Yaac.collision";; *)
+(* let logger = Alog.make_logger "Yaac.collision";; *)
 (* let rlogger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr" in *)
-(*     rlogger#set_level Debug;; *)
+(*     rlogger.set_level Debug;; *)
 
 (* let test1 mol1 mol2 = *)
 (*   let mol1 = "ACABC" and mol2 = "DEFAB" in *)
 (*   let res = Reactions_effects.collide mol1 mol2 in *)
 
-(*   logger#sinfo (Format.sprintf "%a" (List.pp Format.string) res) *)
+(*   logger.sinfo (Format.sprintf "%a" (List.pp Format.string) res) *)
 
 (* let () =  *)
 (*   try *)
@@ -27,6 +27,6 @@ open Containers
 (*     test1 "A"  "D" ; *)
 (*     test1 "AIAJZA"  "ACABCSLDK" ; *)
 (*   with  | _ as e -> *)
-(*     logger#error "stack: %s\n%s" *)
+(*     logger.error "stack: %s\n%s" *)
 (*       (Printexc.get_backtrace ()) *)
 (*       (Printexc.to_string e); *)

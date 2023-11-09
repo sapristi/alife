@@ -1,6 +1,5 @@
-open Easy_logging_yojson
 
-let logger = Logging.get_logger "Yaac.Bact.Reactions"
+let logger = Alog.make_logger "Yaac.Bact.Reactions"
 
 include PRNG.Splitmix.State
 
@@ -29,19 +28,17 @@ let pick_from_weighted_list randstate total_weight l =
     match l with
     | [] ->
         let msg = "Cannot pick from empty list" in
-        logger#serror msg;
+        logger.error msg;
         failwith msg
     | (weight, elem) :: t ->
-        logger#info "Aux: weight (%s), target (%s)"
-          (Numeric.Q.to_string weight)
-          (Numeric.Q.to_string target_weight);
+      logger.info ~tags:["weight", Numeric.Q.to_yojson weight;
+                         "target", Numeric.Q.to_yojson target_weight] "Aux";
         let open Numeric.Q in
         if weight >= target_weight then elem else aux (target_weight - weight) t
   in
   let target_weight = q randstate total_weight in
-  logger#info "Random: total (%s), target (%s)"
-    (Numeric.Q.to_string total_weight)
-    (Numeric.Q.to_string target_weight);
+  logger.info ~tags:[ "total", Numeric.Q.to_yojson total_weight;
+                      "target", Numeric.Q.to_yojson target_weight] "Pick from weighted list";
   aux target_weight l
 
 let shuffle_array randstate a =

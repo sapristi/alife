@@ -1,6 +1,6 @@
-open Easy_logging_yojson
+open Local_libs
 
-let logger = Logging.get_logger "Yaac.Base_chem.Graber"
+let logger = Alog.make_logger "Yaac.Base_chem.Graber"
 (* * Graber *)
 
 (* This file implements the graber, which allows a proteine to grab *)
@@ -53,7 +53,8 @@ let make (m : string) =
         |> Re.replace_string wildcard_cre ~by:".*?"
         |> fun str -> "^" ^ str ^ "$"
       in
-      logger#debug "Compiled %s\nfrom %s" str_repr m;
+      logger.debug ~tags:[ "str_repr", `String str_repr;
+                           "input", `String m] "Compiled graber";
       Some { mol_repr = m; str_repr })
     else None
   with _ -> None
@@ -73,18 +74,19 @@ module Re_store = struct
 end
 
 let get_match_pos (graber : t) (mol : string) : int option =
-  logger#debug "Get match for graber: (%s,%s) \n with mol: %s" graber.str_repr
-    graber.mol_repr mol;
+  logger.debug ~tags:[
+    "graber", to_yojson graber; "mol", `String mol
+  ] "Graber match";
   let re = Re_store.get graber.str_repr in
 
   if Re.execp re mol then
     let g = Re.exec re mol in
     if Re.Group.nb_groups g > 1 then (
-      logger#debug "Match pos: %i" (Re.Group.start g 1);
+      logger.debug ~tags:["pos", `Int (Re.Group.start g 1)] "Match";
       Some (Re.Group.start g 1))
     else (
-      logger#sdebug "No match group found";
+      logger.debug "No match group found";
       None)
   else (
-    logger#debug "no match pos";
+    logger.debug "no match pos";
     None)

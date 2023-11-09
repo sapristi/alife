@@ -4,14 +4,19 @@
 (*   functions to help build a petri-net out of it and a module to help it *)
 (*   get managed by a petri-net (i.e. simulate chemical reactions *)
 
-open Easy_logging_yojson
+open Local_libs
 include Types.Molecule
 
-let logger = Logging.get_logger "Yaac.Base_chem.Molecule"
+
+let short_repr mol =
+  let short_digest = String.sub (mol |> Digest.string |> Digest.to_hex) 0 8 in
+  Format.sprintf "|%d_%s|" (String.length mol) (short_digest |> String.uppercase)
+
+let logger = Alog.make_logger "Yaac.Base_chem.Molecule"
 
 let check mol =
   if String.length mol = 0 then (
-    logger#info "Bad molecule: empty";
+    logger.info "Bad molecule: empty";
     false)
   else true
 
@@ -146,7 +151,7 @@ let mol_parser = mol_parser_aux []
 
 let to_proteine (m : string) : Proteine.t =
   let res = mol_parser m in
-  logger#debug "Parsed %s to:\n%s" m (Proteine.show res);
+  logger.debug ~tags:["input", `String m; "result", Proteine.to_yojson res] "Parsed mol";
   res
 
 let rec of_proteine (p : Proteine.t) : string =

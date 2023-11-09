@@ -7,6 +7,7 @@ module type SetInputSIG = sig
 
   val equal : t -> t -> bool
   val show : t -> string
+  val to_yojson : t -> Yojson.Safe.t
 end
 
 module Make (O: SetInputSIG) = struct
@@ -18,10 +19,12 @@ module Make (O: SetInputSIG) = struct
         List.iter (fun (item1, item2) -> if not (O.equal item1 item2)
                     then
                       (
-                        (* logger#warning "Not equal %s %s" (O.show item1) (O.show item2); *)
+                        (* logger.warning "Not equal %s %s" (O.show item1) (O.show item2); *)
                         (* flush stdout; *)
                         r.return false
                       )
                   ) zipped;
         true)
+
+  let to_yojson set : Yojson.Safe.t = `List (set |> to_list |> List.map O.to_yojson)
 end

@@ -1,25 +1,23 @@
 open Base_chemistry
 open Bacterie_libs
-open Easy_logging_yojson
+open Local_libs
 
-let logger = Logging.get_logger "Yaac.Cmd"
+let logger = Alog.make_logger "Yaac.Cmd"
 
 let log_levels =
-  [ Logging.Debug; Info; Warning; NoLevel ]
-  |> List.map (function v -> (Logging.show_level v, v))
+  [ Alog.Debug; Info; Warning; NoLevel ]
+  |> List.map (function v -> (Alog.string_of_level v, v))
 
 let set_log_level log_level =
-  let root_logger = Logging.get_logger "Yaac"
-  and h = Handlers.make (Cli log_level) in
-  root_logger#add_handler h;
-  root_logger#set_level log_level
+  let root_handler =  Alog.make_handler ~formatter:Alog.default_formatter ~level:log_level () in
+  Alog.register_handler "Yaac" root_handler
 
 let log_level_t =
   Cmdliner.Arg.(
-    value & opt (enum log_levels) Logging.Warning & info [ "l"; "log-level" ])
+    value & opt (enum log_levels) Alog.Warning & info [ "l"; "log-level" ])
 
 module FromMolCmd = struct
-  type params = { log_level : Logging.level; [@term log_level_t] mol : string }
+  type params = { log_level : Alog.level; [@term log_level_t] mol : string }
   [@@deriving subliner]
 
   let doc = "Compute petri net from molecule."
@@ -41,7 +39,7 @@ end
 
 module FromProtCmd = struct
   type params = {
-    log_level : Logging.level; [@term log_level_t]
+    log_level : Alog.level; [@term log_level_t]
     prot : string; [@doc "JSON representation of the proteine"]
   }
   [@@deriving subliner]
@@ -68,7 +66,7 @@ end
 
 module EvalCmd = struct
   type params = {
-    log_level : Logging.level; [@term log_level_t]
+    log_level : Alog.level; [@term log_level_t]
     nb_steps : int;
     initial_state : string; [@doc "JSON representation of the initial state"]
     use_dump : bool; [@doc "The initial state is a full-dump"] [@default false]
@@ -91,8 +89,10 @@ module EvalCmd = struct
       try
         Bacterie_libs.Bacterie.next_reaction bact
       with  exc -> (
-          logger#error "Reaction failed - Dumping current state\n===Bact===\n%s\n===Reactions===\n%s"
-            Bacterie.FullSig.(bact |> bact_to_yojson |> Yojson.Safe.to_string) (Reac_mgr.show bact.reac_mgr);
+          logger.error ~tags:[
+            "Bact", Bacterie.FullSig.bact_to_yojson bact;
+            "Reactions", Reac_mgr.to_yojson bact.reac_mgr
+          ] "Reaction failed";
           raise exc
         )
     done;
@@ -105,7 +105,7 @@ end
 module ReactionsCmd = struct
   let doc = "Display available reactions from the given state."
   type params = {
-    log_level : Logging.level; [@term log_level_t]
+    log_level : Alog.level; [@term log_level_t]
     state : string; [@doc "JSON representation of the initial state"]
   }
   [@@deriving subliner]
@@ -136,7 +136,7 @@ let handle = function
   | From_prot params -> FromProtCmd.handle params
   | Eval params -> EvalCmd.handle params
   | Reactions params -> ReactionsCmd.handle params
-  | React -> Local_libs.Log_handler.main (); Ok "ok"
+  | React -> Ok "ok"
 
 let handle_wrapped input =
   match handle input with
