@@ -138,7 +138,7 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
       ]
 
   let pick_reaction randstate (s : t) =
-    logger.debug ~tags:["reac set", to_yojson s] "Picking new reaction";
+    logger.debug ~ltags:(lazy ["reac set", to_yojson s]) "Picking new reaction";
 
     let bound = Random_s.q randstate s.rates_sum in
     try Misc_library.pick_from_list bound Q.zero Reac.rate (RSet.elements s.set)
@@ -361,16 +361,6 @@ type t = {
 }
 [@@deriving show, eq]
 
-let tag (rmgr : t) : string =
-  let open Q in
-  let total_g_rate = !(rmgr.env).grab_rate * GSet.total_rate rmgr.g_set
-  and total_t_rate = !(rmgr.env).transition_rate * TSet.total_rate rmgr.t_set
-  and total_b_rate = !(rmgr.env).break_rate * BSet.total_rate rmgr.b_set
-  and total_c_rate = !(rmgr.env).collision_rate * CSet.total_rate rmgr.c_set in
-  Printf.sprintf "%i,(G: %s, T: %s, B: %s, C: %s)" rmgr.reac_counter
-    (Q.show total_g_rate) (Q.show total_t_rate)
-    (string_of_float @@ Q.to_float total_b_rate)
-    (Q.show total_c_rate)
 
 let get_available_reac_nb rmgr =
   (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set, BSet.cardinal rmgr.b_set)
@@ -456,7 +446,7 @@ let check_reac_rates reac_mrg =
 (** pick next reaction *)
 (* TODO: replace to_list with to_enum ? *)
 let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
-  logger.debug ~tags:["reacs", to_yojson reac_mgr] "Next reaction";
+  logger.debug ~ltags:(lazy ["reacs", to_yojson reac_mgr]) "Next reaction";
 
   let total_g_rate =Q.( !(reac_mgr.env).grab_rate * GSet.total_rate reac_mgr.g_set)
   and total_t_rate =
@@ -482,7 +472,7 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
         Reaction.Break (BSet.pick_reaction randstate reac_mgr.b_set)
       else Reaction.Collision (CSet.pick_reaction randstate reac_mgr.c_set)
     in
-    logger.info ~tags:["reaction", Reaction.to_yojson res; "reacs", to_yojson reac_mgr] "picked reaction";
+    logger.info ~ltags:(lazy ["reaction", Reaction.to_yojson res; "reacs", to_yojson reac_mgr])"picked reaction";
     Some res)
 
 (** update one reaction rate *)

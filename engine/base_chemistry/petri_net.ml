@@ -42,16 +42,16 @@ let update_launchables (pnet : t) : unit =
     pnet.transitions
 
 let make_from_prot uid (prot : Proteine.t) (mol : Molecule.t) : t option =
-  logger.debug ~tags:["mol", `String mol; "prot", Proteine.to_yojson prot
-  ] "Building pnet";
+  logger.debug ~ltags:(lazy ["mol", `String mol; "prot", Proteine.to_yojson prot
+  ])"Building pnet";
   try
     (* liste des signatures des transitions *)
     let transitions_signatures_list = Proteine.build_transitions prot
     (* liste des signatures des places *)
     and places_signatures_list = Proteine.build_nodes_list_with_exts prot in
-    logger.debug ~tags:["transitions", [%to_yojson: Proteine.transition_structure list] transitions_signatures_list;
+    logger.debug ~ltags:(lazy ["transitions", [%to_yojson: Proteine.transition_structure list] transitions_signatures_list;
                         "places", [%to_yojson: Proteine.place_extensions list] places_signatures_list
-                       ]
+                       ])
       "Made signature";
 
     (* on crée de nouvelles places à partir de la liste de types données dans la molécule *)
@@ -76,7 +76,7 @@ let make_from_prot uid (prot : Proteine.t) (mol : Molecule.t) : t option =
         (fun res t -> if t.Transition.launchable then Q.(res + one) else res)
         Q.zero transitions
     in
-    logger.debug ~tags:["places", [%to_yojson: Place.t array] places] "Made places";
+    logger.debug ~ltags:(lazy ["places", [%to_yojson: Place.t array] places]) "Made places";
 
     (* simple filter to deactivate pnets without places or transitions *)
     let filter =
