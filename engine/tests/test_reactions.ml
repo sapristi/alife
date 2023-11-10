@@ -5,7 +5,7 @@ let logger = Alog.make_logger "Yaac.test_reactions"
 
 
 let print_bact b =
-  logger.debug ~ltags:(fun () -> [
+  logger.debug ~ltags:(lazy [
     "bactery", Bacterie.to_sig_yojson b;
     "reactions", Reac_mgr.to_yojson b.reac_mgr
   ]) ""

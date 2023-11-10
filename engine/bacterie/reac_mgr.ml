@@ -408,7 +408,8 @@ let remove_reactions reactions reac_mgr =
     reactions
 
 let add_grab (graber_d : Reactant.Amol.t) (grabed_d : Reactant.t) (reac_mgr : t) =
-  logger.debug ~tags:["graber", Reactant.Amol.to_yojson graber_d; "grabed", Reactant.to_yojson grabed_d] "adding new grab";
+  logger.debug ~ltags:(lazy ["graber", (Reactant.Amol.to_yojson graber_d);
+                      "grabed", Reactant.to_yojson grabed_d]) "adding new grab";
   let (g : Reacs.Grab.t) = Reacs.Grab.make (graber_d, grabed_d) in
   GSet.add g reac_mgr.g_set;
 

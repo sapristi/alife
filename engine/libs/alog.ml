@@ -80,13 +80,13 @@ struct
     |> List.map (fun (_, handler) -> handler)
 
 
-  let _log log_infra (name_l: name_l) (name: string) (level: level) ?(tags=[]) ?(ltags=fun ()-> []) (message: string) =
+  let _log log_infra (name_l: name_l) (name: string) (level: level) ?(tags=[]) ?(ltags=lazy []) (message: string) =
     let timestamp = (Unix.gettimeofday ()) in
     let log_handlers = find_handlers log_infra name_l level in
     let log_item = {
       logger=name;
       message=message;
-      tags=tags@(ltags ());
+      tags=tags@(Lazy.force ltags);
       level=level;
       timestamp;
     } in
@@ -109,7 +109,7 @@ let register_handler name handler =
   log_infra.handlers <- (name_l, handler)::log_infra.handlers
 
 
-type log_function = ?tags:tags -> ?ltags:(unit -> tags) -> string -> unit
+type log_function = ?tags:tags -> ?ltags:(tags Lazy.t) -> string -> unit
 type logger = {
   debug: log_function;
   info: log_function;
