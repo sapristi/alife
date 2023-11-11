@@ -38,7 +38,7 @@ open Local_libs
 (*   and Reactant are mutally dependant and have to be defined together. *)
 
 (* * modules definitions*)
-let logger = Alog.make_logger "Yaac.Bact.Reaction"
+let logger = Jlog.make_logger "Yaac.Bact.Reaction"
 
 (** Reactant : contains a reactant (ImolSet or Amol or Aset)
 

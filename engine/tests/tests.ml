@@ -1,10 +1,10 @@
 open Bacterie_libs
 open Local_libs
-let root_handler =  Alog.make_handler ~formatter:Alog.default_formatter ~level:Alog.Debug ();;
-let null_handler =  Alog.make_handler  ~level:Alog.NoLevel ();;
+let root_handler =  Jlog.make_handler ~formatter:Jlog.default_formatter ~level:Jlog.Debug ();;
+let null_handler =  Jlog.make_handler  ~level:Jlog.NoLevel ();;
 
-Alog.register_handler "Yaac" root_handler;;
-Alog.register_handler "Yaac.Base_chem" null_handler;;
+Jlog.register_handler "Yaac" root_handler;;
+Jlog.register_handler "Yaac.Base_chem" null_handler;;
 
 let () =
   let open Alcotest in

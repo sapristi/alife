@@ -1,5 +1,5 @@
 
-let logger = Alog.make_logger "Yaac.Bact.Reactions"
+let logger = Jlog.make_logger "Yaac.Bact.Reactions"
 
 include PRNG.Splitmix.State
 

@@ -5,7 +5,7 @@ open Local_libs
 open Base_chemistry
 open Reactions_implem
 
-let logger = Alog.make_logger "Yaac.Bact.Reactions"
+let logger = Jlog.make_logger "Yaac.Bact.Reactions"
 
 (** Reactions
 

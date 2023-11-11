@@ -1,7 +1,7 @@
 open Bacterie_libs
 open Local_libs
 
-let logger = Alog.make_logger "Yaac.Test.full_sig"
+let logger = Jlog.make_logger "Yaac.Test.full_sig"
 
 let bact_testable = Alcotest.testable Bacterie.pp_full Bacterie.equal
 let reac_mgr_testable = Alcotest.testable Reac_mgr.pp Reac_mgr.equal

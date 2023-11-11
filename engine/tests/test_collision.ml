@@ -11,7 +11,7 @@ open Containers
 (* Random.init 102104;; *)
 (* let rlogger = Logging.make_logger "Yaac" Debug [Cli Debug];; *)
 
-(* let logger = Alog.make_logger "Yaac.collision";; *)
+(* let logger = Jlog.make_logger "Yaac.collision";; *)
 (* let rlogger = Logging.get_logger "Yaac.Bact.Reacs.reacs_mgr" in *)
 (*     rlogger.set_level Debug;; *)
 

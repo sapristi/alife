@@ -1,7 +1,7 @@
 open Bacterie_libs
 open Local_libs
 
-let logger = Alog.make_logger "Yaac.test_reactions"
+let logger = Jlog.make_logger "Yaac.test_reactions"
 
 
 let print_bact b =

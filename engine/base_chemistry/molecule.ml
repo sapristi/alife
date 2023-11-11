@@ -12,7 +12,7 @@ let short_repr mol =
   let short_digest = String.sub (mol |> Digest.string |> Digest.to_hex) 0 8 in
   Format.sprintf "|%d_%s|" (String.length mol) (short_digest |> String.uppercase)
 
-let logger = Alog.make_logger "Yaac.Base_chem.Molecule"
+let logger = Jlog.make_logger "Yaac.Base_chem.Molecule"
 
 let check mol =
   if String.length mol = 0 then (

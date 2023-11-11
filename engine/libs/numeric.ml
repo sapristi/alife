@@ -1,7 +1,7 @@
 (* (* open Yaac_config *) *)
 
 module Q = struct
-  let numlogger = Alog.make_logger "Yaac.Libs.Numeric"
+  let numlogger = Jlog.make_logger "Yaac.Libs.Numeric"
 
   include Q
 

@@ -1,6 +1,6 @@
 open Local_libs
 
-let logger = Alog.make_logger "Yaac.Base_chem.Graber"
+let logger = Jlog.make_logger "Yaac.Base_chem.Graber"
 (* * Graber *)
 
 (* This file implements the graber, which allows a proteine to grab *)

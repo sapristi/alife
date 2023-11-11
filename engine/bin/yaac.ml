@@ -2,22 +2,22 @@ open Base_chemistry
 open Bacterie_libs
 open Local_libs
 
-let logger = Alog.make_logger "Yaac.Cmd"
+let logger = Jlog.make_logger "Yaac.Cmd"
 
 let log_levels =
-  [ Alog.Debug; Info; Warning; NoLevel ]
-  |> List.map (function v -> (Alog.string_of_level v, v))
+  [ Jlog.Debug; Info; Warning; NoLevel ]
+  |> List.map (function v -> (Jlog.string_of_level v, v))
 
 let set_log_level log_level =
-  let root_handler =  Alog.make_handler ~formatter:Alog.default_formatter ~level:log_level () in
-  Alog.register_handler "Yaac" root_handler
+  let root_handler =  Jlog.make_handler ~formatter:Jlog.Formatters.default ~level:log_level () in
+  Jlog.register_handler "Yaac" root_handler
 
 let log_level_t =
   Cmdliner.Arg.(
-    value & opt (enum log_levels) Alog.Warning & info [ "l"; "log-level" ])
+    value & opt (enum log_levels) Jlog.Warning & info [ "l"; "log-level" ])
 
 module FromMolCmd = struct
-  type params = { log_level : Alog.level; [@term log_level_t] mol : string }
+  type params = { log_level : Jlog.level; [@term log_level_t] mol : string }
   [@@deriving subliner]
 
   let doc = "Compute petri net from molecule."
@@ -39,7 +39,7 @@ end
 
 module FromProtCmd = struct
   type params = {
-    log_level : Alog.level; [@term log_level_t]
+    log_level : Jlog.level; [@term log_level_t]
     prot : string; [@doc "JSON representation of the proteine"]
   }
   [@@deriving subliner]
@@ -66,7 +66,7 @@ end
 
 module EvalCmd = struct
   type params = {
-    log_level : Alog.level; [@term log_level_t]
+    log_level : Jlog.level; [@term log_level_t]
     nb_steps : int;
     initial_state : string; [@doc "JSON representation of the initial state"]
     use_dump : bool; [@doc "The initial state is a full-dump"] [@default false]
@@ -105,7 +105,7 @@ end
 module ReactionsCmd = struct
   let doc = "Display available reactions from the given state."
   type params = {
-    log_level : Alog.level; [@term log_level_t]
+    log_level : Jlog.level; [@term log_level_t]
     state : string; [@doc "JSON representation of the initial state"]
   }
   [@@deriving subliner]
@@ -126,9 +126,10 @@ type params =
   | Eval of EvalCmd.params
             [@doc EvalCmd.doc]
   | Reactions of ReactionsCmd.params
-    [@doc ReactionsCmd.doc]
+                 [@doc ReactionsCmd.doc]
   | React
     [@doc "Computes from the given state, after triggering the given reaction.\nTODO"]
+  | Test_log
 [@@deriving subliner]
 
 let handle = function
@@ -137,6 +138,16 @@ let handle = function
   | Eval params -> EvalCmd.handle params
   | Reactions params -> ReactionsCmd.handle params
   | React -> Ok "ok"
+  | Test_log ->
+
+    let root_handler =  Jlog.make_handler ~formatter:Jlog.Formatters.color ~level:Debug () in
+    Jlog.register_handler "Yaac" root_handler;
+    logger.info "Hello";
+    logger.debug "tehi is debug";
+    logger.warning ~tags:["this is a problem", `String "yes"] "WARN mayde mayde";
+    logger.warning ~tags:["this is a problem", `String "yes"] "WARN mayde mayde";
+    logger.error ~tags:["problems", `Assoc ["yes", `Int 8; "no", `String "yes"]] "WARN mayde mayde";
+    Ok "ok"
 
 let handle_wrapped input =
   match handle input with

@@ -60,7 +60,7 @@ module ARMap =
         let make mol =
           empty
 
-        let logger = Alog.make_logger "Yaac.Bact.Amolset"
+        let logger = Jlog.make_logger "Yaac.Bact.Amolset"
 
         let find_by_id pnet_id amolset  =
           let (dummy_pnet : Petri_net.t) ={
@@ -159,7 +159,7 @@ module ARMap =
     let pp = MolMap.pp Molecule.pp AmolSet.pp
     let show armap =
           Format.asprintf "%a" pp armap
-    let logger = Alog.make_logger "Yaac.Bact.ARMap"
+    let logger = Jlog.make_logger "Yaac.Bact.ARMap"
     let copy armap: t = {v = armap.v}
 
     let make () = {v = MolMap.empty}
@@ -279,7 +279,7 @@ module IRMap =
     let pp = MolMap.pp Molecule.pp Reactant.ImolSet.pp
     let show irmap =
           Format.asprintf "%a" pp irmap
-    let logger = Alog.make_logger "Yaac.Bact.IRMap"
+    let logger = Jlog.make_logger "Yaac.Bact.IRMap"
     let copy irmap: t = {v = irmap.v}
 
 

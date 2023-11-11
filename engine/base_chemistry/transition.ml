@@ -19,7 +19,7 @@
 open Local_libs.Numeric
 open Local_libs
 
-let logger = Alog.make_logger "Yaac.Base_chem.Transition"
+let logger = Jlog.make_logger "Yaac.Base_chem.Transition"
 
 include Types.Transition
 (* ** launchable function *)

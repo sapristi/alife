@@ -12,6 +12,6 @@
   ; yaac_config
   pringo
   base
-  logs
+  jlog
   unix
 ))

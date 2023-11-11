@@ -10,7 +10,7 @@ open Local_libs
 open Base_chemistry
 open CCList
 
-let logger = Alog.make_logger "Yaac.Bact.Reacs_effects"
+let logger = Jlog.make_logger "Yaac.Bact.Reacs_effects"
 
 
 (** asymetric_grab: one pnet grabs something *)

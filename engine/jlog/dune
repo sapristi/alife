@@ -1,0 +1,7 @@
+(library
+ (name jlog)
+ (flags -g)
+ (libraries
+   unix
+   yojson
+))

@@ -42,7 +42,7 @@ open Local_libs.Numeric
 (*    then we could put all the reactions in the same set, which would greatly reduce  *)
 (*    boilerplate in this file, especially if the number of reactions kind grows. *)
 
-let logger = Alog.make_logger "Yaac.Bact.Reac_mgr"
+let logger = Jlog.make_logger "Yaac.Bact.Reac_mgr"
 
 
 module type ReacSet = sig
@@ -66,7 +66,7 @@ end
 (** MakeReacSet functor
     generic container functor *)
 module MakeReacSet (Reac : Reacs.REAC) = struct
-  let logger = Alog.make_logger ("Yaac.Bact.Reac_mgr."^Reac.name)
+  let logger = Jlog.make_logger ("Yaac.Bact.Reac_mgr."^Reac.name)
 
   type elt = Reac.t
 

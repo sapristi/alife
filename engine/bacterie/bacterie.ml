@@ -30,7 +30,7 @@ open Base_chemistry
 
 
 
-let logger = Alog.make_logger "Yaac.Bact.Bacterie"
+let logger = Jlog.make_logger "Yaac.Bact.Bacterie"
 
 
 type t = {
@@ -221,7 +221,7 @@ let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
     actions
 
 
-let stats_logger = Alog.make_logger "reacs_stats"
+let stats_logger = Jlog.make_logger "reacs_stats"
 
 let next_reaction (bact : t)  =
   let reac_nb = lazy (Reac_mgr.get_available_reac_nb bact.reac_mgr) in

@@ -29,7 +29,7 @@ open Local_libs
 open Numeric
 
 (* * the proteine module *)
-let logger = Alog.make_logger "Yaac.Base_chem.Pnet"
+let logger = Jlog.make_logger "Yaac.Base_chem.Pnet"
 
 include Types.Petri_net
 

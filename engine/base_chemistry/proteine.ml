@@ -17,7 +17,7 @@ open Local_libs
 open Types.Acid
 (* * Proteine module *)
 
-let logger = Alog.make_logger "Yaac.Base_chem.Proteine"
+let logger = Jlog.make_logger "Yaac.Base_chem.Proteine"
 
 (* * A proteine *)
 type t = acid list [@@deriving show, yojson]
