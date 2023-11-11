@@ -447,7 +447,7 @@ exception NoMoreReaction
 (** pick next reaction *)
 (* TODO: replace to_list with to_enum ? *)
 let pick_next_reaction randstate (reac_mgr : t) : Reaction.t =
-  logger.debug ~ltags:(lazy ["reacs", to_yojson reac_mgr]) "Next reaction";
+  logger.debug ~ltags:(lazy ["reacs", to_yojson reac_mgr]) "Will pick next reaction";
 
   let total_g_rate =Q.( !(reac_mgr.env).grab_rate * GSet.total_rate reac_mgr.g_set)
   and total_t_rate =
@@ -474,7 +474,7 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t =
         Reaction.Break (BSet.pick_reaction randstate reac_mgr.b_set)
       else Reaction.Collision (CSet.pick_reaction randstate reac_mgr.c_set)
     in
-    logger.info ~ltags:(lazy ["reaction", Reaction.to_yojson res; "reacs", to_yojson reac_mgr])"picked reaction";
+    logger.info ~ltags:(lazy ["reaction", Reaction.to_yojson res])"picked reaction";
     res
   )
 

@@ -8,8 +8,12 @@ let log_levels =
   [ Jlog.Debug; Info; Warning; NoLevel ]
   |> List.map (function v -> (Jlog.string_of_level v, v))
 
-let set_log_level log_level =
-  let root_handler =  Jlog.make_handler ~formatter:Jlog.Formatters.default ~level:log_level () in
+
+let setup_logging level =
+  (* let level = Sys.getenv_opt "LOG_LEVEL" |> Base.Option.value ~defaut:Jlog.Error *)
+  let use_json = Sys.getenv_opt "JSON_LOG" |> Base.Option.is_some in
+  let formatter = if use_json then Jlog.Formatters.json else Jlog.Formatters.color in
+  let root_handler =  Jlog.make_handler ~formatter ~level () in
   Jlog.register_handler "Yaac" root_handler
 
 let log_level_t =
@@ -33,7 +37,7 @@ module FromMolCmd = struct
     |> Yojson.Safe.to_string |> Result.ok
 
   let handle {log_level; mol} =
-    set_log_level log_level;
+    setup_logging log_level;
     build_all_from_mol mol
 end
 
@@ -60,7 +64,7 @@ module FromProtCmd = struct
     | Error s -> Error s
 
   let handle {log_level; prot} =
-    set_log_level log_level;
+    setup_logging log_level;
     build_all_from_prot prot
 end
 
@@ -75,7 +79,7 @@ module EvalCmd = struct
   let doc = "Runs the computation, from the given initial state, for the given number of steps."
 
   let handle {log_level; initial_state; nb_steps; use_dump} =
-    set_log_level log_level;
+    setup_logging log_level;
     let bact =
       if use_dump
       then
@@ -117,12 +121,13 @@ module ReactionsCmd = struct
   [@@deriving subliner]
 
   let handle {log_level; state} =
-    set_log_level log_level;
+    setup_logging log_level;
     let bact = state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson
                |> Result.get_ok
     in
     bact.reac_mgr |> Reac_mgr.to_yojson|> Yojson.Safe.to_string |> Result.ok
 end
+
 
 type params =
   | From_mol of FromMolCmd.params
@@ -137,6 +142,7 @@ type params =
     [@doc "Computes from the given state, after triggering the given reaction.\nTODO"]
   | Test_log
 [@@deriving subliner]
+
 
 let handle = function
   | From_mol params -> FromMolCmd.handle params
@@ -163,3 +169,4 @@ let handle_wrapped input =
       exit 1
 
 [%%subliner.cmds eval.params <- handle_wrapped]
+[@@man [`S "Env variable options"; `I ("JSON_LOG","if present, format logs as json")]]

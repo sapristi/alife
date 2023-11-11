@@ -1,5 +1,5 @@
 
-let logger = Jlog.make_logger "Yaac.Bact.Reactions"
+let logger = Jlog.make_logger "Yaac.Libs.Random"
 
 include PRNG.Splitmix.State
 
@@ -31,13 +31,13 @@ let pick_from_weighted_list randstate total_weight l =
         logger.error msg;
         failwith msg
     | (weight, elem) :: t ->
-      logger.info ~tags:["weight", Numeric.Q.to_yojson weight;
+      logger.debug ~tags:["weight", Numeric.Q.to_yojson weight;
                          "target", Numeric.Q.to_yojson target_weight] "Aux";
         let open Numeric.Q in
         if weight >= target_weight then elem else aux (target_weight - weight) t
   in
   let target_weight = q randstate total_weight in
-  logger.info ~tags:[ "total", Numeric.Q.to_yojson total_weight;
+  logger.debug ~tags:[ "total", Numeric.Q.to_yojson total_weight;
                       "target", Numeric.Q.to_yojson target_weight] "Pick from weighted list";
   aux target_weight l
 
