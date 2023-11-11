@@ -1,15 +1,26 @@
+#!/usr/bin/env python
+import os
 import json
-import djclick as click
+import typer
+import django
 from pathlib import Path
-from django.conf import settings
 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'alife.settings')
+django.setup()
+
+from django.conf import settings
+from subcommansds import experiment
 from experiment.models import InitialState
+app = typer.Typer(no_args_is_help=True, add_completion=False)
+
+app.add_typer(experiment.app)
+
 
 engine_test_fixtures_path : Path = settings.BASE_DIR / ".." / "engine" / "tests" / "bact_states"
 
-@click.command()
-@click.option('--force', is_flag=True, default=False, help="Force overriding existing")
-def run(force: bool):
+@app.command()
+def load_initial_states(force: bool = typer.Option(False, is_flag=True, help="Force overriding existing")):
+    """Load initial states from engine into database"""
     for fpath in engine_test_fixtures_path.iterdir():
         if not fpath.is_file(): continue
         if not fpath.suffix == ".json": continue
@@ -28,3 +39,7 @@ def run(force: bool):
                 print(f"Will override {name}")
 
         print(f"Loaded {name}")
+
+
+if __name__ == "__main__":
+    app()

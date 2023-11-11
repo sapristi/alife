@@ -1,8 +1,14 @@
 import json
 import subprocess as sp
-import djclick as click
+import typer
+from enum import Enum
 
 from experiment.models import BactSnapshot, Experiment
+
+app = typer.Typer(
+    name="experiment", no_args_is_help=True, add_completion=False,
+    help="Manage experiments"
+)
 
 def format_experiment(experiment: Experiment):
     exp_str = f"[{experiment.pk}] - {experiment.name}"
@@ -11,27 +17,32 @@ def format_experiment(experiment: Experiment):
     return exp_str
 
 
-@click.group(invoke_without_command=True)
-@click.pass_context
-def experiment(ctx):
-    if ctx.invoked_subcommand is None:
-        print("Available experiments:")
-        for experiment in Experiment.objects.all():
-            line = "* " + format_experiment(experiment)
-            if snapshot := experiment.last_snapshot:
-                line += f"\n  last snapshot: {snapshot.nb_reactions} reactions"
-            print(line)
-        return
+@app.command()
+def list():
+    "List experiments"
+    print("Available experiments:")
+    for experiment in Experiment.objects.all():
+        line = "* " + format_experiment(experiment)
+        if snapshot := experiment.last_snapshot:
+            line += f"\n  last snapshot: {snapshot.nb_reactions} reactions"
+        print(line)
+    return
 
-@experiment.command()
-@click.option('--experiment-id', type=int, required=True)
-@click.option('--nb-steps', type=int, required=True)
-@click.option('--reset', is_flag=True, default=False, help="Restart from the initial state")
-@click.option('--log-level', type=click.Choice(["Debug", "Info", "Warning"]))
-def run(experiment_id: int, nb_steps: int, reset: bool, log_level: None | str):
+class LogLevel(Enum):
+    Debug = "Debug"
+    Info = "Info"
+    Warning = "Warning"
+
+@app.command()
+def run(
+        experiment_id: int,
+        nb_steps: int,
+        reset: bool=typer.Option(False, is_flag=True, help="Restart from the initial state"),
+        log_level: LogLevel = typer.Option(None)
+):
     experiment = Experiment.objects.get(id=experiment_id)
     if  (snapshot := experiment.last_snapshot) and not reset:
-        state = json.dumps(snapshot.bact_snapshot)
+        state = json.dumps(snapshot.data)
         command = ["./yaac", "eval", f"--initial-state={state}",
              "--use-dump=true", f"--nb-steps={nb_steps}"]
         nb_reactions_start = snapshot.nb_reactions
@@ -69,8 +80,7 @@ def run(experiment_id: int, nb_steps: int, reset: bool, log_level: None | str):
     print("Saved new snapshot")
 
 
-@experiment.command()
-@click.option('--experiment-id', type=int, required=True)
+@app.command()
 def clear(experiment_id: int):
     """Remove all snapshots from experiment"""
     experiment = Experiment.objects.get(id=experiment_id)
