@@ -226,36 +226,31 @@ let stats_logger = Jlog.make_logger "reacs_stats"
 let next_reaction (bact : t)  =
   let reac_nb = lazy (Reac_mgr.get_available_reac_nb bact.reac_mgr) in
   let begin_time = Sys.time () in
-  let ro = Reac_mgr.pick_next_reaction !(bact.randstate) bact.reac_mgr in
+  let r = Reac_mgr.pick_next_reaction !(bact.randstate) bact.reac_mgr in
   let picked_time = Sys.time () in
-  match ro with
-  | None ->
-    logger.warning "no more reactions";
-    ()
-  | Some r ->
-    let ir_card = lazy (MolMap.cardinal bact.ireactants.v)
-    and ar_card = lazy (ARMap.total_nb bact.areactants) in
-    try
-      let actions = Reaction.treat_reaction !(bact.randstate) r in
-      let treated_time = Sys.time () in
-      execute_actions bact actions;
-      let end_time = Sys.time () in
+  let ir_card = lazy (MolMap.cardinal bact.ireactants.v)
+  and ar_card = lazy (ARMap.total_nb bact.areactants) in
+  try
+    let actions = Reaction.treat_reaction !(bact.randstate) r in
+    let treated_time = Sys.time () in
+    execute_actions bact actions;
+    let end_time = Sys.time () in
 
-      stats_logger.info ~tags:[
-        "reac nbs", [%to_yojson:(int*int*int)] (Lazy.force reac_nb);
-        "nb ireactants", `Int (Lazy.force ir_card);
-        "nb areactants", Q.to_yojson (Lazy.force ar_card);
-        "picking_duration", `Float (picked_time -. begin_time);
-        "treating_duration", `Float (treated_time -. picked_time);
-        "post-actions_duration", `Float (end_time -. treated_time)
-      ] "Stats";
-    with
-    | _ as e ->
-      logger.error ~tags:[
-        "backtrace", `String (Printexc.get_backtrace ());
-        "exception", `String (Printexc.to_string e);
-        "reaction", Reaction.to_yojson r
-      ] "An error happened while treating reaction"
+    stats_logger.info ~tags:[
+      "reac nbs", [%to_yojson:(int*int*int)] (Lazy.force reac_nb);
+      "nb ireactants", `Int (Lazy.force ir_card);
+      "nb areactants", Q.to_yojson (Lazy.force ar_card);
+      "picking_duration", `Float (picked_time -. begin_time);
+      "treating_duration", `Float (treated_time -. picked_time);
+      "post-actions_duration", `Float (end_time -. treated_time)
+    ] "Stats";
+  with
+  | _ as e ->
+    logger.error ~tags:[
+      "backtrace", `String (Printexc.get_backtrace ());
+      "exception", `String (Printexc.to_string e);
+      "reaction", Reaction.to_yojson r
+    ] "An error happened while treating reaction"
 
 
 (** Allows to encode the full state of a bactery in json

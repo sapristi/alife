@@ -443,9 +443,10 @@ let check_reac_rates reac_mrg =
   BSet.check_reac_rates reac_mrg.b_set;
   CSet.check_reac_rates reac_mrg.c_set
 
+exception NoMoreReaction
 (** pick next reaction *)
 (* TODO: replace to_list with to_enum ? *)
-let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
+let pick_next_reaction randstate (reac_mgr : t) : Reaction.t =
   logger.debug ~ltags:(lazy ["reacs", to_yojson reac_mgr]) "Next reaction";
 
   let total_g_rate =Q.( !(reac_mgr.env).grab_rate * GSet.total_rate reac_mgr.g_set)
@@ -458,7 +459,8 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
   in
   if a0 = Q.zero then (
     logger.warning ~tags:["reacs", to_yojson reac_mgr] "No reaction available";
-    None)
+    raise NoMoreReaction
+  )
   else (
     reac_mgr.reac_counter <- Stdlib.(reac_mgr.reac_counter + 1);
     let bound = Random_s.q randstate a0 in
@@ -473,7 +475,8 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
       else Reaction.Collision (CSet.pick_reaction randstate reac_mgr.c_set)
     in
     logger.info ~ltags:(lazy ["reaction", Reaction.to_yojson res; "reacs", to_yojson reac_mgr])"picked reaction";
-    Some res)
+    res
+  )
 
 (** update one reaction rate *)
 let rec update_reaction_rate (reac : Reaction.t) reac_mgr =
