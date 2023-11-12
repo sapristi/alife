@@ -156,6 +156,10 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
       (RSet.cardinal s.set)
       (show s)
 
+  let stats s = `Assoc[
+    "nb_reactions", `Int (RSet.cardinal s.set);
+    "total_rate", total_rate s |> Q.to_yojson
+  ]
 end
 
 (** CSet : Collision Set
@@ -342,7 +346,12 @@ module CSet = struct
         (s |> calculate_rate |> Q.show)
         (show s)
 
-end
+    let stats (s: t) = `Assoc [
+      "nb_reactions", `Int (cardinal s);
+      "total_rate", total_rate s |> Q.to_yojson
+    ]
+
+  end
 
 module GSet = MakeReacSet (Reacs.Grab)
 module TSet = MakeReacSet (Reacs.Transition)
@@ -365,6 +374,13 @@ type t = {
 let get_available_reac_nb rmgr =
   (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set, BSet.cardinal rmgr.b_set)
 
+let stats rmgr =
+  `Assoc [
+    "transitions", TSet.stats rmgr.t_set;
+    "grabs", GSet.stats rmgr.g_set;
+    "breaks", BSet.stats rmgr.b_set;
+    "collisions", CSet.stats rmgr.c_set;
+  ]
 let to_yojson (rmgr : t) : Yojson.Safe.t =
   `Assoc
     [

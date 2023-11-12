@@ -221,10 +221,9 @@ let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
     actions
 
 
-let stats_logger = Jlog.make_logger "reacs_stats"
+let stats_logger = Jlog.make_logger "Stats"
 
 let next_reaction (bact : t)  =
-  let reac_nb = lazy (Reac_mgr.get_available_reac_nb bact.reac_mgr) in
   let begin_time = Sys.time () in
   let r = Reac_mgr.pick_next_reaction !(bact.randstate) bact.reac_mgr in
   let picked_time = Sys.time () in
@@ -237,12 +236,12 @@ let next_reaction (bact : t)  =
     let end_time = Sys.time () in
 
     stats_logger.info ~tags:[
-      "reac nbs", [%to_yojson:(int*int*int)] (Lazy.force reac_nb);
       "nb ireactants", `Int (Lazy.force ir_card);
       "nb areactants", Q.to_yojson (Lazy.force ar_card);
       "picking_duration", `Float (picked_time -. begin_time);
       "treating_duration", `Float (treated_time -. picked_time);
-      "post-actions_duration", `Float (end_time -. treated_time)
+      "post-actions_duration", `Float (end_time -. treated_time);
+      "reactions",  (Reac_mgr.stats bact.reac_mgr)
     ] "Stats";
   with
   | _ as e ->

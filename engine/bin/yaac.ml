@@ -14,7 +14,12 @@ let setup_logging level =
   let use_json = Sys.getenv_opt "JSON_LOG" |> Base.Option.is_some in
   let formatter = if use_json then Jlog.Formatters.json else Jlog.Formatters.color in
   let root_handler =  Jlog.make_handler ~formatter ~level () in
-  Jlog.register_handler "Yaac" root_handler
+  Jlog.register_handler "Yaac" root_handler;
+
+  if Sys.getenv_opt "STATS" |> Base.Option.is_some then (
+    let stats_handler =  Jlog.make_handler ~formatter:Jlog.Formatters.json ~level:Info () in
+    Jlog.register_handler "Stats" stats_handler;
+  )
 
 let log_level_t =
   Cmdliner.Arg.(
@@ -169,4 +174,7 @@ let handle_wrapped input =
       exit 1
 
 [%%subliner.cmds eval.params <- handle_wrapped]
-[@@man [`S "Env variable options"; `I ("JSON_LOG","if present, format logs as json")]]
+[@@man [`S "Env variable options;";
+        `I ("JSON_LOG","if present, format logs as json");
+        `I ("STATS","if present, logs stats (always as json)");
+       ]]
