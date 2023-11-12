@@ -9,7 +9,6 @@ class YaacWrapper:
             command,
             *[f"--{key.replace('_', '-')}={value}" for key, value in kwargs.items()]
         ]
-        print("COMMAND", full_command)
         p = sp.run(
             full_command,
             capture_output=True,
@@ -17,11 +16,15 @@ class YaacWrapper:
         )
         if p.returncode != 0:
             print("FAILED :(")
+            print("Command", command)
             print(p.stdout)
             print(p.stderr)
             return None
-        else:
-            last_line = p.stdout.splitlines()[-1]
-            return json.loads(last_line)
+
+        output = p.stdout.splitlines()
+        logs = output[:-1]
+        print("\n".join(logs))
+        res_data = json.loads(output[-1])
+        return res_data
 
 yaac = YaacWrapper()

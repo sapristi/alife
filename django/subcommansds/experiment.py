@@ -1,7 +1,7 @@
 import json
-import subprocess as sp
 import typer
 from enum import Enum
+from experiment.engine import yaac
 
 from experiment.models import BactSnapshot, Experiment
 
@@ -40,44 +40,29 @@ def run(
         reset: bool=typer.Option(False, is_flag=True, help="Restart from the initial state"),
         log_level: LogLevel = typer.Option(None)
 ):
+    """Run an experiment, from initial state, or last snapshot"""
     experiment = Experiment.objects.get(id=experiment_id)
     if  (snapshot := experiment.last_snapshot) and not reset:
         state = json.dumps(snapshot.data)
-        command = ["./yaac", "eval", f"--initial-state={state}",
-             "--use-dump=true", f"--nb-steps={nb_steps}"]
+        args = {
+            "use_dump": "true",
+        }
         nb_reactions_start = snapshot.nb_reactions
         print(f"Starting from previous snapshot at reaction {nb_reactions_start}")
     else:
         state = json.dumps(experiment.initial_state)
-        command = ["./yaac", "eval", f"--initial-state={state}", f"--nb-steps={nb_steps}"]
+        args = {}
         nb_reactions_start = 0
         print(f"Starting from initial state")
 
-    if log_level:
-        command.append(f"--log-level={log_level}")
-    p = sp.run(
-        command,
-        capture_output=True,
-        encoding="utf-8"
-    )
-    if p.returncode != 0:
-        print("FAILED")
-        print("Command", command)
-        print("Error", p.stderr)
-        print("Logs", p.stdout)
-        return
-
-    output = p.stdout.splitlines()
-    logs = output[:-1]
-    print("\n".join(logs))
-    res_data = json.loads(output[-1])
+    res_data = yaac.run("eval", *args, log_level=log_level.value, nb_steps=nb_steps, initial_state=state)
     res_snapshot = BactSnapshot(
         experiment=experiment,
         nb_reactions=nb_reactions_start + nb_steps,
         data=res_data
     )
     res_snapshot.save()
-    print("Saved new snapshot")
+    print(f"Saved new snapshot, {res_snapshot.nb_reactions} reactions")
 
 
 @app.command()

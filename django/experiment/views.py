@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from . import models
-from experiment.utils import yaac
+from experiment.engine import yaac
 
 def home(request):
     """Home page"""
