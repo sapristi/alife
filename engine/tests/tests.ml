@@ -1,6 +1,6 @@
 open Bacterie_libs
 open Local_libs
-let root_handler =  Jlog.make_handler ~formatter:Jlog.default_formatter ~level:Jlog.Debug ();;
+let root_handler =  Jlog.make_handler ~formatter:Jlog.Formatters.default ~level:Jlog.Debug ();;
 let null_handler =  Jlog.make_handler  ~level:Jlog.NoLevel ();;
 
 Jlog.register_handler "Yaac" root_handler;;

@@ -49,3 +49,11 @@ let remove_empty_reactants = true
 
    Set to false for better performances. *)
 let build_inactive_pnets = false
+
+type t = {
+  mutable raise_on_no_reaction: bool;
+}
+
+let config ={
+  raise_on_no_reaction = true
+}

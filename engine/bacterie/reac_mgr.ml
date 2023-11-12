@@ -380,6 +380,7 @@ let stats rmgr =
     "grabs", GSet.stats rmgr.g_set;
     "breaks", BSet.stats rmgr.b_set;
     "collisions", CSet.stats rmgr.c_set;
+    "counter", `Int rmgr.reac_counter;
   ]
 let to_yojson (rmgr : t) : Yojson.Safe.t =
   `Assoc
@@ -391,13 +392,13 @@ let to_yojson (rmgr : t) : Yojson.Safe.t =
       ("env", Environment.to_yojson !(rmgr.env));
     ]
 
-let make_new (env : Environment.t ref) =
+let make_new ?(reac_counter=0) (env : Environment.t ref) =
   {
     t_set = TSet.empty ();
     g_set = GSet.empty ();
     b_set = BSet.empty ();
     c_set = CSet.empty ();
-    reac_counter = 0;
+    reac_counter = reac_counter;
     env;
   }
 
@@ -459,10 +460,9 @@ let check_reac_rates reac_mrg =
   BSet.check_reac_rates reac_mrg.b_set;
   CSet.check_reac_rates reac_mrg.c_set
 
-exception NoMoreReaction
 (** pick next reaction *)
 (* TODO: replace to_list with to_enum ? *)
-let pick_next_reaction randstate (reac_mgr : t) : Reaction.t =
+let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
   logger.debug ~ltags:(lazy ["reacs", to_yojson reac_mgr]) "Will pick next reaction";
 
   let total_g_rate =Q.( !(reac_mgr.env).grab_rate * GSet.total_rate reac_mgr.g_set)
@@ -475,7 +475,7 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t =
   in
   if a0 = Q.zero then (
     logger.warning ~tags:["reacs", to_yojson reac_mgr] "No reaction available";
-    raise NoMoreReaction
+    None
   )
   else (
     reac_mgr.reac_counter <- Stdlib.(reac_mgr.reac_counter + 1);
@@ -491,7 +491,7 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t =
       else Reaction.Collision (CSet.pick_reaction randstate reac_mgr.c_set)
     in
     logger.info ~ltags:(lazy ["reaction", Reaction.to_yojson res])"picked reaction";
-    res
+    Some res
   )
 
 (** update one reaction rate *)
