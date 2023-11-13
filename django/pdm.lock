@@ -6,7 +6,7 @@ groups = ["default", "dev"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:d6cffc673a9da8b29b141e09a3b5c84ddd0de47fdf4c0c1b91817c10a46e0c4d"
+content_hash = "sha256:7662f70e24a53670622e42f1a4b09120016d123b37ea689c0abef9099b0018a5"
 
 [[package]]
 name = "appnope"
@@ -40,6 +40,35 @@ files = [
 ]
 
 [[package]]
+name = "cli-helpers"
+version = "2.3.0"
+requires_python = ">=3.6"
+summary = "Helpers for building command-line apps"
+dependencies = [
+    "configobj>=5.0.5",
+    "tabulate[widechars]>=0.8.2",
+]
+files = [
+    {file = "cli_helpers-2.3.0-py3-none-any.whl", hash = "sha256:2e93cda413052f38042d47b804eea049a4f7860ac9826f3763719288d77435ea"},
+    {file = "cli_helpers-2.3.0.tar.gz", hash = "sha256:e7174d003a2b58fd3e31a73fbbc45d5aa513de62cbd42d437f78b9658bd5f967"},
+]
+
+[[package]]
+name = "cli-helpers"
+version = "2.3.0"
+extras = ["styles"]
+requires_python = ">=3.6"
+summary = "Helpers for building command-line apps"
+dependencies = [
+    "Pygments>=1.6",
+    "cli-helpers==2.3.0",
+]
+files = [
+    {file = "cli_helpers-2.3.0-py3-none-any.whl", hash = "sha256:2e93cda413052f38042d47b804eea049a4f7860ac9826f3763719288d77435ea"},
+    {file = "cli_helpers-2.3.0.tar.gz", hash = "sha256:e7174d003a2b58fd3e31a73fbbc45d5aa513de62cbd42d437f78b9658bd5f967"},
+]
+
+[[package]]
 name = "click"
 version = "8.1.7"
 requires_python = ">=3.7"
@@ -60,6 +89,19 @@ summary = "Cross-platform colored terminal text."
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
+]
+
+[[package]]
+name = "configobj"
+version = "5.0.8"
+requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+summary = "Config file reading, writing and validation."
+dependencies = [
+    "six",
+]
+files = [
+    {file = "configobj-5.0.8-py2.py3-none-any.whl", hash = "sha256:a7a8c6ab7daade85c3f329931a807c8aee750a2494363934f8ea84d8a54c87ea"},
+    {file = "configobj-5.0.8.tar.gz", hash = "sha256:6f704434a07dc4f4dc7c9a745172c1cad449feb548febd9f7fe362629c627a97"},
 ]
 
 [[package]]
@@ -206,6 +248,23 @@ files = [
 ]
 
 [[package]]
+name = "litecli"
+version = "1.9.0"
+summary = "CLI for SQLite Databases with auto-completion and syntax highlighting."
+dependencies = [
+    "Pygments>=1.6",
+    "cli-helpers[styles]>=2.2.1",
+    "click>=4.1",
+    "configobj>=5.0.5",
+    "prompt-toolkit<4.0.0,>=3.0.3",
+    "sqlparse",
+]
+files = [
+    {file = "litecli-1.9.0-py2.py3-none-any.whl", hash = "sha256:9190099368224a8f610ebcd55ddd3e3dd2148f083d2347b9853c89586652cb7d"},
+    {file = "litecli-1.9.0.tar.gz", hash = "sha256:21af2cfa083dd4df1e3ccaa2a2117129b5f17212756f596ea090e296776c27a1"},
+]
+
+[[package]]
 name = "matplotlib-inline"
 version = "0.1.6"
 requires_python = ">=3.5"
@@ -332,6 +391,31 @@ dependencies = [
 files = [
     {file = "stack_data-0.6.3-py3-none-any.whl", hash = "sha256:d5558e0c25a4cb0853cddad3d77da9891a08cb85dd9f9f91b9f8cd66e511e695"},
     {file = "stack_data-0.6.3.tar.gz", hash = "sha256:836a778de4fec4dcd1dcd89ed8abff8a221f58308462e1c4aa2a3cf30148f0b9"},
+]
+
+[[package]]
+name = "tabulate"
+version = "0.9.0"
+requires_python = ">=3.7"
+summary = "Pretty-print tabular data"
+files = [
+    {file = "tabulate-0.9.0-py3-none-any.whl", hash = "sha256:024ca478df22e9340661486f85298cff5f6dcdba14f3813e8830015b9ed1948f"},
+    {file = "tabulate-0.9.0.tar.gz", hash = "sha256:0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c"},
+]
+
+[[package]]
+name = "tabulate"
+version = "0.9.0"
+extras = ["widechars"]
+requires_python = ">=3.7"
+summary = "Pretty-print tabular data"
+dependencies = [
+    "tabulate==0.9.0",
+    "wcwidth",
+]
+files = [
+    {file = "tabulate-0.9.0-py3-none-any.whl", hash = "sha256:024ca478df22e9340661486f85298cff5f6dcdba14f3813e8830015b9ed1948f"},
+    {file = "tabulate-0.9.0.tar.gz", hash = "sha256:0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c"},
 ]
 
 [[package]]

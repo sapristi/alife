@@ -158,7 +158,7 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
 
   let stats s = `Assoc[
     "nb_reactions", `Int (RSet.cardinal s.set);
-    "total_rate", total_rate s |> Q.to_yojson
+    "total_rate", `Float (total_rate s |> Q.to_float);
   ]
 end
 
@@ -348,7 +348,7 @@ module CSet = struct
 
     let stats (s: t) = `Assoc [
       "nb_reactions", `Int (cardinal s);
-      "total_rate", total_rate s |> Q.to_yojson
+      "total_rate", `Float (total_rate s |> Q.to_float);
     ]
 
   end

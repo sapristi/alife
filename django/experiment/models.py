@@ -23,10 +23,14 @@ class Experiment(TSModel):
     def last_snapshot(self):
         return self.snapshots.last()
 
+class Log(models.Model):
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    data = models.JSONField()
+
 class BactSnapshot(TSModel):
+    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     data = models.JSONField()
     nb_reactions = models.IntegerField()
-    experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
 
 
 class InitialState(TSModel):

@@ -98,11 +98,6 @@ module EvalCmd = struct
       try
         Bacterie_libs.Bacterie.next_reaction bact
       with
-      | Reac_mgr.NoMoreReaction ->
-        logger.warning ~tags:[
-          "Bact", Bacterie.FullSig.bact_to_yojson bact;
-          "Reactions", Reac_mgr.to_yojson bact.reac_mgr
-        ] "No more reaction available, aborting"
       | exc -> (
           logger.error ~tags:[
             "Bact", Bacterie.FullSig.bact_to_yojson bact;

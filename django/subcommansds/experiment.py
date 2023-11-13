@@ -1,9 +1,9 @@
 import json
 import typer
 from enum import Enum
-from experiment.engine import yaac
+from experiment.engine import StatLogCollector, YaacWrapper
 
-from experiment.models import BactSnapshot, Experiment
+from experiment.models import BactSnapshot, Experiment, Log
 
 app = typer.Typer(
     name="experiment", no_args_is_help=True, add_completion=False,
@@ -44,18 +44,25 @@ def run(
     experiment = Experiment.objects.get(id=experiment_id)
     if  (snapshot := experiment.last_snapshot) and not reset:
         state = json.dumps(snapshot.data)
-        args = {
+        kwargs = {
             "use_dump": "true",
         }
         nb_reactions_start = snapshot.nb_reactions
         print(f"Starting from previous snapshot at reaction {nb_reactions_start}")
     else:
         state = json.dumps(experiment.initial_state)
-        args = {}
+        BactSnapshot.objects.filter(experiment=experiment).delete()
+        Log.objects.filter(experiment=experiment).delete()
+        kwargs = {}
         nb_reactions_start = 0
         print(f"Starting from initial state")
 
-    res_data = yaac.run("eval", *args, log_level=log_level.value, nb_steps=nb_steps, initial_state=state)
+    log_collector = StatLogCollector(experiment=experiment)
+    yaac = YaacWrapper(log_collector)
+    res_data = yaac.run("eval", **kwargs, log_level=log_level.value, nb_steps=nb_steps, initial_state=state)
+    if res_data is None:
+        print("Error")
+        return
     res_snapshot = BactSnapshot(
         experiment=experiment,
         nb_reactions=nb_reactions_start + nb_steps,

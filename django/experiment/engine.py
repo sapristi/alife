@@ -1,30 +1,91 @@
+import os
 import subprocess as sp
 import json
 
+from experiment.models import Experiment, Log
+
+
+class StatLogCollector:
+    def __init__(self, experiment: Experiment):
+        self.entries = []
+        self.exp = experiment
+
+    def _store(self):
+        logs = [Log(experiment=self.exp, data=entry) for entry in self.entries]
+        Log.objects.bulk_create(logs)
+        self.entries = []
+
+    def treat(self, line):
+        try:
+            data = json.loads(line)
+        except Exception:
+            print(line)
+            return
+        if data.get("logger") == "Stats":
+            self.entries.append(data)
+        else:
+            print(line)
+            return
+
+        if len(self.entries) > 1000:
+            self._store()
+
+    def finalize(self):
+        self._store()
+
+class DisplayLogHandler:
+    def treat(self, log_entry):
+        print(log_entry.strip("\n"))
+
+    def finalize(self):
+        pass
 
 class YaacWrapper:
+    def __init__(self, handler = None):
+        self.log_handler = handler or DisplayLogHandler()
+
+    def parse_output(self, process: sp.Popen[str]):
+        os.set_blocking(process.stdout.fileno(), False)
+        while True:
+            line=process.stdout.readline()
+
+            if len(line) != 0:
+                self._last_line = line
+
+            if process.poll() is not None:
+                self.log_handler.finalize()
+                return self._last_line
+
+            if len(line) != 0:
+                self.log_handler.treat(line)
+
     def run(self, command, **kwargs):
         full_command = [
             "./yaac",
             command,
             *[f"--{key.replace('_', '-')}={value}" for key, value in kwargs.items()]
         ]
-        p = sp.run(
+        # TODO: use select for buffers ?
+        # https://stackoverflow.com/questions/1180606/using-subprocess-popen-for-process-with-large-output
+        process = sp.Popen(
             full_command,
-            capture_output=True,
+            stdout=sp.PIPE,
             encoding="utf8",
+            env={
+                # "JSON_LOG": "true",
+                 "STATS": "true"
+            }
         )
-        if p.returncode != 0:
+        output = self.parse_output(process)
+        rc = process.poll()
+
+
+        if rc != 0:
             print("FAILED :(")
             print("Command", command)
-            print(p.stdout)
-            print(p.stderr)
             return None
 
-        output = p.stdout.splitlines()
-        logs = output[:-1]
-        print("\n".join(logs))
-        res_data = json.loads(output[-1])
+        res_data = json.loads(output)
         return res_data
 
 yaac = YaacWrapper()
