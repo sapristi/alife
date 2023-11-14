@@ -156,10 +156,9 @@ module MakeReacSet (Reac : Reacs.REAC) = struct
       (RSet.cardinal s.set)
       (show s)
 
-  let stats s = `Assoc[
-    "nb_reactions", `Int (RSet.cardinal s.set);
-    "total_rate", `Float (total_rate s |> Q.to_float);
-  ]
+  let stats s = (RSet.cardinal s.set),(total_rate s )
+
+
 end
 
 (** CSet : Collision Set
@@ -346,10 +345,7 @@ module CSet = struct
         (s |> calculate_rate |> Q.show)
         (show s)
 
-    let stats (s: t) = `Assoc [
-      "nb_reactions", `Int (cardinal s);
-      "total_rate", `Float (total_rate s |> Q.to_float);
-    ]
+    let stats s = (cardinal s),(total_rate s)
 
   end
 
@@ -375,11 +371,17 @@ let get_available_reac_nb rmgr =
   (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set, BSet.cardinal rmgr.b_set)
 
 let stats rmgr =
+
+  let make_json_stats (nb_reactions, raw_rate) coef = `Assoc [
+      "nb_reactions", `Int nb_reactions;
+      "rate", `Float Q.(raw_rate * coef |> to_float);
+      "raw_rate", `Float Q.(raw_rate |> to_float);
+    ] in
   `Assoc [
-    "transitions", TSet.stats rmgr.t_set;
-    "grabs", GSet.stats rmgr.g_set;
-    "breaks", BSet.stats rmgr.b_set;
-    "collisions", CSet.stats rmgr.c_set;
+    "transitions", make_json_stats (TSet.stats rmgr.t_set) !(rmgr.env).transition_rate;
+    "grabs", make_json_stats (GSet.stats rmgr.g_set) !(rmgr.env).grab_rate;
+    "breaks", make_json_stats (BSet.stats rmgr.b_set) !(rmgr.env).break_rate;
+    "collisions", make_json_stats (CSet.stats rmgr.c_set) !(rmgr.env).collision_rate;
     "counter", `Int rmgr.reac_counter;
   ]
 let to_yojson (rmgr : t) : Yojson.Safe.t =
