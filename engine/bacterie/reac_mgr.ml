@@ -371,11 +371,10 @@ let get_available_reac_nb rmgr =
   (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set, BSet.cardinal rmgr.b_set)
 
 let stats rmgr =
-
   let make_json_stats (nb_reactions, raw_rate) coef = `Assoc [
       "nb_reactions", `Int nb_reactions;
-      "rate", `Float Q.(raw_rate * coef |> to_float);
-      "raw_rate", `Float Q.(raw_rate |> to_float);
+      "rate", Q.( to_yojson_f (raw_rate * coef));
+      "raw_rate",  raw_rate |> Q.to_yojson_f;
     ] in
   `Assoc [
     "transitions", make_json_stats (TSet.stats rmgr.t_set) !(rmgr.env).transition_rate;
@@ -384,6 +383,7 @@ let stats rmgr =
     "collisions", make_json_stats (CSet.stats rmgr.c_set) !(rmgr.env).collision_rate;
     "counter", `Int rmgr.reac_counter;
   ]
+
 let to_yojson (rmgr : t) : Yojson.Safe.t =
   `Assoc
     [

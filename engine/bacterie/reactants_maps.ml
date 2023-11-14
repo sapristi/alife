@@ -183,10 +183,6 @@ module ARMap =
       (* we should return the list of reactions to update *)
       [ Reacs.Update_reacs !(areactant.reacs)]
 
-    let total_nb (armap :t) =
-      let open Q in
-      MolMap.fold (fun _ amset t -> t + (of_int (AmolSet.cardinal amset))) armap.v zero
-
     let remove (areactant : Reactant.Amol.t) (armap : t) : Reacs.effect list =
       logger.debug ~tags:["amol", Reactant.Amol.to_yojson areactant] "Removing Reactant.Amol";
 
@@ -240,6 +236,21 @@ module ARMap =
             areac
             reac_mgr)
         armap.v
+
+    let stats (armap: t) =
+      let total_nb = ref 0 and max_len = ref 0 and i = ref 0. and mean_len = ref 0. in
+      MolMap.iter (fun mol (amolset: AmolSet.t) ->
+          let qtt = AmolSet.cardinal amolset in
+          i := (!i) +. 1.;
+          total_nb := (!total_nb) + qtt;
+          max_len := Int.max (!max_len) (String.length mol);
+          mean_len := ( (mol |> String.length |> float_of_int) -. !mean_len) /. (!i)
+        ) armap.v;
+      `Assoc [
+        "nb_species",  `Int (MolMap.cardinal armap.v);
+        "total_nb", `Int (!total_nb);
+        "mean_len", `Float (!mean_len)
+      ]
 
   end
 
@@ -339,4 +350,17 @@ module IRMap =
       | Dummy -> failwith "dummy"
 
 
+    let stats (irmap: t) =
+      let total_nb = ref 0 and max_len = ref 0 and i = ref 0. and mean_len = ref 0. in
+      MolMap.iter (fun mol (imolset: Reactant.ImolSet.t) ->
+          i := (!i) +. 1.;
+          total_nb := (!total_nb) + imolset.qtt;
+          max_len := Int.max (!max_len) (String.length mol);
+          mean_len := ( (mol |> String.length |> float_of_int) -. !mean_len) /. (!i)
+        ) irmap.v;
+      `Assoc [
+        "nb_species",  `Int (MolMap.cardinal irmap.v);
+        "total_nb", `Int (!total_nb);
+        "mean_len", `Float (!mean_len)
+      ]
   end

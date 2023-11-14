@@ -6,6 +6,7 @@ module Q = struct
   include Q
 
   let to_yojson n = `String (to_string n)
+  let to_yojson_f n = `Float (n |> Q.to_float)
 
   let ( + ) = Q.add
   let ( - ) = Q.sub
