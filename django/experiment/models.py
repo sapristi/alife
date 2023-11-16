@@ -25,6 +25,7 @@ class Experiment(TSModel):
 
 class Log(models.Model):
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
+    reac_count = models.BigIntegerField()
     data = models.JSONField()
 
 class BactSnapshot(TSModel):

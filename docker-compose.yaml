@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  grafana:
+    user: "1000:1000"
+    image: grafana/grafana-oss
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      - GF_INSTALL_PLUGINS=frser-sqlite-datasource, grafana-simple-json-datasource
+      - GF_AUTH_DISABLE_LOGIN=true
+    ports:
+     - '3000:3000'
+    volumes:
+      - ./grafana:/var/lib/grafana
+      - ./django:/mnt
+
+  django:
+    user: "1000:1000"
+    image: django
+    build: ./django
+    volumes:
+      - ./django:/app
+    ports:
+      - '8000:8000'
+
+volumes:
+  grafana-storage:

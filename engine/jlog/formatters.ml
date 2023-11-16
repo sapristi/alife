@@ -36,7 +36,7 @@ let color (log_item: log_item) =
         Utils.join " - " (
           List.map (
             fun (name, value) ->
-              Format.asprintf "%a: %a" green_formatter name (Yojson.Safe.pretty_print ~std:false) value
+              Format.asprintf "%a: %a" green_formatter name (Yojson.Safe.pretty_print ~std:true) value
           ) log_item.tags
         ))
   in

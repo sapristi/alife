@@ -11,7 +11,7 @@ class StatLogCollector:
         self.exp = experiment
 
     def _store(self):
-        logs = [Log(experiment=self.exp, data=entry) for entry in self.entries]
+        logs = [Log(experiment=self.exp, reac_count=entry["tags"]["reactions"]["counter"], data=entry) for entry in self.entries]
         Log.objects.bulk_create(logs)
         self.entries = []
 
@@ -19,12 +19,12 @@ class StatLogCollector:
         try:
             data = json.loads(line)
         except Exception:
-            print(line)
+            print(line.strip("\n"))
             return
         if data.get("logger") == "Stats":
             self.entries.append(data)
         else:
-            print(line)
+            print(line.strip("\n"))
             return
 
         if len(self.entries) > 1000:

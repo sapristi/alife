@@ -1,41 +1,39 @@
 * Todo
 
-** bugfixes
+*** grafana export to django :nice_to_have:
+*** bacterie random state initialization:
+     - store in django
+     - button to generate random state seed
 
-*** Bug after loading a snapshot: problems with missing reactions or something
-
-** Problems
-
-*** TODO Comparison (from ppx.ord) used for reac sets - without taking reac rate into account
-    - [X] Switch to equal operator for set comparison (with custom Set module)
-    - [ ] Improve doc of implem, especially about circular references
-    - [ ] Ensure that equality checks do not miss anything - e.g. reactions associated with 
-
-*** possible collision of equality operator used in tests with other stuff
-*** why is the pnet uid the same between bact and ser_deser ??
-
-** Ideas
-
-*** TODO Rename environment fields
+*** TODO Rename environment fields :nice_to_have:
      - use factor instead of rate
-*** Improve logging / observability
+*** Improve observability :nice_to_have:
     - [ ] add name to bactery
     - [ ] use reference to bactery instead of env in reac_mgr
-
-*** CANCELED Instead of overriding equality checks, have uid generator per bactery
-     -> would compromise interaction between bacteries
-*** Add UI helpers for snaphots
-*** Parse mol from url in UI
-*** TODO capture logs when running experimens
-   - [ ] add custom log config - probably use a dedicated table to store them
-   - [ ] take care not to explode memory
-     - output logs to stderr (without capturing stderr) ? or custom handling in python
-   - [ ] store logs ?
-   - [ ] Log viewing: https://github.com/aurc/loggo ?
-*** Denser full repr - we only need to store tokens
+*** Add UI helpers for snaphots :idea:
+*** Parse mol from url in UI :idea:
+*** Denser full repr - we only need to store tokens :idea:
 
 
 * Done
+
+*** DONE capture logs when running experimens
+   - [X] add custom log config - probably use a dedicated table to store them
+   - [X] take care not to explode memory
+     - output logs to stderr (without capturing stderr) ? or custom handling in python
+   - [X] store logs ?
+   - [ ] Log viewing: https://github.com/aurc/loggo ?
+
+*** CANCELED Instead of overriding equality checks, have uid generator per bactery :idea:
+     -> would compromise interaction between bacteries
+
+*** DONE possible collision of equality operator used in tests with other stuff :problem:
+    - should be ok for now
+*** DONE Comparison (from ppx.ord) used for reac sets - without taking reac rate into account :problem:
+    - [X] Switch to equal operator for set comparison (with custom Set module)
+    - [X] Improve doc of implem, especially about circular references
+    - [X] Ensure that equality checks do not miss anything - e.g. reactions associated with
+*** DONE Bug after loading a snapshot: problems with missing reactions or something :bug:
 *** DONE Fix json import / export
   - [X] Check if switching to https://github.com/janestreet/ppx_yojson_conv is worth it
     -> probably not right now, as ppx_deriving is still maintained

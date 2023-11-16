@@ -243,11 +243,14 @@ let next_reaction (bact : t)  =
       execute_actions bact actions;
       let end_time = Sys.time () in
 
-      stats_logger.info ~tags:[
-        "picking_duration", `Float (picked_time -. begin_time);
-        "treating_duration", `Float (treated_time -. picked_time);
-        "post-actions_duration", `Float (end_time -. treated_time);
-      ] "Stats";
+      stats_logger.info ~ltags:(
+        lazy
+          ([
+            "picking_duration", `Float (picked_time -. begin_time);
+            "treating_duration", `Float (treated_time -. picked_time);
+            "post-actions_duration", `Float (end_time -. treated_time);
+          ] @ stats bact)
+      ) "Stats";
     with
     | _ as e ->
       logger.error ~tags:[
