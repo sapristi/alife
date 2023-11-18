@@ -12,6 +12,7 @@
  (libraries alcotest bacterie_libs)
  (preprocess
   (pps
+    ppx_deriving.show
     ppx_deriving_yojson
  ))
 )

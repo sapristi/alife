@@ -21,7 +21,7 @@ class StatLogCollector:
         except Exception:
             print(line.strip("\n"))
             return
-        if data.get("logger") == "Stats":
+        if data.get("message") == "Stats":
             self.entries.append(data)
         else:
             print(line.strip("\n"))

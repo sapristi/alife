@@ -3,7 +3,11 @@ let logger = Jlog.make_logger "Yaac.Libs.Random"
 
 include PRNG.Splitmix.State
 
-type t = PRNG.Splitmix.State.t = { mutable seed : int64; gamma : int64 }
+type t = PRNG.Splitmix.State.t =
+  {
+    mutable seed : int64; [@encoding `string]
+    gamma : int64; [@encoding `string]
+  }
 [@@deriving yojson, show, eq]
 
 let bernouil randstate q =

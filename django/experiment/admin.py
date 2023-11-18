@@ -1,12 +1,12 @@
+import sys
 from django.contrib import admin
 from admin_extra_buttons.api import ExtraButtonsMixin, button
-from admin_extra_buttons.utils import HttpResponseRedirectToReferrer
 from django.db.models import Model
 from django.http import HttpResponseRedirect
 from django.contrib import admin
 from django.urls import reverse
-
-
+import random
+from django.utils.safestring import mark_safe
 from .models import InitialState, BactSnapshot, Experiment
 
 def make_admin_redirect_url(obj: Model):
@@ -30,14 +30,36 @@ class InitialStateAdmin(ExtraButtonsMixin, admin.ModelAdmin):
         new_experiment.save()
         self.message_user(request, 'created experiment')
         return HttpResponseRedirect(make_admin_redirect_url(new_experiment))
-    pass
 
 class BactSnapshotAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ["experiment", "nb_reactions", "data"]
 
-class ExperimentAdmin(admin.ModelAdmin):
+class ExperimentAdmin(ExtraButtonsMixin, admin.ModelAdmin):
     list_display = ('id', 'name', 'description')
- 
+    readonly_fields = ["snapshots"]
+
+    @button(
+        html_attrs={'style': 'background-color:#88FF88;color:black'}
+    )
+    def randomize_seed(self, request, pk):
+        exp = Experiment.objects.get(pk=pk)
+        if "randstate" in exp.initial_state:
+            exp.initial_state["randstate"]["seed"] = str(random.randint(-sys.maxsize, sys.maxsize))
+        else:
+            exp.initial_state["randstate"] =  {
+                "seed": str(random.randint(-sys.maxsize, sys.maxsize)), "gamma": "-7046029254386353131"
+            }
+        exp.save()
+
+        return HttpResponseRedirect(make_admin_redirect_url(exp))
+
+    @admin.display(ordering=None, description='snapshots')
+    def snapshots(self, obj: Experiment):
+        def format_snapshot(snapshot):
+            return f'<li><a href="{make_admin_redirect_url(snapshot)}">{snapshot}</a></li>'
+
+        return mark_safe("<ul>" + "".join(format_snapshot(s) for s in obj.snapshots) + "</ul>")
+
 admin.site.register(
     InitialState, InitialStateAdmin
 )

@@ -14,12 +14,8 @@ let setup_logging level =
   let use_json = Sys.getenv_opt "JSON_LOG" |> Base.Option.is_some in
   let formatter = if use_json then Jlog.Formatters.json else Jlog.Formatters.color in
   let root_handler =  Jlog.make_handler ~formatter ~level () in
-  Jlog.register_handler "Yaac" root_handler;
+  Jlog.register_handler "Yaac" root_handler
 
-  if Sys.getenv_opt "STATS" |> Base.Option.is_some then (
-    let stats_handler =  Jlog.make_handler ~formatter:Jlog.Formatters.json ~level:Info () in
-    Jlog.register_handler "Stats" stats_handler;
-  )
 
 let log_level_t =
   Cmdliner.Arg.(
@@ -79,11 +75,17 @@ module EvalCmd = struct
     nb_steps : int;
     initial_state : string; [@doc "JSON representation of the initial state"]
     use_dump : bool; [@doc "The initial state is a full-dump"] [@default false]
+    stats_period: int; [@doc "How often are stats dumped"] [@default 0]
+    dump_period: int; [@doc "How often is bact dumped"] [@default 0]
   }
   [@@deriving subliner]
   let doc = "Runs the computation, from the given initial state, for the given number of steps."
 
-  let handle {log_level; initial_state; nb_steps; use_dump} =
+  let handle {log_level; initial_state; nb_steps; use_dump; stats_period; dump_period} =
+
+    let stats_handler =  Jlog.make_handler ~formatter:Jlog.Formatters.json ~level:Info ()
+    and stats_logger = Jlog.make_logger "Stats" in
+    Jlog.register_handler "Stats" stats_handler;
     setup_logging log_level;
     let bact =
       if use_dump
@@ -96,7 +98,19 @@ module EvalCmd = struct
     in
     for i = 0 to nb_steps - 1 do
       try
-        Bacterie_libs.Bacterie.next_reaction bact
+        let time_stats = Bacterie_libs.Bacterie.next_reaction bact in
+        let bact_stats_start = Sys.time ()
+        and bact_stats = Bacterie.stats bact in
+        let bacts_stats_time = (Sys.time ()) -. bact_stats_start in
+        if stats_period != 0 && i mod stats_period = 0
+        then
+          stats_logger.info
+            ~tags:(["bact_stats_duration", `Float bacts_stats_time]@bact_stats@time_stats )
+            "Stats";
+        if dump_period != 0 && i mod dump_period = 0
+        then
+          stats_logger.info
+            ~tags:["bacterie", Bacterie.FullSig.bact_to_yojson bact] "dump";
       with
       | exc -> (
           logger.error ~tags:[

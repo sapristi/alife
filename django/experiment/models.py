@@ -23,6 +23,9 @@ class Experiment(TSModel):
     def last_snapshot(self):
         return self.snapshots.last()
 
+    def __repr__(self):
+        return f"EXP: {self.name}[{self.id}]"
+
 class Log(models.Model):
     experiment = models.ForeignKey(Experiment, on_delete=models.CASCADE)
     reac_count = models.BigIntegerField()
@@ -33,6 +36,8 @@ class BactSnapshot(TSModel):
     data = models.JSONField()
     nb_reactions = models.IntegerField()
 
+    def __str__(self):
+        return f"Snapshot for {self.experiment.name}[{self.experiment.id}] - {self.nb_reactions} reacs"
 
 class InitialState(TSModel):
     name = models.CharField(max_length=100, blank=True)

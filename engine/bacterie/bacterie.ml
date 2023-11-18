@@ -60,14 +60,14 @@ let default_randstate = {
   gamma = -7046029254386353131L
 }
 
-let make_empty ?(env=Environment.null_env) () =
+let make_empty ?(env=Environment.null_env) ?(randstate=default_randstate) () =
   let renv = ref env in
   {
     ireactants= IRMap.make ();
     areactants= ARMap.make ();
     reac_mgr = Reac_mgr.make_new renv;
     env = renv;
-    randstate = ref default_randstate;
+    randstate = ref randstate;
     id_counter = 0;
   }
 
@@ -221,8 +221,6 @@ let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
     actions
 
 
-let stats_logger = Jlog.make_logger "Stats"
-
 let stats bact =
   [
     "ireactants", IRMap.stats bact.ireactants;
@@ -230,11 +228,11 @@ let stats bact =
     "reactions",  (Reac_mgr.stats bact.reac_mgr);
   ]
 
-let next_reaction (bact : t)  =
+let next_reaction ?(log_stats=false) (bact : t)  =
   let begin_time = Sys.time () in
   let r = Reac_mgr.pick_next_reaction !(bact.randstate) bact.reac_mgr in
   match r with
-  | None -> ()
+  | None -> []
   | Some r ->
     let picked_time = Sys.time () in
     try
@@ -242,15 +240,20 @@ let next_reaction (bact : t)  =
       let treated_time = Sys.time () in
       execute_actions bact actions;
       let end_time = Sys.time () in
-
-      stats_logger.info ~ltags:(
-        lazy
-          ([
-            "picking_duration", `Float (picked_time -. begin_time);
-            "treating_duration", `Float (treated_time -. picked_time);
-            "post-actions_duration", `Float (end_time -. treated_time);
-          ] @ stats bact)
-      ) "Stats";
+      [
+        "picking_duration", `Float (picked_time -. begin_time);
+        "treating_duration", `Float (treated_time -. picked_time);
+        "post-actions_duration", `Float (end_time -. treated_time);
+      ]
+      (* if log_stats then *)
+      (*   stats_logger.info ~ltags:( *)
+      (*     lazy *)
+      (*       ([ *)
+      (*         "picking_duration", `Float (picked_time -. begin_time); *)
+      (*         "treating_duration", `Float (treated_time -. picked_time); *)
+      (*         "post-actions_duration", `Float (end_time -. treated_time); *)
+      (*       ] @ stats bact) *)
+      (*   ) "Stats"; *)
     with
     | _ as e ->
       logger.error ~tags:[
@@ -328,24 +331,27 @@ module CompactSig = struct
   [@@deriving yojson {strict=false}, ord, show]
 
   type bacterie = t
+
   type t = {
     mols : mol_sig list;
     env: Environment.t;
+    randstate: Random_s.t [@default default_randstate]
   }
   [@@deriving yojson, show]
 
-
+  let canonical_mols (mols: mol_sig list) =
+    List.sort compare (List.filter (fun (m : mol_sig) -> m.qtt > 0) mols)
   (** Returns a canonical signature - where the mols are in a deterministic order *)
   let canonical (cs : t) : t =
     {
-      mols = List.sort compare (List.filter (fun (m : mol_sig) -> m.qtt > 0) cs.mols);
-      env = cs.env;
+      cs with
+      mols = canonical_mols cs.mols;
     }
 
   let to_bact
       (bact_sig : t)
     : bacterie  =
-    let bact = make_empty ~env:bact_sig.env () in
+    let bact = make_empty ~env:bact_sig.env ~randstate:bact_sig.randstate () in
     List.iter
       (fun {mol; qtt; ambient} ->
          let test_opnet = Petri_net.make_from_mol 0 mol in
@@ -379,6 +385,7 @@ module CompactSig = struct
     {
       mols = trimmed_imol_list @ trimmed_amol_list;
       env = !(bact.env);
+      randstate = !(bact.randstate)
     } |> canonical
 
 

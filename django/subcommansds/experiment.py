@@ -57,9 +57,18 @@ def run(
         nb_reactions_start = 0
         print(f"Starting from initial state")
 
+    if log_level:
+        kwargs["log_level"] = log_level.value
+
     log_collector = StatLogCollector(experiment=experiment)
     yaac = YaacWrapper(log_collector)
-    res_data = yaac.run("eval", **kwargs, log_level=log_level.value, nb_steps=nb_steps, initial_state=state)
+    res_data = yaac.run(
+        "eval",
+        **kwargs,
+        nb_steps=nb_steps,
+        initial_state=state,
+        stats_period=10,
+    )
     if res_data is None:
         print("Error")
         return

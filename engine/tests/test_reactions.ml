@@ -11,7 +11,9 @@ let print_bact b =
   ]) ""
 
 let bact_sig_testable =
-  Alcotest.testable Bacterie.CompactSig.pp (fun b1 b2 -> compare b1 b2 == 0)
+  let show_mol_sigs = [%derive.show: Bacterie.CompactSig.mol_sig list] in
+  let pp_mol_sigs fmt v = Format.pp_print_string fmt (show_mol_sigs v) in
+  Alcotest.testable pp_mol_sigs (fun mols1 mols2 -> compare mols1 mols2 == 0)
 
 let simple_bind () =
   let bact = Initial_states.simple_bind () in
@@ -34,21 +36,16 @@ let simple_bind () =
   print_bact bact;
 
   let result = Bacterie.to_sig bact
-  and expected_result : Bacterie.CompactSig.t =
-    Bacterie.CompactSig.canonical
+  and expected_result : Bacterie.CompactSig.mol_sig list =
+    Bacterie.CompactSig.canonical_mols [
+      { mol = "BA"; qtt = 1; ambient = false };
       {
-        mols =
-          [
-            { mol = "BA"; qtt = 1; ambient = false };
-            {
-              mol = "AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";
-              qtt = 1; ambient=false;
-            };
-          ];
-        env = !(bact.env);
-      }
+        mol = "AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";
+        qtt = 1; ambient=false;
+      };
+    ]
   in
-  Alcotest.check bact_sig_testable "same bact" expected_result result
+  Alcotest.check bact_sig_testable "same bact" expected_result result.mols
 
 and simple_split () =
   let bact = Initial_states.simple_split () in
@@ -56,19 +53,15 @@ and simple_split () =
   Bacterie.next_reaction bact;
 
   let result = Bacterie.to_sig bact
-  and expected_result : Bacterie.CompactSig.t =
-    Bacterie.CompactSig.canonical
-      {
-        mols =
-          [
-            { mol = "A"; qtt = 1; ambient=false };
-            { mol = "B"; qtt = 1; ambient=false };
-            { mol = "AAAABAAFBFDDFBBAADDFAAACAAADDFABBAAACAAADDFABB"; qtt=1; ambient=false};
-          ];
-        env = !(bact.env);
-      }
+  and expected_result : Bacterie.CompactSig.mol_sig list =
+    Bacterie.CompactSig.canonical_mols
+      [
+        { mol = "A"; qtt = 1; ambient=false };
+        { mol = "B"; qtt = 1; ambient=false };
+        { mol = "AAAABAAFBFDDFBBAADDFAAACAAADDFABBAAACAAADDFABB"; qtt=1; ambient=false};
+      ]
   in
-  Alcotest.check bact_sig_testable "same bact" expected_result result
+  Alcotest.check bact_sig_testable "same bact" expected_result result.mols
 
 and simple_break () =
   let bact = Initial_states.simple_break () in
@@ -77,14 +70,10 @@ and simple_break () =
   Bacterie.next_reaction bact;
 
   let result = Bacterie.to_sig bact
-  and expected_result =
-    Bacterie.CompactSig.canonical
-      {
-        mols = [ { mol = "A"; qtt = 5; ambient = false } ];
-        env = !(bact.env);
-      }
+  and expected_result : Bacterie.CompactSig.mol_sig list =
+    Bacterie.CompactSig.canonical_mols [ { mol = "A"; qtt = 5; ambient = false } ];
   in
-  Alcotest.check bact_sig_testable "same bact" expected_result result
+  Alcotest.check bact_sig_testable "same bact" expected_result result.mols
 
 and simple_grab_release () =
   let bact = Initial_states.simple_grab_release () in
@@ -96,18 +85,13 @@ and simple_grab_release () =
   logger.info "second reac ok";
 
   let result = Bacterie.to_sig bact
-  and expected_result =
-    Bacterie.CompactSig.canonical
-      {
-        mols = [
-          { mol = "A"; qtt = 1; ambient = false };
-          { mol = "AAABAAADDFABAFAFDDFAAACAAADDFABB"; qtt = 1; ambient=false }
-        ];
-        env = !(bact.env);
-      }
-  in
-
-  Alcotest.check bact_sig_testable "same bact" expected_result result
+  and expected_result : Bacterie.CompactSig.mol_sig list =
+    Bacterie.CompactSig.canonical_mols
+      [
+        { mol = "A"; qtt = 1; ambient = false };
+        { mol = "AAABAAADDFABAFAFDDFAAACAAADDFABB"; qtt = 1; ambient=false }
+      ]  in
+  Alcotest.check bact_sig_testable "same bact" expected_result result.mols
 
 and grab_release_amol () =
   let bact = Initial_states.grab_amol () in
@@ -117,37 +101,28 @@ and grab_release_amol () =
   (* Both mols can grab ? This should probably be changed
      With current setup, the short one grabs the other
   *)
-  and inter_expected_result =
-    Bacterie.CompactSig.canonical
-      {
-        mols =
+
+  and inter_expected_result : Bacterie.CompactSig.mol_sig list =
+    Bacterie.CompactSig.canonical_mols
           [
             { mol = "AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB"; qtt = 1;ambient=false }
             (* {mol="AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";qtt=1}; *);
-          ];
-        env = !(bact.env);
-      }
+          ]
   in
-  Alcotest.check bact_sig_testable "same bact" inter_expected_result
-    inter_result;
+  Alcotest.check bact_sig_testable "same bact" inter_expected_result inter_result.mols;
 
   Bacterie.next_reaction bact;
   let result = Bacterie.to_sig bact
-  and expected_result =
-    Bacterie.CompactSig.canonical
-      {
-        mols =
+  and expected_result : Bacterie.CompactSig.mol_sig list =
+    Bacterie.CompactSig.canonical_mols
           [
             {
               mol = "AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";
               qtt = 1; ambient=false
             };
             { mol = "AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB"; qtt = 1;ambient=false};
-          ];
-        env = !(bact.env);
-      }
-  in
-  Alcotest.check bact_sig_testable "same bact final" expected_result result
+          ]  in
+  Alcotest.check bact_sig_testable "same bact final" expected_result result.mols
 
 (* and simple_collision () = *)
 
