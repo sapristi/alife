@@ -1,6 +1,7 @@
 import os
 import subprocess as sp
 import json
+from dataclasses import dataclass
 
 from experiment.models import Experiment, Log
 
@@ -39,6 +40,12 @@ class DisplayLogHandler:
 
     def finalize(self):
         pass
+
+@dataclass
+class YaacException(Exception):
+    statuscode: int
+    stderr: str
+
 
 class YaacWrapper:
     def __init__(self, handler = None):
@@ -79,11 +86,8 @@ class YaacWrapper:
         output = self.parse_output(process)
         rc = process.poll()
 
-
         if rc != 0:
-            print("FAILED :(")
-            print("Command", command)
-            return None
+            raise YaacException(statuscode=rc, stderr=process.stderr)
 
         res_data = json.loads(output)
         return res_data

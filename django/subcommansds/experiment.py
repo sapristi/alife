@@ -33,12 +33,15 @@ class LogLevel(Enum):
     Info = "Info"
     Warning = "Warning"
 
+
 @app.command()
 def run(
         experiment_id: int,
-        nb_steps: int,
+        nb_reacs: int,
         reset: bool=typer.Option(False, is_flag=True, help="Restart from the initial state"),
-        log_level: LogLevel = typer.Option(None)
+        log_level: LogLevel = typer.Option(None),
+        snapshot_period: int | None = typer.Option(None, help="Snapshots saved every N reactions."),
+        stats_period: int  = typer.Option(10, help="States saved every N reactions."),
 ):
     """Run an experiment, from initial state, or last snapshot"""
     experiment = Experiment.objects.get(id=experiment_id)
@@ -62,24 +65,44 @@ def run(
 
     log_collector = StatLogCollector(experiment=experiment)
     yaac = YaacWrapper(log_collector)
-    res_data = yaac.run(
-        "eval",
-        **kwargs,
-        nb_steps=nb_steps,
-        initial_state=state,
-        stats_period=10,
-    )
-    if res_data is None:
-        print("Error")
-        return
-    res_snapshot = BactSnapshot(
-        experiment=experiment,
-        nb_reactions=nb_reactions_start + nb_steps,
-        data=res_data
-    )
-    res_snapshot.save()
-    print(f"Saved new snapshot, {res_snapshot.nb_reactions} reactions")
+    if snapshot_period is None:
+        snapshot_period = nb_reacs
 
+    if snapshot_period is None:
+        res_data = yaac.run(
+            "eval",
+            **kwargs,
+            nb_steps=nb_reacs,
+            initial_state=state,
+            stats_period=stats_period,
+        )
+        res_snapshot = BactSnapshot(
+            experiment=experiment,
+            nb_reactions=nb_reactions_start + nb_reacs,
+            data=res_data
+        )
+        res_snapshot.save()
+        print(f"Saved new snapshot, {res_snapshot.nb_reactions} reactions")
+
+    else:
+        nb_steps = nb_reacs // snapshot_period
+        for _ in range(nb_steps):
+            res_data = yaac.run(
+                "eval",
+                **kwargs,
+                nb_steps=nb_reacs,
+                initial_state=state,
+                stats_period=stats_period,
+            )
+            res_snapshot = BactSnapshot(
+                experiment=experiment,
+                nb_reactions=nb_reactions_start + nb_reacs,
+                data=res_data
+            )
+            res_snapshot.save()
+            print(f"Saved new snapshot, {res_snapshot.nb_reactions} reactions")
+
+        
 
 @app.command()
 def clear(experiment_id: int):
