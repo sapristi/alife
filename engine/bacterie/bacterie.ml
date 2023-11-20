@@ -267,7 +267,7 @@ let next_reaction ?(log_stats=false) (bact : t)  =
 (** Allows to encode the full state of a bactery in json
     Reactions are not exported, since we expect to reconstruct them from the present molecules.
 *)
-module FullSig = struct
+module Dump = struct
   type bacterie = t
   type t = {
     ireactants: IRMap.Serialized.t;
@@ -401,4 +401,4 @@ let pp fmt bact =
   CompactSig.pp fmt (CompactSig.of_bact bact)
 
 let pp_full fmt bact =
-  FullSig.pp fmt (FullSig.of_bact bact)
+  Dump.pp fmt (Dump.of_bact bact)

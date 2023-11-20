@@ -39,6 +39,10 @@ class BactSnapshot(TSModel):
     def __str__(self):
         return f"Snapshot for {self.experiment.name}[{self.experiment.id}] - {self.nb_reactions} reacs"
 
+    def save(self):
+        if self.nb_reactions is None:
+            self.nb_reactions = self.data["reac_counter"]
+        super().save()
 class InitialState(TSModel):
     name = models.CharField(max_length=100, blank=True)
     description = models.TextField(blank=True)

@@ -69,32 +69,42 @@ module FromProtCmd = struct
     build_all_from_prot prot
 end
 
+module LoadSignature = struct
+  type params = {
+    signature: string [@doc "JSON representation of the bact signature"]
+  }
+
+  [@@deriving subliner]
+  let doc = "Returns the full dump associated with the given signature"
+
+  let handle {signature} =
+    let bact = signature |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.CompactSig.of_yojson
+               |> Result.get_ok |> Bacterie_libs.Bacterie.CompactSig.to_bact
+    in
+    Bacterie.Dump.bact_to_yojson bact
+    |> Yojson.Safe.to_string |> Result.ok
+end
+
 module EvalCmd = struct
   type params = {
     log_level : Jlog.level; [@term log_level_t]
     nb_steps : int;
     initial_state : string; [@doc "JSON representation of the initial state"]
-    use_dump : bool; [@doc "The initial state is a full-dump"] [@default false]
     stats_period: int; [@doc "How often are stats dumped"] [@default 0]
     dump_period: int; [@doc "How often is bact dumped"] [@default 0]
   }
   [@@deriving subliner]
   let doc = "Runs the computation, from the given initial state, for the given number of steps."
 
-  let handle {log_level; initial_state; nb_steps; use_dump; stats_period; dump_period} =
+  let handle {log_level; initial_state; nb_steps; stats_period; dump_period} =
 
     let stats_handler =  Jlog.make_handler ~formatter:Jlog.Formatters.json ~level:Info ()
     and stats_logger = Jlog.make_logger "Stats" in
     Jlog.register_handler "Stats" stats_handler;
     setup_logging log_level;
     let bact =
-      if use_dump
-      then
-        initial_state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson
+        initial_state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.Dump.bact_of_yojson
         |> Result.get_ok
-      else
-        initial_state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.CompactSig.of_yojson
-        |> Result.get_ok |> Bacterie_libs.Bacterie.CompactSig.to_bact
     in
     for i = 0 to nb_steps - 1 do
       try
@@ -110,18 +120,18 @@ module EvalCmd = struct
         if dump_period != 0 && i mod dump_period = 0
         then
           stats_logger.info
-            ~tags:["bacterie", Bacterie.FullSig.bact_to_yojson bact] "dump";
+            ~tags:["bacterie", Bacterie.Dump.bact_to_yojson bact] "dump";
       with
       | exc -> (
           logger.error ~tags:[
-            "Bact", Bacterie.FullSig.bact_to_yojson bact;
+            "Bact", Bacterie.Dump.bact_to_yojson bact;
             "Reactions", Reac_mgr.to_yojson bact.reac_mgr
           ] "Reaction failed";
           raise exc
         )
     done;
 
-    Bacterie.FullSig.bact_to_yojson bact
+    Bacterie.Dump.bact_to_yojson bact
     |> Yojson.Safe.to_string |> Result.ok
 
 end
@@ -136,7 +146,7 @@ module ReactionsCmd = struct
 
   let handle {log_level; state} =
     setup_logging log_level;
-    let bact = state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson
+    let bact = state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.Dump.bact_of_yojson
                |> Result.get_ok
     in
     bact.reac_mgr |> Reac_mgr.to_yojson|> Yojson.Safe.to_string |> Result.ok
@@ -149,6 +159,9 @@ type params =
   | From_prot of FromProtCmd.params
                  [@doc FromProtCmd.doc]
   | Eval of EvalCmd.params
+            [@doc EvalCmd.doc]
+
+  | Load_signature of LoadSignature.params
             [@doc EvalCmd.doc]
   | Reactions of ReactionsCmd.params
                  [@doc ReactionsCmd.doc]
@@ -163,6 +176,7 @@ let handle = function
   | From_prot params -> FromProtCmd.handle params
   | Eval params -> EvalCmd.handle params
   | Reactions params -> ReactionsCmd.handle params
+  | Load_signature params -> LoadSignature.handle params
   | React -> Ok "ok"
   | Test_log ->
 
@@ -183,7 +197,7 @@ let handle_wrapped input =
       exit 1
 
 [%%subliner.cmds eval.params <- handle_wrapped]
-[@@man [`S "Env variable options;";
+[@@man [`S "Env variable options:";
         `I ("JSON_LOG","if present, format logs as json");
         `I ("STATS","if present, logs stats (always as json)");
        ]]

@@ -1,4 +1,3 @@
-import json
 import typer
 from enum import Enum
 from experiment.engine import StatLogCollector, YaacWrapper
@@ -40,26 +39,27 @@ def run(
         nb_reacs: int,
         reset: bool=typer.Option(False, is_flag=True, help="Restart from the initial state"),
         log_level: LogLevel = typer.Option(None),
-        snapshot_period: int | None = typer.Option(None, help="Snapshots saved every N reactions."),
-        stats_period: int  = typer.Option(10, help="States saved every N reactions."),
+        snapshot_period: int = typer.Option(None, help="Snapshots saved every N reactions."),
+        stats_period: int = typer.Option(10, help="States saved every N reactions."),
 ):
     """Run an experiment, from initial state, or last snapshot"""
     experiment = Experiment.objects.get(id=experiment_id)
     if  (snapshot := experiment.last_snapshot) and not reset:
-        state = json.dumps(snapshot.data)
-        kwargs = {
-            "use_dump": "true",
-        }
+        state = snapshot.data
         nb_reactions_start = snapshot.nb_reactions
         print(f"Starting from previous snapshot at reaction {nb_reactions_start}")
     else:
-        state = json.dumps(experiment.initial_state)
         BactSnapshot.objects.filter(experiment=experiment).delete()
         Log.objects.filter(experiment=experiment).delete()
-        kwargs = {}
+
+        state = YaacWrapper().run("load-signature", signature=experiment.initial_state)
         nb_reactions_start = 0
         print(f"Starting from initial state")
+        if reset:
+            print("All previous dumps and stats have been deleted")
+        BactSnapshot(experiment=experiment, data=state).save()
 
+    kwargs = {}
     if log_level:
         kwargs["log_level"] = log_level.value
 
@@ -68,41 +68,25 @@ def run(
     if snapshot_period is None:
         snapshot_period = nb_reacs
 
-    if snapshot_period is None:
-        res_data = yaac.run(
+    nb_steps = nb_reacs // snapshot_period
+    current_nb_reacs = nb_reactions_start
+    for _ in range(nb_steps):
+        state = yaac.run(
             "eval",
             **kwargs,
-            nb_steps=nb_reacs,
+            nb_steps=snapshot_period,
             initial_state=state,
             stats_period=stats_period,
         )
+        current_nb_reacs += snapshot_period
         res_snapshot = BactSnapshot(
             experiment=experiment,
-            nb_reactions=nb_reactions_start + nb_reacs,
-            data=res_data
+            data=state
         )
         res_snapshot.save()
         print(f"Saved new snapshot, {res_snapshot.nb_reactions} reactions")
 
-    else:
-        nb_steps = nb_reacs // snapshot_period
-        for _ in range(nb_steps):
-            res_data = yaac.run(
-                "eval",
-                **kwargs,
-                nb_steps=nb_reacs,
-                initial_state=state,
-                stats_period=stats_period,
-            )
-            res_snapshot = BactSnapshot(
-                experiment=experiment,
-                nb_reactions=nb_reactions_start + nb_reacs,
-                data=res_data
-            )
-            res_snapshot.save()
-            print(f"Saved new snapshot, {res_snapshot.nb_reactions} reactions")
 
-        
 
 @app.command()
 def clear(experiment_id: int):

@@ -20,8 +20,8 @@ let test_run_custom () =
     Bacterie.next_reaction bact;
     Reac_mgr.check_reac_rates bact.reac_mgr;
   done;
-  let serdeser = bact |> Bacterie_libs.Bacterie.FullSig.bact_to_yojson
-                 |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson |> Result.get_ok
+  let serdeser = bact |> Bacterie_libs.Bacterie.Dump.bact_to_yojson
+                 |> Bacterie_libs.Bacterie.Dump.bact_of_yojson |> Result.get_ok
   in
   for i = 1 to 1000 do
     Bacterie.next_reaction serdeser;

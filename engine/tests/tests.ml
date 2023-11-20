@@ -11,7 +11,7 @@ let () =
   run "Bacterie tests"
     [
       ( "Full sig - random same behaviour",
-        [test_case "same random" `Quick Test_full_sig.test_randstate_same_behaviour;]
+        [test_case "same random" `Quick Test_dump.test_randstate_same_behaviour;]
       );
 
       ( "Full Sig initial",
@@ -20,7 +20,7 @@ let () =
             test_case
               ("initial " ^ name)
               `Quick
-              (Test_full_sig.test_equality_reacs_before_ser_deser name get_bact 0))
+              (Test_dump.test_equality_reacs_before_ser_deser name get_bact 0))
           Initial_states.bacteries );
       ( "Full Sig after 1 reaction",
         List.map
@@ -28,7 +28,7 @@ let () =
             test_case
               ("1 r " ^ name)
               `Quick
-              (Test_full_sig.test_equality_reacs_before_ser_deser name get_bact 1))
+              (Test_dump.test_equality_reacs_before_ser_deser name get_bact 1))
           Initial_states.bacteries );
       ( "Full Sig after 10 reaction",
         List.map
@@ -36,7 +36,7 @@ let () =
             test_case
               ("10 r " ^ name)
               `Quick
-              (Test_full_sig.test_equality_reacs_before_ser_deser name get_bact 10))
+              (Test_dump.test_equality_reacs_before_ser_deser name get_bact 10))
           Initial_states.bacteries );
       ( "Full Sig, reactions after ser-deser",
         List.map
@@ -44,7 +44,7 @@ let () =
              test_case
                ("1 r " ^ name)
                `Quick
-               (Test_full_sig.test_equality_reacs_after_ser_deser name get_bact 10 10))
+               (Test_dump.test_equality_reacs_after_ser_deser name get_bact 10 10))
           Initial_states.bacteries );
       ( "Reactions rates", [
             test_case "collisions" `Quick Test_reaction_rates.test_collision_reactions_rates;

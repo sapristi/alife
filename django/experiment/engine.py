@@ -51,7 +51,7 @@ class YaacWrapper:
     def __init__(self, handler = None):
         self.log_handler = handler or DisplayLogHandler()
 
-    def parse_output(self, process: sp.Popen[str]):
+    def _parse_output(self, process: sp.Popen[str]):
         os.set_blocking(process.stdout.fileno(), False)
         while True:
             line=process.stdout.readline()
@@ -66,11 +66,16 @@ class YaacWrapper:
             if len(line) != 0:
                 self.log_handler.treat(line)
 
+    def _kwarg_to_cmd_arg(self, key, value):
+        if isinstance(value, dict):
+            value = json.dumps(value)
+        return f"--{key.replace('_', '-')}={value}"
+
     def run(self, command, **kwargs):
         full_command = [
             "./yaac",
             command,
-            *[f"--{key.replace('_', '-')}={value}" for key, value in kwargs.items()]
+            *[self._kwarg_to_cmd_arg(key, value) for key, value in kwargs.items()]
         ]
         # TODO: use select for buffers ?
         # https://stackoverflow.com/questions/1180606/using-subprocess-popen-for-process-with-large-output
@@ -83,7 +88,7 @@ class YaacWrapper:
                  "STATS": "true"
             }
         )
-        output = self.parse_output(process)
+        output = self._parse_output(process)
         rc = process.poll()
 
         if rc != 0:

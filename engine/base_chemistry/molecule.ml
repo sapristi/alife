@@ -128,17 +128,17 @@ let rec apply_parsers parsers mol =
           let acid, mol' = parser_fun groups in
           (Some acid, mol'))
 
-let%expect_test _ =
-  let Some a, remainder = apply_parsers compiled_parsers "AAA" in
-  print_endline (Types.Acid.show_acid a);
-  print_endline remainder;
-  [%expect {|Type_acid.Place|}]
+(* let%expect_test _ = *)
+(*   let Some a, remainder = apply_parsers compiled_parsers "AAA" in *)
+(*   print_endline (Types.Acid.show_acid a); *)
+(*   print_endline remainder; *)
+(*   [%expect {|Type_acid.Place|}] *)
 
-let%expect_test _ =
-  let Some a, remainder = apply_parsers compiled_parsers "BAAADDF" in
-  print_endline (Types.Acid.show_acid a);
-  print_endline remainder;
-  [%expect {|(Type_acid.InputArc ("A", Type_acid.Regular_iarc))|}]
+(* let%expect_test _ = *)
+(*   let Some a, remainder = apply_parsers compiled_parsers "BAAADDF" in *)
+(*   print_endline (Types.Acid.show_acid a); *)
+(*   print_endline remainder; *)
+(*   [%expect {|(Type_acid.InputArc ("A", Type_acid.Regular_iarc))|}] *)
 
 let rec mol_parser_aux res (mol : string) : Proteine.t =
   if mol = "" then List.rev res

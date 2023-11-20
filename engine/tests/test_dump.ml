@@ -20,8 +20,8 @@ let test_equality_reacs_before_ser_deser name get_bact nb_reacs () =
 
   (Array.make 30 "SER DESER - ") |> Array.fold_left (fun res value -> value^res) "" |> logger.info;
   let serdeser =
-    bact |> Bacterie_libs.Bacterie.FullSig.bact_to_yojson
-    |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson |> Result.get_ok
+    bact |> Bacterie_libs.Bacterie.Dump.bact_to_yojson
+    |> Bacterie_libs.Bacterie.Dump.bact_of_yojson |> Result.get_ok
   in
   Alcotest.check reac_mgr_t_testable
     ("reac_mgr t " ^ name)
@@ -49,8 +49,8 @@ let test_equality_reacs_after_ser_deser name get_bact nb_reacs_before nb_reacs_a
   done;
 
   let serdeser =
-    bact |> Bacterie_libs.Bacterie.FullSig.bact_to_yojson
-    |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson |> Result.get_ok
+    bact |> Bacterie_libs.Bacterie.Dump.bact_to_yojson
+    |> Bacterie_libs.Bacterie.Dump.bact_of_yojson |> Result.get_ok
   in
 
   for i = 1 to nb_reacs_after do
@@ -64,8 +64,8 @@ let test_equality_reacs_after_ser_deser name get_bact nb_reacs_before nb_reacs_a
 
 let test_randstate_same_behaviour () =
   let bact = Bacterie.make_empty () in
-  let serdeser = bact |> Bacterie_libs.Bacterie.FullSig.bact_to_yojson
-    |> Bacterie_libs.Bacterie.FullSig.bact_of_yojson |> Result.get_ok
+  let serdeser = bact |> Bacterie_libs.Bacterie.Dump.bact_to_yojson
+    |> Bacterie_libs.Bacterie.Dump.bact_of_yojson |> Result.get_ok
   in
   for i = 0 to 1000 do
     let res_bact = Random_s.bernouil_f !(bact.randstate) 0.5
