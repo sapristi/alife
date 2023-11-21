@@ -67,6 +67,7 @@ class PartialSnapshotSerializer(serializers.ModelSerializer):
 class ExperimentSerializer(serializers.ModelSerializer):
     # last_snapshot = SnapshotSerializer()
     snapshots = PartialSnapshotSerializer(many=True)
+    # snapshots = serializers.ListField(child = serializers.IntegerField())
     class Meta:
         model = models.Experiment
         fields = ('id', 'name', 'description', "snapshots")
@@ -90,7 +91,6 @@ class ExperimentView(viewsets.ViewSet):
             "eval",
             initial_state=json.dumps(state),
             nb_steps=1,
-            use_dump="true"
         )
         print("GOT", res)
         if res is None:

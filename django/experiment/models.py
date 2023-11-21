@@ -18,6 +18,7 @@ class Experiment(TSModel):
     @property
     def snapshots(self):
         return BactSnapshot.objects.filter(experiment=self).values("id", "nb_reactions")
+        # return BactSnapshot.objects.filter(experiment=self).values_list("nb_reactions", flat=True)
 
     @property
     def last_snapshot(self):
@@ -38,6 +39,9 @@ class BactSnapshot(TSModel):
 
     def __str__(self):
         return f"Snapshot for {self.experiment.name}[{self.experiment.id}] - {self.nb_reactions} reacs"
+
+    class Meta:
+        unique_together = [("experiment", "nb_reactions")]
 
     def save(self):
         if self.nb_reactions is None:
