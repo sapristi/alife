@@ -29,7 +29,7 @@ class PagesViewSet(viewsets.ViewSet):
         )
 
     @action(detail=False)
-    def experiment(self,*args, **kwargs):
+    def experiment(self, request, *args, **kwargs):
         template = loader.get_template("experiment_view.html")
         return HttpResponse(
             template.render(
@@ -56,13 +56,20 @@ class MoleculeView(View):
 class SnapshotSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.BactSnapshot
-        fields = ('data', 'nb_reactions', 'timestamp')
+        fields = ('id', 'data', 'nb_reactions', 'timestamp')
+
+class PartialSnapshotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.BactSnapshot
+        fields = ('id', 'nb_reactions')
+
 
 class ExperimentSerializer(serializers.ModelSerializer):
-    last_snapshot = SnapshotSerializer()
+    # last_snapshot = SnapshotSerializer()
+    snapshots = PartialSnapshotSerializer(many=True)
     class Meta:
         model = models.Experiment
-        fields = ('id', 'name', 'description', 'last_snapshot')
+        fields = ('id', 'name', 'description', "snapshots")
 
 class ExperimentView(viewsets.ViewSet):
     """Experiment API"""
@@ -91,3 +98,8 @@ class ExperimentView(viewsets.ViewSet):
         return JsonResponse(
             res, safe=False
         )
+
+class SnapshotView(viewsets.ModelViewSet):
+    authentication_classes = []
+    queryset = models.BactSnapshot.objects.all()
+    serializer_class = SnapshotSerializer

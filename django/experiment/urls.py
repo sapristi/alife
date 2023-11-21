@@ -7,6 +7,7 @@ from . import views
 router = SimpleRouter()
 router.register(r'pages', views.PagesViewSet, basename='pages')
 router.register(r'experiment', views.ExperimentView, basename='experiment')
+router.register(r'snapshot', views.SnapshotView, basename='snapshot')
 
 
 urlpatterns = [

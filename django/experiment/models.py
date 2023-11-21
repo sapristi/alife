@@ -17,7 +17,7 @@ class Experiment(TSModel):
 
     @property
     def snapshots(self):
-        return BactSnapshot.objects.filter(experiment=self)
+        return BactSnapshot.objects.filter(experiment=self).values("id", "nb_reactions")
 
     @property
     def last_snapshot(self):
@@ -43,6 +43,7 @@ class BactSnapshot(TSModel):
         if self.nb_reactions is None:
             self.nb_reactions = self.data["reac_counter"]
         super().save()
+
 class InitialState(TSModel):
     name = models.CharField(max_length=100, blank=True)
     description = models.TextField(blank=True)

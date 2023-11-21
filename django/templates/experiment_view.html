@@ -57,19 +57,21 @@
  import {urlSyncedSignal} from 'utils';
  import {html,  makePnetPanels} from 'components';
 
- const exp_id = urlSyncedSignal("exp_id", null);
+ const experiment_id = urlSyncedSignal("experiment_id", null);
+ const snapshot_id = urlSyncedSignal("snapshot_id", null);
+
+ const snapshot_meta = signal(null);
  const snapshot = signal(null);
- const snapshot_data = signal(null);
  const experiment = signal(null);
  const displayedPnetUid = signal(null);
  // id of the selected node in the pnet - see cytoscape_utils.mjs
  const selectedNodeId = signal(null);
 
- // called when exp_id.value changes
+ // called when experiment_id.value changes
  effect( () => {
-   console.log("CHANGE", exp_id.value)
-   if (exp_id.value === null) {return}
-   fetch(`http://${window.location.host}/experiment/${exp_id}`, {
+   console.log("CHANGE EXP", experiment_id.value)
+   if (experiment_id.value === null) {return}
+   fetch(`http://${window.location.host}/experiment/${experiment_id}`, {
      method: 'GET',
      headers: {
        'Accept': 'application/json',
@@ -79,11 +81,31 @@
      response => response.json()
    ).then(
      data => {
-       console.log("RECEIVED", data)
-       snapshot_data.value = data.last_snapshot.data;
+       console.log("RECEIVED EXPERIMENT", data)
        experiment.value = data;
      }
    )
+ })
+
+ effect( () => {
+     console.log("CHANGE SNAPSHOT", snapshot_id.value)
+     if (snapshot_id.value === null) {return}
+     fetch(`http://${window.location.host}/snapshot/${snapshot_id}`, {
+         method: 'GET',
+         headers: {
+             'Accept': 'application/json',
+             'Content-Type': 'application/json'
+         },
+     }).then(
+         response => response.json()
+     ).then(
+         responseData => {
+             console.log("RECEIVED SNAPSHOT", responseData)
+             let {data, ...meta} = responseData
+             snapshot.value = data
+             snapshot_meta.value = meta
+         }
+     )
  })
 
  // update displayed pnet - not very efficient
@@ -92,8 +114,8 @@
  // - uid -> pnet association
  const displayedPnet = computed(() => {
    console.log("Updating pnet", displayedPnetUid.value)
-   if (!snapshot_data.value || displayedPnetUid.value === null) {console.log("early return"); return null}
-   for (let [mol, pnets] of snapshot_data.value.areactants) {
+   if (!snapshot.value || displayedPnetUid.value === null) {console.log("early return"); return null}
+   for (let [mol, pnets] of snapshot.value.areactants) {
      for (let pnet of pnets) {
        if (pnet.uid === displayedPnetUid.value) {
          return pnet
@@ -109,7 +131,7 @@
    let nextState = () => {
      fetch(`http://${window.location.host}/experiment/next_state/`, {
        method: 'POST',
-       body: JSON.stringify({"state": snapshot_data.value}),
+       body: JSON.stringify({"state": snapshot.value}),
        headers: {
          'Accept': 'application/json',
          'Content-Type': 'application/json'
@@ -119,7 +141,7 @@
      ).then(
        data => {
          console.log("RECEIVED", data)
-         snapshot_data.value = data
+         snapshot.value = data
        }
      )
 
@@ -137,33 +159,54 @@
        <div class="message-header">Experiment - ${experiment.value.name}</div>
        <div class="message-body content">
          ${experiment.value.description}
-         Loaded snapshot:
-         <ul>
-           <li>${experiment.value.last_snapshot.timestamp}</li>
-           <li>${experiment.value.last_snapshot.nb_reactions} reactions performed</li>
-         </ul>
        </div>
      </div>`
  }
 
- let ExperimentSection = () => {
+ let SnapshotSelect = () => {
 
-   const selected = exp_id.value
+     const selected = snapshot_id.value
+     let onChange = e => {
+         snapshot_id.value = e.target.value
+     }
+     const snapshots = experiment.value ? experiment.value.snapshots : []
+     console.log("SNAPSHOTS", snapshots)
+     const makeOption = ({id, nb_reactions}) =>
+         html`<option value="${id}">${nb_reactions}</option>`
+
+     return html`
+         <div class="select">
+             <select value=${selected} onChange=${onChange}>
+                 ${snapshots.map( makeOption )}
+             </select>
+         </div>
+     `
+ }
+
+ let ExperimentSelect = () => {
+
+   const selected = experiment_id.value
    let onChange = e => {
-     exp_id.value = e.target.value
+     experiment_id.value = e.target.value
    }
    return html`
-     <Fragment>
        <div class="select">
-         <select value=${selected} onChange=${onChange}>
-           {% for experiment in experiments %}
-           <option value="{{experiment.id}}">{{experiment.id}} - {{experiment.name}}</option>
-           {% endfor %}
-         </select>
+           <select value=${selected} onChange=${onChange}>
+               {% for experiment in experiments %}
+               <option value="{{experiment.id}}">{{experiment.id}} - {{experiment.name}}</option>
+               {% endfor %}
+           </select>
        </div>
-       <${ExperimentInfoPanel} />
-     </Fragment>
    `
+ }
+ let ExperimentSection = () => {
+     return html`
+         <div>
+             <div><${ExperimentSelect} />  <${SnapshotSelect} /></div>
+
+             <${ExperimentInfoPanel} />
+         </div>
+     `
  }
  let MolDisplay = ({mol}) => {
    return html`<div style="overflow: hidden; text-overflow: ellipsis; max-width: 100%">${mol}</div>`
@@ -235,15 +278,16 @@
  }
 
  let MoleculesDisplay = () => {
-   if (!snapshot_data.value) {return null}
+   if (!snapshot.value) {return null}
 
-   const imols_all = snapshot_data.value.ireactants
+     console.log("MOL")
+   const imols_all = snapshot.value.ireactants
    const ambient_imols = []
    const imols = []
    for (let imol of imols_all) {
      if (imol.ambient) {ambient_imols.push(imol)} else {imols.push(imol)}
    }
-   const amols = snapshot_data.value.areactants
+   const amols = snapshot.value.areactants
 
 
    return html`

@@ -15,7 +15,7 @@ dependencies = [
     "setuptools>=68.2.2",
     "typer>=0.9.0",
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "GPLV3"}
 
@@ -29,3 +29,9 @@ dev = [
 [tool.pdm.scripts]
 manage.cmd = "./manage.py"
 cli.cmd = "./cli.py"
+
+[tool.pdm.options]
+add = ["--no-self"]
+install = ["--no-self"]
+sync = ["--no-self"]
+lock = ["--no-cross-platform"]
