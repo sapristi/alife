@@ -3,6 +3,7 @@ import { setup_pnet_cy } from "cytoscape_utils";
 import { pnet_to_cytoscape_elements } from "cytoscape_pnet";
 import { useState, useRef, useEffect } from "preact/hooks";
 import { signal, effect, computed } from "@preact/signals";
+import { shortMolRepr } from "utils";
 
 import htm from "htm";
 
@@ -118,7 +119,7 @@ export const makePnetPanels = (pnetSignal) => {
     selectedNodeId.value = event.id;
   };
 
-  const PnetGraphPanelWrapper = ({ pnetSignal }) =>
+  const PnetGraphPanelWrapper = () =>
     PnetGraphPanel({ pnetSignal, eventHandler: updateSelectedNodeId });
   const SelectedNodePanelWrapper = ({}) =>
     SelectedNodePanel({ selectedNodeSignal: selectedNode });
@@ -127,4 +128,12 @@ export const makePnetPanels = (pnetSignal) => {
     PnetGraphPanel: PnetGraphPanelWrapper,
     SelectedNodePanel: SelectedNodePanelWrapper,
   };
+};
+
+export const MolRepr = ({ mol }) => {
+  return html`<div
+    style="overflow: hidden; text-overflow: ellipsis; max-width: 100%"
+  >
+    <pre>${shortMolRepr(mol)}</pre>
+  </div>`;
 };

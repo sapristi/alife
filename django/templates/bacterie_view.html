@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block scripts_extra %}
-<!-- <script src="{% static 'js/cytoscape_utils.js' %}"></script> -->
 {% endblock %}
 
 {% block body %}
@@ -11,7 +10,7 @@
     <h1 class="title">
       Molecule
     </h1>
-    <div id="mol-component" />
+    <div id="mol-component"> </div>
   </div>
 </section>
 <div class="columns is-multiline">
@@ -21,7 +20,7 @@
         <h1 class="title">
           Petri Net
         </h1>
-        <div class="content" id="pnet-component" />
+        <div class="content" id="pnet-component"></div>
       </div>
     </section>
   </div>
@@ -31,7 +30,7 @@
         <h1 class="title">
           Proteine
         </h1>
-        <div class="content" id="prot-component" />
+        <div class="content" id="prot-component"></div>
       </div>
     </section>
   </div>
@@ -57,14 +56,12 @@
  import { h, render } from "preact";
  import { signal, effect } from "@preact/signals";
  import { useState, useRef, useEffect } from 'preact/hooks';
- import htm from "htm";
  import {setup_pnet_cy} from 'cytoscape_utils';
  import {pnet_to_cytoscape_elements} from 'cytoscape_pnet';
  import {urlSyncedSignal} from 'utils';
- import {PnetGraphDisplay} from 'components';
+ /* import {PnetGraphDisplay} from 'components'; */
+ import {html,  makePnetPanels} from 'components';
 
-
- const html = htm.bind(h);
  const prot = signal([]);
  const pnet = signal(null);
  const mol = urlSyncedSignal("mol", "");
@@ -123,8 +120,11 @@
      </ul>`
  }
 
+ const {PnetGraphPanel, SelectedNodePanel} = makePnetPanels(pnet)
+
  render(html`<${MolInput} />`, document.getElementById("mol-component"));
  render(html`<${ProtDisplay} />`, document.getElementById("prot-component"));
- render(html`<${PnetGraphDisplay}  pnetSignal=${pnet} />`, document.getElementById("pnet-component"));
+ /* render(html`<${PnetGraphDisplay}  pnetSignal=${pnet} />`, document.getElementById("pnet-component")); */
+ render(html`<${PnetGraphPanel} pnetSignal=${pnet} />`, document.getElementById("pnet-component"));
 </script>
 {% endblock %}

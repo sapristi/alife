@@ -41,6 +41,19 @@ class ExperimentAdmin(ExtraButtonsMixin, admin.ModelAdmin):
     @button(
         html_attrs={'style': 'background-color:#88FF88;color:black'}
     )
+    def duplicate(self, request, pk):
+        exp = Experiment.objects.get(pk=pk)
+        new_exp = Experiment(
+            name=f"{exp.name} - Copy",
+            description=exp.description,
+            initial_state=exp.initial_state
+        )
+        new_exp.save()
+        return HttpResponseRedirect(make_admin_redirect_url(new_exp))
+
+    @button(
+        html_attrs={'style': 'background-color:#88FF88;color:black'}
+    )
     def randomize_seed(self, request, pk):
         exp = Experiment.objects.get(pk=pk)
         if "randstate" in exp.initial_state:

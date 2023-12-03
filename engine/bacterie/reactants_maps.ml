@@ -244,12 +244,15 @@ module ARMap =
           i := (!i) +. 1.;
           total_nb := (!total_nb) + qtt;
           max_len := Int.max (!max_len) (String.length mol);
-          mean_len := ( (mol |> String.length |> float_of_int) -. !mean_len) /. (!i)
+          (* mean_len := ( (mol |> String.length |> float_of_int) -. !mean_len) /. (!i) *)
+          let j = (!i) in
+          mean_len := (j -. 1.) /. j *. !mean_len +. ( mol |> String.length |> float_of_int )  /. j
         ) armap.v;
       `Assoc [
         "nb_species",  `Int (MolMap.cardinal armap.v);
         "total_nb", `Int (!total_nb);
-        "mean_len", `Float (!mean_len)
+        "mean_len", `Float (!mean_len);
+        "max_len", `Int (!max_len)
       ]
 
   end
@@ -356,11 +359,14 @@ module IRMap =
           i := (!i) +. 1.;
           total_nb := (!total_nb) + imolset.qtt;
           max_len := Int.max (!max_len) (String.length mol);
-          mean_len := ( (mol |> String.length |> float_of_int) -. !mean_len) /. (!i)
+          let j = (!i) in
+          mean_len := (j -. 1.) /. j *. !mean_len +.  ( imolset.qtt * (mol |> String.length) |> float_of_int )  /. j
+
         ) irmap.v;
       `Assoc [
         "nb_species",  `Int (MolMap.cardinal irmap.v);
         "total_nb", `Int (!total_nb);
-        "mean_len", `Float (!mean_len)
+        "mean_len", `Float (!mean_len);
+        "max_len", `Int (!max_len)
       ]
   end

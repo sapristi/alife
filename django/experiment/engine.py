@@ -52,6 +52,7 @@ class YaacWrapper:
         self.log_handler = handler or DisplayLogHandler()
 
     def _parse_output(self, process: sp.Popen[str]):
+        self._last_line = None
         os.set_blocking(process.stdout.fileno(), False)
         while True:
             line=process.stdout.readline()

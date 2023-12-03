@@ -43,6 +43,7 @@
      "cytoscape-cola": "{% static 'js/external/cytoscape-cola.mjs' %}",
      "cytoscape_utils": "{% static 'js/cytoscape_utils.mjs' %}",
      "cytoscape_pnet": "{% static 'js/cytoscape_pnet.js' %}",
+     "md5": "{% static 'js/md5.js' %}",
      "utils": "{% static 'js/utils.mjs' %}",
      "components": "{% static 'js/components.mjs' %}"
    }
@@ -52,14 +53,16 @@
  import { render } from "preact";
  import { signal, effect, computed } from "@preact/signals";
  import { useState, useRef, useEffect } from 'preact/hooks';
- import {setup_pnet_cy} from 'cytoscape_utils';
- import {pnet_to_cytoscape_elements} from 'cytoscape_pnet';
- import {urlSyncedSignal} from 'utils';
- import {html,  makePnetPanels} from 'components';
+ import { setup_pnet_cy } from 'cytoscape_utils';
+ import { pnet_to_cytoscape_elements } from 'cytoscape_pnet';
+ import { urlSyncedSignals, shortMolRepr, makeRandomGenerator } from 'utils';
+ import { html,  makePnetPanels, MolRepr} from 'components';
+ import { MD5 } from "md5";
 
- const experiment_id = urlSyncedSignal("experiment_id", null);
- const snapshot_id = urlSyncedSignal("snapshot_id", null);
-
+ const [experiment_id, snapshot_id] = urlSyncedSignals({
+   experiment_id: null,
+   snapshot_id: null
+ })
  const snapshot_meta = signal(null);
  const snapshot = signal(null);
  const experiment = signal(null);
@@ -209,13 +212,35 @@
      `
  }
  let MolDisplay = ({mol}) => {
-   return html`<div style="overflow: hidden; text-overflow: ellipsis; max-width: 100%">${mol}</div>`
+   let rand = makeRandomGenerator(mol);
+   let hue = rand() * 360;
+   let saturation = 20 + rand() * 80;
+   let luminosity = 50 + rand() * 30;
+   let color = `hsl(${hue}, ${saturation}%, ${luminosity}%)`
+
+   if (mol.length <= 5) {
+     return html`
+       <div style="overflow: hidden; text-overflow: ellipsis; max-width: 100%">
+         <samp style="background-color: ${color}">
+           ┃${mol}┃
+         </samp>
+       </div>`
+   }
+   let hash = MD5(mol).slice(0, 8).toUpperCase();
+   /* return `#${hash}(${mol.length})`; */
+
+   return html`
+     <div style="overflow: hidden; text-overflow: ellipsis; max-width: 100%">
+       <samp style="background-color: ${color}">
+         #${hash}
+       </samp>(${mol.length})
+     </div>`
  }
 
  let ImolDisplay = ({mol, qtt, ambient}) => {
    const ambient_str = ambient ? " (ambient)" : ""
 
-   return html`<tr><td>${mol}</td><td>${qtt}</td></tr>`
+   return html`<tr><td><${MolDisplay} mol=${mol} /></td><td>${qtt}</td></tr>`
  }
 
  let ImolListDisplay = ({imols}) => {
@@ -277,10 +302,29 @@
      </table>`
  }
 
+ let Collapsible = ({title, children}) => {
+   const [open, setOpen] = useState(false)
+   const display = open ? "default": "none"
+   const arrow = open ? html`<span class="arrow-up"></span>` : html`<span class="arrow-down"></span>`
+   const arrowClass = open ? "arrow-up" :"arrow-down"
+   const onClick = () => {setOpen(!open)}
+
+   return html`
+     <div>
+       <h1 class="title" style="display: flex; justify-content: space-between">
+         ${title}
+         <button class="button" onclick=${onClick}><span class="${arrowClass}"></span></button>
+       </h1>
+       <div style=" display: ${display} ">
+         ${children}
+       </div>
+     </div>
+   `
+ }
  let MoleculesDisplay = () => {
    if (!snapshot.value) {return null}
 
-     console.log("MOL")
+   console.log("MOL")
    const imols_all = snapshot.value.ireactants
    const ambient_imols = []
    const imols = []
@@ -291,23 +335,20 @@
 
 
    return html`
-     <section class="section">
-       <h1 class="title">
-         Ambient molecules
-       </h1>
+     <div class="box">
+       <${Collapsible} title="Ambient molecules" >
        <${ImolListDisplay} imols=${ambient_imols} } />
+       <//>
      </section>
-     <section class="section">
-       <h1 class="title">
-         Inert molecules
-       </h1>
+     <section class="box">
+       <${Collapsible} title="Inert molecules" >
        <${ImolListDisplay} imols=${imols} />
+       <//>
      </section>
-     <section class="section">
-       <h1 class="title">
-         Active molecules
-       </h1>
+     <section class="box">
+       <${Collapsible} title="Active molecules" >
        <${AmolListDisplay} amols=${amols} />
+       <//>
      </section>
    `
  }
