@@ -46,6 +46,7 @@
      "cytoscape-cola": "{% static 'js/external/cytoscape-cola.mjs' %}",
      "cytoscape_utils": "{% static 'js/cytoscape_utils.mjs' %}",
      "cytoscape_pnet": "{% static 'js/cytoscape_pnet.js' %}",
+     "md5": "{% static 'js/md5.js' %}",
      "utils": "{% static 'js/utils.mjs' %}",
      "components": "{% static 'js/components.mjs' %}"
    }
@@ -58,13 +59,16 @@
  import { useState, useRef, useEffect } from 'preact/hooks';
  import {setup_pnet_cy} from 'cytoscape_utils';
  import {pnet_to_cytoscape_elements} from 'cytoscape_pnet';
- import {urlSyncedSignal} from 'utils';
+ import { urlSyncedSignals } from 'utils';
  /* import {PnetGraphDisplay} from 'components'; */
  import {html,  makePnetPanels} from 'components';
 
  const prot = signal([]);
  const pnet = signal(null);
- const mol = urlSyncedSignal("mol", "");
+ const [mol] = urlSyncedSignals({
+   mol: "",
+ })
+
 
 
  // called when mol.value changes
