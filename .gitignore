@@ -35,3 +35,7 @@ dist/
 node_modules
 
 __pycache__
+
+grafana
+!grafana/grafana.db
+
