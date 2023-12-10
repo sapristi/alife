@@ -5,9 +5,11 @@
  (preprocess
   (pps
     ppx_subliner
+    ppx_deriving_yojson
  ))
  (libraries
    ppx_subliner
+   ppx_deriving_yojson
 
    bacterie_libs
    base_chemistry

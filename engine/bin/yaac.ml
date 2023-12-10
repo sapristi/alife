@@ -69,7 +69,7 @@ module FromProtCmd = struct
     build_all_from_prot prot
 end
 
-module LoadSignature = struct
+module LoadSignatureCmd = struct
   type params = {
     signature: string [@doc "JSON representation of the bact signature"]
   }
@@ -152,6 +152,51 @@ module ReactionsCmd = struct
     bact.reac_mgr |> Reac_mgr.to_yojson|> Yojson.Safe.to_string |> Result.ok
 end
 
+module AcidExamplesCmd = struct
+  let doc = "List examples of acids"
+  open Base_chemistry.Types.Acid
+  let examples = [
+    "nodes", [ Place ];
+    "input_arcs", [
+      InputArc ("A", Regular_iarc);
+      InputArc ("A", Split_iarc);
+      InputArc ("A", Filter_iarc "A");
+      InputArc ("A", Filter_empty_iarc);
+      InputArc ("A", No_token_iarc);
+    ];
+    "output_arcs",
+    [
+      OutputArc ("A", Regular_oarc);
+      OutputArc ("A", Merge_oarc);
+      OutputArc ("A", Move_oarc true);
+    ];
+    "extensions",
+    [
+      Extension Release_ext;
+      Extension Init_with_token_ext;
+      Extension (Grab_ext "AAFBFAAFF");
+    ];
+  ]
+
+  let examples_with_mols =
+    List.map (fun (name, values) ->
+        (
+          name,
+          List.map
+            (fun (value: acid) -> (Molecule.of_acid value, value))
+            values
+        ) ) examples
+
+  let handle () =
+    `Assoc (
+      List.map (fun (name, values) ->
+         (name,  [%to_yojson: ((string * acid) list)] values)
+        )
+        examples_with_mols
+    )
+  |> Yojson.Safe.to_string
+  |> Result.ok
+end
 
 type params =
   | From_mol of FromMolCmd.params
@@ -161,13 +206,14 @@ type params =
   | Eval of EvalCmd.params
             [@doc EvalCmd.doc]
 
-  | Load_signature of LoadSignature.params
+  | Load_signature of LoadSignatureCmd.params
             [@doc EvalCmd.doc]
   | Reactions of ReactionsCmd.params
                  [@doc ReactionsCmd.doc]
   | React
     [@doc "Computes from the given state, after triggering the given reaction.\nTODO"]
   | Test_log
+  | Acid_examples [@doc AcidExamplesCmd.doc]
 [@@deriving subliner]
 
 
@@ -176,7 +222,7 @@ let handle = function
   | From_prot params -> FromProtCmd.handle params
   | Eval params -> EvalCmd.handle params
   | Reactions params -> ReactionsCmd.handle params
-  | Load_signature params -> LoadSignature.handle params
+  | Load_signature params -> LoadSignatureCmd.handle params
   | React -> Ok "ok"
   | Test_log ->
 
@@ -188,7 +234,7 @@ let handle = function
     logger.warning ~tags:["this is a problem", `String "yes"] "WARN mayde mayde";
     logger.error ~tags:["problems", `Assoc ["yes", `Int 8; "no", `String "yes"]] "WARN mayde mayde";
     Ok "ok"
-
+  | Acid_examples -> AcidExamplesCmd.handle ()
 let handle_wrapped input =
   match handle input with
   | Ok result -> print_endline result

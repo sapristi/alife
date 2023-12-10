@@ -28,17 +28,6 @@ module Acid = struct
     | Init_with_token_ext
   [@@deriving show, yojson, eq]
 
-  (* ** type definitions *)
-  (* *** acid type definition *)
-  (*     We define how the abstract types get combined to form functional *)
-  (*     types to eventually create petri net *)
-  (*       + Node : used as a token placeholder in the petri net *)
-  (*       + TransitionInput :  an incomming edge into a transition of the *)
-  (*       petri net *)
-  (*       + a transition output : an outgoing edge into a transition of the *)
-  (*       petri net *)
-  (*       + a piece of information : ???? *)
-
   type acid =
     | Place
     | InputArc of string * input_arc

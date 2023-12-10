@@ -154,21 +154,22 @@ let to_proteine (m : string) : Proteine.t =
   logger.debug ~tags:["input", `String m; "result", Proteine.to_yojson res] "Parsed mol";
   res
 
+
+let of_acid (a : Types.Acid.acid) : string =
+  match a with
+  | Place -> place_id
+  | InputArc (s, Regular_iarc) -> ia_reg_id ^ s ^ msg_end_id
+  | InputArc (s, Split_iarc) -> ia_split_id ^ s ^ msg_end_id
+  | InputArc (s, Filter_iarc f) -> ia_filter_id ^ f ^ s ^ msg_end_id
+  | InputArc (s, Filter_empty_iarc) -> ia_filter_empty_id ^ s ^ msg_end_id
+  | InputArc (s, No_token_iarc) -> ia_no_token_id ^ s ^ msg_end_id
+  | OutputArc (s, Regular_oarc) -> oa_reg_id ^ s ^ msg_end_id
+  | OutputArc (s, Merge_oarc) -> oa_merge_id ^ s ^ msg_end_id
+  | OutputArc (s, Move_oarc true) -> oa_move_fw_id ^ s ^ msg_end_id
+  | OutputArc (s, Move_oarc false) -> oa_move_bw_id ^ s ^ msg_end_id
+  | Extension Release_ext -> ext_rel_id
+  | Extension Init_with_token_ext -> ext_tinit_id
+  | Extension (Grab_ext g) -> ext_grab_id ^ g ^ msg_end_id
+
 let rec of_proteine (p : Proteine.t) : string =
-  let acid_to_mol (a : Types.Acid.acid) : string =
-    match a with
-    | Place -> place_id
-    | InputArc (s, Regular_iarc) -> ia_reg_id ^ s ^ msg_end_id
-    | InputArc (s, Split_iarc) -> ia_split_id ^ s ^ msg_end_id
-    | InputArc (s, Filter_iarc f) -> ia_filter_id ^ f ^ s ^ msg_end_id
-    | InputArc (s, Filter_empty_iarc) -> ia_filter_empty_id ^ s ^ msg_end_id
-    | InputArc (s, No_token_iarc) -> ia_no_token_id ^ s ^ msg_end_id
-    | OutputArc (s, Regular_oarc) -> oa_reg_id ^ s ^ msg_end_id
-    | OutputArc (s, Merge_oarc) -> oa_merge_id ^ s ^ msg_end_id
-    | OutputArc (s, Move_oarc true) -> oa_move_fw_id ^ s ^ msg_end_id
-    | OutputArc (s, Move_oarc false) -> oa_move_bw_id ^ s ^ msg_end_id
-    | Extension Release_ext -> ext_rel_id
-    | Extension Init_with_token_ext -> ext_tinit_id
-    | Extension (Grab_ext g) -> ext_grab_id ^ g ^ msg_end_id
-  in
-  match p with a :: p' -> acid_to_mol a ^ of_proteine p' | [] -> ""
+  match p with a :: p' -> of_acid a ^ of_proteine p' | [] -> ""
