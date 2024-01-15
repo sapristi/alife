@@ -1,5 +1,15 @@
 * Todo
 
+*** Create "gradient" of conditions: in order to generate more interesting features,
+    create gradient of conditions.  We an use the environment to achieve this for now
+    (although this could apply to other properties). 
+    - have multiple "cells"
+    - molecules can move from one cell to the other ones
+      * Implementation: Choose beween:
+        - implementing molecule move as a reaction -> would prevent parallel execution in the cells
+        - degrading the reaction, e.g. running it at a fixed interval (allow to parallelize)
+      * We have to implement the logic anyway, probably  based on something like osmosis barrier
+        Also possible to do things like filter based on mol length -> not at start
 *** grafana export to django :nice_to_have:
 *** bacterie random state initialization:
      - store in django

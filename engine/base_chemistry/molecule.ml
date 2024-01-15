@@ -149,6 +149,36 @@ let rec mol_parser_aux res (mol : string) : Proteine.t =
 
 let mol_parser = mol_parser_aux []
 
+type prot_full =
+  | A of string * Types.Acid.acid
+  | S of string
+[@@deriving to_yojson]
+
+let rec mol_parser_full_aux (res: prot_full list) (current_str: string) (mol: string): prot_full list  =
+  if mol = "" then
+    let res' =
+      if current_str != ""
+      then
+        (S current_str)::res
+      else
+        res
+    in List.rev res'
+  else
+    match apply_parsers compiled_parsers mol with
+    | None, mol' ->
+      let first_char = String.sub mol 0 1 in
+      mol_parser_full_aux res (current_str ^ first_char) mol'
+    | Some acid, mol' ->
+      let acid_str = String.sub mol 0 (String.length mol - String.length mol') in 
+      let res' =
+        if current_str != ""
+        then (S current_str)::(A (acid_str, acid))::res
+        else (A (acid_str, acid))::res
+      in
+      mol_parser_full_aux res' "" mol'
+
+let mol_parser_full = mol_parser_full_aux [] ""
+
 let to_proteine (m : string) : Proteine.t =
   let res = mol_parser m in
   logger.debug ~tags:["input", `String m; "result", Proteine.to_yojson res] "Parsed mol";

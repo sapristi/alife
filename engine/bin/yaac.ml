@@ -28,7 +28,7 @@ module FromMolCmd = struct
   let doc = "Compute petri net from molecule."
 
   let build_all_from_mol mol =
-    let prot_json = mol |> Molecule.to_proteine |> Proteine.to_yojson in
+    let prot_json = mol |> Molecule.mol_parser_full |> [%derive.to_yojson: Molecule.prot_full list]  in
     let pnet_json =
       match Petri_net.make_from_mol 0 mol with
       | Some pnet -> Petri_net.to_yojson pnet

@@ -106,16 +106,26 @@
  }
 
  let AcidDisplay = ({acid}) => {
-   const [acid_type, ...params] = acid
-   /* const params_html = params.map(param => html`<span class="tag is-info">${param}</span>`).join() */
-   return html`
-     <li>
-       <span class="tag is-info">${acid_type}</span> 
-       ${params.map(param => html`<span class="tag is-primary">${param}</span>`)}
+   const [type, mol, data] = acid
+   if (type == "S") {
+     return html`
+       <li>
+         <span class="tag is-white">${mol}</span>
+       </li>
+     `
+   } else {
+     const [acid_type, ...params] = data
+     /* const params_html = params.map(param => html`<span class="tag is-info">${param}</span>`).join() */
+     return html`
+       <li>
+         <span class="tag is-info">${acid_type}</span>
+         ${params.map(param => html`<span class="tag is-primary">${param}</span>`)}
      </li>
-   `
+         `
+   }
  }
- let ProtDisplay = () => {
+
+  let ProtDisplay = () => {
    return html`
      <ul class="acid-list">
        ${prot.value.map(
@@ -124,10 +134,81 @@
      </ul>`
  }
 
+ let AcidDisplayBis = ({acid}) => {
+   const [type, mol, data] = acid
+   if (type == "S") {
+     return html`
+       <li>
+         <span class="tag is-white">${mol}</span>
+       </li>
+     `
+   } else {
+     const [acid_type, ...params] = data
+     /* const params_html = params.map(param => html`<span class="tag is-info">${param}</span>`).join() */
+     return html`
+       <li>
+         <span class="tag is-info">${acid_type}</span>
+         ${params.map(param => html`<span class="tag is-primary">${param}</span>`)}
+     </li>
+         `
+   }
+ }
+
+ let ProtDisplayBis = () => {
+   let textAreaContent = prot.value.map(([type, mol]) => mol).join("\n")
+   console.log("Content", textAreaContent)
+   return html`
+     <div style="display: flex; flex-direction: row">
+       <textarea value="${textAreaContent}" rows=${prot.value.length}/>
+      <ul class="acid-list" style="margin-top: 0">
+        ${prot.value.map(
+          acid => AcidDisplay({acid})
+        )}
+      </ul>
+       </div>
+   `
+ }
+
+ let AcidDisplayTable = ({acid}) => {
+   const [type, mol, data] = acid
+   let acid_html = null
+   if (type == "S") {
+     acid_html = html``
+     /* return html`
+      *   <tr>
+      *     <td><span class="tag is-white">${mol}</span></td>
+      *   </tr>
+      * ` */
+   } else {
+     const [acid_type, ...params] = data
+     /* const params_html = params.map(param => html`<span class="tag is-info">${param}</span>`).join() */
+     let paramToHtml = param => html`<span class="tag is-primary">${param}</span>`
+     acid_html = html`
+         <span class="tag is-info">${acid_type}</span>
+         ${params.map(paramToHtml)}
+         `
+   }
+   console.log("ACID?", acid)
+   return html`
+     <tr>
+       <td><input type="text" value="${mol}" rows=1 /></td>
+       <td>${acid_html}</td>
+     </tr>
+   `
+ }
+
+ let ProtDisplayTable = () => {
+   return html`
+     <table class="acid-list">
+       ${prot.value.map(
+         acid => AcidDisplayTable({acid})
+       )}
+     </table>`
+ }
  const {PnetGraphPanel, SelectedNodePanel} = makePnetPanels(pnet)
 
  render(html`<${MolInput} />`, document.getElementById("mol-component"));
- render(html`<${ProtDisplay} />`, document.getElementById("prot-component"));
+ render(html`<${ProtDisplayTable} />`, document.getElementById("prot-component"));
  /* render(html`<${PnetGraphDisplay}  pnetSignal=${pnet} />`, document.getElementById("pnet-component")); */
  render(html`<${PnetGraphPanel} pnetSignal=${pnet} />`, document.getElementById("pnet-component"));
 </script>
