@@ -1,0 +1,70 @@
+{% extends 'base.html'  %}
+{% load static %}
+
+{% block scripts_extra %}
+{% endblock %}
+
+{% block body %}
+<section class="section">
+  <div class="container">
+    <h1 class="title">
+      TEST  dnd
+    </h1>
+    <div id="dnd-root"> </div>
+  </div>
+</section>
+<script type="importmap">
+ {
+   "imports": {
+     "preact": "https://esm.sh/preact@10.12.1",
+     "preact/hooks": "https://esm.sh/preact@10.12.1/hooks?external=preact",
+     "@preact/signals": "https://esm.sh/@preact/signals@1.1.3?external=preact",
+     "htm": "{% static 'js/external/htm_3.1.1.mjs' %}",
+     "cytoscape": "{% static 'js/external/cytoscape.esm.min.js' %}",
+     "cytoscape-cola": "{% static 'js/external/cytoscape-cola.mjs' %}",
+     "cytoscape_utils": "{% static 'js/cytoscape_utils.mjs' %}",
+     "cytoscape_pnet": "{% static 'js/cytoscape_pnet.js' %}",
+     "md5": "{% static 'js/md5.js' %}",
+     "utils": "{% static 'js/utils.mjs' %}",
+     "components": "{% static 'js/components.mjs' %}",
+     "dnd": "{% static 'js/dnd.mjs' %}"
+   }
+ }
+</script>
+
+<script type="module">
+ import { h, render } from "preact";
+ import { signal, effect } from "@preact/signals";
+ import { useState, useRef, useEffect } from 'preact/hooks';
+ import {DnD, Item} from "dnd"
+ import { html } from "components";
+
+ const items = [
+   {
+     id: 0
+   },
+   {
+     id: 1
+   },
+   {
+     id: 2
+   },
+ ]
+ const Handle = ({...props}) => {
+   return html`
+     <button class="handle" ...${props}>
+       HH
+     </button>`
+ }
+ const App = () => {
+   let [state, setState] = useState({items: items})
+   let onSort = (newItems) => {
+     console.log("New items", newItems)
+     setState({items: newItems})
+   }
+   return html`<${DnD} items=${state.items} Item=${Item} Handle=${Handle} onSort=${onSort}/>`
+ }
+
+ render(html`<${App}/>`, document.getElementById("dnd-root"));
+</script>
+{% endblock %}

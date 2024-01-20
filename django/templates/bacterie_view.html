@@ -105,103 +105,70 @@
    `
  }
 
- let AcidDisplay = ({acid}) => {
-   const [type, mol, data] = acid
-   if (type == "S") {
-     return html`
-       <li>
-         <span class="tag is-white">${mol}</span>
-       </li>
-     `
-   } else {
-     const [acid_type, ...params] = data
-     /* const params_html = params.map(param => html`<span class="tag is-info">${param}</span>`).join() */
-     return html`
-       <li>
-         <span class="tag is-info">${acid_type}</span>
-         ${params.map(param => html`<span class="tag is-primary">${param}</span>`)}
-     </li>
-         `
-   }
- }
 
-  let ProtDisplay = () => {
-   return html`
-     <ul class="acid-list">
-       ${prot.value.map(
-        acid => AcidDisplay({acid})
-       )}
-     </ul>`
- }
-
- let AcidDisplayBis = ({acid}) => {
-   const [type, mol, data] = acid
-   if (type == "S") {
-     return html`
-       <li>
-         <span class="tag is-white">${mol}</span>
-       </li>
-     `
-   } else {
-     const [acid_type, ...params] = data
-     /* const params_html = params.map(param => html`<span class="tag is-info">${param}</span>`).join() */
-     return html`
-       <li>
-         <span class="tag is-info">${acid_type}</span>
-         ${params.map(param => html`<span class="tag is-primary">${param}</span>`)}
-     </li>
-         `
-   }
- }
-
- let ProtDisplayBis = () => {
-   let textAreaContent = prot.value.map(([type, mol]) => mol).join("\n")
-   console.log("Content", textAreaContent)
-   return html`
-     <div style="display: flex; flex-direction: row">
-       <textarea value="${textAreaContent}" rows=${prot.value.length}/>
-      <ul class="acid-list" style="margin-top: 0">
-        ${prot.value.map(
-          acid => AcidDisplay({acid})
-        )}
-      </ul>
-       </div>
-   `
- }
-
- let AcidDisplayTable = ({acid}) => {
+ let AcidDisplayTable = ({acid, moveUp, moveDown}) => {
+   console.log("Acid", acid, moveUp, moveDown)
    const [type, mol, data] = acid
    let acid_html = null
    if (type == "S") {
      acid_html = html``
-     /* return html`
-      *   <tr>
-      *     <td><span class="tag is-white">${mol}</span></td>
-      *   </tr>
-      * ` */
    } else {
      const [acid_type, ...params] = data
-     /* const params_html = params.map(param => html`<span class="tag is-info">${param}</span>`).join() */
-     let paramToHtml = param => html`<span class="tag is-primary">${param}</span>`
      acid_html = html`
-         <span class="tag is-info">${acid_type}</span>
-         ${params.map(paramToHtml)}
-         `
+       <span class="tag is-info">${acid_type}</span>
+       ${params.map(
+             param => html`<span class="tag is-primary">${param}</span>`
+         )}
+             `
    }
-   console.log("ACID?", acid)
    return html`
      <tr>
-       <td><input type="text" value="${mol}" rows=1 /></td>
+       <td><input type="text" value="${mol}" size="15"/></td>
        <td>${acid_html}</td>
+       <td>
+         <button class="button" disabled=${moveUp === null} onClick=${moveUp}>
+           <span class="icon">↑</span></button>
+         <button class="button" disabled=${moveDown === null} onClick=${moveDown}>
+           <span class="icon">↓</span></button>
+       </td>
      </tr>
    `
  }
 
  let ProtDisplayTable = () => {
+   let move = (idx, idx_swap) => {
+     if (idx_swap <= idx ) {throw new Error("move: wrong args")}
+     let start = prot.value.slice(0, idx)
+     let end = prot.value.slice(idx_swap + 1)
+     let newProtArray = [
+       ...start,
+       prot.value[idx_swap],
+       prot.value[idx],
+       ...end
+     ]
+     console.log("New prot", newProtArray)
+     /* newMol = newProt */
+     let newMol = (newProtArray.map( ([_type, mol, ..._]) => mol)).join("")
+     console.log("New mol", newMol)
+     mol.value = newMol
+
+   }
+   let moveUp = (idx) => {
+     if (idx === 0) {return null}
+     else {
+       return () => { move(idx - 1, idx)}
+     }
+   }
+   let moveDown = (idx) => {
+     if (idx === prot.value.length - 1) {return null}
+     else{
+       return () => { move(idx, idx + 1)}
+     }
+   }
    return html`
      <table class="acid-list">
        ${prot.value.map(
-         acid => AcidDisplayTable({acid})
+       (acid, idx) => html`<${AcidDisplayTable} acid=${acid} moveUp=${moveUp(idx)} moveDown=${moveDown(idx)} />`
        )}
      </table>`
  }

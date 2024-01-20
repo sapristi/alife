@@ -103,3 +103,12 @@ class SnapshotView(viewsets.ModelViewSet):
     authentication_classes = []
     queryset = models.BactSnapshot.objects.all()
     serializer_class = SnapshotSerializer
+
+
+class DnDView(View):
+
+    def get(self, *args, **kwargs):
+        template = loader.get_template("test_dnd.html")
+        return HttpResponse(
+            template.render()
+        )

@@ -13,5 +13,6 @@ router.register(r'snapshot', views.SnapshotView, basename='snapshot')
 urlpatterns = [
     path("", views.home),
     path("mol/", views.MoleculeView.as_view()),
+    path('dnd/', views.DnDView.as_view()),
     *router.urls
 ]

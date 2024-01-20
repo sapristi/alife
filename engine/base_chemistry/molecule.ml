@@ -20,6 +20,7 @@ let check mol =
     false)
   else true
 
+
 let atoms = "[A-F]"
 
 let place_id = "AAA"
@@ -40,20 +41,24 @@ and ext_bind_id = "ACC"
 
 and msg_end_id = "DDF"
 
+(** limit size of groups *)
+let max_group_length = 3
+let id_group_re = (Printf.sprintf "(.{1,%i}?)" max_group_length)
+
 let place_re = place_id
-and ia_reg_re = ia_reg_id ^ "(.*?)" ^ msg_end_id
-and ia_split_re = ia_split_id ^ "(.*?)" ^ msg_end_id
-and ia_filter_re = ia_filter_id ^ "(" ^ atoms ^ ")(.*?)" ^ msg_end_id
-and ia_filter_empty_re = ia_filter_empty_id ^ "(.*?)" ^ msg_end_id
-and ia_no_token_re = ia_no_token_id ^ "(.*?)" ^ msg_end_id
-and oa_reg_re = oa_reg_id ^ "(.*?)" ^ msg_end_id
-and oa_merge_re = oa_merge_id ^ "(.*?)" ^ msg_end_id
-and oa_move_fw_re = oa_move_fw_id ^ "(.*?)" ^ msg_end_id
-and oa_move_bw_re = oa_move_bw_id ^ "(.*?)" ^ msg_end_id
-and ext_grab_re = ext_grab_id ^ "(.*?)" ^ msg_end_id
+and ia_reg_re = ia_reg_id ^ id_group_re ^ msg_end_id
+and ia_split_re = ia_split_id ^ id_group_re ^ msg_end_id
+and ia_filter_re = ia_filter_id ^ "(" ^ atoms ^ ")" ^ id_group_re ^ msg_end_id
+and ia_filter_empty_re = ia_filter_empty_id ^ id_group_re ^ msg_end_id
+and ia_no_token_re = ia_no_token_id ^ id_group_re ^ msg_end_id
+and oa_reg_re = oa_reg_id ^ id_group_re ^ msg_end_id
+and oa_merge_re = oa_merge_id ^ id_group_re ^ msg_end_id
+and oa_move_fw_re = oa_move_fw_id ^ id_group_re ^ msg_end_id
+and oa_move_bw_re = oa_move_bw_id ^ id_group_re ^ msg_end_id
+and ext_grab_re = ext_grab_id ^ id_group_re ^ msg_end_id
 and ext_rel_re = ext_rel_id
 and ext_tinit_re = ext_tinit_id
-and ext_bind_re = ext_bind_id ^ "(.*?)" ^ msg_end_id
+and ext_bind_re = ext_bind_id ^ id_group_re ^ msg_end_id
 
 let parsers : (string * (Re.Group.t -> Types.Acid.acid * string)) list =
   [
@@ -154,6 +159,7 @@ type prot_full =
   | S of string
 [@@deriving to_yojson]
 
+(** Parse a molecule, returning non-acid parts as well *)
 let rec mol_parser_full_aux (res: prot_full list) (current_str: string) (mol: string): prot_full list  =
   if mol = "" then
     let res' =
@@ -172,7 +178,7 @@ let rec mol_parser_full_aux (res: prot_full list) (current_str: string) (mol: st
       let acid_str = String.sub mol 0 (String.length mol - String.length mol') in 
       let res' =
         if current_str != ""
-        then (S current_str)::(A (acid_str, acid))::res
+        then (A (acid_str, acid))::(S current_str)::res
         else (A (acid_str, acid))::res
       in
       mol_parser_full_aux res' "" mol'

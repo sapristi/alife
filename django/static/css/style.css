@@ -19,3 +19,32 @@
   overflow: hidden;
   max-width: 90%;
 }
+
+
+
+/* Related to DND */
+/* .item { */
+/* 	display: flex; */
+/* 	flex-direction: row; */
+/* 	align-items: center; */
+/* 	margin: 10px; */
+/* 	background: white; */
+/* 	box-shadow: 0 1px 5px rgba(0,0,0,0.5); */
+/* 	border: 1px dashed transparent; */
+/* 	will-change: transform; */
+/* 	padding: 5px; */
+/* 	transition: transform 100ms; */
+/* } */
+/* .item .handle { */
+/* 	border: none; */
+/* 	background: transparent; */
+/* 	cursor: grab; */
+/* 	display: flex; */
+/* 	padding: 4px; */
+/* } */
+
+/* .item &.over { */
+/* 	box-shadow: none; */
+/* 	border-color: black; */
+/* 	opacity: 0.5; */
+/* } */

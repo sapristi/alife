@@ -1,5 +1,5 @@
 * Todo
-
+*** Look at https://www.cell.com/cell/fulltext/S0092-8674(21)01488-4
 *** Create "gradient" of conditions: in order to generate more interesting features,
     create gradient of conditions.  We an use the environment to achieve this for now
     (although this could apply to other properties). 
