@@ -4,7 +4,7 @@
 import { signal, effect } from "@preact/signals";
 import { useState, useRef, useEffect } from "preact/hooks";
 import { html } from "components";
-import { cls } from "utils";
+import { cssClass } from "utils";
 
 export const DnD = ({ items, Item, keyProp, Handle, onSort }) => {
   let [state, setState] = useState({
@@ -108,7 +108,7 @@ export const Item = ({ data, handle, dragged, over, ...props }) => {
   return html`
     <li
       style="-webkit-user-drag: element"
-      class=${cls({ item: true, dragged, over })}
+      class=${cssClass({ item: true, dragged, over })}
       ...${props}
     >
       ${handle}

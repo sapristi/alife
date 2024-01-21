@@ -14,24 +14,26 @@
   </div>
 </section>
 <div class="columns is-multiline">
-  <div class="column is-four-fitfth">
-  <section class="section">
-      <div class="container">
-        <h1 class="title">
-          Petri Net
-        </h1>
-        <div class="content" id="pnet-component"></div>
-      </div>
+  <div class="column is-two-third">
+    <section class="section">
+      <h1 class="title">
+        Petri Net
+      </h1>
+      <div class="content" id="pnet-component"></div>
     </section>
   </div>
-  <div class="column is-one-fitfth">
+  <div class="column is-one-third">
     <section class="section">
-      <div class="container">
         <h1 class="title">
           Proteine
         </h1>
         <div class="content" id="prot-component"></div>
-      </div>
+    </section>
+    <section class="section">
+      <h1 class="title">
+        Acid examples
+      </h1>
+      <div class="content" id="acid-examples"></div>
     </section>
   </div>
 </div>
@@ -59,7 +61,7 @@
  import { useState, useRef, useEffect } from 'preact/hooks';
  import {setup_pnet_cy} from 'cytoscape_utils';
  import {pnet_to_cytoscape_elements} from 'cytoscape_pnet';
- import { urlSyncedSignals } from 'utils';
+ import { urlSyncedSignals, cssClass} from 'utils';
  /* import {PnetGraphDisplay} from 'components'; */
  import {html,  makePnetPanels} from 'components';
 
@@ -73,7 +75,6 @@
 
  // called when mol.value changes
  effect( () => {
-   console.log("CHANGE", mol.value)
    fetch(`http://${window.location.host}/mol/`, {
      method: 'POST',
      headers: {
@@ -96,7 +97,6 @@
    const onChange = (event) => {
      const newValue = event.target.value
      mol.value = newValue
-     console.log("Changed", mol.value)
    }
    return html`
      <div>
@@ -105,33 +105,75 @@
    `
  }
 
+ let ActionButton = ({action, text}) => {
+   return html`
+     <button class="button is-small" disabled=${action === null} onClick=${action}>
+       <span class="icon is-small">${text}</span></button>
+   `
+ }
 
- let AcidDisplayTable = ({acid, moveUp, moveDown}) => {
-   console.log("Acid", acid, moveUp, moveDown)
-   const [type, mol, data] = acid
+
+ let AcidDisplay = ({acid}) => {
+   const [acid_type, ...params] = acid
+
+   /* console.log("acid", params.length, acid_type, params ) */
+   let inner = ""
+     if (acid_type === "Place") {
+       inner = html`<span class="tag is-info">${acid_type}</span>`
+     } else if (acid_type === "Extension") {
+       let [[ext_type, ext_params]] = params
+       inner = html`
+         <span class="tag is-info">Ext</span>
+         <span class="tag is-primary">${ext_type.split("_").slice(0, -1).join("_")}</span>
+         ${ext_params && html`<span class="tag is-info">${ext_params}</span>`}
+       `
+     } else {
+       /* Transition  */
+       let [t_id, [t_type, t_params]] = params
+       inner = html`
+         <span class="tag is-info">${acid_type[0] + "Arc"}</span>
+         <span class="tag is-warning">${t_id}</span>
+         <span class="tag is-primary">${t_type.split("_").slice(0, -1).join("_")}</span>
+         ${t_params && html`<span class="tag is-info">${t_params.toString()}</span>`}
+       `
+     }
+   return inner
+ }
+
+ let AcidDisplayRow = ({acid, moveUp, moveDown, handleChange, remove}) => {
+   const [type, molPart, data] = acid
+   const [molPartValue, setMolPartValue] = useState(molPart)
+   useEffect(
+     () => setMolPartValue(molPart),
+     [acid]
+   )
    let acid_html = null
    if (type == "S") {
      acid_html = html``
    } else {
-     const [acid_type, ...params] = data
-     acid_html = html`
-       <span class="tag is-info">${acid_type}</span>
-       ${params.map(
-             param => html`<span class="tag is-primary">${param}</span>`
-         )}
-             `
+     acid_html = AcidDisplay({acid: data})
+   }
+   let handleKeyPress = (e) => {
+     if (e.key === "Enter"){
+       handleChange(molPartValue)
+     }
    }
    return html`
-     <tr>
-       <td><input type="text" value="${mol}" size="15"/></td>
-       <td>${acid_html}</td>
-       <td>
-         <button class="button" disabled=${moveUp === null} onClick=${moveUp}>
-           <span class="icon">↑</span></button>
-         <button class="button" disabled=${moveDown === null} onClick=${moveDown}>
-           <span class="icon">↓</span></button>
-       </td>
-     </tr>
+     <div class="card">
+       <div class="card-content" style="padding: 0.5rem 0.75rem">
+         <div style="display: flex;flex-direction: row">
+           <input type="text" value="${molPartValue}"
+                  class=${cssClass({"is-warning": molPart != molPartValue}, ["input", "is-small"])}
+                  onChange=${(e) => setMolPartValue(e.target.value)}
+                  onKeyPress=${handleKeyPress}
+                  size="15"/>
+             <${ActionButton} action=${moveUp} text="↑" />
+             <${ActionButton} action=${moveDown} text="↓" />
+             <${ActionButton} action=${remove} text="❌" />
+         </div>
+         <div>${acid_html}</div>
+       </div>
+     </div>
    `
  }
 
@@ -146,10 +188,7 @@
        prot.value[idx],
        ...end
      ]
-     console.log("New prot", newProtArray)
-     /* newMol = newProt */
      let newMol = (newProtArray.map( ([_type, mol, ..._]) => mol)).join("")
-     console.log("New mol", newMol)
      mol.value = newMol
 
    }
@@ -165,18 +204,66 @@
        return () => { move(idx, idx + 1)}
      }
    }
+   let handleChange = (idx) => (newMolPart) => {
+     let newMol = prot.value.map( ([_type, molPart, ..._], jdx) => {
+       if (idx === jdx) {return newMolPart} else {return molPart}
+     }).join("")
+     mol.value = newMol
+   }
+   let remove = (idx) => () => {
+     let newProtArray = [
+       ...prot.value.slice(0, idx),
+       ...prot.value.slice(idx + 1),
+     ]
+     let newMol = (newProtArray.map( ([_type, mol, ..._]) => mol)).join("")
+     mol.value = newMol
+   }
+
    return html`
-     <table class="acid-list">
+     <div style="display: flex; flex-direction: column">
        ${prot.value.map(
-       (acid, idx) => html`<${AcidDisplayTable} acid=${acid} moveUp=${moveUp(idx)} moveDown=${moveDown(idx)} />`
+       (acid, idx) => html`<${AcidDisplayRow} key=${JSON.stringify(acid)} acid=${acid} moveUp=${moveUp(idx)} moveDown=${moveDown(idx)} handleChange=${handleChange(idx)} remove=${remove(idx)} />`
        )}
-     </table>`
+     </div>`
  }
  const {PnetGraphPanel, SelectedNodePanel} = makePnetPanels(pnet)
+
+ const AcidSelectionItem = ({molPart, acid}) => {
+   const add = () => {
+     mol.value = molPart + mol.value
+   }
+   return html`<div><${AcidDisplay} acid=${acid} /></div>`
+ }
+
+ const AcidSelectionPanel = () => {
+   const [open, setOpen] = useState(true)
+   const acidExamples = JSON.parse("{{examples | escapejs}}")
+   const acidTypes = ["nodes", "input_arcs", "output_arcs", "extensions"]
+   const allAcids = []
+   for (let t of acidTypes) {
+     for (let [molPart, acid] of acidExamples[t]) {
+       allAcids.push({molPart, acid})
+     }
+   }
+
+   if (!open) {
+     return html`<${ActionButton} action=${() => setOpen(!open)} text="▸" />Examples`
+   }
+   const add = (molPart) => () => {
+     mol.value = molPart + mol.value
+   }
+
+   return html`<${ActionButton} action=${() => setOpen(!open)} text="▾" />Examples
+${allAcids.map(({molPart, acid}) => html`
+   <div><${ActionButton} action=${add(molPart)} text="+" /><${AcidDisplay} acid=${acid} /></div>
+   `
+)}`
+ }
 
  render(html`<${MolInput} />`, document.getElementById("mol-component"));
  render(html`<${ProtDisplayTable} />`, document.getElementById("prot-component"));
  /* render(html`<${PnetGraphDisplay}  pnetSignal=${pnet} />`, document.getElementById("pnet-component")); */
  render(html`<${PnetGraphPanel} pnetSignal=${pnet} />`, document.getElementById("pnet-component"));
+ render(html`<${AcidSelectionPanel} />`, document.getElementById("acid-examples"));
 </script>
 {% endblock %}

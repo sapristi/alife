@@ -1,6 +1,5 @@
 import json
 from django.http import HttpResponse, JsonResponse
-import subprocess as sp
 import json
 
 from django.template import loader
@@ -24,8 +23,11 @@ class PagesViewSet(viewsets.ViewSet):
     @action(detail=False)
     def molecule(self, *args, **kwargs):
         template = loader.get_template("bacterie_view.html")
+        context = {
+            "examples": json.dumps(yaac.run("acid-examples"))
+        }
         return HttpResponse(
-            template.render()
+            template.render(context)
         )
 
     @action(detail=False)
@@ -39,13 +41,6 @@ class PagesViewSet(viewsets.ViewSet):
 
 
 class MoleculeView(View):
-
-    def get(self, *args, **kwargs):
-        template = loader.get_template("bacterie_view.html")
-        return HttpResponse(
-            template.render()
-        )
-
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
         res = yaac.run("from-mol", mol=data.get('mol', ''))

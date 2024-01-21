@@ -57,14 +57,20 @@ export const makeRandomGenerator = function (seed) {
 };
 
 // from https://github.com/lukeed/obj-str/
-export const cls = (obj) => {
+export const cssClass = (obj, staticClasses) => {
   var k,
     cls = "";
   for (k in obj) {
     if (obj[k]) {
-      cls && (cls += " ");
+      if (cls) cls += " ";
       cls += k;
     }
+  }
+  if (staticClasses && staticClasses.length) {
+    if (cls) {
+      cls += " ";
+    }
+    cls += staticClasses.join(" ");
   }
   return cls;
 };
