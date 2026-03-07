@@ -7,7 +7,7 @@
    ppx_subliner
    zarith
 ppx_deriving_yojson
-   git+https://github.com/sapristi/pringo.git
+   pringo
 
   (alcotest :with-test)
 

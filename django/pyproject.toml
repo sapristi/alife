@@ -19,19 +19,9 @@ requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "GPLV3"}
 
-[tool.pdm.dev-dependencies]
+[dependency-groups]
 dev = [
     "django-types>=0.19.1",
     "ipython>=8.17.2",
     "litecli>=1.9.0",
 ]
-
-[tool.pdm.scripts]
-manage.cmd = "./manage.py"
-cli.cmd = "./cli.py"
-
-[tool.pdm.options]
-add = ["--no-self"]
-install = ["--no-self"]
-sync = ["--no-self"]
-lock = ["--no-cross-platform"]

@@ -1,12 +1,9 @@
-# FROM python:3.11-slim
-FROM archlinux:base
+FROM python:3.12-slim
 
-# RUN pacman -Sy
-RUN pacman -Sy python python-pip --noconfirm
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 RUN mkdir /app
-COPY pyproject.toml /app/
-RUN cd /app && pip install . --no-cache-dir --break-system-packages
+COPY pyproject.toml uv.lock /app/
+RUN cd /app && uv sync --frozen --no-dev
 
-ENTRYPOINT  ["python",  "/app/manage.py", "runserver", "0.0.0.0:8000"]
-
+ENTRYPOINT  ["uv", "run", "--no-sync", "python", "/app/manage.py", "runserver", "0.0.0.0:8000"]

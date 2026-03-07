@@ -1,62 +1,141 @@
+# YAACS - Yet Another Artificial Chemistry Simulator
 
-# Table of Contents
+An artificial chemistry simulator centered around Petri nets. Molecules encode proteins which fold into Petri nets that drive chemical reactions in a simulated environment.
 
-1.  [Description](#org4a509e6)
-2.  [Setting up](#org7fc668f)
-    1.  [OCaml libs dependancies](#orga9e77e6)
-    2.  [Install](#org195421f)
-3.  [Run](#org26734a9)
-4.  [Usefull stuff](#org17caa74)
+## Architecture
 
+The project has three components:
 
-<a id="org4a509e6"></a>
+- **Engine** (`engine/`) — OCaml CLI that handles simulation: parsing molecules, building Petri nets, and running reactions. Outputs JSON to stdout.
+- **Django app** (`django/`) — Web application for managing experiments, running simulations (calls the OCaml binary as a subprocess), and exposing a REST API. Also provides a Typer-based CLI (`cli.py`) for running experiments from the command line.
+- **Cytoscape visualization** (`cytoscape/`) — JavaScript graph visualization using webcola for layout, bundled with webpack.
 
-# Description
+### How they connect
 
-YAACS is an artificial chemistry simulator, centered around petri nets.
+Django calls the `yaac` OCaml binary via `subprocess.Popen` (see `django/experiment/engine.py`). The engine reads JSON input from CLI arguments and writes JSON results to stdout. Django parses the output and stores snapshots/logs in SQLite.
 
-This project includes a webserver, written in OCaml, as well as a web client, written in Rescript.
+Grafana connects to the Django SQLite database for experiment monitoring dashboards.
 
-<a id="org7fc668f"></a>
+## Project structure
 
-# Setting up
+```
+engine/                    # OCaml simulation engine
+  bin/yaac.ml              # CLI entry point (cmdliner via ppx_subliner)
+  bacterie/                # Simulation runtime (reactions, environments, molecule sets)
+  base_chemistry/          # Core types: molecules, proteins, Petri nets, places, transitions
+  libs/                    # Utility libraries (config, numerics, random, sets)
+  jlog/                    # Custom JSON-capable logging library
+  tests/                   # Alcotest tests and fixture states
+    bact_states/           # JSON fixture files for initial states
+  dune-project             # OCaml package definition
 
-You will need a working OCaml developping environment, 
-ideally set-up with opam. Dune is used as a build system.
+django/                    # Django web application
+  manage.py                # Django management
+  cli.py                   # Typer CLI entry point (experiment management)
+  alife/                   # Django project settings
+    settings.py
+    urls.py
+  experiment/              # Main Django app
+    models.py              # Experiment, BactSnapshot, Log, InitialState
+    engine.py              # YaacWrapper — subprocess interface to OCaml engine
+    views.py               # REST API (DRF) and template views
+    urls.py
+    admin.py
+    fixtures/
+  subcommansds/            # Typer subcommands
+    experiment.py          # list, run, clear experiments
+  templates/               # HTML templates
+  static/                  # Static assets
+  Dockerfile               # Archlinux-based container
+  pyproject.toml           # Python dependencies (uv)
 
+cytoscape/                 # Graph visualization
+  src/                     # JS source (index.mjs, cytoscape-cola.mjs, defaults.mjs)
+  webpack.config.mjs
+  package.json             # webcola dependency, webpack build
 
-<a id="orga9e77e6"></a>
-
-## OCaml libs dependancies
-
-See output of `dune build`
-
-<a id="org195421f"></a>
+docker-compose.yaml        # Django + Grafana services
+grafana/                   # Grafana data (SQLite datasource on Django DB)
+```
 
 ## Building and running
 
-Running `dune build @local_install` will output the `yaacs_server` binary as well as the client and some data into the `./dist` directory. You can then launch the program with 
+### OCaml engine
+
+Requires an OCaml development environment with opam. Dune is the build system.
 
 ```bash
-cd ./dist
-./yaacs_server
+cd engine
+dune build          # Build the yaac binary
+dune runtest        # Run alcotest tests
 ```
 
-By default, the server will be accessible on `http://localhost:1512`.
+The binary is built at `engine/_build/default/bin/yaac.exe`. Key CLI subcommands:
 
-Run `./yaacs_server --help` to see available options.
+- `from-mol` — Parse molecule string, return protein + Petri net JSON
+- `from-prot` — Build Petri net from protein JSON
+- `eval` — Run N reaction steps from an initial state
+- `load-signature` — Expand a compact bacterie signature to full state
+- `reactions` — List available reactions from a state
+- `acid-examples` — List example acid types
 
-### Build the server
+Use `--log-level` (`-l`) to control logging. Set `JSON_LOG=1` env var for JSON log output.
 
-Run `dune build`
+### Django app
 
-### Build the client
+Requires Python >= 3.10. Uses uv for dependency management.
 
-Rune `dune build @client`
+```bash
+cd django
+uv sync                          # Install dependencies
+uv run ./manage.py migrate       # Create/update database
+uv run ./manage.py runserver     # Start dev server (default: localhost:8000)
+```
 
-## Dev mode for the client
+The Typer CLI for experiment management:
 
- * Run `yarn install` from the root dir to install the dependancies.
- * Run `bsb -make-world -w` to build rescript files into javascript (watch mode)
- * From `.src/gui/client`, run `yarn server` to serve the built files
- * Run the server
+```bash
+cd django
+./cli.py experiment list                           # List experiments
+./cli.py experiment run <id> <nb_reacs>            # Run experiment
+./cli.py experiment run <id> <nb_reacs> --reset    # Run from initial state
+./cli.py experiment clear <id>                     # Remove snapshots
+./cli.py load-initial-states                       # Load fixtures from engine test data
+```
+
+**Important:** The `yaac` binary must be accessible at `./yaac` from the Django working directory.
+
+### Docker (full stack)
+
+```bash
+docker-compose up       # Starts Django (port 8000) and Grafana (port 3000)
+```
+
+### Cytoscape visualization
+
+```bash
+cd cytoscape
+pnpm install
+pnpm build              # Webpack bundle
+```
+
+## OCaml conventions
+
+- **PPX**: `ppx_deriving_yojson` for JSON serialization, `ppx_subliner` for CLI argument parsing from type definitions
+- **Key dependencies**: `containers` (stdlib extension), `zarith` (arbitrary precision), `pringo` (PRNG), `alcotest` (testing)
+- **Module layout**: `base_chemistry` defines core domain types (molecules, proteins, Petri nets); `bacterie` implements runtime simulation; `libs` has general utilities; `jlog` is a custom structured logging library
+- **CLI pattern**: Subcommands are defined as modules with a `params` type (derived with `subliner`), a `doc` string, and a `handle` function
+
+## Django conventions
+
+- **Models** (`experiment/models.py`): `Experiment` holds initial state as JSON; `BactSnapshot` stores simulation state at checkpoints; `Log` stores per-step statistics; `InitialState` stores reusable starting configurations
+- **Engine integration** (`experiment/engine.py`): `YaacWrapper` class invokes the OCaml binary, `StatLogCollector` captures structured log output during runs
+- **API**: Django REST Framework viewsets for experiments and snapshots
+- **CLI**: Typer app in `cli.py` with subcommands in `subcommansds/`
+
+## Development workflow
+
+1. **Engine changes**: Edit OCaml code in `engine/`, build with `dune build`, test with `dune runtest`
+2. **Django changes**: Edit Python code in `django/`, restart dev server. Use `./cli.py` for experiment operations
+3. **Visualization**: Edit JS in `cytoscape/src/`, rebuild with `pnpm build`
+4. **Full integration**: Ensure the `yaac` binary is built and accessible from the Django working directory, then run the Django server
