@@ -68,8 +68,8 @@ Requires opam. Compatible with **OCaml 5.x** (tested with 5.4.0).
 cd engine
 opam switch create . ocaml-base-compiler.5.4.0 --yes
 eval $(opam env)
-opam install dune containers ppx_subliner zarith ppx_deriving_yojson alcotest base --yes
 opam pin add pringo git+https://github.com/sapristi/pringo.git --yes
+opam install . --deps-only --with-test --yes
 dune build          # Build the yaac binary
 dune runtest        # Run alcotest tests
 ```
@@ -141,7 +141,7 @@ pnpm build              # Webpack bundle
 
 ## Maintaining this file
 
-Always keep `CLAUDE.md` up to date when making changes that affect project structure, build instructions, conventions, or workflow. Ask the user before adding new sections. This file is a symlink — that's expected, edit it normally.
+Always keep `README.md` up to date when making changes that affect project structure, build instructions, conventions, or workflow. Ask the user before adding new sections. This file is a symlink — that's expected, edit it normally.
 
 ## Development workflow
 

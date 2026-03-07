@@ -1,22 +1,22 @@
-(lang dune 2.7)
+(lang dune 3.0)
+(generate_opam_files true)
+
 (package
  (name yaac)
  (depends
+   (ocaml (>= 5.0))
    (dune :build)
    containers
    ppx_subliner
    zarith
    ppx_deriving_yojson
+   ppx_inline_test
+   re
    pringo
    base
-
-  (alcotest :with-test)
-
- )
-  (depopts
-    merlin
-    utop
-    ocamlformat
-    ocp-indent
-  )
-)
+   (alcotest :with-test))
+ (depopts
+   merlin
+   utop
+   ocamlformat
+   ocp-indent))
