@@ -62,10 +62,14 @@ grafana/                   # Grafana data (SQLite datasource on Django DB)
 
 ### OCaml engine
 
-Requires an OCaml development environment with opam. Dune is the build system.
+Requires opam. The engine uses `effect` as a type name and `String.uppercase`, so it needs **OCaml 4.14** (not 5.x).
 
 ```bash
 cd engine
+opam switch create . ocaml-base-compiler.4.14.2 --yes
+eval $(opam env)
+opam install dune containers ppx_subliner zarith ppx_deriving_yojson alcotest base --yes
+opam pin add pringo git+https://github.com/sapristi/pringo.git --yes
 dune build          # Build the yaac binary
 dune runtest        # Run alcotest tests
 ```
@@ -87,23 +91,25 @@ Requires Python >= 3.10. Uses uv for dependency management.
 
 ```bash
 cd django
-uv sync                          # Install dependencies
-uv run ./manage.py migrate       # Create/update database
-uv run ./manage.py runserver     # Start dev server (default: localhost:8000)
+uv sync                                            # Install dependencies
+uv run ./manage.py migrate                         # Create/update database
+ln -sf ../engine/_build/default/bin/yaac.exe yaac  # Symlink engine binary
+uv run ./cli.py load-initial-states                # Load fixtures from engine test data
+uv run ./manage.py runserver                       # Start dev server (default: localhost:8000)
 ```
 
 The Typer CLI for experiment management:
 
 ```bash
 cd django
-./cli.py experiment list                           # List experiments
-./cli.py experiment run <id> <nb_reacs>            # Run experiment
-./cli.py experiment run <id> <nb_reacs> --reset    # Run from initial state
-./cli.py experiment clear <id>                     # Remove snapshots
-./cli.py load-initial-states                       # Load fixtures from engine test data
+uv run ./cli.py experiment list                           # List experiments
+uv run ./cli.py experiment run <id> <nb_reacs>            # Run experiment
+uv run ./cli.py experiment run <id> <nb_reacs> --reset    # Run from initial state
+uv run ./cli.py experiment clear <id>                     # Remove snapshots
+uv run ./cli.py load-initial-states                       # Load fixtures from engine test data
 ```
 
-**Important:** The `yaac` binary must be accessible at `./yaac` from the Django working directory.
+**Important:** The `yaac` binary must be accessible at `./yaac` from the Django working directory (the symlink step above handles this).
 
 ### Docker (full stack)
 

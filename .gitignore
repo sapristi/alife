@@ -1,2 +1,7 @@
 engine/_opam/
 engine/_build/
+django/.venv/
+django/db.sqlite3
+django/yaac
+cytoscape/node_modules/
+cytoscape/dist/

@@ -6,8 +6,9 @@
    containers
    ppx_subliner
    zarith
-ppx_deriving_yojson
+   ppx_deriving_yojson
    pringo
+   base
 
   (alcotest :with-test)
 
