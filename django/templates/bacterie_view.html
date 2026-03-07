@@ -140,7 +140,7 @@
    return inner
  }
 
- let AcidDisplayRow = ({acid, moveUp, moveDown, handleChange, remove}) => {
+ let AcidDisplayRow = ({acid, moveUp, moveDown, handleChange, remove, highlighted}) => {
    const [type, molPart, data] = acid
    const [molPartValue, setMolPartValue] = useState(molPart)
    useEffect(
@@ -158,8 +158,9 @@
        handleChange(molPartValue)
      }
    }
+   const highlightStyle = highlighted ? "border-left: 4px solid #2f8dd0; background-color: #eef6fc;" : ""
    return html`
-     <div class="card">
+     <div class="card" style=${highlightStyle}>
        <div class="card-content" style="padding: 0.5rem 0.75rem">
          <div style="display: flex;flex-direction: row">
            <input type="text" value="${molPartValue}"
@@ -177,7 +178,31 @@
    `
  }
 
+ const {PnetGraphPanel, SelectedNodePanel, selectedNodeId} = makePnetPanels(pnet)
+
+ let computeAcidNodeIds = (protValue) => {
+   let placeIndex = 0
+   return protValue.map(([type, molPart, data]) => {
+     if (type === "S") return null
+     const [acid_type, ...params] = data
+     if (acid_type === "Place") {
+       const nodeId = `p${placeIndex}`
+       placeIndex++
+       return nodeId
+     } else if (acid_type === "Extension") {
+       return placeIndex > 0 ? `p${placeIndex - 1}` : null
+     } else {
+       // InputArc or OutputArc — params[0] is the transition id
+       const t_id = params[0]
+       return `t${t_id}`
+     }
+   })
+ }
+
  let ProtDisplayTable = () => {
+   const acidNodeIds = computeAcidNodeIds(prot.value)
+   const selId = selectedNodeId.value
+
    let move = (idx, idx_swap) => {
      if (idx_swap <= idx ) {throw new Error("move: wrong args")}
      let start = prot.value.slice(0, idx)
@@ -222,12 +247,10 @@
    return html`
      <div style="display: flex; flex-direction: column">
        ${prot.value.map(
-       (acid, idx) => html`<${AcidDisplayRow} key=${JSON.stringify(acid)} acid=${acid} moveUp=${moveUp(idx)} moveDown=${moveDown(idx)} handleChange=${handleChange(idx)} remove=${remove(idx)} />`
+       (acid, idx) => html`<${AcidDisplayRow} key=${JSON.stringify(acid)} acid=${acid} moveUp=${moveUp(idx)} moveDown=${moveDown(idx)} handleChange=${handleChange(idx)} remove=${remove(idx)} highlighted=${selId !== null && acidNodeIds[idx] === selId} />`
        )}
      </div>`
  }
- const {PnetGraphPanel, SelectedNodePanel} = makePnetPanels(pnet)
-
  const AcidSelectionItem = ({molPart, acid}) => {
    const add = () => {
      mol.value = molPart + mol.value

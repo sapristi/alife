@@ -127,6 +127,7 @@ export const makePnetPanels = (pnetSignal) => {
   return {
     PnetGraphPanel: PnetGraphPanelWrapper,
     SelectedNodePanel: SelectedNodePanelWrapper,
+    selectedNodeId,
   };
 };
 
