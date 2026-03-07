@@ -146,7 +146,7 @@ module type REAC_PARTIAL = sig
 end
 
 module ReactionsM (R : REACTANT) = struct
-  type effect =
+  type action =
     | T_effects of Place.transition_effect list
     | Update_launchables of R.Amol.t
     | Remove_one of R.t
@@ -159,7 +159,7 @@ module ReactionsM (R : REACTANT) = struct
   (** Module type for a reactant *)
   module type REAC = sig
     include REAC_PARTIAL
-    val eval : Random_s.t -> t -> effect list
+    val eval : Random_s.t -> t -> action list
     val remove_reac_from_reactants : R.reac -> t -> unit
   end
 
@@ -201,7 +201,7 @@ module ReactionsM (R : REACTANT) = struct
         rate = calculate_rate { graber_data; grabed_data; rate = Q.zero };
       }
 
-    let eval randstate (g : t) : effect list =
+    let eval randstate (g : t) : action list =
       ignore (asymetric_grab randstate (R.mol g.grabed_data) g.graber_data.pnet);
       [
         Remove_one g.grabed_data;
@@ -245,7 +245,7 @@ module ReactionsM (R : REACTANT) = struct
     let make (amd : build_t) =
       { rate = calculate_rate { amd; rate = Q.zero }; amd }
 
-    let eval randstate (trans : t) : effect list =
+    let eval randstate (trans : t) : action list =
       let t_effects =
         Petri_net.launch_random_transition randstate trans.amd.pnet
       in

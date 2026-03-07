@@ -167,7 +167,7 @@ module ARMap =
     (** Either add the reactant to an existing AmolSet, or create a new one
         Returns the list of reactions to update
     *)
-    let add (areactant :Reactant.Amol.t )  (armap : t) : Reacs.effect list =
+    let add (areactant :Reactant.Amol.t )  (armap : t) : Reacs.action list =
       logger.debug ~tags:["amol", Reactant.Amol.to_yojson areactant] "Adding Reactant.Amol";
 
       armap.v <-
@@ -183,7 +183,7 @@ module ARMap =
       (* we should return the list of reactions to update *)
       [ Reacs.Update_reacs !(areactant.reacs)]
 
-    let remove (areactant : Reactant.Amol.t) (armap : t) : Reacs.effect list =
+    let remove (areactant : Reactant.Amol.t) (armap : t) : Reacs.action list =
       logger.debug ~tags:["amol", Reactant.Amol.to_yojson areactant] "Removing Reactant.Amol";
 
       armap.v <-
@@ -300,7 +300,7 @@ module IRMap =
     (** External API : should not be called from other internal functions *)
     module Ext =
       struct
-        let set_qtt qtt mol (irmap : t)  : Reacs.effect list =
+        let set_qtt qtt mol (irmap : t)  : Reacs.action list =
           let imolset = MolMap.find mol irmap.v in
           Reactant.ImolSet.set_qtt qtt imolset;
           [ Reacs.Update_reacs !(imolset.reacs)]
@@ -322,7 +322,7 @@ module IRMap =
       irmap.v <- MolMap.add ireac.mol ireac irmap.v
 
     let add_to_qtt (ir : Reactant.ImolSet.t) deltaqtt (irmap : t)
-        : Reacs.effect list =
+        : Reacs.action list =
       let imolset = MolMap.find ir.mol irmap.v in
       Reactant.ImolSet.add_to_qtt deltaqtt imolset;
       if Config.remove_empty_reactants && imolset.qtt = 0

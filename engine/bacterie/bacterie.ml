@@ -78,7 +78,7 @@ let get_pnet_uid bact =
 
 
 
-let add_active_molecule (mol: Molecule.t) (pnet: Petri_net.t) (bact: t): Reacs.effect list =
+let add_active_molecule (mol: Molecule.t) (pnet: Petri_net.t) (bact: t): Reacs.action list =
   (** Adds the given pnet to the bactery *)
   logger.debug ~tags:["mol", `String mol] "adding active molecule";
 
@@ -103,7 +103,7 @@ let add_active_molecule (mol: Molecule.t) (pnet: Petri_net.t) (bact: t): Reacs.e
   ARMap.add ar bact.areactants
 
 
-let add_inert_molecule ?(qtt = 1) ?(ambient = false) (mol: Molecule.t) (bact: t): Reacs.effect list =
+let add_inert_molecule ?(qtt = 1) ?(ambient = false) (mol: Molecule.t) (bact: t): Reacs.action list =
   logger.debug ~tags:["mol", `String mol] "adding inert molecule";
   match MolMap.get mol bact.ireactants.v with
   | None ->
@@ -141,7 +141,7 @@ let add_inert_molecule ?(qtt = 1) ?(ambient = false) (mol: Molecule.t) (bact: t)
     Note: could be made more efficient when adding multiple molecules -
     let's keep it simple for now
 *)
-let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
+let add_molecule (mol : Molecule.t) (bact : t) : Reacs.action list =
 
   if Config.check_mol && (not (Molecule.check mol))
   then
@@ -159,7 +159,7 @@ let add_molecule (mol : Molecule.t) (bact : t) : Reacs.effect list =
 
 
 (** totally removes a molecule from a bactery *)
-let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
+let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.action list =
   match reactant with
   | ImolSet ir ->
     IRMap.add_to_qtt ir (-1) bact.ireactants
@@ -173,11 +173,11 @@ let remove_one_reactant (reactant : Reactant.t) (bact : t) : Reacs.effect list =
 
     TODO later : ???
     il faudrait peut-être mettre dans une file les molécules à ajouter *)
-let rec execute_actions (bact :t) (actions : Reacs.effect list) : unit =
+let rec execute_actions (bact :t) (actions : Reacs.action list) : unit =
   List.iter
-    (fun (effect : Reacs.effect) ->
-       logger.debug ~tags:["effect", Reacs.effect_to_yojson effect] "Executing effect";
-       match effect with
+    (fun (action : Reacs.action) ->
+       logger.debug ~tags:["action", Reacs.action_to_yojson action] "Executing action";
+       match action with
        | T_effects tel ->
          List.iter
            (fun teffect ->

@@ -222,7 +222,7 @@ end
 
 (** Reacs : implementation of the reactions *)
 and Reacs : sig
-  type effect =
+  type action =
     | T_effects of Place.transition_effect list
     | Update_launchables of Reactant.Amol.t
     | Remove_one of Reactant.t
@@ -237,7 +237,7 @@ and Reacs : sig
   *)
   module type REAC = sig
     include Reactions.REAC_PARTIAL
-    val eval : Random_s.t -> t -> effect list
+    val eval : Random_s.t -> t -> action list
     val remove_reac_from_reactants : Reaction.t -> t -> unit
   end
 
@@ -257,7 +257,7 @@ and Reaction : sig
     | Collision of Reacs.Collision.t
   [@@deriving ord, show, to_yojson, eq]
 
-  val treat_reaction : Random_s.t -> t -> Reacs.effect list
+  val treat_reaction : Random_s.t -> t -> Reacs.action list
   val unlink : t -> unit
 end =
 struct
@@ -277,7 +277,7 @@ struct
     | Break b -> Break.rate b
     | Collision c -> Collision.rate c
 
-  let treat_reaction randstate r : effect list =
+  let treat_reaction randstate r : action list =
     match r with
     | Transition t -> Transition.eval randstate t
     | Grab g -> Grab.eval randstate g

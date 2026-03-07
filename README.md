@@ -139,6 +139,10 @@ pnpm build              # Webpack bundle
 - **API**: Django REST Framework viewsets for experiments and snapshots
 - **CLI**: Typer app in `cli.py` with subcommands in `subcommansds/`
 
+## Maintaining this file
+
+Always keep `CLAUDE.md` up to date when making changes that affect project structure, build instructions, conventions, or workflow. Ask the user before adding new sections. This file is a symlink — that's expected, edit it normally.
+
 ## Development workflow
 
 1. **Engine changes**: Edit OCaml code in `engine/`, build with `dune build`, test with `dune runtest`
