@@ -105,7 +105,7 @@ and grab_release_amol () =
   and inter_expected_result : Bacterie.CompactSig.mol_sig list =
     Bacterie.CompactSig.canonical_mols
           [
-            { mol = "AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB"; qtt = 1;ambient=false }
+            { mol = "AAAABAFAFFFDDFBAAADDFAAACAAADDFABB"; qtt = 1;ambient=false }
             (* {mol="AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";qtt=1}; *);
           ]
   in
@@ -120,7 +120,7 @@ and grab_release_amol () =
               mol = "AAAABAFAFDDFBAAADDFAAAABAFBFDDFBAAADDFAAACBAADDFABB";
               qtt = 1; ambient=false
             };
-            { mol = "AAAABAFAFAAFFDDFBAAADDFAAACAAADDFABB"; qtt = 1;ambient=false};
+            { mol = "AAAABAFAFFFDDFBAAADDFAAACAAADDFABB"; qtt = 1;ambient=false};
           ]  in
   Alcotest.check bact_sig_testable "same bact final" expected_result result.mols
 

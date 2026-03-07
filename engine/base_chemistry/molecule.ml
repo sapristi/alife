@@ -42,7 +42,7 @@ and ext_bind_id = "ACC"
 and msg_end_id = "DDF"
 
 (** limit size of groups *)
-let max_group_length = 3
+let max_group_length = 5
 let id_group_re = (Printf.sprintf "(.{1,%i}?)" max_group_length)
 
 let place_re = place_id

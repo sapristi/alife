@@ -1,5 +1,5 @@
-engine/_opam/
-engine/_build/
+_opam/
+_build/
 django/.venv/
 django/db.sqlite3
 django/yaac
