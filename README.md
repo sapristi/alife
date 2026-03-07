@@ -62,11 +62,11 @@ grafana/                   # Grafana data (SQLite datasource on Django DB)
 
 ### OCaml engine
 
-Requires opam. The engine uses `effect` as a type name and `String.uppercase`, so it needs **OCaml 4.14** (not 5.x).
+Requires opam. Compatible with **OCaml 5.x** (tested with 5.4.0).
 
 ```bash
 cd engine
-opam switch create . ocaml-base-compiler.4.14.2 --yes
+opam switch create . ocaml-base-compiler.5.4.0 --yes
 eval $(opam env)
 opam install dune containers ppx_subliner zarith ppx_deriving_yojson alcotest base --yes
 opam pin add pringo git+https://github.com/sapristi/pringo.git --yes
