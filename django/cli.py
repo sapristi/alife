@@ -36,6 +36,7 @@ def load_initial_states(force: bool = typer.Option(False, is_flag=True, help="Fo
             else:
                 state.mols = data["mols"]
                 state.env = data["env"]
+                state.save()
                 print(f"Will override {name}")
 
         print(f"Loaded {name}")

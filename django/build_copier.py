@@ -103,6 +103,169 @@ def build_simple_copier(grab_pattern="FDFAFF"):
     return "".join(parts)
 
 
+def build_simple_r_copier(grab_pattern="FDFAFF"):
+    """Build simplified R-copier using Copy_iarc extension.
+
+    Like build_simple_copier but skips the DAEEE prefix (5 chars) before
+    copying. Uses Copy_iarc for both skip and copy transitions — each
+    skip produces [original, acid_token], where original goes to move_fw
+    and acid_token goes to the trigger chain.
+
+    The released copy is the template body WITHOUT DAEEE — an active copier.
+
+    One-shot gate (P9): T_SKIP1 consumes the gate token, ensuring it fires
+    exactly once per cycle. Without this gate, T_SKIP1 would race with
+    T_SKIP3/T_SKIP4/etc after T_SKIP2 empties P2, causing duplicate trigger
+    chain entries and corrupted copies. The gate is refilled by T_DONE via
+    factory split.
+
+    Molecule layout determines arc ordering after proteine.ml's prepend
+    reversal. Key constraints:
+    - Trigger places (P2-P6) BEFORE read head (P10) for skip output ordering
+    - Copy/template release (P7,P8) BEFORE gate (P9) BEFORE read head (P10)
+      for T_DONE output ordering: [factory, gate, tmpl_release, copy_release]
+    - Factory (P11) AFTER read head for T_DONE/T_RESET input ordering
+
+    Transitions: T_LOAD, T_COPY, T_DONE, T_RESET, T_SKIP1-5 (9 total)
+    Places: P0(grab), P1(accumulator), P2-P6(trigger chain),
+            P7(copy release), P8(template release), P9(gate),
+            P10(read head), P11(factory) (12 total)
+    """
+    T_LOAD  = "A"
+    T_COPY  = "B"
+    T_DONE  = "C"
+    T_RESET = "D"
+    T_SKIP1 = "E"   # Skip position 0
+    T_SKIP2 = "F"   # Skip position 1
+    T_SKIP3 = "AB"  # Skip position 2
+    T_SKIP4 = "AC"  # Skip position 3
+    T_SKIP5 = "AD"  # Skip position 4
+
+    parts = []
+
+    # P0: Template grab
+    parts.append(place())
+    parts.append(ext_grab(grab_pattern))  # default: ^(D)A.*?$
+    parts.append(ia_reg(T_LOAD))
+
+    # P1: Accumulator (empty during skip phase, filled by T_RESET)
+    parts.append(place())
+    parts.append(ia_reg(T_COPY))          # consumed by T_COPY for merge
+    parts.append(oa_merge(T_COPY))        # merge acid into accumulator
+    parts.append(ia_reg(T_DONE))          # consumed by T_DONE for release
+    parts.append(oa_reg(T_RESET))         # receives empty token from T_RESET
+
+    # P2-P6: Trigger chain for 5-char prefix skip
+    # T_SKIP1 → P2 → T_SKIP2 → P3 → ... → P6 → T_RESET
+    # MUST come before P10 (read head) for correct output arc ordering.
+
+    # P2: trigger1 (filled by T_SKIP1, consumed by T_SKIP2)
+    parts.append(place())
+    parts.append(oa_reg(T_SKIP1))
+    parts.append(ia_reg(T_SKIP2))
+
+    # P3: trigger2 (filled by T_SKIP2, consumed by T_SKIP3)
+    parts.append(place())
+    parts.append(oa_reg(T_SKIP2))
+    parts.append(ia_reg(T_SKIP3))
+
+    # P4: trigger3 (filled by T_SKIP3, consumed by T_SKIP4)
+    parts.append(place())
+    parts.append(oa_reg(T_SKIP3))
+    parts.append(ia_reg(T_SKIP4))
+
+    # P5: trigger4 (filled by T_SKIP4, consumed by T_SKIP5)
+    parts.append(place())
+    parts.append(oa_reg(T_SKIP4))
+    parts.append(ia_reg(T_SKIP5))
+
+    # P6: trigger5 (filled by T_SKIP5, consumed by T_RESET)
+    parts.append(place())
+    parts.append(oa_reg(T_SKIP5))
+    parts.append(ia_reg(T_RESET))
+
+    # P7: Copy release — BEFORE gate for T_DONE output ordering
+    parts.append(place())
+    parts.append(ext_release())
+    parts.append(oa_reg(T_DONE))
+
+    # P8: Template release — BEFORE gate for T_DONE output ordering
+    parts.append(place())
+    parts.append(ext_release())
+    parts.append(oa_reg(T_DONE))
+
+    # P9: One-shot gate — consumed by T_SKIP1, refilled by T_DONE
+    # Ensures T_SKIP1 fires exactly once per copy cycle.
+    parts.append(place())
+    parts.append(ext_init_token())
+    parts.append(ia_reg(T_SKIP1))         # consumed by T_SKIP1 (one-shot)
+    parts.append(oa_reg(T_DONE))          # refilled by T_DONE via factory split
+
+    # P10: Read head — AFTER gate/triggers for correct arc ordering
+    parts.append(place())
+    # Skip arcs: Copy_iarc advances cursor, acid_token goes to trigger
+    parts.append(ia_copy(T_SKIP1))
+    parts.append(oa_move_fw(T_SKIP1))
+    parts.append(ia_copy(T_SKIP2))
+    parts.append(oa_move_fw(T_SKIP2))
+    parts.append(ia_copy(T_SKIP3))
+    parts.append(oa_move_fw(T_SKIP3))
+    parts.append(ia_copy(T_SKIP4))
+    parts.append(oa_move_fw(T_SKIP4))
+    parts.append(ia_copy(T_SKIP5))
+    parts.append(oa_move_fw(T_SKIP5))
+    # Copy arcs
+    parts.append(ia_copy(T_COPY))
+    parts.append(ia_filter_empty(T_DONE))
+    parts.append(oa_move_fw(T_COPY))
+    parts.append(oa_reg(T_LOAD))          # receives token from T_LOAD
+
+    # P11: Token factory — LAST for T_RESET/T_DONE input ordering
+    # Split produces 2 empty tokens: one refills factory, other goes to
+    # accumulator (T_RESET) or gate+factory (T_DONE).
+    parts.append(place())
+    parts.append(ext_init_token())
+    parts.append(ia_split(T_RESET))       # T_RESET: empty token for accumulator
+    parts.append(oa_reg(T_RESET))         # T_RESET: refill factory
+    parts.append(ia_split(T_DONE))        # T_DONE: tokens for gate + factory refill
+    parts.append(oa_reg(T_DONE))          # T_DONE: refill factory
+
+    return "".join(parts)
+
+
+def build_simple_4comp_state(t_copier_mol, r_copier_mol,
+                             copier_qtt=5, template_qtt=10,
+                             acid_qtt=200, d_qtt=50, e_qtt=200):
+    """Build initial state with 4-component system using Copy_iarc copiers.
+
+    T-copier copies templates exactly (including DAEEE) → new templates.
+    R-copier copies templates, skipping DAEEE → new active copiers.
+    """
+    template_t = TEMPLATE_PREFIX + t_copier_mol
+    template_r = TEMPLATE_PREFIX + r_copier_mol
+
+    return {
+        "mols": [
+            {"mol": t_copier_mol, "qtt": copier_qtt},
+            {"mol": r_copier_mol, "qtt": copier_qtt},
+            {"mol": template_t, "qtt": template_qtt},
+            {"mol": template_r, "qtt": template_qtt},
+            {"mol": "A", "qtt": acid_qtt, "ambient": True},
+            {"mol": "B", "qtt": acid_qtt, "ambient": True},
+            {"mol": "C", "qtt": acid_qtt, "ambient": True},
+            {"mol": "D", "qtt": d_qtt, "ambient": True},
+            {"mol": "E", "qtt": e_qtt, "ambient": True},
+            {"mol": "F", "qtt": acid_qtt, "ambient": True},
+        ],
+        "env": {
+            "transition_rate": 100,
+            "grab_rate": 1,
+            "break_rate": 0,
+            "collision_rate": 0,
+        }
+    }
+
+
 def build_simple_initial_state(copier_mol, grab_pattern="FDFAFF",
                                copier_qtt=10, template_qtt=20,
                                acid_qtt=200, d_qtt=50, e_qtt=200):
@@ -379,10 +542,28 @@ def verify_molecule(mol, label="Molecule"):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--simple", action="store_true", help="Build simplified copier using Copy_iarc")
+    parser.add_argument("--simple", action="store_true", help="Build simplified T-copier using Copy_iarc")
+    parser.add_argument("--simple-4comp", action="store_true", help="Build 4-component system with Copy_iarc copiers")
     args = parser.parse_args()
 
-    if args.simple:
+    if args.simple_4comp:
+        t_copier = build_simple_copier()
+        r_copier = build_simple_r_copier()
+        template_t = TEMPLATE_PREFIX + t_copier
+        template_r = TEMPLATE_PREFIX + r_copier
+
+        print("Simplified 4-component system (Copy_iarc):")
+        verify_molecule(t_copier, "T-copier")
+        verify_molecule(r_copier, "R-copier")
+        verify_molecule(template_t, "Template_T")
+        verify_molecule(template_r, "Template_R")
+        print()
+
+        state = build_simple_4comp_state(t_copier, r_copier)
+        print(f"Initial state: {len(state['mols'])} mol types, "
+              f"{sum(m['qtt'] for m in state['mols'])} total")
+        print(json.dumps(state, indent=2))
+    elif args.simple:
         copier = build_simple_copier()
         template = TEMPLATE_PREFIX + copier
 
