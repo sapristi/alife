@@ -106,21 +106,28 @@ module EvalCmd = struct
         initial_state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.Dump.bact_of_yojson
         |> Result.get_ok
     in
-    for i = 0 to nb_steps - 1 do
-      try
+    let stopped = ref false in
+    let i = ref 0 in
+    while !i < nb_steps && not !stopped do
+      (try
         let time_stats = Bacterie_libs.Bacterie.next_reaction bact in
-        let bact_stats_start = Sys.time ()
-        and bact_stats = Bacterie.stats bact in
-        let bacts_stats_time = (Sys.time ()) -. bact_stats_start in
-        if stats_period != 0 && i mod stats_period = 0
-        then
-          stats_logger.info
-            ~tags:(["bact_stats_duration", `Float bacts_stats_time]@bact_stats@time_stats )
-            "Stats";
-        if dump_period != 0 && i mod dump_period = 0
-        then
-          stats_logger.info
-            ~tags:["bacterie", Bacterie.Dump.bact_to_yojson bact] "dump";
+        if time_stats = [] then (
+          logger.warning "No reaction available, stopping early";
+          stopped := true
+        ) else (
+          let bact_stats_start = Sys.time ()
+          and bact_stats = Bacterie.stats bact in
+          let bacts_stats_time = (Sys.time ()) -. bact_stats_start in
+          if stats_period != 0 && !i mod stats_period = 0
+          then
+            stats_logger.info
+              ~tags:(["bact_stats_duration", `Float bacts_stats_time]@bact_stats@time_stats )
+              "Stats";
+          if dump_period != 0 && !i mod dump_period = 0
+          then
+            stats_logger.info
+              ~tags:["bacterie", Bacterie.Dump.bact_to_yojson bact] "dump";
+        )
       with
       | exc -> (
           logger.error ~tags:[
@@ -128,7 +135,8 @@ module EvalCmd = struct
             "Reactions", Reac_mgr.to_yojson bact.reac_mgr
           ] "Reaction failed";
           raise exc
-        )
+        ));
+      incr i
     done;
 
     Bacterie.Dump.bact_to_yojson bact
