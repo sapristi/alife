@@ -215,6 +215,39 @@ def create(
 
 
 @app.command()
+def create_variant(
+    initial_state_id: int,
+    name: str = typer.Option(..., help="Experiment name"),
+    description: str = typer.Option("", help="Experiment description"),
+    env_override: str = typer.Option(None, help="JSON dict of env overrides, merged into source env"),
+    ambient_qtt: int = typer.Option(None, help="Override qtt for all ambient molecules"),
+):
+    """Create an experiment from an InitialState with env/ambient overrides"""
+    initial_state = InitialState.objects.get(id=initial_state_id)
+    env = dict(initial_state.env)
+    if env_override:
+        env.update(json.loads(env_override))
+
+    mols = [dict(m) for m in initial_state.mols]
+    if ambient_qtt is not None:
+        for m in mols:
+            if m.get("ambient"):
+                m["qtt"] = ambient_qtt
+
+    experiment = Experiment(
+        name=name,
+        description=description,
+        initial_state={"mols": mols, "env": env},
+    )
+    experiment.save()
+    print(f"Created experiment: {format_experiment(experiment)}")
+    print(f"  env: {json.dumps(env)}")
+    if ambient_qtt is not None:
+        total = sum(m["qtt"] for m in mols if m.get("ambient"))
+        print(f"  ambient qtt: {ambient_qtt} per type ({total} total)")
+
+
+@app.command()
 def compare(experiment_id_1: int, experiment_id_2: int):
     """Compare two experiments side by side"""
     exp1 = Experiment.objects.get(id=experiment_id_1)
