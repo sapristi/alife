@@ -39,3 +39,11 @@ Report: `docs/experiments/20260308T0238-parameter-sweep-followup.md`
 | 24-26 | combined grab5+ambient | Mildly additive, all still died. |
 
 No configuration is self-sustaining. All follow: growth -> peak -> decline -> death. Systems need qualitative changes (self-copying, repair, redundancy).
+
+## Copier v2: T-copier + DEEE-template (2026-03-08 04:30)
+
+Report: `docs/experiments/20260308T0430-copier-v2-tcopier.md`
+
+| ID | Name | Findings |
+|----|------|----------|
+| 28 | copier_v2 | **First self-sustaining system.** T-copier (no D prefix) + inert DEEE-templates. 200k reactions: active species 1→77, active count 10→84, inert count 1070→4727. Copier/template separation prevents mutual grabbing. Break mutations create emergent molecular diversity. |
