@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from . import models
-from experiment.engine import yaac
+from experiment.engine import yaac, YaacWrapper, DumpCaptureHandler
 
 def home(request):
     """Home page"""
@@ -94,11 +94,14 @@ class ExperimentView(viewsets.ViewSet):
         print("RECEIVED", body)
         data = json.loads(body)
         state = data["state"]
-        res = yaac.run(
+        handler = DumpCaptureHandler()
+        wrapper = YaacWrapper(handler)
+        wrapper.run(
             "eval",
             initial_state=json.dumps(state),
             nb_steps=1,
         )
+        res = handler.last_dump
         print("GOT", res)
         if res is None:
             return JsonResponse({"error": "problem"}, status=401)

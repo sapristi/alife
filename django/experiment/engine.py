@@ -10,6 +10,7 @@ class StatLogCollector:
     def __init__(self, experiment: Experiment):
         self.entries = []
         self.exp = experiment
+        self.last_dump = None
 
     def _store(self):
         logs = [Log(experiment=self.exp, reac_count=entry["tags"]["reactions"]["counter"], data=entry) for entry in self.entries]
@@ -25,6 +26,8 @@ class StatLogCollector:
             return
         if data.get("message") == "Stats":
             self.entries.append(data)
+        elif data.get("message") == "dump":
+            self.last_dump = data["tags"]["bacterie"]
         elif data.get("level") in ("Error", "Warning"):
             print(line.strip("\n"))
 
@@ -33,6 +36,25 @@ class StatLogCollector:
 
     def finalize(self):
         self._store()
+
+class DumpCaptureHandler:
+    """Captures the last dump message and prints everything else."""
+    def __init__(self):
+        self.last_dump = None
+
+    def treat(self, line):
+        try:
+            data = json.loads(line)
+        except Exception:
+            print(line.strip("\n"))
+            return
+        if data.get("message") == "dump":
+            self.last_dump = data["tags"]["bacterie"]
+        else:
+            print(line.strip("\n"))
+
+    def finalize(self):
+        pass
 
 class DisplayLogHandler:
     def treat(self, log_entry):
@@ -69,24 +91,27 @@ class YaacWrapper:
         self._last_line = None
         os.set_blocking(process.stdout.fileno(), False)
         while True:
-            line=process.stdout.readline()
+            line = process.stdout.readline()
 
             if len(line) != 0:
                 self._last_line = line
+                self.log_handler.treat(line)
 
             if process.poll() is not None:
+                # Drain remaining output after process exits
+                os.set_blocking(process.stdout.fileno(), True)
+                for line in process.stdout:
+                    self._last_line = line
+                    self.log_handler.treat(line)
                 self.log_handler.finalize()
-                return self._last_line
-
-            if len(line) != 0:
-                self.log_handler.treat(line)
+                return
 
     def _kwarg_to_cmd_arg(self, key, value):
         if isinstance(value, dict):
             value = json.dumps(value)
         return f"--{key.replace('_', '-')}={value}"
 
-    def run(self, command, **kwargs):
+    def _run_process(self, command, **kwargs):
         full_command = [
             "./yaac",
             command,
@@ -103,13 +128,19 @@ class YaacWrapper:
                  "STATS": "true"
             }
         )
-        output = self._parse_output(process)
+        self._parse_output(process)
         rc = process.poll()
 
         if rc != 0:
             raise YaacException(statuscode=rc, stderr=process.stderr)
 
-        res_data = json.loads(output)
-        return res_data
+    def run(self, command, **kwargs):
+        self._run_process(command, **kwargs)
+        if self._last_line is None:
+            return None
+        try:
+            return json.loads(self._last_line)
+        except (json.JSONDecodeError, TypeError):
+            return None
 
 yaac = YaacWrapper()

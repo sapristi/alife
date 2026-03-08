@@ -74,13 +74,18 @@ def run(
     nb_steps = nb_reacs // snapshot_period
     current_nb_reacs = nb_reactions_start
     for _ in range(nb_steps):
-        state = yaac.run(
+        log_collector.last_dump = None
+        yaac.run(
             "eval",
             **kwargs,
             nb_steps=snapshot_period,
             initial_state=state,
             stats_period=stats_period,
         )
+        if log_collector.last_dump is None:
+            print(f"No dump received, stopping early at {current_nb_reacs} reactions")
+            break
+        state = log_collector.last_dump
         new_reac_count = state.get("reac_counter", 0)
         if new_reac_count == current_nb_reacs:
             print(f"No reactions occurred, stopping early at {current_nb_reacs} reactions")
