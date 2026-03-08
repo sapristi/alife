@@ -81,7 +81,11 @@ def run(
             initial_state=state,
             stats_period=stats_period,
         )
-        current_nb_reacs += snapshot_period
+        new_reac_count = state.get("reac_counter", 0)
+        if new_reac_count == current_nb_reacs:
+            print(f"No reactions occurred, stopping early at {current_nb_reacs} reactions")
+            break
+        current_nb_reacs = new_reac_count
         res_snapshot = BactSnapshot(
             experiment=experiment,
             data=state
