@@ -476,7 +476,7 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
   in let a0 = Q.(  total_g_rate + total_t_rate + total_b_rate + total_c_rate )
   in
   if a0 = Q.zero then (
-    logger.warning ~tags:["reacs", to_yojson reac_mgr] "No reaction available";
+    logger.warning "No reaction available";
     None
   )
   else (

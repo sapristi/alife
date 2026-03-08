@@ -20,13 +20,13 @@ class StatLogCollector:
         try:
             data = json.loads(line)
         except Exception:
+            # Non-JSON line (e.g. plain text warning) — print it
             print(line.strip("\n"))
             return
         if data.get("message") == "Stats":
             self.entries.append(data)
-        else:
+        elif data.get("level") in ("Error", "Warning"):
             print(line.strip("\n"))
-            return
 
         if len(self.entries) > 1000:
             self._store()
@@ -37,6 +37,20 @@ class StatLogCollector:
 class DisplayLogHandler:
     def treat(self, log_entry):
         print(log_entry.strip("\n"))
+
+    def finalize(self):
+        pass
+
+class QuietLogHandler:
+    """Only prints warnings and errors."""
+    def treat(self, line):
+        try:
+            data = json.loads(line)
+        except Exception:
+            print(line.strip("\n"))
+            return
+        if data.get("level") in ("Error", "Warning"):
+            print(line.strip("\n"))
 
     def finalize(self):
         pass

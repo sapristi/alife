@@ -3,7 +3,7 @@ import io
 import json
 import typer
 from enum import Enum
-from experiment.engine import StatLogCollector, YaacWrapper
+from experiment.engine import QuietLogHandler, StatLogCollector, YaacWrapper
 
 from experiment.models import BactSnapshot, Experiment, InitialState, Log
 
@@ -55,7 +55,7 @@ def run(
         BactSnapshot.objects.filter(experiment=experiment).delete()
         Log.objects.filter(experiment=experiment).delete()
 
-        state = YaacWrapper().run("load-signature", signature=experiment.initial_state)
+        state = YaacWrapper(QuietLogHandler()).run("load-signature", signature=experiment.initial_state)
         nb_reactions_start = 0
         print(f"Starting from initial state")
         if reset:
