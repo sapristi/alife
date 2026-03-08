@@ -145,6 +145,40 @@ pnpm build              # Webpack bundle
 
 Always keep `README.md` up to date when making changes that affect project structure, build instructions, conventions, or workflow. Ask the user before adding new sections. This file is a symlink — that's expected, edit it normally.
 
+## Running experiments
+
+All commands run from `django/`.
+
+### CLI commands
+
+```bash
+uv run ./cli.py experiment list                              # List experiments
+uv run ./cli.py experiment info <id>                         # Detailed experiment info
+uv run ./cli.py experiment create <initial_state_id>         # Create from an InitialState
+uv run ./cli.py experiment create <id> --name "my exp"       # With custom name
+uv run ./cli.py experiment run <id> <nb_reacs>               # Run reactions (continues from last snapshot)
+uv run ./cli.py experiment run <id> <nb_reacs> --reset       # Run from initial state
+uv run ./cli.py experiment run <id> 1000 --stats-period 50 --snapshot-period 500
+uv run ./cli.py experiment stats <id>                        # Show log stats as table
+uv run ./cli.py experiment stats <id> --last 10 --csv        # Last 10 entries as CSV
+uv run ./cli.py experiment compare <id1> <id2>               # Side-by-side comparison
+uv run ./cli.py experiment clear <id>                        # Remove all snapshots
+```
+
+### Key stats columns
+
+- `ireactants.nb_species` / `ireactants.total_nb` — inactive molecule diversity and count
+- `areactants.nb_species` / `areactants.total_nb` — active (functional Petri net) molecule diversity and count
+- `reactions.breaks/collisions/grabs/transitions.nb_reactions` — cumulative reaction counts by type
+
+### Experiment reports
+
+Save reports to `docs/experiments/YYYY-MM-DD-<topic>.md`. Include:
+- Header: date, experiment ID, initial state name, parameters
+- Summary table of key stats over time
+- Analysis of observed phases/trends
+- Footer: initial state JSON (in `<details>` block), date, and git commit hash
+
 ## Development workflow
 
 1. **Engine changes**: Edit OCaml code in `engine/`, build with `dune build`, test with `dune runtest`
