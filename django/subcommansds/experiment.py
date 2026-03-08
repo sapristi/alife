@@ -1,8 +1,11 @@
+import csv
+import io
+import json
 import typer
 from enum import Enum
 from experiment.engine import StatLogCollector, YaacWrapper
 
-from experiment.models import BactSnapshot, Experiment, Log
+from experiment.models import BactSnapshot, Experiment, InitialState, Log
 
 app = typer.Typer(
     name="experiment", no_args_is_help=True, add_completion=False,
@@ -25,7 +28,7 @@ def list():
         if snapshot := experiment.last_snapshot:
             line += f"\n  last snapshot: {snapshot.nb_reactions} reactions"
         print(line)
-    return
+
 
 class LogLevel(Enum):
     Debug = "Debug"
@@ -87,7 +90,6 @@ def run(
         print(f"Saved new snapshot, {res_snapshot.nb_reactions} reactions")
 
 
-
 @app.command()
 def clear(experiment_id: int):
     """Remove all snapshots from experiment"""
@@ -97,3 +99,151 @@ def clear(experiment_id: int):
     input()
     snapshots.delete()
 
+
+@app.command()
+def info(experiment_id: int):
+    """Show detailed information about an experiment"""
+    experiment = Experiment.objects.get(id=experiment_id)
+    print(f"Experiment: {format_experiment(experiment)}")
+    print()
+
+    # Initial state summary
+    init = experiment.initial_state
+    if mols := init.get("mols"):
+        total_qtt = sum(m.get("qtt", 1) for m in mols)
+        print(f"Initial state: {len(mols)} molecule types, {total_qtt} total molecules")
+    if env := init.get("env"):
+        print(f"Environment:   {json.dumps(env)}")
+    print()
+
+    # Snapshots
+    snapshots = experiment.snapshots
+    snap_count = snapshots.count()
+    print(f"Snapshots: {snap_count}")
+    if last := experiment.last_snapshot:
+        print(f"Last snapshot: {last.nb_reactions} reactions ({last.timestamp.strftime('%Y-%m-%d %H:%M')})")
+    print()
+
+    # Logs
+    log_count = Log.objects.filter(experiment=experiment).count()
+    print(f"Log entries: {log_count}")
+    if log_count > 0:
+        last_log = Log.objects.filter(experiment=experiment).order_by("reac_count").last()
+        print(f"Last log at reaction: {last_log.reac_count}")
+
+
+@app.command()
+def stats(
+    experiment_id: int,
+    last: int = typer.Option(None, "--last", help="Show only the last N entries"),
+    as_csv: bool = typer.Option(False, "--csv", is_flag=True, help="Output as CSV"),
+):
+    """Show log statistics for an experiment"""
+    experiment = Experiment.objects.get(id=experiment_id)
+    logs = Log.objects.filter(experiment=experiment).order_by("reac_count")
+
+    if logs.count() == 0:
+        print(f"No log entries for experiment {format_experiment(experiment)}")
+        print("Run with --stats-period to collect stats during simulation.")
+        return
+
+    if last:
+        logs = logs[max(0, logs.count() - last):]
+
+    # Collect all stat keys from the tags field, flattening nested dicts
+    all_keys = set()
+    rows = []
+    for log in logs:
+        tags = log.data.get("tags", {})
+        flat = {"reac_count": log.reac_count}
+        def _flatten(prefix, data):
+            if isinstance(data, dict):
+                for k, v in sorted(data.items()):
+                    _flatten(f"{prefix}.{k}" if prefix else k, v)
+            else:
+                flat[prefix] = data
+                all_keys.add(prefix)
+        for section_name in sorted(tags):
+            _flatten(section_name, tags[section_name])
+        rows.append(flat)
+
+    columns = ["reac_count"] + sorted(all_keys)
+
+    if as_csv:
+        out = io.StringIO()
+        writer = csv.DictWriter(out, fieldnames=columns, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(rows)
+        print(out.getvalue(), end="")
+    else:
+        # Simple table output
+        col_widths = {c: len(c) for c in columns}
+        for row in rows:
+            for c in columns:
+                col_widths[c] = max(col_widths[c], len(str(row.get(c, ""))))
+
+        header = " | ".join(c.rjust(col_widths[c]) for c in columns)
+        print(header)
+        print("-" * len(header))
+        for row in rows:
+            line = " | ".join(str(row.get(c, "")).rjust(col_widths[c]) for c in columns)
+            print(line)
+
+
+@app.command()
+def create(
+    initial_state_id: int,
+    name: str = typer.Option("", help="Experiment name"),
+    description: str = typer.Option("", help="Experiment description"),
+):
+    """Create a new experiment from an initial state"""
+    initial_state = InitialState.objects.get(id=initial_state_id)
+    if not name:
+        name = initial_state.name
+
+    experiment = Experiment(
+        name=name,
+        description=description,
+        initial_state={"mols": initial_state.mols, "env": initial_state.env},
+    )
+    experiment.save()
+    print(f"Created experiment: {format_experiment(experiment)}")
+
+
+@app.command()
+def compare(experiment_id_1: int, experiment_id_2: int):
+    """Compare two experiments side by side"""
+    exp1 = Experiment.objects.get(id=experiment_id_1)
+    exp2 = Experiment.objects.get(id=experiment_id_2)
+
+    def exp_summary(exp):
+        init = exp.initial_state
+        mol_count = len(init.get("mols", []))
+        total_qtt = sum(m.get("qtt", 1) for m in init.get("mols", []))
+        snap_count = exp.snapshots.count()
+        last = exp.last_snapshot
+        last_reacs = last.nb_reactions if last else 0
+        log_count = Log.objects.filter(experiment=exp).count()
+        return {
+            "Name": exp.name,
+            "Description": exp.description or "-",
+            "Molecule types": str(mol_count),
+            "Total molecules": str(total_qtt),
+            "Env": json.dumps(init.get("env", {})),
+            "Snapshots": str(snap_count),
+            "Last reaction": str(last_reacs),
+            "Log entries": str(log_count),
+        }
+
+    s1 = exp_summary(exp1)
+    s2 = exp_summary(exp2)
+
+    label_w = max(len(k) for k in s1)
+    col1_w = max(len(v) for v in s1.values())
+    col2_w = max(len(v) for v in s2.values())
+
+    header = f"{'':>{label_w}} | {f'[{exp1.pk}]':>{col1_w}} | {f'[{exp2.pk}]':>{col2_w}}"
+    print(header)
+    print("-" * len(header))
+    for key in s1:
+        print(f"{key:>{label_w}} | {s1[key]:>{col1_w}} | {s2[key]:>{col2_w}}")

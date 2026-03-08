@@ -17,12 +17,11 @@ class Experiment(TSModel):
 
     @property
     def snapshots(self):
-        return BactSnapshot.objects.filter(experiment=self).values("id", "nb_reactions")
-        # return BactSnapshot.objects.filter(experiment=self).values_list("nb_reactions", flat=True)
+        return BactSnapshot.objects.filter(experiment=self)
 
     @property
     def last_snapshot(self):
-        return self.snapshots.last()
+        return self.snapshots.order_by("nb_reactions").last()
 
     def __repr__(self):
         return f"EXP: {self.name}[{self.id}]"
