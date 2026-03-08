@@ -47,6 +47,31 @@ class BactSnapshot(TSModel):
             self.nb_reactions = self.data["reac_counter"]
         super().save()
 
+    def all_molecules(self):
+        """Return unified list of all molecules with counts.
+
+        Engine stores active molecules (with Petri nets) in areactants
+        as [mol, pnets_list] pairs, and inert molecules in ireactants
+        as {mol, qtt, ambient} dicts. This method merges both into a
+        single list of {mol, qtt, ambient, active} dicts.
+        """
+        result = []
+        for m in self.data.get("ireactants", []):
+            result.append({
+                "mol": m["mol"],
+                "qtt": m["qtt"],
+                "ambient": m.get("ambient", False),
+                "active": False,
+            })
+        for mol, pnets in self.data.get("areactants", []):
+            result.append({
+                "mol": mol,
+                "qtt": len(pnets),
+                "ambient": False,
+                "active": True,
+            })
+        return result
+
 class InitialState(TSModel):
     name = models.CharField(max_length=100, blank=True)
     description = models.TextField(blank=True)
