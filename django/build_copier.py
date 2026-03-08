@@ -3,22 +3,26 @@
 
 Full system: 4 molecule types that collectively self-replicate.
 
-1. T-copier (no prefix, safe): grabs D-prefixed templates, copies exactly → new templates
-2. R-copier (no prefix, safe): grabs D-prefixed templates, skips D, copies rest → new copiers
-3. Template_T = D + T-copier_mol (active T-copier with D prefix): also copies templates
-4. Template_R = D + R-copier_mol (active R-copier with D prefix): also produces copiers
+1. T-copier (no prefix): grabs DAEEE-prefixed templates, copies exactly → new inert templates
+2. R-copier (no prefix): grabs DAEEE-prefixed templates, skips DAEEE prefix, copies rest → new copiers
+3. Template_T = DAEEE + T-copier_mol (INERT: EEE = stop_interpretation)
+4. Template_R = DAEEE + R-copier_mol (INERT)
 
-Safe copiers (no D prefix) are NOT matched by grab pattern ^(D).*?$, preventing
-destructive mutual grabbing. Templates (D prefix) are grabbable but expendable.
+Templates are inert (no Petri net) so they don't compete for reactions.
+Copiers (no D prefix) are invisible to grab pattern ^(D)A.*?$, preventing mutual grabbing.
+Grab pattern requires "DA" start, excluding bare ambient "D" molecules.
 
-R-copier uses a skip mechanism: T_SKIPD fires when accumulator P8 is empty (before T_RESET),
-advancing past the D prefix. A trigger token then enables T_RESET to fill the accumulator.
-During the copy phase (P8 has token), T_SKIPD can't fire (No_token_iarc guard on P8).
+R-copier skips DAEEE (5 chars) using a trigger chain: T_SKIP1→T_SKIP5 fire
+sequentially before T_RESET fills the accumulator. Each T_SKIP advances the
+read cursor past one prefix character. The No_token guard on P8 prevents
+T_SKIP1 from firing during the copy phase.
 """
 
 import subprocess
 import json
 import sys
+
+TEMPLATE_PREFIX = "DAEEE"
 
 # Acid encoding functions (from molecule.ml)
 def place(): return "AAA"
@@ -36,7 +40,7 @@ def ext_init_token(): return "ABC"
 
 
 def build_t_copier():
-    """Build T-copier: copies templates exactly (no skip, no prefix).
+    """Build T-copier: copies templates exactly (including DAEEE prefix).
 
     Transitions: T_LOAD, T_COPYA-F/E, T_DONE, T_RESET
     Places: P0(grab), P1(read), P2-P7(acid grabs A/B/C/D/F/E),
@@ -57,7 +61,7 @@ def build_t_copier():
 
     # P0: Template grab
     parts.append(place())
-    parts.append(ext_grab("FDFFF"))       # ^(D).*?$
+    parts.append(ext_grab("FDFAFF"))      # ^(D)A.*?$ — requires DA prefix
     parts.append(ia_reg(T_LOAD))
 
     # P1: Read head
@@ -105,14 +109,18 @@ def build_t_copier():
 
 
 def build_r_copier():
-    """Build R-copier: copies templates with D prefix skipped (ribosome mode).
+    """Build R-copier: copies templates with DAEEE prefix skipped.
 
-    Extra vs T-copier: T_SKIPD transition + P12 trigger place.
-    T_SKIPD fires when P8 (accumulator) is empty, skipping the D prefix.
-    T_RESET requires P12 trigger token (produced by T_SKIPD).
+    Skips 5-char prefix using a trigger chain (T_SKIP1→T_SKIP5).
+    T_SKIP1 has No_token guard on P8 (skip phase only) and borrows
+    a token from P11 (split) to provide both move_fw on P1 and
+    trigger on P12.
+    T_SKIP2-5 are sequenced by trigger places P12-P15 (trigger token
+    provides the second output token).
+    T_RESET requires final trigger from P16 before filling accumulator.
 
-    Transitions: T_LOAD, T_SKIPD, T_COPYA-F/E, T_DONE, T_RESET
-    Places: P0-P11 (same as T-copier) + P12(trigger)
+    Transitions: T_LOAD, T_SKIP1-5, T_COPYA-F/E, T_DONE, T_RESET (14 total)
+    Places: P0-P11 (same as T-copier) + P12-P16 (trigger chain) (17 total)
     """
     T_LOAD  = "A"
     T_COPYA = "B"
@@ -123,23 +131,37 @@ def build_r_copier():
     T_COPYE = "AF"
     T_DONE  = "AC"
     T_RESET = "AD"
-    T_SKIPD = "AE"   # New: skip D prefix
+    # Skip transitions for DAEEE prefix (5 characters)
+    T_SKIP1 = "AE"   # Skip "D" (position 0)
+    T_SKIP2 = "BA"   # Skip "A" (position 1)
+    T_SKIP3 = "BB"   # Skip "E" (position 2)
+    T_SKIP4 = "BC"   # Skip "E" (position 3)
+    T_SKIP5 = "BD"   # Skip "E" (position 4)
 
     parts = []
 
     # P0: Template grab
     parts.append(place())
-    parts.append(ext_grab("FDFFF"))       # ^(D).*?$
+    parts.append(ext_grab("FDFAFF"))      # ^(D)A.*?$ — requires DA prefix
     parts.append(ia_reg(T_LOAD))
 
-    # P1: Read head — includes T_SKIPD filter D arc
+    # P1: Read head — includes skip filter arcs
     parts.append(place())
     for acid, tid in [("A", T_COPYA), ("B", T_COPYB), ("C", T_COPYC),
                       ("D", T_COPYD), ("F", T_COPYF), ("E", T_COPYE)]:
         parts.append(ia_filter(acid, tid))
         parts.append(oa_move_fw(tid))
-    parts.append(ia_filter("D", T_SKIPD))    # Skip D: filter D
-    parts.append(oa_move_fw(T_SKIPD))        # Skip D: advance cursor
+    # Skip arcs: each filters a specific acid and advances cursor
+    parts.append(ia_filter("D", T_SKIP1))     # Position 0: "D"
+    parts.append(oa_move_fw(T_SKIP1))
+    parts.append(ia_filter("A", T_SKIP2))     # Position 1: "A"
+    parts.append(oa_move_fw(T_SKIP2))
+    parts.append(ia_filter("E", T_SKIP3))     # Position 2: "E"
+    parts.append(oa_move_fw(T_SKIP3))
+    parts.append(ia_filter("E", T_SKIP4))     # Position 3: "E"
+    parts.append(oa_move_fw(T_SKIP4))
+    parts.append(ia_filter("E", T_SKIP5))     # Position 4: "E"
+    parts.append(oa_move_fw(T_SKIP5))
     parts.append(ia_filter_empty(T_DONE))
     parts.append(oa_reg(T_LOAD))
 
@@ -151,9 +173,9 @@ def build_r_copier():
         parts.append(ext_grab(pattern))
         parts.append(ia_reg(tid))
 
-    # P8: Accumulator — includes No_token guard for T_SKIPD
+    # P8: Accumulator — No_token guard for T_SKIP1 only
     parts.append(place())
-    parts.append(ia_no_token(T_SKIPD))       # T_SKIPD guard: only when P8 empty
+    parts.append(ia_no_token(T_SKIP1))       # T_SKIP1 guard: only when P8 empty
     for tid in [T_COPYA, T_COPYB, T_COPYC, T_COPYD, T_COPYF, T_COPYE]:
         parts.append(ia_reg(tid))
         parts.append(oa_merge(tid))
@@ -170,16 +192,41 @@ def build_r_copier():
     parts.append(ext_release())
     parts.append(oa_reg(T_DONE))
 
-    # P11: Token factory — T_RESET now requires trigger from P12
+    # P11: Token factory — provides extra token for T_SKIP1 and T_RESET
     parts.append(place())
     parts.append(ext_init_token())
+    parts.append(ia_split(T_SKIP1))        # T_SKIP1 borrows a token for trigger chain
+    parts.append(oa_reg(T_SKIP1))          # T_SKIP1 returns one token back
     parts.append(ia_split(T_RESET))
     parts.append(oa_reg(T_RESET))
 
-    # P12: Trigger place (empty initially, filled by T_SKIPD, consumed by T_RESET)
+    # P12-P16: Trigger chain for 5-char prefix skip
+    # T_SKIP1 → P12 → T_SKIP2 → P13 → T_SKIP3 → P14 → T_SKIP4 → P15 → T_SKIP5 → P16 → T_RESET
+
+    # P12: trigger1 (filled by T_SKIP1, consumed by T_SKIP2)
     parts.append(place())
-    parts.append(oa_reg(T_SKIPD))            # T_SKIPD output: produce trigger
-    parts.append(ia_reg(T_RESET))            # T_RESET input: consume trigger
+    parts.append(oa_reg(T_SKIP1))
+    parts.append(ia_reg(T_SKIP2))
+
+    # P13: trigger2 (filled by T_SKIP2, consumed by T_SKIP3)
+    parts.append(place())
+    parts.append(oa_reg(T_SKIP2))
+    parts.append(ia_reg(T_SKIP3))
+
+    # P14: trigger3 (filled by T_SKIP3, consumed by T_SKIP4)
+    parts.append(place())
+    parts.append(oa_reg(T_SKIP3))
+    parts.append(ia_reg(T_SKIP4))
+
+    # P15: trigger4 (filled by T_SKIP4, consumed by T_SKIP5)
+    parts.append(place())
+    parts.append(oa_reg(T_SKIP4))
+    parts.append(ia_reg(T_SKIP5))
+
+    # P16: trigger5 (filled by T_SKIP5, consumed by T_RESET)
+    parts.append(place())
+    parts.append(oa_reg(T_SKIP5))
+    parts.append(ia_reg(T_RESET))
 
     return "".join(parts)
 
@@ -187,8 +234,8 @@ def build_r_copier():
 def build_initial_state(t_copier_mol, r_copier_mol,
                         copier_qtt=5, template_qtt=10, acid_qtt=200, d_qtt=50, e_qtt=200):
     """Build initial state with all 4 molecule types."""
-    template_t = "D" + t_copier_mol
-    template_r = "D" + r_copier_mol
+    template_t = TEMPLATE_PREFIX + t_copier_mol
+    template_r = TEMPLATE_PREFIX + r_copier_mol
 
     return {
         "mols": [
@@ -238,8 +285,8 @@ def verify_molecule(mol, label="Molecule"):
 if __name__ == "__main__":
     t_copier = build_t_copier()
     r_copier = build_r_copier()
-    template_t = "D" + t_copier
-    template_r = "D" + r_copier
+    template_t = TEMPLATE_PREFIX + t_copier
+    template_r = TEMPLATE_PREFIX + r_copier
 
     print("Molecules:")
     verify_molecule(t_copier, "T-copier")
