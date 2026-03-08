@@ -112,6 +112,7 @@ let build_transitions (prot : t) : transition_structure list =
     | OutputArc (s, d) :: prot', _ ->
         aux prot' nodeN (insert_new_output nodeN s d transL)
     | Extension _ :: prot', _ -> aux prot' nodeN transL
+    | Stop_interpretation :: _, _ -> transL
     | [], _ -> transL
   in
 
@@ -131,6 +132,7 @@ let build_nodes_list_with_exts (prot : t) : extension list list =
         match res with
         | [] -> aux prot' res
         | ext_l :: res' -> aux prot' ((e :: ext_l) :: res'))
+    | Stop_interpretation :: _ -> res
     | _ :: prot' -> aux prot' res
     | [] -> res
   in
@@ -167,9 +169,11 @@ let rec build_data (prot : t)
             places
       | Extension e :: prot' ->
           build_data prot' trans ((n, e :: exts) :: places')
+      | Stop_interpretation :: _ -> (trans, places)
       | [] -> (trans, places))
   | [] -> (
       match prot with
       | Place :: prot' -> build_data prot' trans ((0, []) :: [])
+      | Stop_interpretation :: _ -> (trans, places)
       | _ :: prot' -> build_data prot' trans places
       | [] -> (trans, places))

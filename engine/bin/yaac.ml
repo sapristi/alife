@@ -176,6 +176,10 @@ module AcidExamplesCmd = struct
       Extension Init_with_token_ext;
       Extension (Grab_ext "AAFBFAAFF");
     ];
+    "control",
+    [
+      Stop_interpretation;
+    ];
   ]
 
   let examples_with_mols =

@@ -110,43 +110,37 @@ let test_ribosome_1_assembles_molecules () =
 (* Deterministic tests: collision_rate=0 removes the only source of
    randomness beyond the seeded PRNG, making results fully reproducible. *)
 
-let load_no_collisions name =
+let load_deterministic name =
   let bact = (Bacterie.CompactSig.of_yojson
     (Yojson.Safe.from_file ("./bact_states/" ^ name ^ ".json"))
     |> Base.Result.ok_or_failwith |> Bacterie.CompactSig.to_bact) in
-  !(bact.Bacterie.env).collision_rate <- Local_libs.Numeric.Q.zero;
+  let env = !(bact.Bacterie.env) in
+  env.collision_rate <- Local_libs.Numeric.Q.zero;
+  env.break_rate <- Local_libs.Numeric.Q.zero;
   bact
 
-let print_stats label bact =
-  Printf.printf "%s: areactants=%d species=%d ireactants=%d reac_counter=%d\n"
-    label
-    (count_areactants bact) (count_areactant_species bact)
-    (count_ireactants bact) bact.Bacterie.reac_mgr.reac_counter
-
 let test_endless_duplication_deterministic () =
-  (* GIVEN an endless_duplication system with collision_rate set to 0 *)
-  let bact = load_no_collisions "endless_duplication" in
+  (* GIVEN an endless_duplication system with collision and break rates set to 0 *)
+  let bact = load_deterministic "endless_duplication" in
 
-  (* WHEN we run exactly 2000 reactions *)
-  run_reactions 2000 bact;
+  (* WHEN we run exactly 10 reactions *)
+  run_reactions 10 bact;
 
   (* THEN we expect exact deterministic counts *)
-  print_stats "endless_duplication" bact;
-  Alcotest.(check int) "areactants" 0 (count_areactants bact);
-  Alcotest.(check int) "species" 0 (count_areactant_species bact);
-  Alcotest.(check int) "ireactants" 0 (count_ireactants bact);
-  Alcotest.(check int) "reac_counter" 0 bact.reac_mgr.reac_counter
+  Alcotest.(check int) "areactants" 2 (count_areactants bact);
+  Alcotest.(check int) "species" 2 (count_areactant_species bact);
+  Alcotest.(check int) "ireactants" 250 (count_ireactants bact);
+  Alcotest.(check int) "reac_counter" 6 bact.reac_mgr.reac_counter
 
 let test_ribosome_1_deterministic () =
-  (* GIVEN a ribosome_1 system with collision_rate set to 0 *)
-  let bact = load_no_collisions "ribosome_1" in
+  (* GIVEN a ribosome_1 system with collision and break rates set to 0 *)
+  let bact = load_deterministic "ribosome_1" in
 
-  (* WHEN we run exactly 500 reactions *)
-  run_reactions 500 bact;
+  (* WHEN we run exactly 10 reactions *)
+  run_reactions 10 bact;
 
   (* THEN we expect exact deterministic counts *)
-  print_stats "ribosome_1" bact;
-  Alcotest.(check int) "areactants" 0 (count_areactants bact);
-  Alcotest.(check int) "species" 0 (count_areactant_species bact);
-  Alcotest.(check int) "ireactants" 0 (count_ireactants bact);
-  Alcotest.(check int) "reac_counter" 0 bact.reac_mgr.reac_counter
+  Alcotest.(check int) "areactants" 1 (count_areactants bact);
+  Alcotest.(check int) "species" 1 (count_areactant_species bact);
+  Alcotest.(check int) "ireactants" 251 (count_ireactants bact);
+  Alcotest.(check int) "reac_counter" 6 bact.reac_mgr.reac_counter

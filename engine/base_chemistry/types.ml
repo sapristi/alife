@@ -33,6 +33,8 @@ module Acid = struct
     | InputArc of string * input_arc
     | OutputArc of string * output_arc
     | Extension of extension
+    | Stop_interpretation
+    (** Disables interpretation of all following atoms *)
   [@@deriving show, yojson, eq]
 
 end

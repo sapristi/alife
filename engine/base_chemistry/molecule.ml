@@ -39,6 +39,7 @@ and ext_tinit_id = "ABC"
 and ext_bind_id = "ACC"
 (*TODO: change to DDB ? otherwise it's the only place where F is used *)
 
+and stop_interp_id = "EEE"
 and msg_end_id = "DDF"
 
 (** limit size of groups *)
@@ -59,6 +60,7 @@ and ext_grab_re = ext_grab_id ^ id_group_re ^ msg_end_id
 and ext_rel_re = ext_rel_id
 and ext_tinit_re = ext_tinit_id
 and ext_bind_re = ext_bind_id ^ id_group_re ^ msg_end_id
+and stop_interp_re = stop_interp_id
 
 let parsers : (string * (Re.Group.t -> Types.Acid.acid * string)) list =
   [
@@ -116,6 +118,10 @@ let parsers : (string * (Re.Group.t -> Types.Acid.acid * string)) list =
       fun groups ->
         let s' = Re.Group.get groups 1 in
         (Extension Init_with_token_ext, s') );
+    ( stop_interp_re,
+      fun groups ->
+        let s' = Re.Group.get groups 1 in
+        (Stop_interpretation, s') );
   ]
 
 let compiled_parsers =
@@ -150,6 +156,7 @@ let rec mol_parser_aux res (mol : string) : Proteine.t =
   else
     match apply_parsers compiled_parsers mol with
     | None, mol' -> mol_parser_aux res mol'
+    | Some Stop_interpretation, _ -> List.rev res
     | Some acid, mol' -> mol_parser_aux (acid :: res) mol'
 
 let mol_parser = mol_parser_aux []
@@ -174,8 +181,14 @@ let rec mol_parser_full_aux (res: prot_full list) (current_str: string) (mol: st
     | None, mol' ->
       let first_char = String.sub mol 0 1 in
       mol_parser_full_aux res (current_str ^ first_char) mol'
+    | Some Stop_interpretation, mol' ->
+      let trailing = current_str ^ mol in
+      let res' =
+        if trailing != "" then (S trailing) :: res else res
+      in
+      List.rev res'
     | Some acid, mol' ->
-      let acid_str = String.sub mol 0 (String.length mol - String.length mol') in 
+      let acid_str = String.sub mol 0 (String.length mol - String.length mol') in
       let res' =
         if current_str != ""
         then (A (acid_str, acid))::(S current_str)::res
@@ -206,6 +219,7 @@ let of_acid (a : Types.Acid.acid) : string =
   | Extension Release_ext -> ext_rel_id
   | Extension Init_with_token_ext -> ext_tinit_id
   | Extension (Grab_ext g) -> ext_grab_id ^ g ^ msg_end_id
+  | Stop_interpretation -> stop_interp_id
 
 let rec of_proteine (p : Proteine.t) : string =
   match p with a :: p' -> of_acid a ^ of_proteine p' | [] -> ""
