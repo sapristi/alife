@@ -29,6 +29,7 @@ and ia_split_id = "BBA"
 and ia_filter_id = "BC"
 and ia_filter_empty_id = "BAB"
 and ia_no_token_id = "BAC"
+and ia_copy_id = "BAD"
 and oa_reg_id = "CAA"
 and oa_merge_id = "CBA"
 and oa_move_fw_id = "CCA"
@@ -52,6 +53,7 @@ and ia_split_re = ia_split_id ^ id_group_re ^ msg_end_id
 and ia_filter_re = ia_filter_id ^ "(" ^ atoms ^ ")" ^ id_group_re ^ msg_end_id
 and ia_filter_empty_re = ia_filter_empty_id ^ id_group_re ^ msg_end_id
 and ia_no_token_re = ia_no_token_id ^ id_group_re ^ msg_end_id
+and ia_copy_re = ia_copy_id ^ id_group_re ^ msg_end_id
 and oa_reg_re = oa_reg_id ^ id_group_re ^ msg_end_id
 and oa_merge_re = oa_merge_id ^ id_group_re ^ msg_end_id
 and oa_move_fw_re = oa_move_fw_id ^ id_group_re ^ msg_end_id
@@ -90,6 +92,10 @@ let parsers : (string * (Re.Group.t -> Types.Acid.acid * string)) list =
       fun groups ->
         let tid = Re.Group.get groups 1 and s' = Re.Group.get groups 2 in
         (InputArc (tid, No_token_iarc), s') );
+    ( ia_copy_re,
+      fun groups ->
+        let tid = Re.Group.get groups 1 and s' = Re.Group.get groups 2 in
+        (InputArc (tid, Copy_iarc), s') );
     ( oa_reg_re,
       fun groups ->
         let tid = Re.Group.get groups 1 and s' = Re.Group.get groups 2 in
@@ -212,6 +218,7 @@ let of_acid (a : Types.Acid.acid) : string =
   | InputArc (s, Filter_iarc f) -> ia_filter_id ^ f ^ s ^ msg_end_id
   | InputArc (s, Filter_empty_iarc) -> ia_filter_empty_id ^ s ^ msg_end_id
   | InputArc (s, No_token_iarc) -> ia_no_token_id ^ s ^ msg_end_id
+  | InputArc (s, Copy_iarc) -> ia_copy_id ^ s ^ msg_end_id
   | OutputArc (s, Regular_oarc) -> oa_reg_id ^ s ^ msg_end_id
   | OutputArc (s, Merge_oarc) -> oa_merge_id ^ s ^ msg_end_id
   | OutputArc (s, Move_oarc true) -> oa_move_fw_id ^ s ^ msg_end_id

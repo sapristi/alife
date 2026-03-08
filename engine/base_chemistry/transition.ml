@@ -48,6 +48,10 @@ let launchable (transition : t) places =
           | Some token -> Token.get_label token = "")
       | Types.Acid.No_token_iarc -> (
           match place.Place.token with None -> true | Some _ -> false)
+      | Types.Acid.Copy_iarc -> (
+          match place.Place.token with
+          | None -> false
+          | Some token -> Token.get_label token <> "")
       | _ -> not (Place.is_empty place)
     and launchable_output_arc (output_arc : Types.Acid.output_arc)
         (place : Place.t) =
@@ -109,6 +113,10 @@ let apply_transition (transition : t) places : Place.transition_effect list =
         | Types.Acid.Split_iarc ->
             let token1, token2 = Token.cut_mol token in
             token1 :: token2 :: apply_input_arcs i_arc_l'
+        | Types.Acid.Copy_iarc ->
+            let acid_char = Token.get_label token in
+            let acid_token = Token.make acid_char 1 in
+            token :: acid_token :: apply_input_arcs i_arc_l'
         | _ -> token :: apply_input_arcs i_arc_l')
     | [] -> []
   and apply_output_arcs (o_arc_l : (Place.t * Types.Acid.output_arc) list)

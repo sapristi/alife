@@ -10,6 +10,9 @@ module Acid = struct
     (** Only lets through if mol in token is empty *)
     | No_token_iarc
     (** Only lets through if no token *)
+    | Copy_iarc
+    (** Reads acid at cursor, produces [original; acid_token].
+        Only fireable when cursor is not past end. *)
   [@@deriving show, yojson, eq]
 
 

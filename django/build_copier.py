@@ -35,8 +35,102 @@ def oa_reg(tid): return f"CAA{tid}DDF"
 def oa_merge(tid): return f"CBA{tid}DDF"
 def oa_move_fw(tid): return f"CCA{tid}DDF"
 def ext_grab(pattern): return f"ABA{pattern}DDF"
+def ia_copy(tid): return f"BAD{tid}DDF"
 def ext_release(): return "ABB"
 def ext_init_token(): return "ABC"
+
+
+def build_simple_copier(grab_pattern="FDFAFF"):
+    """Build simplified copier using Copy_iarc extension.
+
+    Uses the new Copy_iarc input arc that reads one acid at the cursor,
+    produces a single-acid token, and lets the transition merge it into
+    the accumulator. Replaces 6 per-acid transitions + 6 grab places
+    with a single T_COPY transition.
+
+    Transitions: T_LOAD, T_COPY, T_DONE, T_RESET (4 total)
+    Places: P0(token factory), P1(grab), P2(read head),
+            P3(accumulator), P4(copy release), P5(template release) (6 total)
+
+    Token factory is placed FIRST so breaks at the end (losing release
+    places) still preserve the copy core.
+    """
+    T_LOAD  = "A"
+    T_COPY  = "B"
+    T_DONE  = "C"
+    T_RESET = "D"
+
+    parts = []
+
+    # P0: Token factory (first, so it survives most breaks)
+    parts.append(place())
+    parts.append(ext_init_token())
+    parts.append(ia_split(T_RESET))
+    parts.append(oa_reg(T_RESET))
+
+    # P1: Template grab
+    parts.append(place())
+    parts.append(ext_grab(grab_pattern))      # default: ^(D)A.*?$
+    parts.append(ia_reg(T_LOAD))
+
+    # P2: Accumulator — BEFORE read head so arc ordering produces correct
+    #     token list: [original, acid_token, accumulator] for merge
+    #     (proteine builder prepends arcs, reversing molecule order)
+    parts.append(place())
+    parts.append(ia_no_token(T_RESET))        # T_RESET only when accumulator empty
+    parts.append(ia_reg(T_COPY))              # consumed by T_COPY for merge
+    parts.append(oa_merge(T_COPY))            # merge acid into accumulator
+    parts.append(ia_reg(T_DONE))              # consumed by T_DONE for release
+    parts.append(oa_reg(T_RESET))             # receives empty token from T_RESET
+
+    # P3: Read head — uses Copy_iarc for universal acid copying
+    parts.append(place())
+    parts.append(ia_copy(T_COPY))             # reads acid, produces [original, acid_token]
+    parts.append(ia_filter_empty(T_DONE))     # fires T_DONE when cursor past end
+    parts.append(oa_move_fw(T_COPY))          # advances cursor after copy
+    parts.append(oa_reg(T_LOAD))              # receives token from T_LOAD
+
+    # P4: Copy release
+    parts.append(place())
+    parts.append(ext_release())
+    parts.append(oa_reg(T_DONE))
+
+    # P5: Template release
+    parts.append(place())
+    parts.append(ext_release())
+    parts.append(oa_reg(T_DONE))
+
+    return "".join(parts)
+
+
+def build_simple_initial_state(copier_mol, grab_pattern="FDFAFF",
+                               copier_qtt=10, template_qtt=20,
+                               acid_qtt=200, d_qtt=50, e_qtt=200):
+    """Build initial state for simplified copier system.
+
+    Only T-copier (exact copy). Templates are DAEEE + copier.
+    The copier copies templates exactly, producing new templates.
+    """
+    template = TEMPLATE_PREFIX + copier_mol
+
+    return {
+        "mols": [
+            {"mol": copier_mol, "qtt": copier_qtt},
+            {"mol": template, "qtt": template_qtt},
+            {"mol": "A", "qtt": acid_qtt, "ambient": True},
+            {"mol": "B", "qtt": acid_qtt, "ambient": True},
+            {"mol": "C", "qtt": acid_qtt, "ambient": True},
+            {"mol": "D", "qtt": d_qtt, "ambient": True},
+            {"mol": "E", "qtt": e_qtt, "ambient": True},
+            {"mol": "F", "qtt": acid_qtt, "ambient": True},
+        ],
+        "env": {
+            "transition_rate": 100,
+            "grab_rate": 1,
+            "break_rate": 0,
+            "collision_rate": 0,
+        }
+    }
 
 
 def build_t_copier():
@@ -283,19 +377,38 @@ def verify_molecule(mol, label="Molecule"):
 
 
 if __name__ == "__main__":
-    t_copier = build_t_copier()
-    r_copier = build_r_copier()
-    template_t = TEMPLATE_PREFIX + t_copier
-    template_r = TEMPLATE_PREFIX + r_copier
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--simple", action="store_true", help="Build simplified copier using Copy_iarc")
+    args = parser.parse_args()
 
-    print("Molecules:")
-    verify_molecule(t_copier, "T-copier")
-    verify_molecule(r_copier, "R-copier")
-    verify_molecule(template_t, "Template_T")
-    verify_molecule(template_r, "Template_R")
-    print()
+    if args.simple:
+        copier = build_simple_copier()
+        template = TEMPLATE_PREFIX + copier
 
-    state = build_initial_state(t_copier, r_copier)
-    print(f"Initial state: {len(state['mols'])} mol types, "
-          f"{sum(m['qtt'] for m in state['mols'])} total")
-    print(json.dumps(state, indent=2))
+        print("Simplified copier (Copy_iarc):")
+        verify_molecule(copier, "Copier")
+        verify_molecule(template, "Template")
+        print()
+
+        state = build_simple_initial_state(copier)
+        print(f"Initial state: {len(state['mols'])} mol types, "
+              f"{sum(m['qtt'] for m in state['mols'])} total")
+        print(json.dumps(state, indent=2))
+    else:
+        t_copier = build_t_copier()
+        r_copier = build_r_copier()
+        template_t = TEMPLATE_PREFIX + t_copier
+        template_r = TEMPLATE_PREFIX + r_copier
+
+        print("Molecules:")
+        verify_molecule(t_copier, "T-copier")
+        verify_molecule(r_copier, "R-copier")
+        verify_molecule(template_t, "Template_T")
+        verify_molecule(template_r, "Template_R")
+        print()
+
+        state = build_initial_state(t_copier, r_copier)
+        print(f"Initial state: {len(state['mols'])} mol types, "
+              f"{sum(m['qtt'] for m in state['mols'])} total")
+        print(json.dumps(state, indent=2))
