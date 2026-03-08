@@ -110,37 +110,94 @@ let test_ribosome_1_assembles_molecules () =
 (* Deterministic tests: collision_rate=0 removes the only source of
    randomness beyond the seeded PRNG, making results fully reproducible. *)
 
+let deterministic_seed : Local_libs.Random_s.t = {
+  seed = 42L;
+  gamma = 1L;
+}
+
 let load_deterministic name =
   let bact = (Bacterie.CompactSig.of_yojson
     (Yojson.Safe.from_file ("./bact_states/" ^ name ^ ".json"))
     |> Base.Result.ok_or_failwith |> Bacterie.CompactSig.to_bact) in
-  let env = !(bact.Bacterie.env) in
-  env.collision_rate <- Local_libs.Numeric.Q.zero;
-  env.break_rate <- Local_libs.Numeric.Q.zero;
+  bact.Bacterie.randstate := deterministic_seed;
+  !(bact.Bacterie.env).collision_rate <- Local_libs.Numeric.Q.zero;
   bact
 
 let test_endless_duplication_deterministic () =
-  (* GIVEN an endless_duplication system with collision and break rates set to 0 *)
+  (* GIVEN an endless_duplication system with collision_rate set to 0 and a fixed random seed *)
   let bact = load_deterministic "endless_duplication" in
 
-  (* WHEN we run exactly 10 reactions *)
-  run_reactions 10 bact;
+  (* WHEN we run exactly 100 reactions *)
+  run_reactions 100 bact;
 
-  (* THEN we expect exact deterministic counts *)
-  Alcotest.(check int) "areactants" 2 (count_areactants bact);
-  Alcotest.(check int) "species" 2 (count_areactant_species bact);
-  Alcotest.(check int) "ireactants" 250 (count_ireactants bact);
-  Alcotest.(check int) "reac_counter" 6 bact.reac_mgr.reac_counter
+  (* THEN we expect exact deterministic molecule counts *)
+  let sig_ = Bacterie.to_sig bact in
+  let expected : (string * int) list = [
+    ("A", 50); ("B", 50); ("C", 50); ("D", 50); ("F", 50);
+    ("AA", 1);
+    ("AAAAABFDDFAABCFDDFAAABFDDDAABCFDDDAAABFDDCAABCFDDCAAABFDDBAABCFDDBAAABFDDAAABCFDDAAAABAAA", 1);
+    ("AAABAAAADDFCBAAADDFBAAABDDFCBAABDDFBAAACDDFCBAACDDFBAAADDDFCBAADDDFBAAAFDDF", 1);
+    ("AAABCAAADDFCCAAADDFBCBABDDFCCAABDDFBCCACDDFCCAACDDFBCDADDDFCCAADDDFBCFAFDDFCCAAFDDFBABAAADDFCAABBBDDFAAACAAAA", 1);
+    ("AAFDDFFFABAFDDFAAABAAAFDD", 1);
+    ("ABAAADDDFA", 1);
+    ("ADDFABBAAACAAAAADDFABBAAABAABB", 1);
+    ("BAFDDAAAABAAAFDDBBBAACFDD", 1);
+    ("BAFDFDDFAAABAAAFDDFABAFFFDDF", 1);
+    ("BDDFABAFBFDDFAAABAAACDDFABAFCFDDF", 1);
+    ("BDDFCAACCCDDFAAABAABBBDDFABADFDFFFDDFAAABBACCCDDFCAACCCDDFABC", 1);
+    ("BFABAFDDBAAABAAA", 1);
+    ("BFDDCAACCFDDCACCBFDDBAACCFDDBABCBFDDAAACCFDDAAACBA", 1);
+    ("CBAAFDDFBAAAAADDFCAABBBDDFAAABAAAADDFABAFAFDD", 1);
+    ("CCABBAAAFD", 1);
+    ("DAACCFDDDADC", 1);
+    ("DDCBAFDDCCCAACFDDC", 1);
+    ("DF", 1);
+    ("DFFFDFDABAFDDBBBAABAAAFDDCCCAACFDDBBBAABAAABBAFDDAAAAACAAABBA", 1);
+    ("FA", 1);
+    ("FAAABAAA", 1);
+    ("FDDAAAAACAAAFDDBBBAACFDDAAABABFDDFAACCFDDFAFCBFDD", 1);
+    ("FDDFA", 1);
+    ("FDFABAFDDDAAABAAAFDDFCFABAFDDCAAABAAAFD", 1);
+  ] in
+  List.iter (fun (mol, expected_qtt) ->
+    let actual_qtt =
+      match List.find_opt (fun (m : Bacterie.CompactSig.mol_sig) -> m.mol = mol) sig_.mols with
+      | Some m -> m.qtt
+      | None -> 0
+    in
+    Alcotest.(check int) (Printf.sprintf "mol %s" (String.sub mol 0 (min 30 (String.length mol)))) expected_qtt actual_qtt
+  ) expected;
+  Alcotest.(check int) "total species" (List.length expected) (List.length sig_.mols)
 
 let test_ribosome_1_deterministic () =
-  (* GIVEN a ribosome_1 system with collision and break rates set to 0 *)
+  (* GIVEN a ribosome_1 system with collision_rate set to 0 and a fixed random seed *)
   let bact = load_deterministic "ribosome_1" in
 
-  (* WHEN we run exactly 10 reactions *)
-  run_reactions 10 bact;
+  (* WHEN we run exactly 100 reactions *)
+  run_reactions 100 bact;
 
-  (* THEN we expect exact deterministic counts *)
-  Alcotest.(check int) "areactants" 1 (count_areactants bact);
-  Alcotest.(check int) "species" 1 (count_areactant_species bact);
-  Alcotest.(check int) "ireactants" 251 (count_ireactants bact);
-  Alcotest.(check int) "reac_counter" 6 bact.reac_mgr.reac_counter
+  (* THEN we expect exact deterministic molecule counts *)
+  let sig_ = Bacterie.to_sig bact in
+  let expected : (string * int) list = [
+    ("A", 50); ("B", 50); ("C", 50); ("D", 50); ("F", 50);
+    ("AA", 1);
+    ("AAABAAAAD", 1);
+    ("AAACAAAAADDFABBAAACAAAAADDF", 1);
+    ("AABDDFABAFBFDDFAAABAAACDDFABAFCFDDFAAABAAADDDFABAFDFDDFAAABAAAFDDFABAFFFDDFAAABCAAADDFCCAAADDFBCBABDDFCCAABDDFBCCACDDFCCAACDDFBCDADDDFCCA", 1);
+    ("AB", 1);
+    ("ABAABBBDDFCAACCCDDFAAABAABBBDDFABADFDFFFDDFAAABBACCCDDFCAACCCDDFABC", 1);
+    ("ADDDFBCFAFDDFCCAAFDDFBABAAADDFCAABBBDDF", 1);
+    ("DDBBAFDDAABCAAA", 1);
+    ("DFCBAAADDFBAAABDDFCBAABDDFBAAACDDFCBAACDDFBAAADDDFCBAADDDFBAAAFD", 1);
+    ("DFCBAAFDDFBAAAAADDFCAABBBDDFAAABAAAADDFABAFAFDDFAAABA", 1);
+    ("FDDFBFABAFDDAAABAAAFDDAAABFDDFAFABAAAAA", 1);
+  ] in
+  List.iter (fun (mol, expected_qtt) ->
+    let actual_qtt =
+      match List.find_opt (fun (m : Bacterie.CompactSig.mol_sig) -> m.mol = mol) sig_.mols with
+      | Some m -> m.qtt
+      | None -> 0
+    in
+    Alcotest.(check int) (Printf.sprintf "mol %s" (String.sub mol 0 (min 30 (String.length mol)))) expected_qtt actual_qtt
+  ) expected;
+  Alcotest.(check int) "total species" (List.length expected) (List.length sig_.mols)
