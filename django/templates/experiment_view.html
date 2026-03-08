@@ -86,6 +86,21 @@
      data => {
        console.log("RECEIVED EXPERIMENT", data)
        experiment.value = data;
+       if (data.snapshots.length === 0) {
+         fetch(`http://${window.location.host}/experiment/${data.id}/initialize/`, {
+           method: 'POST',
+           headers: {
+             'Accept': 'application/json',
+             'Content-Type': 'application/json'
+           },
+         }).then(r => r.json()).then(snapData => {
+           console.log("INITIALIZED", snapData)
+           let {data: stateData, ...meta} = snapData
+           snapshot.value = stateData
+           snapshot_meta.value = meta
+           experiment.value = {...experiment.value, snapshots: [{id: snapData.id, nb_reactions: 0}]}
+         })
+       }
      }
    )
  })

@@ -65,7 +65,7 @@ class ExperimentSerializer(serializers.ModelSerializer):
     # snapshots = serializers.ListField(child = serializers.IntegerField())
     class Meta:
         model = models.Experiment
-        fields = ('id', 'name', 'description', "snapshots")
+        fields = ('id', 'name', 'description', 'initial_state', "snapshots")
 
 class ExperimentView(viewsets.ViewSet):
     """Experiment API"""
@@ -74,6 +74,18 @@ class ExperimentView(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         exp = models.Experiment.objects.get(pk=pk)
         serializer = ExperimentSerializer(exp)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=("POST",))
+    def initialize(self, request, pk=None):
+        """Create the first snapshot from the experiment's initial state."""
+        exp = models.Experiment.objects.get(pk=pk)
+        if models.BactSnapshot.objects.filter(experiment=exp).exists():
+            return JsonResponse({"error": "Experiment already has snapshots"}, status=400)
+        state = yaac.run("load-signature", signature=exp.initial_state)
+        snapshot = models.BactSnapshot(experiment=exp, data=state, nb_reactions=0)
+        snapshot.save()
+        serializer = SnapshotSerializer(snapshot)
         return Response(serializer.data)
 
     @action(detail=False, methods=("POST",))
