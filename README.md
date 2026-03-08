@@ -1,6 +1,8 @@
 # YAACS - Yet Another Artificial Chemistry Simulator
 
-An artificial chemistry simulator centered around Petri nets. Molecules encode proteins which fold into Petri nets that drive chemical reactions in a simulated environment.
+An artificial chemistry simulator designed to trigger an evolutionary process. Molecules are graph objects (proteins) that interact with each other through chemical reactions, producing new molecules. The seed for evolution is a self-replicating system, and random mutations introduced by certain reactions provide the variation necessary for natural selection.
+
+Technically, molecules encode proteins which fold into Petri nets that drive chemical reactions in a simulated environment.
 
 ## Architecture
 

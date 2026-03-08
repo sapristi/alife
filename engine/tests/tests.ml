@@ -64,5 +64,23 @@ let () =
           test_case "run many steps" `Quick (Test_run.test_run 100);
           test_case "run custom" `Quick Test_run.test_run_custom;
         ]
+      );
+      ( "Self-replication",
+        [
+          test_case "endless_duplication replicates" `Slow
+            Test_replication.test_endless_duplication_replicates;
+          test_case "endless_duplication robust" `Slow
+            Test_replication.test_endless_duplication_robust;
+          test_case "endless_duplication species diversity" `Slow
+            Test_replication.test_endless_duplication_species_diversity;
+          test_case "ribosome_1 runs reactions" `Slow
+            Test_replication.test_ribosome_1_runs_reactions;
+          test_case "ribosome_1 assembles molecules" `Slow
+            Test_replication.test_ribosome_1_assembles_molecules;
+          test_case "endless_duplication deterministic" `Slow
+            Test_replication.test_endless_duplication_deterministic;
+          test_case "ribosome_1 deterministic" `Slow
+            Test_replication.test_ribosome_1_deterministic;
+        ]
       )
     ]
