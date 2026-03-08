@@ -75,17 +75,22 @@ def run(
     current_nb_reacs = nb_reactions_start
     for _ in range(nb_steps):
         log_collector.last_dump = None
-        yaac.run(
+        raw_state = yaac.run(
             "eval",
             **kwargs,
             nb_steps=snapshot_period,
             initial_state=state,
             stats_period=stats_period,
+            dump_period=snapshot_period,
         )
-        if log_collector.last_dump is None:
-            print(f"No dump received, stopping early at {current_nb_reacs} reactions")
+        # Use raw final state (last line of eval output), fall back to dump message
+        if raw_state is not None:
+            state = raw_state
+        elif log_collector.last_dump is not None:
+            state = log_collector.last_dump
+        else:
+            print(f"No state received, stopping early at {current_nb_reacs} reactions")
             break
-        state = log_collector.last_dump
         new_reac_count = state.get("reac_counter", 0)
         if new_reac_count == current_nb_reacs:
             print(f"No reactions occurred, stopping early at {current_nb_reacs} reactions")
