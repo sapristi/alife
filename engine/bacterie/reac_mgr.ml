@@ -370,7 +370,7 @@ type t = {
 
 
 let get_available_reac_nb rmgr =
-  (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set, BSet.cardinal rmgr.b_set + PSet.cardinal rmgr.p_set)
+  (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set, BSet.cardinal rmgr.b_set, PSet.cardinal rmgr.p_set)
 
 let stats rmgr =
   let make_json_stats (nb_reactions, raw_rate) coef = `Assoc [
