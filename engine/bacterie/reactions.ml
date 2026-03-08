@@ -299,6 +299,40 @@ module ReactionsM (R : REACTANT) = struct
     let get_reactants b = b.reactant
   end
 
+  module Pressure : REAC with type build_t = R.t = struct
+    let name = "Pressure"
+    type t = { mutable rate : Q.t; [@compare fun a b -> 0] reactant : R.t }
+    [@@deriving show, ord, to_yojson, eq]
+
+    type build_t = R.t
+
+    let calculate_rate pa =
+      Q.of_int (R.qtt pa.reactant)
+
+    let rate (g : t) : Q.t =
+      let res = g.rate and calc = calculate_rate g in
+      if Q.equal res calc
+      then res
+      else (
+        logger.warning ~tags:["stored", to_yojson g; "computed", Q.to_yojson calc] "Rate error";
+        failwith "problem"
+      )
+
+    let update_rate pa =
+      let old_rate = pa.rate in
+      pa.rate <- calculate_rate pa;
+      Q.(pa.rate - old_rate)
+
+    let make reactant =
+      { reactant; rate = calculate_rate { reactant; rate = Q.zero } }
+
+    let eval _randstate pa =
+      [ Remove_one pa.reactant ]
+
+    let remove_reac_from_reactants reac g = ()
+    let get_reactants p = p.reactant
+  end
+
 
   module Collision : REAC with type build_t = R.t * R.t = struct
     let name = "Collision"

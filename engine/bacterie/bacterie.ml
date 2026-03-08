@@ -98,6 +98,9 @@ let add_active_molecule (mol: Molecule.t) (pnet: Petri_net.t) (bact: t): Reacs.a
   (* reaction : collisions *)
   Reac_mgr.add_collider (Amol ar) bact.reac_mgr;
 
+  (* reaction : pressure *)
+  Reac_mgr.add_pressure (Amol ar) bact.reac_mgr;
+
   (* we add the reactant after adding reactions
      because it must not react with itself *)
   ARMap.add ar bact.areactants
@@ -117,6 +120,10 @@ let add_inert_molecule ?(qtt = 1) ?(ambient = false) (mol: Molecule.t) (bact: t)
 
     (* reactions : collision *)
     Reac_mgr.add_collider (ImolSet new_ireac) bact.reac_mgr;
+
+    (* reaction : pressure (skip ambient) *)
+    if not ambient then
+      Reac_mgr.add_pressure (ImolSet new_ireac) bact.reac_mgr;
 
     (* add molecule *)
     IRMap.add new_ireac bact.ireactants;

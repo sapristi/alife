@@ -5,6 +5,7 @@ type t = {
   mutable grab_rate : Q.t;[@default Q.zero]
   mutable break_rate : Q.t;[@default Q.zero]
   mutable collision_rate : Q.t; [@default Q.zero]
+  mutable pressure_rate : Q.t; [@default Q.zero]
 }
 [@@deriving show, yojson, eq, make]
 
@@ -14,5 +15,6 @@ let (null_env : t) =
     grab_rate = Q.zero;
     break_rate = Q.zero;
     collision_rate = Q.zero;
+    pressure_rate = Q.zero;
   }
 
