@@ -1,6 +1,6 @@
 # Parameter Sweep Follow-up: Fine-tuning & Long Runs (50k)
 
-**Date:** 2026-03-08
+**Date:** 2026-03-08 02:38
 **Experiments:** #14, #16, #21, #22-#26 (8 experiments extended to 50k reactions)
 **Follow-up to:** [parameter-sweep.md](2026-03-08-parameter-sweep.md)
 **Parameters:** 50,000 reactions total, stats every 500 (first 10k) then every 2000

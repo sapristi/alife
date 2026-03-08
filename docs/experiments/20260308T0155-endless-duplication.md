@@ -1,6 +1,6 @@
 # Experiment: endless_duplication — 10,000 reactions
 
-**Date:** 2026-03-08
+**Date:** 2026-03-08 01:55
 **Experiment ID:** 3
 **Initial state:** `endless_duplication` (InitialState #8)
 **Parameters:** 10,000 reactions, stats every 50 (first 1000) then every 500, snapshots at 500/3000

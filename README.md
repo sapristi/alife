@@ -56,6 +56,11 @@ cytoscape/                 # Graph visualization
   webpack.config.mjs
   package.json             # webcola dependency, webpack build
 
+docs/                      # Documentation
+  experiments.md           # Experiment log (summaries and links to reports)
+  experiments/             # Detailed experiment reports
+  plans/                   # Implementation plans
+
 docker-compose.yaml        # Django + Grafana services
 grafana/                   # Grafana data (SQLite datasource on Django DB)
 ```
@@ -173,11 +178,13 @@ uv run ./cli.py experiment clear <id>                        # Remove all snapsh
 
 ### Experiment reports
 
-Save reports to `docs/experiments/YYYY-MM-DD-<topic>.md`. Include:
-- Header: date, experiment ID, initial state name, parameters
+Save reports to `docs/experiments/YYYYMMDDTHHmm-<topic>.md` (compact datetime to the minute). Include:
+- Header: full datetime (e.g. `2026-03-08 14:30`), experiment ID, initial state name, parameters
 - Summary table of key stats over time
 - Analysis of observed phases/trends
 - Footer: initial state JSON (in `<details>` block), date, and git commit hash
+
+After writing a report, add a summary entry to `docs/experiments.md` with the experiment IDs, names, key findings, and a link to the full report.
 
 ## Development workflow
 

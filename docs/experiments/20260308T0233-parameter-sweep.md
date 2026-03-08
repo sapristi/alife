@@ -1,6 +1,6 @@
 # Parameter Sweep: Rate Tuning & Ambient Surplus
 
-**Date:** 2026-03-08
+**Date:** 2026-03-08 02:33
 **Experiments:** #8-#21 (14 experiments)
 **Base molecules:** `endless_duplication` (ed, InitialState #8) and `ribosome_1` (ri, InitialState #9)
 **Parameters:** 10,000 reactions, stats every 500, snapshots every 5000

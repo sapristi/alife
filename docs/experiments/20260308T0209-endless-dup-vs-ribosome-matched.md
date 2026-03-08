@@ -1,6 +1,6 @@
 # Comparison: endless_duplication vs ribosome_1 — matched env parameters
 
-**Date:** 2026-03-08
+**Date:** 2026-03-08 02:09
 **Experiments:** [5] endless_dup_matched, [6] ribosome_1_matched
 **Initial states:** `endless_duplication` (#8) and `ribosome_1` (#9), both with identical env
 **Parameters:** 10,000 reactions, stats every 500, snapshots every 5000
