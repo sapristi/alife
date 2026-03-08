@@ -170,6 +170,8 @@ uv run ./cli.py experiment compare <id1> <id2>               # Side-by-side comp
 uv run ./cli.py experiment clear <id>                        # Remove all snapshots
 ```
 
+**Never run two concurrent continuations on the same experiment.** Each run resumes from the last snapshot and saves new snapshots at fixed intervals. Concurrent runs will start from the same snapshot and crash with a UNIQUE constraint error when both try to save at the same reaction count.
+
 ### Key stats columns
 
 - `ireactants.nb_species` / `ireactants.total_nb` — inactive molecule diversity and count
