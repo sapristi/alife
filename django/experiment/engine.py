@@ -1,6 +1,7 @@
 import os
 import subprocess as sp
 import json
+import tempfile
 from dataclasses import dataclass
 
 from experiment.models import Experiment, Log
@@ -106,33 +107,47 @@ class YaacWrapper:
                 self.log_handler.finalize()
                 return
 
-    def _kwarg_to_cmd_arg(self, key, value):
+    MAX_ARG_LEN = 100_000  # Use temp file for args larger than this
+
+    def _kwarg_to_cmd_arg(self, key, value, tmp_files):
         if isinstance(value, dict):
             value = json.dumps(value)
-        return f"--{key.replace('_', '-')}={value}"
+        str_value = str(value)
+        if len(str_value) > self.MAX_ARG_LEN:
+            f = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
+            f.write(str_value)
+            f.close()
+            tmp_files.append(f.name)
+            str_value = f"@{f.name}"
+        return f"--{key.replace('_', '-')}={str_value}"
 
     def _run_process(self, command, **kwargs):
-        full_command = [
-            "./yaac",
-            command,
-            *[self._kwarg_to_cmd_arg(key, value) for key, value in kwargs.items()]
-        ]
-        # TODO: use select for buffers ?
-        # https://stackoverflow.com/questions/1180606/using-subprocess-popen-for-process-with-large-output
-        process = sp.Popen(
-            full_command,
-            stdout=sp.PIPE,
-            encoding="utf8",
-            env={
-                # "JSON_LOG": "true",
-                 "STATS": "true"
-            }
-        )
-        self._parse_output(process)
-        rc = process.poll()
+        tmp_files = []
+        try:
+            full_command = [
+                "./yaac",
+                command,
+                *[self._kwarg_to_cmd_arg(key, value, tmp_files) for key, value in kwargs.items()]
+            ]
+            # TODO: use select for buffers ?
+            # https://stackoverflow.com/questions/1180606/using-subprocess-popen-for-process-with-large-output
+            process = sp.Popen(
+                full_command,
+                stdout=sp.PIPE,
+                encoding="utf8",
+                env={
+                    # "JSON_LOG": "true",
+                     "STATS": "true"
+                }
+            )
+            self._parse_output(process)
+            rc = process.poll()
 
-        if rc != 0:
-            raise YaacException(statuscode=rc, stderr=process.stderr)
+            if rc != 0:
+                raise YaacException(statuscode=rc, stderr=process.stderr)
+        finally:
+            for path in tmp_files:
+                os.unlink(path)
 
     def run(self, command, **kwargs):
         self._run_process(command, **kwargs)

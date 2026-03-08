@@ -9,6 +9,13 @@ let log_levels =
   |> List.map (function v -> (Jlog.string_of_level v, v))
 
 
+let read_json_arg s =
+  if String.length s > 0 && s.[0] = '@' then
+    let filename = String.sub s 1 (String.length s - 1) in
+    Yojson.Safe.from_file filename
+  else
+    Yojson.Safe.from_string s
+
 let setup_logging level =
   (* let level = Sys.getenv_opt "LOG_LEVEL" |> Base.Option.value ~defaut:Jlog.Error *)
   let use_json = Sys.getenv_opt "JSON_LOG" |> Base.Option.is_some in
@@ -78,7 +85,7 @@ module LoadSignatureCmd = struct
   let doc = "Returns the full dump associated with the given signature"
 
   let handle {signature} =
-    let bact = signature |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.CompactSig.of_yojson
+    let bact = signature |> read_json_arg |> Bacterie_libs.Bacterie.CompactSig.of_yojson
                |> Result.get_ok |> Bacterie_libs.Bacterie.CompactSig.to_bact
     in
     Bacterie.Dump.bact_to_yojson bact
@@ -103,7 +110,7 @@ module EvalCmd = struct
     Jlog.register_handler "Stats" stats_handler;
     setup_logging log_level;
     let bact =
-        initial_state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.Dump.bact_of_yojson
+        initial_state |> read_json_arg |> Bacterie_libs.Bacterie.Dump.bact_of_yojson
         |> Result.get_ok
     in
     let stopped = ref false in
@@ -154,7 +161,7 @@ module ReactionsCmd = struct
 
   let handle {log_level; state} =
     setup_logging log_level;
-    let bact = state |> Yojson.Safe.from_string |> Bacterie_libs.Bacterie.Dump.bact_of_yojson
+    let bact = state |> read_json_arg |> Bacterie_libs.Bacterie.Dump.bact_of_yojson
                |> Result.get_ok
     in
     bact.reac_mgr |> Reac_mgr.to_yojson|> Yojson.Safe.to_string |> Result.ok
