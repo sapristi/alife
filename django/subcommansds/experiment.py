@@ -248,6 +248,30 @@ def create_variant(
 
 
 @app.command()
+def batch_run(
+    experiment_ids: str = typer.Argument(help="Comma-separated experiment IDs"),
+    nb_reacs: int = typer.Argument(help="Number of reactions per experiment"),
+    snapshot_period: int = typer.Option(None, help="Snapshots saved every N reactions."),
+    stats_period: int = typer.Option(500, help="Stats saved every N reactions."),
+):
+    """Run multiple experiments sequentially"""
+    ids = [int(x.strip()) for x in experiment_ids.split(",")]
+    for exp_id in ids:
+        experiment = Experiment.objects.get(id=exp_id)
+        print(f"\n{'='*60}")
+        print(f"Running {format_experiment(experiment)}")
+        print(f"{'='*60}")
+        run(
+            experiment_id=exp_id,
+            nb_reacs=nb_reacs,
+            reset=False,
+            log_level=None,
+            snapshot_period=snapshot_period or nb_reacs,
+            stats_period=stats_period,
+        )
+
+
+@app.command()
 def compare(experiment_id_1: int, experiment_id_2: int):
     """Compare two experiments side by side"""
     exp1 = Experiment.objects.get(id=experiment_id_1)
