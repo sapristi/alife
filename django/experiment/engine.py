@@ -25,6 +25,9 @@ class StatLogCollector:
             # Non-JSON line (e.g. plain text warning) — print it
             print(line.strip("\n"))
             return
+        if not isinstance(data, dict):
+            print(line.strip("\n"))
+            return
         if data.get("message") == "Stats":
             self.entries.append(data)
         elif data.get("message") == "dump":

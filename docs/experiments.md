@@ -89,3 +89,14 @@ Report: `docs/experiments/20260309T1400-higher-break-rates.md`
 | 78 | 4comp break_exp=0 rate=5e-3 | Moderate increase: 22 DAEEE mutants, **5 Darwinian pairs**, 104 active species. |
 | 79 | 4comp break_exp=0 rate=1e-2 | High break: 165 DAEEE mutants (52sp), **14 Darwinian pairs**, 172 active species. Dominant parasitic R-cop truncation (79 copies). R-copiers drop to 19. |
 | 80 | 4comp break_exp=0.5 rate=1e-3 | Length-dependent at similar eff. rate: 176 DAEEE mutants, **17 Darwinian pairs**. Same parasitic lineage emerges. Exponent matters less than effective rate. |
+
+## Collision rate (2026-03-09 18:00)
+
+Report: `docs/experiments/20260309T1800-collision-rate.md`
+
+| ID | Name | Findings |
+|----|------|----------|
+| 87 | 4comp coll=2e-5 | **Sweet spot.** 2x collision: 70 DAEEE mutants, **8 Darwinian pairs**, 124 active species. Copiers survive (240 T, 27 R). All pairs still from breaks, not collisions. |
+| 85 | 4comp coll=5e-5 | 5x collision: massive diversity (344 active sp, 1864 inert sp) but copiers extinct by 400k. Darwinian pairs peak at 3 then drop to 0. |
+| 84 | 4comp coll=1e-4 | 10x collision: system dead by 100k, engine crash (`cannot pop No_token`). |
+| 81-83 | coll=1e-3 to 1e-1 | System dead immediately. Collisions far more destructive than breaks. |
