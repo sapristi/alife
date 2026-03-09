@@ -269,9 +269,11 @@ module ReactionsM (R : REACTANT) = struct
 
     let calculate_rate ba =
       let mol = R.mol ba.reactant in
-      let len = Float.of_int (String.length mol - 1) in
-      let len_factor = Q.of_float (len ** ba.length_exponent) in
-      Q.(len_factor * of_int (R.qtt ba.reactant))
+      let len_minus_1 = String.length mol - 1 in
+      if len_minus_1 <= 0 then Q.zero
+      else
+        let len_factor = Q.of_float (Float.of_int len_minus_1 ** ba.length_exponent) in
+        Q.(len_factor * of_int (R.qtt ba.reactant))
 
     (* let rate ba = ba.rate *)
     let rate (g : t) : Q.t =
