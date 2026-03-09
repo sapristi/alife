@@ -59,3 +59,23 @@ Report: `docs/experiments/20260308T0530-copier-v4-inert-templates.md`
 | 57-58 | v4fix_mut_g5/g10 | Pending (running). |
 
 Key insight: inert templates (DAEEE prefix, EEE=stop_interpretation) eliminate the reaction competition that killed all v3 designs. R-copier's 5-step skip chain required fixing a token shortage bug (T_SKIP1 needed ia_split from P11 token factory).
+
+## Copier v5: R-copier and Darwinian evolution (2026-03-08 21:00)
+
+Report: `docs/experiments/20260308T2100-v5-rcopier-darwinian-evolution.md`
+
+| ID | Name | Findings |
+|----|------|----------|
+| 69 | v5_4comp_clean | Clean replication: 5+5 → 68 T-cop + 20 R-cop in 50k. Zero mismatches. |
+| 70 | v5_4comp_lowmut | Low mutation (break=1e-6): 37 species at 200k, no DAEEE mutant templates. |
+| 71 | v5_4comp_himut | **Darwinian evolution confirmed.** break=1e-4, 400k: 11 DAEEE mutant template species, 3 Darwinian pairs (mutant template + matching mutant copier). Parasitic truncated copiers emerge. |
+
+## Break length exponent (2026-03-09 12:00)
+
+Report: `docs/experiments/20260309T1200-break-length-exponent.md`
+
+| ID | Name | Findings |
+|----|------|----------|
+| 72 | 4comp break_exp=0.5 (control) | Control: default sqrt scaling. 400k: 335 T-cop, 59 R-cop, 14 DAEEE mutants, 0 Darwinian pairs. |
+| 73 | 4comp break_exp=0 (pressure) | Uniform pressure (exp=0, rate=1e-4): similar growth, 16 DAEEE mutants, **2 Darwinian pairs**. Effective break rate 10x lower. |
+| 74 | 4comp break_exp=0 rate=1e-3 | Compensated (exp=0, rate=1e-3): 18 DAEEE mutants, **3 Darwinian pairs**. Uniform pressure produces more Darwinian evolution. |
