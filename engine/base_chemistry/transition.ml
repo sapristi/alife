@@ -142,10 +142,25 @@ let apply_transition (transition : t) places : Place.transition_effect list =
     (* TODO : ajouter des release effect aux tokens restants *)
     | _ -> []
   in
+  (* Deduplicate input arcs by source place: keep only the first
+     token-consuming arc per place. Duplicate arcs from the same place
+     (e.g. from collision-recombined molecules) would try to pop the
+     same place twice, crashing on the second pop. *)
+  let dedup_input_arcs arcs =
+    let seen = Hashtbl.create 4 in
+    List.filter (fun (place, iatype) ->
+      match iatype with
+      | Types.Acid.No_token_iarc -> true  (* guard arcs don't pop *)
+      | _ ->
+        if Hashtbl.mem seen place.Place.index then false
+        else (Hashtbl.add seen place.Place.index (); true)
+    ) arcs
+  in
   let i_arc_l =
     List.map
       (fun ia -> (places.(ia.source_place), ia.iatype))
       transition.input_arcs
+    |> dedup_input_arcs
   and o_arc_l =
     List.map
       (fun oa -> (places.(oa.dest_place), oa.oatype))
