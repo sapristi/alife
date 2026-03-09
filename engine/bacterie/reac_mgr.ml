@@ -352,7 +352,6 @@ module CSet = struct
 module GSet = MakeReacSet (Reacs.Grab)
 module TSet = MakeReacSet (Reacs.Transition)
 module BSet = MakeReacSet (Reacs.Break)
-module PSet = MakeReacSet (Reacs.Pressure)
 
 (* * Main  defs *)
 
@@ -361,7 +360,6 @@ type t = {
   g_set : GSet.t;
   b_set : BSet.t;
   c_set : CSet.t;
-  p_set : PSet.t;
   mutable reac_counter : int; [@equal fun a b -> true]
   (* for tests - we do not care about reac counter - should we serialize it instead ? *)
   env : Environment.t ref; [@equal fun a b -> true] [@opaque]
@@ -370,7 +368,7 @@ type t = {
 
 
 let get_available_reac_nb rmgr =
-  (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set, BSet.cardinal rmgr.b_set, PSet.cardinal rmgr.p_set)
+  (TSet.cardinal rmgr.t_set, GSet.cardinal rmgr.g_set, BSet.cardinal rmgr.b_set)
 
 let stats rmgr =
   let make_json_stats (nb_reactions, raw_rate) coef = `Assoc [
@@ -383,7 +381,6 @@ let stats rmgr =
     "grabs", make_json_stats (GSet.stats rmgr.g_set) !(rmgr.env).grab_rate;
     "breaks", make_json_stats (BSet.stats rmgr.b_set) !(rmgr.env).break_rate;
     "collisions", make_json_stats (CSet.stats rmgr.c_set) !(rmgr.env).collision_rate;
-    "pressures", make_json_stats (PSet.stats rmgr.p_set) !(rmgr.env).pressure_rate;
     "counter", `Int rmgr.reac_counter;
   ]
 
@@ -393,7 +390,6 @@ let to_yojson (rmgr : t) : Yojson.Safe.t =
       ("transitions", TSet.to_yojson rmgr.t_set);
       ("grabs", GSet.to_yojson rmgr.g_set);
       ("breaks", BSet.to_yojson rmgr.b_set);
-      ("pressures", PSet.to_yojson rmgr.p_set);
       ("reac_counter", `Int rmgr.reac_counter);
       ("env", Environment.to_yojson !(rmgr.env));
     ]
@@ -404,7 +400,6 @@ let make_new ?(reac_counter=0) (env : Environment.t ref) =
     g_set = GSet.empty ();
     b_set = BSet.empty ();
     c_set = CSet.empty ();
-    p_set = PSet.empty ();
     reac_counter = reac_counter;
     env;
   }
@@ -418,8 +413,7 @@ let remove_reactions reactions reac_mgr =
           GSet.remove g reac_mgr.g_set;
           Reaction.unlink r
       | Break b -> BSet.remove b reac_mgr.b_set
-      | Collision c -> CSet.remove c reac_mgr.c_set
-      | Pressure p -> PSet.remove p reac_mgr.p_set)
+      | Collision c -> CSet.remove c reac_mgr.c_set)
     reactions
 
 let add_grab (graber_d : Reactant.Amol.t) (grabed_d : Reactant.t) (reac_mgr : t) =
@@ -443,8 +437,8 @@ let add_transition amd reac_mgr =
 
 let add_break md reac_mgr =
   logger.debug ~tags:["mol", Reactant.to_yojson md] "adding new break";
-
-  let b = Reacs.Break.make md in
+  let exponent = !(reac_mgr.env).break_length_exponent in
+  let b = Reacs.Break.make (md, exponent) in
   BSet.add b reac_mgr.b_set;
 
   let rb = Reaction.Break b in
@@ -462,19 +456,11 @@ let add_collider md reac_mgr =
 (* let rc = Reaction.Collision  in
    Reactant.add_reac rc md; *)
 
-let add_pressure md reac_mgr =
-  logger.debug ~tags:["mol", Reactant.to_yojson md] "adding new pressure";
-  let p = Reacs.Pressure.make md in
-  PSet.add p reac_mgr.p_set;
-  let rp = Reaction.Pressure p in
-  Reactant.add_reac rp md
-
 let check_reac_rates reac_mrg =
   TSet.check_reac_rates reac_mrg.t_set;
   GSet.check_reac_rates reac_mrg.g_set;
   BSet.check_reac_rates reac_mrg.b_set;
-  CSet.check_reac_rates reac_mrg.c_set;
-  PSet.check_reac_rates reac_mrg.p_set
+  CSet.check_reac_rates reac_mrg.c_set
 
 (** pick next reaction *)
 (* TODO: replace to_list with to_enum ? *)
@@ -487,9 +473,7 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
   and total_b_rate = Q.( !(reac_mgr.env).break_rate * BSet.total_rate reac_mgr.b_set )
   and total_c_rate =
     Q.( !(reac_mgr.env).collision_rate * CSet.total_rate reac_mgr.c_set )
-  and total_p_rate =
-    Q.( !(reac_mgr.env).pressure_rate * PSet.total_rate reac_mgr.p_set )
-  in let a0 = Q.(  total_g_rate + total_t_rate + total_b_rate + total_c_rate + total_p_rate )
+  in let a0 = Q.(  total_g_rate + total_t_rate + total_b_rate + total_c_rate )
   in
   if a0 = Q.zero then (
     logger.warning "No reaction available";
@@ -506,9 +490,7 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
         Reaction.Transition (TSet.pick_reaction randstate reac_mgr.t_set)
       else if Q.( lt bound (total_g_rate + total_t_rate + total_b_rate) ) then
         Reaction.Break (BSet.pick_reaction randstate reac_mgr.b_set)
-      else if Q.( lt bound (total_g_rate + total_t_rate + total_b_rate + total_c_rate) ) then
-        Reaction.Collision (CSet.pick_reaction randstate reac_mgr.c_set)
-      else Reaction.Pressure (PSet.pick_reaction randstate reac_mgr.p_set)
+      else Reaction.Collision (CSet.pick_reaction randstate reac_mgr.c_set)
     in
     logger.info ~ltags:(lazy ["reaction", Reaction.to_yojson res])"picked reaction";
     Some res
@@ -521,7 +503,6 @@ let rec update_reaction_rate (reac : Reaction.t) reac_mgr =
   | Transition t -> TSet.update_rate t reac_mgr.t_set
   | Break b -> BSet.update_rate b reac_mgr.b_set
   | Collision c -> CSet.update_rate c reac_mgr.c_set
-  | Pressure p -> PSet.update_rate p reac_mgr.p_set
 
 (** update all reactions rates *)
 let update_rates (reactions : ReacSet.t) reac_mgr =

@@ -243,9 +243,8 @@ and Reacs : sig
 
   module Grab : REAC with type build_t = Reactant.Amol.t * Reactant.t
   module Transition : REAC with type build_t = Reactant.Amol.t
-  module Break : REAC with type build_t = Reactant.t
+  module Break : REAC with type build_t = Reactant.t * float
   module Collision : REAC with type build_t = Reactant.t * Reactant.t
-  module Pressure : REAC with type build_t = Reactant.t
 end = struct
   include Reactions.ReactionsM (Reactant)
 end
@@ -256,7 +255,6 @@ and Reaction : sig
     | Transition of Reacs.Transition.t
     | Break of Reacs.Break.t
     | Collision of Reacs.Collision.t
-    | Pressure of Reacs.Pressure.t
   [@@deriving ord, show, to_yojson, eq]
 
   val treat_reaction : Random_s.t -> t -> Reacs.action list
@@ -270,7 +268,6 @@ struct
     | Transition of Transition.t
     | Break of Break.t
     | Collision of Collision.t
-    | Pressure of Pressure.t
   [@@deriving ord, show, to_yojson, eq]
 
   let rate r =
@@ -279,7 +276,6 @@ struct
     | Grab g -> Grab.rate g
     | Break b -> Break.rate b
     | Collision c -> Collision.rate c
-    | Pressure p -> Pressure.rate p
 
   let treat_reaction randstate r : action list =
     match r with
@@ -287,7 +283,6 @@ struct
     | Grab g -> Grab.eval randstate g
     | Break b -> Break.eval randstate b
     | Collision c -> Collision.eval randstate c
-    | Pressure p -> Pressure.eval randstate p
 
   let unlink r =
     match r with
@@ -295,7 +290,6 @@ struct
     | Grab g -> Grab.remove_reac_from_reactants r g
     | Break b -> Break.remove_reac_from_reactants r b
     | Collision c -> Collision.remove_reac_from_reactants r c
-    | Pressure p -> Pressure.remove_reac_from_reactants r p
 end
 
 and ReacSet : sig

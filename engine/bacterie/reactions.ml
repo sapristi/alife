@@ -260,16 +260,18 @@ module ReactionsM (R : REACTANT) = struct
     let get_reactants t = t.amd
   end
 
-  module Break : REAC with type build_t = R.t = struct
+  module Break : REAC with type build_t = R.t * float = struct
     let name = "Break"
-    type t = { mutable rate : Q.t; [@compare fun a b -> 0] reactant : R.t }
+    type t = { mutable rate : Q.t; [@compare fun a b -> 0] reactant : R.t; length_exponent : float }
     [@@deriving show, ord, to_yojson, eq]
 
-    type build_t = R.t
+    type build_t = R.t * float
 
     let calculate_rate ba =
       let mol = R.mol ba.reactant in
-      Q.(sqrt (of_int (String.length mol) - one) * of_int (R.qtt ba.reactant))
+      let len = Float.of_int (String.length mol - 1) in
+      let len_factor = Q.of_float (len ** ba.length_exponent) in
+      Q.(len_factor * of_int (R.qtt ba.reactant))
 
     (* let rate ba = ba.rate *)
     let rate (g : t) : Q.t =
@@ -287,8 +289,10 @@ module ReactionsM (R : REACTANT) = struct
       ba.rate <- calculate_rate ba;
       Q.(ba.rate - old_rate)
 
-    let make reactant =
-      { reactant; rate = calculate_rate { reactant; rate = Q.zero } }
+    let make (reactant, length_exponent) =
+      let t = { reactant; length_exponent; rate = Q.zero } in
+      t.rate <- calculate_rate t;
+      t
 
     let eval randstate ba =
       let mol = R.mol ba.reactant in
@@ -296,41 +300,7 @@ module ReactionsM (R : REACTANT) = struct
       [ Remove_one ba.reactant; Release_mol m1; Release_mol m2 ]
 
     let remove_reac_from_reactants reac g = ()
-    let get_reactants b = b.reactant
-  end
-
-  module Pressure : REAC with type build_t = R.t = struct
-    let name = "Pressure"
-    type t = { mutable rate : Q.t; [@compare fun a b -> 0] reactant : R.t }
-    [@@deriving show, ord, to_yojson, eq]
-
-    type build_t = R.t
-
-    let calculate_rate pa =
-      Q.of_int (R.qtt pa.reactant)
-
-    let rate (g : t) : Q.t =
-      let res = g.rate and calc = calculate_rate g in
-      if Q.equal res calc
-      then res
-      else (
-        logger.warning ~tags:["stored", to_yojson g; "computed", Q.to_yojson calc] "Rate error";
-        failwith "problem"
-      )
-
-    let update_rate pa =
-      let old_rate = pa.rate in
-      pa.rate <- calculate_rate pa;
-      Q.(pa.rate - old_rate)
-
-    let make reactant =
-      { reactant; rate = calculate_rate { reactant; rate = Q.zero } }
-
-    let eval _randstate pa =
-      [ Remove_one pa.reactant ]
-
-    let remove_reac_from_reactants reac g = ()
-    let get_reactants p = p.reactant
+    let get_reactants b = (b.reactant, b.length_exponent)
   end
 
 
