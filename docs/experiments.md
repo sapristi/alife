@@ -79,3 +79,13 @@ Report: `docs/experiments/20260309T1200-break-length-exponent.md`
 | 72 | 4comp break_exp=0.5 (control) | Control: default sqrt scaling. 400k: 335 T-cop, 59 R-cop, 14 DAEEE mutants, 0 Darwinian pairs. |
 | 73 | 4comp break_exp=0 (pressure) | Uniform pressure (exp=0, rate=1e-4): similar growth, 16 DAEEE mutants, **2 Darwinian pairs**. Effective break rate 10x lower. |
 | 74 | 4comp break_exp=0 rate=1e-3 | Compensated (exp=0, rate=1e-3): 18 DAEEE mutants, **3 Darwinian pairs**. Uniform pressure produces more Darwinian evolution. |
+
+## Higher break rates (2026-03-09 14:00)
+
+Report: `docs/experiments/20260309T1400-higher-break-rates.md`
+
+| ID | Name | Findings |
+|----|------|----------|
+| 78 | 4comp break_exp=0 rate=5e-3 | Moderate increase: 22 DAEEE mutants, **5 Darwinian pairs**, 104 active species. |
+| 79 | 4comp break_exp=0 rate=1e-2 | High break: 165 DAEEE mutants (52sp), **14 Darwinian pairs**, 172 active species. Dominant parasitic R-cop truncation (79 copies). R-copiers drop to 19. |
+| 80 | 4comp break_exp=0.5 rate=1e-3 | Length-dependent at similar eff. rate: 176 DAEEE mutants, **17 Darwinian pairs**. Same parasitic lineage emerges. Exponent matters less than effective rate. |
