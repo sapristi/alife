@@ -19,6 +19,7 @@ let simple_grab_release () = load "simple_grab_release"
 let simple_split () = load "simple_split"
 let ribosome_1 () = load "ribosome_1"
 let endless_duplication () = load "endless_duplication"
+let double_pop () = load "double_pop"
 
 let names =
   [

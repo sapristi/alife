@@ -65,6 +65,12 @@ let () =
           test_case "run custom" `Quick Test_run.test_run_custom;
         ]
       );
+      ( "Double pop bug",
+        [
+          test_case "duplicate input arcs from same place" `Quick
+            Test_double_pop.test_double_pop_does_not_crash;
+        ]
+      );
       ( "Self-replication",
         [
           test_case "endless_duplication replicates" `Slow
