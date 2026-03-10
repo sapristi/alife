@@ -132,6 +132,37 @@ pnpm install
 pnpm build              # Webpack bundle
 ```
 
+## Molecule encoding
+
+Molecules are strings of atoms (A-F). They are parsed left-to-right into a list of **acids**, which form a **protein** that folds into a **Petri net**.
+
+### Acid types
+
+| Prefix | Suffix | Acid | Notes |
+|--------|--------|------|-------|
+| `AAA` | — | Place | Petri net place |
+| `BAA` | `<id>DDF` | Regular_iarc | Standard input arc |
+| `BC` | `<atom><id>DDF` | Filter_iarc | Guards on atom at cursor |
+| `BAB` | `<id>DDF` | Filter_empty_iarc | Guards on cursor past end |
+| `BAC` | `<id>DDF` | No_token_iarc | Fires only when place is EMPTY |
+| `BAD` | `<id>DDF` | Copy_iarc | Reads acid at cursor → [original, acid_token] |
+| `BBA` | `<id>DDF` | Split_iarc | Cuts token at cursor → [left, right] |
+| `CAA` | `<id>DDF` | Regular_oarc | Standard output arc |
+| `CBA` | `<id>DDF` | Merge_oarc | Inserts source into dest |
+| `CCA` | `<id>DDF` | Move_fw_oarc | Advances cursor |
+| `ABA` | `<pattern>DDF` | Grab_ext | Place grabs matching molecules |
+| `ABB` | — | Release_ext | Place releases tokens externally |
+| `ABC` | — | Init_token_ext | Place starts with empty token |
+| `EEE` | — | Stop_interpretation | Rest of molecule is inert |
+
+- Transition IDs: `max_group_length = 6`, lazy match `(.{1,6}?)`
+- Grab patterns: `F(X)F` = single char capture, `FF` = wildcard `.*?`, anchored `^...$`
+
+### Engine dump format
+
+- **areactants**: active molecules (with Petri nets) as `[mol, pnets_list]` pairs
+- **ireactants**: inert molecules as `{mol, qtt, ambient}` dicts
+
 ## OCaml conventions
 
 - **PPX**: `ppx_deriving_yojson` for JSON serialization, `ppx_subliner` for CLI argument parsing from type definitions

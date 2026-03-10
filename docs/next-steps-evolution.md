@@ -3,6 +3,8 @@
 **Date:** 2026-03-08
 **Context:** Copier v4 (inert templates) achieves self-replication and molecular diversification, but NOT Darwinian evolution. This document outlines what's missing and the proposed path forward.
 
+> **Status (2026-03-10):** Copier v5 (Copy_iarc) resolved the heritable variation gap. Darwinian evolution confirmed in exp 71 (3 Darwinian pairs at 400k). The `copy_grabbed` extension is now a nice-to-have for fitness landscape smoothing, no longer critical. See `docs/experiments.md` for full results.
+
 ## Current State
 
 - **Copier v4** (experiments 55-58): first full self-replicating system
