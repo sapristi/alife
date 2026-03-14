@@ -30,6 +30,7 @@ and ia_filter_id = "BC"
 and ia_filter_empty_id = "BAB"
 and ia_no_token_id = "BAC"
 and ia_copy_id = "BAD"
+and ia_copy_done_id = "BAE"
 and oa_reg_id = "CAA"
 and oa_merge_id = "CBA"
 and oa_move_fw_id = "CCA"
@@ -37,6 +38,7 @@ and oa_move_bw_id = "CCB"
 and ext_grab_id = "ABA"
 and ext_rel_id = "ABB"
 and ext_tinit_id = "ABC"
+and ext_copy_grabbed_id = "ABD"
 and ext_bind_id = "ACC"
 (*TODO: change to DDB ? otherwise it's the only place where F is used *)
 
@@ -54,6 +56,7 @@ and ia_filter_re = ia_filter_id ^ "(" ^ atoms ^ ")" ^ id_group_re ^ msg_end_id
 and ia_filter_empty_re = ia_filter_empty_id ^ id_group_re ^ msg_end_id
 and ia_no_token_re = ia_no_token_id ^ id_group_re ^ msg_end_id
 and ia_copy_re = ia_copy_id ^ id_group_re ^ msg_end_id
+and ia_copy_done_re = ia_copy_done_id ^ id_group_re ^ msg_end_id
 and oa_reg_re = oa_reg_id ^ id_group_re ^ msg_end_id
 and oa_merge_re = oa_merge_id ^ id_group_re ^ msg_end_id
 and oa_move_fw_re = oa_move_fw_id ^ id_group_re ^ msg_end_id
@@ -61,6 +64,7 @@ and oa_move_bw_re = oa_move_bw_id ^ id_group_re ^ msg_end_id
 and ext_grab_re = ext_grab_id ^ id_group_re ^ msg_end_id
 and ext_rel_re = ext_rel_id
 and ext_tinit_re = ext_tinit_id
+and ext_copy_grabbed_re = ext_copy_grabbed_id
 and ext_bind_re = ext_bind_id ^ id_group_re ^ msg_end_id
 and stop_interp_re = stop_interp_id
 
@@ -96,6 +100,10 @@ let parsers : (string * (Re.Group.t -> Types.Acid.acid * string)) list =
       fun groups ->
         let tid = Re.Group.get groups 1 and s' = Re.Group.get groups 2 in
         (InputArc (tid, Copy_iarc), s') );
+    ( ia_copy_done_re,
+      fun groups ->
+        let tid = Re.Group.get groups 1 and s' = Re.Group.get groups 2 in
+        (InputArc (tid, Copy_done_iarc), s') );
     ( oa_reg_re,
       fun groups ->
         let tid = Re.Group.get groups 1 and s' = Re.Group.get groups 2 in
@@ -124,6 +132,10 @@ let parsers : (string * (Re.Group.t -> Types.Acid.acid * string)) list =
       fun groups ->
         let s' = Re.Group.get groups 1 in
         (Extension Init_with_token_ext, s') );
+    ( ext_copy_grabbed_re,
+      fun groups ->
+        let s' = Re.Group.get groups 1 in
+        (Extension Copy_grabbed_ext, s') );
     ( stop_interp_re,
       fun groups ->
         let s' = Re.Group.get groups 1 in
@@ -219,12 +231,14 @@ let of_acid (a : Types.Acid.acid) : string =
   | InputArc (s, Filter_empty_iarc) -> ia_filter_empty_id ^ s ^ msg_end_id
   | InputArc (s, No_token_iarc) -> ia_no_token_id ^ s ^ msg_end_id
   | InputArc (s, Copy_iarc) -> ia_copy_id ^ s ^ msg_end_id
+  | InputArc (s, Copy_done_iarc) -> ia_copy_done_id ^ s ^ msg_end_id
   | OutputArc (s, Regular_oarc) -> oa_reg_id ^ s ^ msg_end_id
   | OutputArc (s, Merge_oarc) -> oa_merge_id ^ s ^ msg_end_id
   | OutputArc (s, Move_oarc true) -> oa_move_fw_id ^ s ^ msg_end_id
   | OutputArc (s, Move_oarc false) -> oa_move_bw_id ^ s ^ msg_end_id
   | Extension Release_ext -> ext_rel_id
   | Extension Init_with_token_ext -> ext_tinit_id
+  | Extension Copy_grabbed_ext -> ext_copy_grabbed_id
   | Extension (Grab_ext g) -> ext_grab_id ^ g ^ msg_end_id
   | Stop_interpretation -> stop_interp_id
 

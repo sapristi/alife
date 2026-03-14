@@ -351,6 +351,7 @@ module CSet = struct
 
 module GSet = MakeReacSet (Reacs.Grab)
 module TSet = MakeReacSet (Reacs.Transition)
+module CGSet = MakeReacSet (Reacs.CopyGrabbed)
 module BSet = MakeReacSet (Reacs.Break)
 
 (* * Main  defs *)
@@ -358,6 +359,7 @@ module BSet = MakeReacSet (Reacs.Break)
 type t = {
   t_set : TSet.t;
   g_set : GSet.t;
+  cg_set : CGSet.t;
   b_set : BSet.t;
   c_set : CSet.t;
   mutable reac_counter : int; [@equal fun a b -> true]
@@ -379,6 +381,7 @@ let stats rmgr =
   `Assoc [
     "transitions", make_json_stats (TSet.stats rmgr.t_set) !(rmgr.env).transition_rate;
     "grabs", make_json_stats (GSet.stats rmgr.g_set) !(rmgr.env).grab_rate;
+    "copy_grabbed", make_json_stats (CGSet.stats rmgr.cg_set) !(rmgr.env).copy_grabbed_rate;
     "breaks", make_json_stats (BSet.stats rmgr.b_set) !(rmgr.env).break_rate;
     "collisions", make_json_stats (CSet.stats rmgr.c_set) !(rmgr.env).collision_rate;
     "counter", `Int rmgr.reac_counter;
@@ -389,6 +392,7 @@ let to_yojson (rmgr : t) : Yojson.Safe.t =
     [
       ("transitions", TSet.to_yojson rmgr.t_set);
       ("grabs", GSet.to_yojson rmgr.g_set);
+      ("copy_grabbed", CGSet.to_yojson rmgr.cg_set);
       ("breaks", BSet.to_yojson rmgr.b_set);
       ("reac_counter", `Int rmgr.reac_counter);
       ("env", Environment.to_yojson !(rmgr.env));
@@ -398,6 +402,7 @@ let make_new ?(reac_counter=0) (env : Environment.t ref) =
   {
     t_set = TSet.empty ();
     g_set = GSet.empty ();
+    cg_set = CGSet.empty ();
     b_set = BSet.empty ();
     c_set = CSet.empty ();
     reac_counter = reac_counter;
@@ -412,6 +417,7 @@ let remove_reactions reactions reac_mgr =
       | Grab g ->
           GSet.remove g reac_mgr.g_set;
           Reaction.unlink r
+      | CopyGrabbed cg -> CGSet.remove cg reac_mgr.cg_set
       | Break b -> BSet.remove b reac_mgr.b_set
       | Collision c -> CSet.remove c reac_mgr.c_set)
     reactions
@@ -453,12 +459,20 @@ let add_collider md reac_mgr =
   let collider_reac = Reaction.Collision collider in
   Reactant.add_reac collider_reac md
 
+let add_copy_grabbed amd reac_mgr =
+  logger.debug ~tags:["amol", Reactant.Amol.to_yojson amd] "adding new copy_grabbed";
+  let cg = Reacs.CopyGrabbed.make amd in
+  CGSet.add cg reac_mgr.cg_set;
+  let rcg = Reaction.CopyGrabbed cg in
+  Reactant.Amol.add_reac rcg amd
+
 (* let rc = Reaction.Collision  in
    Reactant.add_reac rc md; *)
 
 let check_reac_rates reac_mrg =
   TSet.check_reac_rates reac_mrg.t_set;
   GSet.check_reac_rates reac_mrg.g_set;
+  CGSet.check_reac_rates reac_mrg.cg_set;
   BSet.check_reac_rates reac_mrg.b_set;
   CSet.check_reac_rates reac_mrg.c_set
 
@@ -470,10 +484,12 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
   let total_g_rate =Q.( !(reac_mgr.env).grab_rate * GSet.total_rate reac_mgr.g_set)
   and total_t_rate =
     Q.( !(reac_mgr.env).transition_rate * TSet.total_rate reac_mgr.t_set )
+  and total_cg_rate =
+    Q.( !(reac_mgr.env).copy_grabbed_rate * CGSet.total_rate reac_mgr.cg_set )
   and total_b_rate = Q.( !(reac_mgr.env).break_rate * BSet.total_rate reac_mgr.b_set )
   and total_c_rate =
     Q.( !(reac_mgr.env).collision_rate * CSet.total_rate reac_mgr.c_set )
-  in let a0 = Q.(  total_g_rate + total_t_rate + total_b_rate + total_c_rate )
+  in let a0 = Q.(  total_g_rate + total_t_rate + total_cg_rate + total_b_rate + total_c_rate )
   in
   if a0 = Q.zero then (
     logger.warning "No reaction available";
@@ -488,7 +504,9 @@ let pick_next_reaction randstate (reac_mgr : t) : Reaction.t option =
         Reaction.Grab (GSet.pick_reaction randstate reac_mgr.g_set)
       else if Q.( lt bound (total_g_rate + total_t_rate) ) then
         Reaction.Transition (TSet.pick_reaction randstate reac_mgr.t_set)
-      else if Q.( lt bound (total_g_rate + total_t_rate + total_b_rate) ) then
+      else if Q.( lt bound (total_g_rate + total_t_rate + total_cg_rate) ) then
+        Reaction.CopyGrabbed (CGSet.pick_reaction randstate reac_mgr.cg_set)
+      else if Q.( lt bound (total_g_rate + total_t_rate + total_cg_rate + total_b_rate) ) then
         Reaction.Break (BSet.pick_reaction randstate reac_mgr.b_set)
       else Reaction.Collision (CSet.pick_reaction randstate reac_mgr.c_set)
     in
@@ -501,6 +519,7 @@ let rec update_reaction_rate (reac : Reaction.t) reac_mgr =
   match reac with
   | Grab g -> GSet.update_rate g reac_mgr.g_set
   | Transition t -> TSet.update_rate t reac_mgr.t_set
+  | CopyGrabbed cg -> CGSet.update_rate cg reac_mgr.cg_set
   | Break b -> BSet.update_rate b reac_mgr.b_set
   | Collision c -> CSet.update_rate c reac_mgr.c_set
 

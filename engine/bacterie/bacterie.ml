@@ -92,6 +92,10 @@ let add_active_molecule (mol: Molecule.t) (pnet: Petri_net.t) (bact: t): Reacs.a
   (* reaction : transition  *)
   Reac_mgr.add_transition ar bact.reac_mgr;
 
+  (* reaction : copy_grabbed *)
+  if Array.exists Place.has_copy_grabbed_ext pnet.places then
+    Reac_mgr.add_copy_grabbed ar bact.reac_mgr;
+
   (* reaction : break *)
   Reac_mgr.add_break (Amol ar) bact.reac_mgr;
 

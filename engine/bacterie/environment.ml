@@ -6,6 +6,7 @@ type t = {
   mutable break_rate : Q.t;[@default Q.zero]
   mutable break_length_exponent : float; [@default 0.5]
   mutable collision_rate : Q.t; [@default Q.zero]
+  mutable copy_grabbed_rate : Q.t; [@default Q.zero]
 }
 [@@deriving show, yojson, eq, make]
 
@@ -16,5 +17,6 @@ let (null_env : t) =
     break_rate = Q.zero;
     break_length_exponent = 0.5;
     collision_rate = Q.zero;
+    copy_grabbed_rate = Q.zero;
   }
 

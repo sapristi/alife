@@ -20,6 +20,7 @@ let simple_split () = load "simple_split"
 let ribosome_1 () = load "ribosome_1"
 let endless_duplication () = load "endless_duplication"
 let double_pop () = load "double_pop"
+let copy_grabbed_copier () = load "copy_grabbed_copier"
 
 let names =
   [

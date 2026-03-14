@@ -52,6 +52,13 @@ let launchable (transition : t) places =
           match place.Place.token with
           | None -> false
           | Some token -> Token.get_label token <> "")
+      | Types.Acid.Copy_done_iarc -> (
+          match place.Place.token with
+          | None -> false
+          | Some token ->
+            Token.get_label token = ""
+            && Place.has_copy_grabbed_ext place
+            && place.Place.copy_buffer <> "")
       | _ -> not (Place.is_empty place)
     and launchable_output_arc (output_arc : Types.Acid.output_arc)
         (place : Place.t) =
@@ -117,6 +124,9 @@ let apply_transition (transition : t) places : Place.transition_effect list =
             let acid_char = Token.get_label token in
             let acid_token = Token.make acid_char 1 in
             token :: acid_token :: apply_input_arcs i_arc_l'
+        | Types.Acid.Copy_done_iarc ->
+            let copy_token = Place.extract_copy_buffer place in
+            token :: copy_token :: apply_input_arcs i_arc_l'
         | _ -> token :: apply_input_arcs i_arc_l')
     | [] -> []
   and apply_output_arcs (o_arc_l : (Place.t * Types.Acid.output_arc) list)

@@ -38,6 +38,8 @@ def ext_grab(pattern): return f"ABA{pattern}DDF"
 def ia_copy(tid): return f"BAD{tid}DDF"
 def ext_release(): return "ABB"
 def ext_init_token(): return "ABC"
+def ext_copy_grabbed(): return "ABD"
+def ia_copy_done(tid): return f"BAE{tid}DDF"
 
 
 def build_simple_copier(grab_pattern="FDFAFF"):
@@ -231,6 +233,76 @@ def build_simple_r_copier(grab_pattern="FDFAFF"):
     parts.append(oa_reg(T_DONE))          # T_DONE: refill factory
 
     return "".join(parts)
+
+
+def build_copy_grabbed_copier(grab_pattern="FDFAFF"):
+    """Build copier using copy_grabbed extension.
+
+    The copy_grabbed place atomically reads acid at cursor, appends to
+    internal buffer, and advances cursor. One CopyGrabbed reaction per
+    acid copied. Copy_done_iarc extracts the buffer when cursor past end.
+
+    Transitions: T_LOAD, T_DONE (2 total)
+    Places: P0(grab), P1(copy_grabbed read head), P2(copy release),
+            P3(template release) (4 total)
+    """
+    T_LOAD = "A"
+    T_DONE = "B"
+
+    parts = []
+
+    # P0: Template grab
+    parts.append(place())
+    parts.append(ext_grab(grab_pattern))
+    parts.append(ia_reg(T_LOAD))
+
+    # P1: Copy_grabbed read head
+    # ia_copy_done produces [template, copy] in token list
+    # After proteine.ml prepend, output arcs are [(P3, reg), (P2, reg)]
+    # So P3 gets template, P2 gets copy
+    parts.append(place())
+    parts.append(ext_copy_grabbed())
+    parts.append(ia_copy_done(T_DONE))
+    parts.append(oa_reg(T_LOAD))
+
+    # P2: Copy release
+    parts.append(place())
+    parts.append(ext_release())
+    parts.append(oa_reg(T_DONE))
+
+    # P3: Template release
+    parts.append(place())
+    parts.append(ext_release())
+    parts.append(oa_reg(T_DONE))
+
+    return "".join(parts)
+
+
+def build_copy_grabbed_initial_state(copier_mol, grab_pattern="FDFAFF",
+                                     copier_qtt=5, template_qtt=10,
+                                     acid_qtt=200, d_qtt=50, e_qtt=200):
+    """Build initial state for copy_grabbed copier system."""
+    template = TEMPLATE_PREFIX + copier_mol
+
+    return {
+        "mols": [
+            {"mol": copier_mol, "qtt": copier_qtt},
+            {"mol": template, "qtt": template_qtt},
+            {"mol": "A", "qtt": acid_qtt, "ambient": True},
+            {"mol": "B", "qtt": acid_qtt, "ambient": True},
+            {"mol": "C", "qtt": acid_qtt, "ambient": True},
+            {"mol": "D", "qtt": d_qtt, "ambient": True},
+            {"mol": "E", "qtt": e_qtt, "ambient": True},
+            {"mol": "F", "qtt": acid_qtt, "ambient": True},
+        ],
+        "env": {
+            "transition_rate": 100,
+            "grab_rate": 1,
+            "break_rate": 0,
+            "collision_rate": 0,
+            "copy_grabbed_rate": 100,
+        }
+    }
 
 
 def build_simple_4comp_state(t_copier_mol, r_copier_mol,
@@ -544,9 +616,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--simple", action="store_true", help="Build simplified T-copier using Copy_iarc")
     parser.add_argument("--simple-4comp", action="store_true", help="Build 4-component system with Copy_iarc copiers")
+    parser.add_argument("--copy-grabbed", action="store_true", help="Build copy_grabbed copier")
     args = parser.parse_args()
 
-    if args.simple_4comp:
+    if args.copy_grabbed:
+        copier = build_copy_grabbed_copier()
+        template = TEMPLATE_PREFIX + copier
+
+        print("Copy_grabbed copier:")
+        verify_molecule(copier, "Copier")
+        verify_molecule(template, "Template")
+        print()
+
+        state = build_copy_grabbed_initial_state(copier)
+        print(f"Initial state: {len(state['mols'])} mol types, "
+              f"{sum(m['qtt'] for m in state['mols'])} total")
+        print(json.dumps(state, indent=2))
+    elif args.simple_4comp:
         t_copier = build_simple_copier()
         r_copier = build_simple_r_copier()
         template_t = TEMPLATE_PREFIX + t_copier

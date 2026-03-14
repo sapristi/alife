@@ -31,7 +31,7 @@ let make (exts_list : place_exts) (index : int) : t =
   and graber =
     match make_grabers extensions with [] -> None | g :: _ -> Some g
   in
-  { token; extensions; index; graber }
+  { token; extensions; index; graber; copy_buffer = "" }
 
 let pop_token (p : t) : Token.t =
   match p.token with
@@ -84,3 +84,25 @@ let get_possible_mol_grabs (mol : Molecule.t) (place : t) : (int * int) option =
         | Some n -> Some (n, place.index)
         | None -> None)
   else None
+
+let has_copy_grabbed_ext (p : t) : bool =
+  List.mem Types.Acid.Copy_grabbed_ext p.extensions
+
+let is_copy_grabbed_ready (p : t) : bool =
+  has_copy_grabbed_ext p &&
+  match p.token with
+  | None -> false
+  | Some token -> Token.get_label token <> ""
+
+let execute_copy_grabbed_step (p : t) : unit =
+  match p.token with
+  | None -> failwith "place.ml: copy_grabbed on empty place"
+  | Some token ->
+    let acid_char = Token.get_label token in
+    p.copy_buffer <- p.copy_buffer ^ acid_char;
+    p.token <- Some (Token.move_mol_forward token)
+
+let extract_copy_buffer (p : t) : Token.t =
+  let buf = p.copy_buffer in
+  p.copy_buffer <- "";
+  Token.make_at_mol_start buf

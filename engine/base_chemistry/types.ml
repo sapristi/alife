@@ -13,6 +13,9 @@ module Acid = struct
     | Copy_iarc
     (** Reads acid at cursor, produces [original; acid_token].
         Only fireable when cursor is not past end. *)
+    | Copy_done_iarc
+    (** Fires when cursor past end on a Copy_grabbed place.
+        Produces [template_token; copy_buffer_token]. *)
   [@@deriving show, yojson, eq]
 
 
@@ -29,6 +32,7 @@ module Acid = struct
     | Grab_ext of string
     | Release_ext
     | Init_with_token_ext
+    | Copy_grabbed_ext
   [@@deriving show, yojson, eq]
 
   type acid =
@@ -61,6 +65,7 @@ module Place = struct
     extensions : Acid.extension list;
     index : int;
     graber : Graber.t option;
+    mutable copy_buffer : string;
   }
   [@@deriving show, yojson, eq]
 end

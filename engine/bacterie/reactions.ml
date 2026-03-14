@@ -260,6 +260,37 @@ module ReactionsM (R : REACTANT) = struct
     let get_reactants t = t.amd
   end
 
+  module CopyGrabbed : REAC with type build_t = R.Amol.t = struct
+    let name = "CopyGrabbed"
+    type t = { mutable rate : Q.t; [@compare fun a b -> 0] amd : R.Amol.t }
+    [@@deriving ord, show, to_yojson, eq]
+
+    type build_t = R.Amol.t
+
+    let calculate_rate (cg : t) =
+      Q.of_int (Petri_net.count_copy_grabbed_ready cg.amd.pnet)
+
+    let rate (cg : t) : Q.t = cg.rate
+
+    let update_rate ({ rate; _ } as cg : t) =
+      let old_rate = rate in
+      cg.rate <- calculate_rate cg;
+      Q.(cg.rate - old_rate)
+
+    let make (amd : build_t) =
+      { rate = calculate_rate { amd; rate = Q.zero }; amd }
+
+    let eval randstate (cg : t) : action list =
+      Petri_net.launch_random_copy_grabbed randstate cg.amd.pnet;
+      [
+        Update_launchables cg.amd;
+        Update_reacs (R.Amol.reacs cg.amd);
+      ]
+
+    let remove_reac_from_reactants reac g = ()
+    let get_reactants cg = cg.amd
+  end
+
   module Break : REAC with type build_t = R.t * float = struct
     let name = "Break"
     type t = { mutable rate : Q.t; [@compare fun a b -> 0] reactant : R.t; length_exponent : float }

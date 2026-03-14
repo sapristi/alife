@@ -71,6 +71,14 @@ let () =
             Test_double_pop.test_double_pop_does_not_crash;
         ]
       );
+      ( "CopyGrabbed replication",
+        [
+          test_case "copy_grabbed replicates" `Slow
+            Test_copy_grabbed.test_copy_grabbed_replicates;
+          test_case "copy_grabbed robust" `Slow
+            Test_copy_grabbed.test_copy_grabbed_robust;
+        ]
+      );
       ( "Self-replication",
         [
           test_case "endless_duplication replicates" `Slow

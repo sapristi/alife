@@ -243,6 +243,7 @@ and Reacs : sig
 
   module Grab : REAC with type build_t = Reactant.Amol.t * Reactant.t
   module Transition : REAC with type build_t = Reactant.Amol.t
+  module CopyGrabbed : REAC with type build_t = Reactant.Amol.t
   module Break : REAC with type build_t = Reactant.t * float
   module Collision : REAC with type build_t = Reactant.t * Reactant.t
 end = struct
@@ -253,6 +254,7 @@ and Reaction : sig
   type t =
     | Grab of Reacs.Grab.t
     | Transition of Reacs.Transition.t
+    | CopyGrabbed of Reacs.CopyGrabbed.t
     | Break of Reacs.Break.t
     | Collision of Reacs.Collision.t
   [@@deriving ord, show, to_yojson, eq]
@@ -266,6 +268,7 @@ struct
   type t =
     | Grab of Grab.t
     | Transition of Transition.t
+    | CopyGrabbed of CopyGrabbed.t
     | Break of Break.t
     | Collision of Collision.t
   [@@deriving ord, show, to_yojson, eq]
@@ -274,6 +277,7 @@ struct
     match r with
     | Transition t -> Transition.rate t
     | Grab g -> Grab.rate g
+    | CopyGrabbed cg -> CopyGrabbed.rate cg
     | Break b -> Break.rate b
     | Collision c -> Collision.rate c
 
@@ -281,6 +285,7 @@ struct
     match r with
     | Transition t -> Transition.eval randstate t
     | Grab g -> Grab.eval randstate g
+    | CopyGrabbed cg -> CopyGrabbed.eval randstate cg
     | Break b -> Break.eval randstate b
     | Collision c -> Collision.eval randstate c
 
@@ -288,6 +293,7 @@ struct
     match r with
     | Transition t -> Transition.remove_reac_from_reactants r t
     | Grab g -> Grab.remove_reac_from_reactants r g
+    | CopyGrabbed cg -> CopyGrabbed.remove_reac_from_reactants r cg
     | Break b -> Break.remove_reac_from_reactants r b
     | Collision c -> Collision.remove_reac_from_reactants r c
 end

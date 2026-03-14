@@ -184,6 +184,20 @@ let can_react (mol1 : Molecule.t) (opnet1 : t option) (mol2 : Molecule.t)
   | None, Some pnet2 -> can_grab mol1 pnet2
   | Some pnet1, Some pnet2 -> can_grab mol1 pnet2 || can_grab mol2 pnet1
 
+let count_copy_grabbed_ready (pnet : t) : int =
+  Array.fold_left
+    (fun count place ->
+      if Place.is_copy_grabbed_ready place then count + 1 else count)
+    0 pnet.places
+
+let launch_random_copy_grabbed randstate (p : t) : unit =
+  let ready =
+    CCArray.filter Place.is_copy_grabbed_ready p.places
+  in
+  if Array.length ready > 0 then
+    let place = Random_s.pick_from_array randstate ready in
+    Place.execute_copy_grabbed_step place
+
 let get_tokens (pnet : t) : Token.t list =
   Array.fold_left
     (fun res p -> match p.Place.token with None -> res | Some t -> t :: res)

@@ -153,6 +153,8 @@ Molecules are strings of atoms (A-F). They are parsed left-to-right into a list 
 | `ABA` | `<pattern>DDF` | Grab_ext | Place grabs matching molecules |
 | `ABB` | — | Release_ext | Place releases tokens externally |
 | `ABC` | — | Init_token_ext | Place starts with empty token |
+| `ABD` | — | Copy_grabbed_ext | Place with internal copy buffer for CopyGrabbed reaction |
+| `BAE` | `<id>DDF` | Copy_done_iarc | Fires when copy buffer complete; produces [template, copy] |
 | `EEE` | — | Stop_interpretation | Rest of molecule is inert |
 
 - Transition IDs: `max_group_length = 6`, lazy match `(.{1,6}?)`

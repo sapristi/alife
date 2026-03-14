@@ -32,6 +32,14 @@ Examples: `engine: stop eval loop when no reactions available`, `django: add exp
 - **One-shot gate pattern**: Place with ext_init_token consumed by first transition, refilled by T_DONE via factory split. Prevents Gillespie race conditions.
 - Builders: `build_simple_copier()` and `build_simple_r_copier()` in `django/build_copier.py`
 
+## Copy_grabbed design notes
+- **Copy_grabbed_ext** place extension: stores mutable `copy_buffer`, incremented by CopyGrabbed reactions
+- **CopyGrabbed reaction**: reads acid at cursor, appends to buffer, advances cursor in-place (no token pop/push)
+- **Copy_done_iarc**: fires when cursor past end + buffer non-empty, produces [template, copy_buffer] tokens
+- **Rate**: `copy_grabbed_ready_nb` (count of places with ext + token + cursor not past end) × `copy_grabbed_rate`
+- Builders: `build_copy_grabbed_copier()` in `django/build_copier.py`
+- Molecule encoding: `ABD` = Copy_grabbed_ext (no params), `BAE<tid>DDF` = Copy_done_iarc
+
 ## Known issues
 - "Ignoring add of bad molecule" warnings: empty strings from break reactions (harmless)
 - `yaac` binary in `django/` is a copy (not symlink), must be manually updated after engine rebuild
