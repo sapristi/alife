@@ -2,6 +2,10 @@
 
 Ideas, remarks, and open questions to address in future development.
 
+## Background: the heritable variation gap (resolved)
+
+Copier v4 achieved self-replication but not Darwinian evolution. The problem: mutations happen to copiers (phenotype) but copiers replicate via templates (genotype). A mutant copier has no corresponding template, so it can't reproduce. Two pathways resolved this: (1) template-level mutations via breaks inside the body (position >5) producing truncated but grabbable templates, and (2) Copy_iarc (v5) enabling direct acid-by-acid replication, confirmed as Darwinian in exp 71.
+
 ## Copying mechanism: from Copy_iarc to copy_grabbed
 
 ### Current state: Copy_iarc
@@ -9,13 +13,23 @@ Ideas, remarks, and open questions to address in future development.
 Copy_iarc is an input arc type that reads the acid at cursor and materializes a new single-acid token from nothing (`Token.make acid_char 1`). It enables Copier v5, which achieved Darwinian evolution (exp 71). But it has two problems:
 
 1. **Physical incoherence:** creates matter without consuming any resource.
-2. **Large copiers:** the full copy loop (grab acid, merge into accumulator, advance cursor) requires many transitions, yielding copiers of ~137-331 chars with a sharp fitness landscape.
+2. **Large copiers:** the full copy loop (grab acid, merge into accumulator, advance cursor) requires many transitions, yielding copiers of ~137-331 chars with a sharp fitness landscape. The fitness landscape is a sharp spike — all neighbors are dead.
 
-### Proposed: copy_grabbed extension
+### Why modular degradation doesn't work
 
-A place extension that atomically performs in one transition firing: read acid at cursor → grab matching acid from ambient → merge into accumulator → advance cursor. Shrinks copiers from ~137-331 to ~50-80 chars, flattening the fitness landscape.
+We explored adding skip transitions (guarded by `ia_no_token` on acid grab places) so copiers missing a module skip that acid instead of getting stuck. **Problem:** when a module's place is broken off, its input arc is also removed from the transition. The transition fires with fewer tokens than expected, but the merge output still needs the full count. The engine hits `| _ -> []`, the accumulator token is consumed but not returned, and the entire copy is destroyed. This is fundamental to the current Petri net model.
 
-See `docs/next-steps-evolution.md` for full design and rationale.
+### Implemented: copy_grabbed extension
+
+> **Status (2026-03-14):** Implemented in engine (commit `a0bb48e`). Ambient consumption not yet wired up.
+
+A place extension that atomically performs: read acid at cursor → append to internal buffer → advance cursor. One CopyGrabbed reaction per acid copied. Shrinks copiers from ~137-331 to ~50-80 chars.
+
+**Why this enables evolution:**
+1. **Smooth fitness landscape**: break products from a 50-char copier retain functionality far more often than from a 400-char copier.
+2. **Smaller templates**: DAEEE + 50 chars = 55 chars instead of 605. Template-level breaks more likely to produce functional variants.
+3. **Heritable variation becomes likely**: template breaks produce truncated but potentially functional copier variants.
+4. **Template creation via collision becomes feasible**: shorter molecules mean DAEEE fragments colliding with short copiers produce valid templates more often.
 
 ### Ambient-consumption semantics (applies to both)
 
